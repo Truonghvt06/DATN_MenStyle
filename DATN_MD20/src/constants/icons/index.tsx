@@ -1,0 +1,68 @@
+export enum IconSRC {
+  icon_check = require('../../assets/images/check1.png'),
+  icon_uncheck = require('../../assets/images/un_check1.png'),
+  icon_cart = require('../../assets/images/shopping-cart.png'),
+  icon_back_left = require('../../assets/images/arrow_left.png'),
+  icon_back_right = require('../../assets/images/angle-right.png'),
+  icon_down = require('../../assets/images/angle-down.png'),
+  icon_up = require('../../assets/images/angle-up.png'),
+  icon_eye = require('../../assets/images/eye.png'),
+  icon_eye_off = require('../../assets/images/filled.png'),
+  icon_notification = require('../../assets/images/notification.png'),
+  icon_dot_tick = require('../../assets/images/dot.png'),
+  icon_undot_tick = require('../../assets/images/un_dot.png'),
+  icon_lock = require('../../assets/images/lock.png'),
+  icon_share = require('../../assets/images/share.png'),
+  icon_delete = require('../../assets/images/delete.png'),
+  icon_edit = require('../../assets/images/edit_alt.png'),
+  icon_user = require('../../assets/images/profile.png'),
+  icon_search = require('../../assets/images/icon_search.png'),
+  icon_polo = require('../../assets/images/polo.png'),
+  icon_t_shirt = require('../../assets/images/t-shirt.png'),
+  icon_shirt = require('../../assets/images/shirt.png'),
+  icon_thethao = require('../../assets/images/the_thao.png'),
+  icon_khoac = require('../../assets/images/khoac.png'),
+  icon_hoodie = require('../../assets/images/hoodie.png'),
+  icon_star = require('../../assets/images/star.png'),
+  icon_unstar = require('../../assets/images/unstar.png'),
+  icon_favorite = require('../../assets/images/love.png'),
+  icon_unfavorite = require('../../assets/images/heart.png'),
+  icon_order = require('../../assets/images/order.png'),
+  icon_voucher = require('../../assets/images/voucher.png'),
+  icon_language = require('../../assets/images/language.png'),
+  icon_theme = require('../../assets/images/theme.png'),
+  icon_terms = require('../../assets/images/terms.png'),
+  icon_address = require('../../assets/images/location.png'),
+  icon_policy = require('../../assets/images/policy.png'),
+  icon_contact = require('../../assets/images/contact.png'),
+  icon_email = require('../../assets/images/email.png'),
+  icon_menu = require('../../assets/images/menu.png'),
+  icon_logout = require('../../assets/images/logout.png'),
+}
+
+export enum IconBottomTab {
+  icon_home = require('../../assets/images/home.png'),
+  icon_search = require('../../assets/images/search.png'),
+  icon_cart = require('../../assets/images/shopping-cart.png'),
+  icon_user = require('../../assets/images/profile.png'),
+  icon_favorite = require('../../assets/images/category.png'),
+  icon_category = require('../../assets/images/love.png'),
+}
+
+export enum IconFlag {
+  icon_vn = require('../../assets/images/flag_vn.png'),
+  icon_en = require('../../assets/images/flag_usa.png'),
+}
+
+export enum IconSupport {
+  icon_zalo = require('../../assets/images/zalo.png'),
+  icon_mess = require('../../assets/images/mess.png'),
+  icon_phone = require('../../assets/images/whatSapp.png'),
+}
+
+export enum ImgSRC {
+  img_login = require('../../assets/images/imglg.jpg'),
+  img_banner = require('../../assets/images/slide4.png'),
+  img_avatar = require('../../assets/images/avatar.jpg'),
+  img_pro = require('../../assets/images/img2.jpg'),
+}

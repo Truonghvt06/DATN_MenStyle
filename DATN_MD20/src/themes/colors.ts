@@ -1,0 +1,28 @@
+export const colors = {
+  black: '#000000',
+  black01: 'rgba(0, 0, 0, 0.1)',
+  black03: 'rgba(0, 0, 0, 0.3)',
+  black65: 'rgba(0, 0, 0, 0.55)',
+  green: '#009245',
+  green1: '#4CAF60',
+  green3: '#007537',
+  red: '#EF4444',
+  gray: '#8B8B8B',
+  gray1: '#C0C0C0',
+  gray3: '#ABABAB',
+  while: '#FFFFFF',
+  white10: 'rgba(255, 255, 255, 0.1)',
+  white30: 'rgba(255, 255, 255, 0.3)',
+  white40: 'rgba(255, 255, 255, 0.4)',
+  white50: 'rgba(255, 255, 255, 0.55)',
+  white65: 'rgba(255, 255, 255, 0.65)',
+  sky_blue: '#E5F6FD',
+  blue: '#F9FAFB',
+  blue1: '#2563EB',
+  blue2: '#FBBF24',
+
+  text: '#111827',
+  text1: '#6B7280',
+
+  btn: 'rgba(0, 0, 255, 0.8)',
+};

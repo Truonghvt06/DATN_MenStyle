@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Sửa sản phẩm</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px 40px;
+      background: #f9f9f9;
+      box-sizing: border-box;
+      min-height: 100vh;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 15px 40px;
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      margin-top: 20px;
+      margin-bottom: 15px;
+      font-size: 26px;
+    }
+
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      display: inline-block;
+      width: 100px;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      padding: 8px 10px;
+      width: calc(100% - 120px);
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .variant-block {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background: #fafafa;
+    }
+
+    .variant-block h4 {
+      margin-bottom: 10px;
+      color: #007BFF;
+    }
+
+    button {
+      background-color: #007BFF;
+      color: white;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 5px;
+      font-size: 15px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      text-decoration: none;
+      font-weight: bold;
+      color: #007BFF;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <header>MenStyle</header>
+
+  <h1>Sửa sản phẩm</h1>
+
+  <form action="/products/edit/<%= product._id %>" method="POST">
+    <label>Tên sản phẩm:</label>
+    <input type="text" name="name" value="<%= product.name %>" required><br>
+
+    <h3>Biến thể:</h3>
+    <% product.variants.forEach((v, index) => { %>
+      <div class="variant-block">
+        <h4>Biến thể <%= index + 1 %></h4>
+        <label>Size:</label>
+        <input type="text" name="variants[<%= index %>][size]" value="<%= v.size %>" required><br>
+        <label>Màu:</label>
+        <input type="text" name="variants[<%= index %>][color]" value="<%= v.color %>" required><br>
+        <label>Giá:</label>
+        <input type="number" name="variants[<%= index %>][price]" value="<%= v.price %>" required><br>
+        <label>Số lượng:</label>
+        <input type="number" name="variants[<%= index %>][quantity]" value="<%= v.quantity %>" required><br>
+        <label>Ảnh:</label>
+        <input type="text" name="variants[<%= index %>][image]" value="<%= v.image %>"><br>
+      </div>
+    <% }) %>
+
+    <button type="submit">Cập nhật</button>
+  </form>
+
+  <a class="back-link" href="/products/view">← Quay lại danh sách</a>
+</body>
+
+</html>

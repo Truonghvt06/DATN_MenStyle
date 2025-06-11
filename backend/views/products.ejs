@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Danh sách sản phẩm ngắn gọn</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px 40px;
+            background: #f9f9f9;
+            box-sizing: border-box;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 15px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            margin-top: 20px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        /* Khung chứa tiêu đề + nút */
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        /* Nút thêm */
+        .btn-add {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 5px;
+            font-size: 15px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-add:hover {
+            background-color: #218838;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #007BFF;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        tr:hover {
+            background: #f1f1f1;
+        }
+
+        a {
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        img {
+            border-radius: 4px;
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            display: block;
+        }
+
+        td > div {
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <header>MenStyle</header>
+
+    <div class="header-actions">
+        <h1>Danh sách sản phẩm</h1>
+        <a href="/products/add" class="btn-add">+ Thêm sản phẩm</a>
+
+    </div>
+
+    <table>
+        <thead>
+          <tr>
+            <th>Ảnh</th>
+            <th>Tên sản phẩm</th>
+            <th>Loại</th>
+            <th>Mô tả</th>
+            <th>Giá</th>
+            <th>Biến thể tiêu biểu</th>
+            <th>Tổng số lượng</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% products.forEach(product => {
+            const firstVariant = product.variants[0] || {};
+            const totalQty = product.variants.reduce((sum, v) => sum + (v.quantity || 0), 0);
+          %>
+            <tr>
+              <td>
+                <% if (firstVariant.image) { %>
+                  <img src="<%= firstVariant.image %>" alt="<%= product.name %>" />
+                <% } else { %>
+                  <span>Chưa có ảnh</span>
+                <% } %>
+              </td>
+              <td><%= product.name %></td>
+              <td><%= product.type %></td>
+              <td><%= product.description %></td>
+              <td><%= product.price != null ? Number(product.price).toLocaleString() : 'N/A' %> VNĐ</td>
+              <td>
+                <% product.variants.forEach(v => { %>
+                  <div>
+                    Size: <%= v.size %>, Màu: <%= v.color %>
+                  </div>
+                <% }) %>
+              </td>
+              <td><%= totalQty %></td>
+              <td>
+                <a href="/products/edit/<%= product._id %>">Sửa</a> |
+                <a href="/products/delete/<%= product._id %>" onclick="return confirm('Bạn có chắc muốn xóa?');">Xóa</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      
+</body>
+
+</html>

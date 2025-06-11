@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Thêm sản phẩm</title>
+  <style>
+    /* Đồng bộ từ file trên */
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px 40px; background: #f9f9f9; min-height: 100vh; }
+    header { background-color: #333; color: #fff; padding: 15px 40px; font-size: 24px; font-weight: bold; letter-spacing: 1.5px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+
+    h1 { margin-top: 20px; margin-bottom: 15px; font-size: 22px; }
+    label { display: block; margin-top: 10px; margin-bottom: 5px; font-weight: bold; }
+    input { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
+
+    .variant { background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .variant h3 { margin-top: 0; color: #007BFF; }
+
+    .btn { background: #28a745; color: #fff; padding: 10px 18px; border: none; border-radius: 5px; font-size: 15px; font-weight: 600; cursor: pointer; margin-right: 10px; }
+    .btn:hover { background: #218838; }
+  </style>
+</head>
+<body>
+  <header>MenStyle</header>
+
+  <h1>Thêm sản phẩm mới</h1>
+
+  <form action="/products/add" method="POST">
+    <label for="name">Tên sản phẩm</label>
+    <input type="text" name="name" id="name" required>
+  
+    <label for="type">Loại sản phẩm</label>
+    <input type="text" name="type" id="type" required>
+  
+    <label for="description">Mô tả sản phẩm</label>
+    <input type="text" name="description" id="description" required>
+  
+    <label for="price">Giá sản phẩm</label>
+    <input type="number" name="price" id="price" required>
+  
+    <div id="variants">
+      <div class="variant">
+        <h3>Biến thể 1</h3>
+        <label>Size</label>
+        <input type="text" name="variants[0][size]" required>
+        <label>Màu</label>
+        <input type="text" name="variants[0][color]" required>
+        <label>Số lượng</label>
+        <input type="number" name="variants[0][quantity]" required>
+        <label>Ảnh</label>
+        <input type="text" name="variants[0][image]">
+      </div>
+    </div>
+  
+    <button type="button" class="btn" onclick="addVariant()">+ Thêm biến thể</button>
+    <button type="submit" class="btn">Lưu sản phẩm</button>
+  </form>
+  
+
+  <script>
+    let count = 1;
+    function addVariant() {
+      const div = document.createElement('div');
+      div.className = 'variant';
+      div.innerHTML = `
+        <h3>Biến thể ${count + 1}</h3>
+        <label>Size</label>
+        <input type="text" name="variants[${count}][size]" required>
+        <label>Màu</label>
+        <input type="text" name="variants[${count}][color]" required>
+        <label>Giá</label>
+        <input type="number" name="variants[${count}][price]" required>
+        <label>Số lượng</label>
+        <input type="number" name="variants[${count}][quantity]" required>
+        <label>Ảnh</label>
+        <input type="text" name="variants[${count}][image]">
+      `;
+      document.getElementById('variants').appendChild(div);
+      count++;
+    }
+  </script>
+</body>
+</html>
