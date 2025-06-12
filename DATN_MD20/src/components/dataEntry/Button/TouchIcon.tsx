@@ -22,7 +22,7 @@ interface Props {
   colorTitle?: string;
 
   onPress?: () => void;
-  containerStyle?: ViewStyle;
+  containerStyle?: ViewStyle | any;
   imageStyle?: ImageStyle;
   // title?: string
 }
@@ -32,7 +32,7 @@ const TouchIcon = (props: Props) => {
     <TouchableOpacity
       activeOpacity={0.9}
       onPress={props.onPress}
-      style={props.containerStyle}
+      style={[props.containerStyle]}
       {...props}>
       {props.title && (
         <TextSizeCustom size={sizeText} color={props.colorTitle} medium>

@@ -24,10 +24,13 @@ import {
   TextSmall,
 } from '../../../components/dataEntry/TextBase';
 import {colors} from '../../../themes/colors';
-import {AirbnbRating, Rating} from 'react-native-ratings';
 import {dataProduct} from '../../../constants/data';
 import TouchIcon from '../../../components/dataEntry/Button/TouchIcon';
 import ReviewItem from '../../../components/dataDisplay/ReviewItem';
+import {useRoute} from '@react-navigation/native';
+import ButtonBase from '../../../components/dataEntry/Button/ButtonBase';
+import ModalBottom from '../../../components/dataDisplay/Modal/ModalBottom';
+import AddCart from './AddCart';
 
 const dataSize = [
   {id: 12, size: 'S'},
@@ -37,8 +40,16 @@ const dataSize = [
 ];
 const ProductDetail = () => {
   const {top} = useSafeAreaInsets();
+  const route = useRoute();
+  const {product}: any = route.params;
+
   const [proData, setProData] = useState<any>(dataProduct);
   const [showDescription, setShowDescription] = useState(false);
+  const [selectedSize, setSelectedSize] = useState(product.size[0]);
+  const [selectedColor, setSelectedColor] = useState(product.colors[0]);
+  const [quantity, setQuantity] = useState('1');
+
+  const [openModal, setOpenModal] = useState(false);
 
   const handleFavorite = () => {
     setProData((prev: any) => ({...prev, favorite: !prev.favorite}));
@@ -47,7 +58,7 @@ const ProductDetail = () => {
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ContainerView>
         <Header
-          label="Sản phẩm"
+          label=" chi tiết Sản phẩm"
           paddingTop={top}
           onPressLeft={() => navigation.resetToHome(ScreenName.Main.BottonTab)}
         />
@@ -76,7 +87,7 @@ const ProductDetail = () => {
               Sản Phẩm 1 Sản Phẩm 1 Sản Phẩm 1 Sản Phẩm 1
             </TextMedium>
             <TextHeight bold color={colors.red}>
-              200.000đ
+              {product.price}đ
             </TextHeight>
             <Block row alignCT justifyBW marR={20} marV={10}>
               <Block row alignCT>
@@ -94,35 +105,49 @@ const ProductDetail = () => {
             <Block row>
               <TouchIcon containerStyle={styles.color} />
             </Block> */}
-            <TextMedium bold style={styles.boW}>
+            {/* <TextMedium bold style={styles.boW}>
               Kích thước
             </TextMedium>
             <View style={{flexDirection: 'row'}}>
-              {dataSize.map((item, index) => {
+              {product.size.map((size: string, index: number) => {
                 return (
                   <TouchIcon
                     key={index}
-                    colorTitle={colors.black}
-                    title={item.size}
-                    containerStyle={styles.size}
-                    onPress={() => {}}
+                    colorTitle={
+                      selectedSize === size ? colors.while : colors.black
+                    }
+                    title={size}
+                    containerStyle={[
+                      styles.size,
+                      {
+                        backgroundColor:
+                          selectedSize === size ? colors.blue1 : colors.gray1,
+                      },
+                    ]}
+                    onPress={() => {
+                      setSelectedSize(size);
+                    }}
                   />
                 );
               })}
-            </View>
+            </View> */}
             <>
-              <TextMedium bold style={styles.boW}>
+              <TextMedium
+                bold
+                style={{
+                  borderTopWidth: 0.3,
+                  borderColor: colors.gray3,
+                  paddingVertical: 7,
+                }}>
                 Mô tả sản phẩm
               </TextMedium>
               <Block>
-                <TextSmall numberOfLines={showDescription ? undefined : 3}>
+                <TextSmall numberOfLines={showDescription ? undefined : 5}>
+                  {product.description}
                   Áo được thiết kế với chất liệu cao cấp, thoáng mát và thấm hút
                   mồ hôi tốt. Form dáng hiện đại, phù hợp với nhiều dáng người.
                   Dễ dàng phối đồ trong nhiều hoàn cảnh khác nhau từ đi làm đến
-                  dạo phố. Áo được thiết kế với chất liệu cao cấp, thoáng mát và
-                  thấm hút mồ hôi tốt. Form dáng hiện đại, phù hợp với nhiều
-                  dáng người. Dễ dàng phối đồ trong nhiều hoàn cảnh khác nhau từ
-                  đi làm đến dạo phố.
+                  dạo phố.
                 </TextSmall>
 
                 <TouchIcon
@@ -163,19 +188,91 @@ const ProductDetail = () => {
                   />
                 );
               })}
-              {/* <ReviewItem
-                star={4}
-                name="Nguyen Van A"
-                review="Sản phẩm chất lượng tốt, vải mềm mại và thoáng mát. Rất hài lòng với lần mua hàng này."
-              />
-              <ReviewItem
-                star={5}
-                name="Nguyen Van A"
-                review="Sản phẩm chất lượng tốt, vải mềm mại và thoáng mát. Rất hài lòng với lần mua hàng này."
-              /> */}
             </>
           </Block>
         </ScrollView>
+        <ButtonBase
+          title="Thêm vào giỏ hàng"
+          containerStyle={styles.btnCart}
+          onPress={() => {
+            setOpenModal(!openModal);
+          }}
+        />
+        <ModalBottom
+          visible={openModal}
+          animationType="fade"
+          heightModal={metrics.diviceHeight * 0.6}
+          onClose={() => {
+            setOpenModal(false);
+          }}
+          children={
+            <AddCart
+              image={product.image}
+              price={product.price}
+              quantity_kho={product.quantity_kho}
+              onColse={() => setOpenModal(false)}
+              value={quantity}
+              onChangeText={text => setQuantity(text)}
+              onPress={() => {}}
+              size={
+                <>
+                  <TextSmall style={styles.boW}>Kích thước</TextSmall>
+                  <View style={{flexDirection: 'row'}}>
+                    {product.size.map((size: string, index: number) => {
+                      return (
+                        <TouchIcon
+                          key={index}
+                          colorTitle={
+                            selectedSize === size ? colors.while : colors.black
+                          }
+                          title={size}
+                          containerStyle={[
+                            styles.size,
+                            {
+                              backgroundColor:
+                                selectedSize === size
+                                  ? colors.blue1
+                                  : colors.while,
+                            },
+                          ]}
+                          onPress={() => {
+                            setSelectedSize(size);
+                          }}
+                        />
+                      );
+                    })}
+                  </View>
+                </>
+              }
+              color={
+                <>
+                  <TextSmall style={{marginTop: 7}}>Màu sắc</TextSmall>
+                  <View style={{flexDirection: 'row'}}>
+                    {product.colors.map((color: string, index: number) => {
+                      return (
+                        <TouchableOpacity
+                          onPress={() => setSelectedColor(color)}
+                          key={index}
+                          style={[
+                            styles.color,
+                            {
+                              borderWidth: selectedColor === color ? 2.5 : 0,
+                              borderColor:
+                                selectedColor === color ? colors.blue1 : color,
+                            },
+                          ]}>
+                          <View
+                            style={[styles.colorView, {backgroundColor: color}]}
+                          />
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </>
+              }
+            />
+          }
+        />
       </ContainerView>
     </TouchableWithoutFeedback>
   );
@@ -185,6 +282,11 @@ export default ProductDetail;
 
 const styles = StyleSheet.create({
   container: {},
+  btnCart: {
+    marginBottom: 30,
+    marginTop: 7,
+    marginHorizontal: metrics.space * 2,
+  },
   img: {
     width: metrics.diviceScreenWidth,
     height: 300,
@@ -203,26 +305,37 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   size: {
-    backgroundColor: colors.gray1,
     width: 50,
     height: 35,
     borderRadius: 7,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 7,
-    marginBottom: 20,
+    marginBottom: 15,
+  },
+  color: {
+    overflow: 'hidden',
+    borderRadius: 70,
+    marginRight: 8,
+    marginBottom: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  colorView: {
+    width: 35,
+    height: 35,
+    borderRadius: 30,
+    margin: 2,
   },
   btnSee: {
     flexDirection: 'row',
-    // borderBottomWidth: 0.5,
-    // borderColor: colors.gray1,
     paddingVertical: 4,
     alignItems: 'center',
     justifyContent: 'flex-end',
   },
   boW: {
-    borderTopWidth: 0.5,
-    borderColor: colors.gray1,
+    borderTopWidth: 0.3,
+    borderColor: colors.while,
     paddingVertical: 7,
   },
 });

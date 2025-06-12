@@ -41,8 +41,8 @@ const HomeScreen = () => {
   const handleNotification = () => {
     // navigation.resetToHome(ScreenName.Main.Notifications);
   };
-  const handleProDetail = () => {
-    navigation.resetToHome(ScreenName.Main.ProductDetail);
+  const handleProDetail = (item: any) => {
+    navigation.resetToHome(ScreenName.Main.ProductDetail, {product: item});
   };
 
   const handleFavorite = (id: number) => {
@@ -156,7 +156,7 @@ const HomeScreen = () => {
             <TouchableOpacity
               activeOpacity={0.9}
               onPress={() => {
-                handleProDetail();
+                handleProDetail(item);
               }}>
               <Block containerStyle={styles.shadowWrap}>
                 <Block containerStyle={[styles.btn]}>

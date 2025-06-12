@@ -38,6 +38,7 @@ export enum IconSRC {
   icon_email = require('../../assets/images/email.png'),
   icon_menu = require('../../assets/images/menu.png'),
   icon_logout = require('../../assets/images/logout.png'),
+  icon_close = require('../../assets/images/close.png'),
 }
 
 export enum IconBottomTab {

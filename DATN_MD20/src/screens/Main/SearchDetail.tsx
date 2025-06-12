@@ -16,7 +16,7 @@ const SearchDetail = () => {
         label="Đổi mật khẩu"
         paddingTop={top}
         onPressLeft={() => {
-          navigation.goBackMain(ScreenName.Main.Search);
+          navigation.goBackMain(ScreenName.Main.BottonTab);
           //   navigation.goBack();
         }}
       />
