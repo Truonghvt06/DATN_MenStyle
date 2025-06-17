@@ -170,3 +170,21 @@ export const dataProduct = [
       'You are generating images too quickly. To ensure the best experience for everyone, we have rate limits in place. Please wait for an hour before generating more images.',
   },
 ];
+export const notifications = [
+  {
+    id: '1',
+    title: '🧾 Đơn hàng mới',
+    content: 'Khách hàng A vừa đặt đơn hàng #123',
+    type: 'order',
+    time: '2025-06-17 21:30',
+    read: false,
+  },
+  {
+    id: '2',
+    title: '🎁 Voucher mới',
+    content: 'Voucher MEN2025 giảm 25% đã được cập nhật!',
+    type: 'voucher',
+    time: '2025-06-17 20:00',
+    read: false,
+  },
+];

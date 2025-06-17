@@ -39,7 +39,7 @@ const HomeScreen = () => {
     navigation.resetToHome(ScreenName.Main.SearchDetail);
   };
   const handleNotification = () => {
-    // navigation.resetToHome(ScreenName.Main.Notifications);
+    navigation.resetToHome(ScreenName.Main.Notifications);
   };
   const handleProDetail = (item: any) => {
     navigation.resetToHome(ScreenName.Main.ProductDetail, {product: item});
