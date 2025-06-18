@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Chi tiết sản phẩm - <%= product.name || 'Sản phẩm' %></title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px 40px;
+      background: #f9f9f9;
+      box-sizing: border-box;
+      min-height: 100vh;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 15px 40px;
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    .info {
+      background: white;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .info p {
+      font-size: 16px;
+      margin: 10px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px 15px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #007BFF;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    tr:hover {
+      background: #f1f1f1;
+    }
+
+    img {
+      border-radius: 4px;
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 20px;
+      color: #007BFF;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <header>MenStyle</header>
+
+  <h1>Chi tiết sản phẩm</h1>
+
+  <div class="info">
+    <p><strong>Tên sản phẩm:</strong> <%= product.name || 'N/A' %></p>
+    <p><strong>Loại:</strong> <%= product.type || 'N/A' %></p>
+    <p><strong>Mô tả:</strong> <%= product.description || 'N/A' %></p>
+    <p><strong>Giá:</strong> <%= product.price != null ? Number(product.price).toLocaleString() : 'N/A' %> VNĐ</p>
+    <p><strong>Đánh giá trung bình:</strong> <%= product.rating_avg ?? 'Chưa có' %></p>
+    <p><strong>Đã bán:</strong> <%= product.sold_count ?? 0 %></p>
+  </div>
+
+  <h2>Danh sách biến thể</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Ảnh</th>
+        <th>Size</th>
+        <th>Màu</th>
+        <th>Số lượng</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (product.variants && product.variants.length > 0) { %>
+        <% product.variants.forEach(v => { %>
+          <tr>
+            <td>
+              <% if (v.image) { %>
+                <img src="<%= v.image %>" alt="Ảnh biến thể" />
+              <% } else { %>
+                <span>Không có ảnh</span>
+              <% } %>
+            </td>
+            <td><%= v.size || 'N/A' %></td>
+            <td><%= v.color || 'N/A' %></td>
+            <td><%= v.quantity || 0 %></td>
+          </tr>
+        <% }) %>
+      <% } else { %>
+        <tr><td colspan="4">Không có biến thể</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+
+  <a href="/products/view">← Quay lại danh sách sản phẩm</a>
+</body>
+</html>
