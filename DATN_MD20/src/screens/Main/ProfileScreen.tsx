@@ -9,6 +9,8 @@ import {TextHeight, TextSizeCustom} from '../../components/dataEntry/TextBase';
 import ButtonOption from '../../components/dataEntry/Button/BottonOption';
 import {colors} from '../../themes/colors';
 import ButtonBase from '../../components/dataEntry/Button/ButtonBase';
+import navigation from '../../navigation/navigation';
+import ScreenName from '../../navigation/ScreenName';
 
 const ProfileScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -131,15 +133,27 @@ const ProfileScreen = () => {
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
         />
         <ButtonBase
-          title="đăng xuất"
+          title="Đăng xuất"
           containerStyle={styles.btnLogout}
           size={14}
           icon={IconSRC.icon_logout}
           colorIcon={colors.while}
           onPress={() => {
-            Alert.alert('Thông báo', 'Đăng xuất thành công');
+            Alert.alert(
+              'Đăng xuất',
+              'Bạn có chắc chắn muốn đăng xuất?',
+              [
+                { text: 'Huỷ', style: 'cancel' },
+                {
+                  text: 'Đồng ý',
+                  onPress: () => navigation.resetToAuth(ScreenName.Auth.Login),
+                },
+              ],
+              { cancelable: true }
+            );
           }}
         />
+
       </ScrollView>
     </ContainerView>
   );
