@@ -8,7 +8,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import LayoutImage from '../../components/layout/LayoutImage';
 import Block from '../../components/layout/Block';
 import {
@@ -16,13 +16,15 @@ import {
   TextSizeCustom,
   TextSmall,
 } from '../../components/dataEntry/TextBase';
-import {colors} from '../../themes/colors';
+import { colors } from '../../themes/colors';
 import InputBase from '../../components/dataEntry/Input/InputBase';
 import metrics from '../../constants/metrics';
-import {IconSRC} from '../../constants/icons';
+import { IconSRC } from '../../constants/icons';
 import ButtonBase from '../../components/dataEntry/Button/ButtonBase';
 import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
+import { auth } from '../../services/firebase'; // ✅ THÊM
+console.log('auth', auth); // ✅ THÊM
 
 interface IEroror {
   name?: string;
@@ -65,18 +67,37 @@ const RegisterScreen = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  const handleRegister = () => {
+
+  const handleRegister = async () => {
     if (!vallidateInputs()) return;
-    navigation.navigate(ScreenName.Auth.Login);
+
+    try {
+      const userCredential = await auth().createUserWithEmailAndPassword(email, password);
+      await userCredential.user.updateProfile({ displayName: name });
+      console.log('Đăng ký thành công:', userCredential.user.email);
+      navigation.navigate(ScreenName.Auth.Login);
+    } catch (error: any) {
+      console.log('Đăng ký lỗi:', error);
+      if (error.code === 'auth/email-already-in-use') {
+        setErrors({ ...errors, email: 'Email đã tồn tại!' });
+      } else if (error.code === 'auth/invalid-email') {
+        setErrors({ ...errors, email: 'Email không hợp lệ!' });
+      } else if (error.code === 'auth/weak-password') {
+        setErrors({ ...errors, password: 'Mật khẩu quá yếu!' });
+      } else {
+        setErrors({ ...errors, email: 'Đăng ký thất bại, thử lại sau!' });
+      }
+    }
   };
 
   const handleLogin = () => {
     navigation.navigate(ScreenName.Auth.Login);
   };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{flex: 1}}>
+      style={{ flex: 1 }}>
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <LayoutImage>
           <Block flex1 middle>
@@ -90,10 +111,10 @@ const RegisterScreen = () => {
                   size={30}
                   bold
                   color={'white'}
-                  style={{textAlign: 'center'}}>
+                  style={{ textAlign: 'center' }}>
                   Đăng ký
                 </TextSizeCustom>
-                <TextSmall color={colors.while} style={{textAlign: 'center'}}>
+                <TextSmall color={colors.while} style={{ textAlign: 'center' }}>
                   MenStyle - Đẳng cấp là mãi mãi!
                 </TextSmall>
 
@@ -103,71 +124,73 @@ const RegisterScreen = () => {
                   value={name}
                   onChangeText={(text: string) => {
                     setName(text);
-                    setErrors({...errors, name: ''});
+                    setErrors({ ...errors, name: '' });
                   }}
                   isFocused={focusedInput === 'name'}
                   onFocus={() => setFocusedInput('name')}
                   onBlur={() => setFocusedInput(null)}
-                  inputStyle={{color: colors.while}}
+                  inputStyle={{ color: colors.while }}
                 />
-
                 {errors.name && (
                   <TextSizeCustom
                     size={12}
                     color={colors.red}
-                    style={{marginTop: 3}}>
+                    style={{ marginTop: 3 }}>
                     {errors.name}
                   </TextSizeCustom>
                 )}
+
                 <InputBase
                   placeholder="Email"
                   value={email}
                   onChangeText={(text: string) => {
                     setEmail(text);
-                    setErrors({...errors, email: ''});
+                    setErrors({ ...errors, email: '' });
                   }}
                   isFocused={focusedInput === 'email'}
                   onFocus={() => setFocusedInput('email')}
                   onBlur={() => setFocusedInput(null)}
-                  containerStyle={{marginTop: 10}}
-                  inputStyle={{color: colors.while}}
+                  containerStyle={{ marginTop: 10 }}
+                  inputStyle={{ color: colors.while }}
                 />
                 {errors.email && (
                   <TextSizeCustom
                     size={12}
                     color={colors.red}
-                    style={{marginTop: 3}}>
+                    style={{ marginTop: 3 }}>
                     {errors.email}
                   </TextSizeCustom>
                 )}
+
                 <InputBase
                   placeholder="Số điện thoại"
                   value={phone}
                   keyboardType="numeric"
                   onChangeText={(text: string) => {
                     setPhone(text);
-                    setErrors({...errors, phone: ''});
+                    setErrors({ ...errors, phone: '' });
                   }}
                   isFocused={focusedInput === 'phone'}
                   onFocus={() => setFocusedInput('phone')}
                   onBlur={() => setFocusedInput(null)}
-                  containerStyle={{marginTop: 10}}
-                  inputStyle={{color: colors.while}}
+                  containerStyle={{ marginTop: 10 }}
+                  inputStyle={{ color: colors.while }}
                 />
                 {errors.phone && (
                   <TextSizeCustom
                     size={12}
                     color={colors.red}
-                    style={{marginTop: 3}}>
+                    style={{ marginTop: 3 }}>
                     {errors.phone}
                   </TextSizeCustom>
                 )}
+
                 <InputBase
                   placeholder="Mật khẩu"
                   value={password}
                   onChangeText={(text: string) => {
                     setPassword(text);
-                    setErrors({...errors, password: ''});
+                    setErrors({ ...errors, password: '' });
                   }}
                   isFocused={focusedInput === 'password'}
                   onFocus={() => setFocusedInput('password')}
@@ -177,34 +200,29 @@ const RegisterScreen = () => {
                   imageName={showPass ? IconSRC.icon_eye : IconSRC.icon_eye_off}
                   iconColor={colors.black65}
                   onPressRight={() => setShowPass(!showPass)}
-                  containerStyle={{marginTop: 10}}
-                  inputStyle={{color: colors.while}}
+                  containerStyle={{ marginTop: 10 }}
+                  inputStyle={{ color: colors.while }}
                 />
                 {errors.password && (
                   <TextSizeCustom
                     size={12}
                     color={colors.red}
-                    style={{marginTop: 3}}>
+                    style={{ marginTop: 3 }}>
                     {errors.password}
                   </TextSizeCustom>
                 )}
 
                 <ButtonBase
                   title="Đăng ký"
-                  containerStyle={{marginVertical: 40}}
-                  onPress={() => {
-                    handleRegister();
-                  }}
+                  containerStyle={{ marginVertical: 40 }}
+                  onPress={handleRegister}
                 />
               </Block>
               <Block row middle>
                 <TextSmall color={colors.while}>
                   Bạn đã có tài khoản?{' '}
                 </TextSmall>
-                <TouchableOpacity
-                  onPress={() => {
-                    handleLogin();
-                  }}>
+                <TouchableOpacity onPress={handleLogin}>
                   <TextSmall color={colors.green} bold>
                     Đăng nhập
                   </TextSmall>
