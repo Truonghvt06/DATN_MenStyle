@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "426523103203",
+    "project_id": "menstyleapp",
+    "storage_bucket": "menstyleapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:426523103203:android:b64be2523821adf98c1ad6",
+        "android_client_info": {
+          "package_name": "com.datn_md20"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAB8QyYph7DiBKPq8mqPgHKDwGADQMQCGU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
