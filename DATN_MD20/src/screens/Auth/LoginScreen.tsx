@@ -10,10 +10,10 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import LayoutImage from '../../components/layout/LayoutImage';
 import Block from '../../components/layout/Block';
-import { colors } from '../../themes/colors';
+import {colors} from '../../themes/colors';
 import {
   TextHeight,
   TextSizeCustom,
@@ -21,15 +21,15 @@ import {
 } from '../../components/dataEntry/TextBase';
 import InputBase from '../../components/dataEntry/Input/InputBase';
 import metrics from '../../constants/metrics';
-import { IconSRC } from '../../constants/icons';
+import {IconSRC} from '../../constants/icons';
 import ButtonBase from '../../components/dataEntry/Button/ButtonBase';
 import ScreenName from '../../navigation/ScreenName';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import navigation from '../../navigation/navigation';
 import MaskedView from '@react-native-masked-view/masked-view';
 import LinearGradient from 'react-native-linear-gradient';
-import { colorGradient } from '../../themes/theme_gradient';
-import { auth } from '../../services/firebase'; // ✅ thêm dòng này
+import {colorGradient} from '../../themes/theme_gradient';
+import {auth} from '../../services/firebase'; // ✅ thêm dòng này
 
 const LoginScreen = () => {
   const [email, setEmail] = useState<string>('');
@@ -39,11 +39,10 @@ const LoginScreen = () => {
   const [errorInp, setErrorInp] = useState('');
   const [showPass, setShowPass] = useState(false);
 
-
   const handleLogin = async () => {
     try {
       await auth().signInWithEmailAndPassword(email, password);
-      navigation.resetToHome(ScreenName.Main.BottonTab);
+      navigation.navigate(ScreenName.Main.MainStack);
     } catch (error: any) {
       console.log('Login error:', error);
       if (error.code === 'auth/user-not-found') {
@@ -56,7 +55,6 @@ const LoginScreen = () => {
         setErrorInp('Đăng nhập thất bại, thử lại sau!');
       }
     }
-
   };
 
   const handleRegister = () => {
@@ -68,9 +66,7 @@ const LoginScreen = () => {
   };
 
   return (
-
     <LayoutImage>
-
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <Block flex1 middle>
           <Block
@@ -87,12 +83,12 @@ const LoginScreen = () => {
                   bold
                   size={30}
                   color={colors.while}
-                  style={{ textAlign: 'center' }}>
+                  style={{textAlign: 'center'}}>
                   Chào mừng!
                 </TextSizeCustom>
                 <TextHeight
                   color={colors.while}
-                  style={{ textAlign: 'center', marginBottom: 30 }}>
+                  style={{textAlign: 'center', marginBottom: 30}}>
                   Đăng nhập tài khoản
                 </TextHeight>
 
@@ -106,7 +102,7 @@ const LoginScreen = () => {
                     setEmail(text);
                     setErrorInp('');
                   }}
-                  inputStyle={{ color: colors.while }}
+                  inputStyle={{color: colors.while}}
                 />
                 <InputBase
                   value={password}
@@ -115,7 +111,7 @@ const LoginScreen = () => {
                   isFocused={focusedInput === 'password'}
                   onFocus={() => setFocusedInput('password')}
                   onBlur={() => setFocusedInput(null)}
-                  containerStyle={{ marginTop: 10 }}
+                  containerStyle={{marginTop: 10}}
                   iconRight
                   imageName={showPass ? IconSRC.icon_eye : IconSRC.icon_eye_off}
                   iconColor={colors.black65}
@@ -124,22 +120,23 @@ const LoginScreen = () => {
                     setErrorInp('');
                   }}
                   onPressRight={() => setShowPass(!showPass)}
-                  inputStyle={{ color: colors.while }}
+                  inputStyle={{color: colors.while}}
                 />
                 {errorInp ? (
                   <TextSizeCustom
                     size={12}
                     color={colors.red}
-                    style={{ marginTop: 3 }}>
+                    style={{marginTop: 3}}>
                     {errorInp}
                   </TextSizeCustom>
                 ) : null}
 
                 <Block row centerBW marT={15} marB={40}>
                   <Block row alignCT>
-                    <TouchableOpacity onPress={() => setIsCheckBox(!isCheckBox)}>
+                    <TouchableOpacity
+                      onPress={() => setIsCheckBox(!isCheckBox)}>
                       <Image
-                        style={{ width: 16, height: 16 }}
+                        style={{width: 16, height: 16}}
                         source={
                           isCheckBox ? IconSRC.icon_check : IconSRC.icon_uncheck
                         }
@@ -148,7 +145,7 @@ const LoginScreen = () => {
                     <TextSizeCustom
                       size={13}
                       color={colors.while}
-                      style={{ marginLeft: 5 }}>
+                      style={{marginLeft: 5}}>
                       Nhớ tài khoản
                     </TextSizeCustom>
                   </Block>
@@ -175,7 +172,10 @@ const LoginScreen = () => {
 
                 <ButtonBase
                   title="Đăng nhập"
-                  onPress={handleLogin}
+                  onPress={() =>
+                    //  navigation.navigate(ScreenName.Main.MainStack)
+                    handleLogin()
+                  }
                 />
               </KeyboardAvoidingView>
             </Block>
@@ -191,13 +191,12 @@ const LoginScreen = () => {
                   Tạo tài khoản
                 </TextSmall>
 
-                <TouchableOpacity onPress={handleRegister}>
+                {/* <TouchableOpacity onPress={handleRegister}>
                   <TextSmall color={colors.green} bold>
                     Tạo tài khoản
                   </TextSmall>
-                </TouchableOpacity>
-              </Block>
-
+                </TouchableOpacity> */}
+              </TouchableOpacity>
             </Block>
           </Block>
         </Block>

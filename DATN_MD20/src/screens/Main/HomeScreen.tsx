@@ -39,7 +39,7 @@ const HomeScreen = () => {
     navigation.navigate(ScreenName.Main.SearchDetail);
   };
   const handleNotification = () => {
-    navigation.resetToHome(ScreenName.Main.Notifications);
+    navigation.navigate(ScreenName.Main.Notifications);
   };
   const handleProDetail = (item: any) => {
     navigation.navigate(ScreenName.Main.ProductDetail, {product: item});

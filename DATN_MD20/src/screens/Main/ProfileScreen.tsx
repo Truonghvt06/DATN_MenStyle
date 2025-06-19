@@ -137,23 +137,20 @@ const ProfileScreen = () => {
           icon={IconSRC.icon_logout}
           colorIcon={colors.while}
           onPress={() => {
-
             Alert.alert(
               'Đăng xuất',
               'Bạn có chắc chắn muốn đăng xuất?',
               [
-                { text: 'Huỷ', style: 'cancel' },
+                {text: 'Huỷ', style: 'cancel'},
                 {
                   text: 'Đồng ý',
-                  onPress: () => navigation.resetToAuth(ScreenName.Auth.Login),
+                  onPress: () => navigation.reset(ScreenName.Auth.AuthStack),
                 },
               ],
-              { cancelable: true }
+              {cancelable: true},
             );
-
           }}
         />
-
       </ScrollView>
     </ContainerView>
   );
