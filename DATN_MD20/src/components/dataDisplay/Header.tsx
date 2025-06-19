@@ -17,7 +17,7 @@ import navigation from '../../navigation/navigation';
 interface Props {
   label?: string;
   left?: React.ReactElement;
-  right?: React.ReactElement;
+  right?: React.ReactElement | any;
   paddingTop?: number;
   visibleLeft?: boolean;
   styleLeft?: ViewStyle;
@@ -42,37 +42,49 @@ const Header = (props: Props) => {
 
   return (
     <View
-      {...props}
       style={[
         {
           backgroundColor: colors.while,
           height: paddingTop + 50,
           width: metrics.diviceScreenWidth,
           paddingTop: paddingTop,
-          //   paddingBottom: metrics.space * 2,
+          paddingHorizontal: metrics.space,
+          // paddingBottom: metrics.space * 2,
           ...containerStyle,
         },
         styles.shadow,
       ]}>
-      <Block flex1 row justifyBW padH={7}>
-        {!visibleLeft && (
-          <TouchableOpacity
-            style={[styles.btnLeft, styleLeft]}
-            onPress={onPressLeft || navigation.goBack}>
-            <Image
-              style={[styles.image, {tintColor: iconColor || colors.while}]}
-              source={IconSRC.icon_back_left}
-            />
-          </TouchableOpacity>
+      <Block flex1 row justifyBW alignCT>
+        {!visibleLeft ? (
+          <View style={{flex: 1}}>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              style={[styles.btnLeft, styleLeft]}
+              onPress={onPressLeft || navigation.goBack}>
+              <Image
+                style={[styles.image, {tintColor: iconColor || colors.while}]}
+                source={IconSRC.icon_back_left}
+              />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <Text style={{flex: 1}}></Text>
         )}
         <TextSizeCustom
           bold
           size={22}
           color={colors.black}
-          style={{textTransform: 'capitalize', color: labelColor}}>
+          style={{
+            flex: 4,
+            textTransform: 'capitalize',
+            color: labelColor,
+            textAlign: 'center',
+          }}>
           {label}
         </TextSizeCustom>
-        {right ?? <Text style={{width: 40}}></Text>}
+        <View style={{flex: 1, alignItems: 'flex-end'}}>
+          {right ? right : <Text style={{flex: 1}}></Text>}
+        </View>
       </Block>
     </View>
   );

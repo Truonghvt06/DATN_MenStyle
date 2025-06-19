@@ -52,11 +52,9 @@ const CartScreen = () => {
         <Header
           visibleLeft
           label="Giỏ hàng"
-          paddingTop={top}
+          paddingTop={top - 10}
           containerStyle={{
-            alignItems: 'center',
-            paddingLeft: 40,
-            height: top + 45,
+            height: top + 35,
           }}
         />
         <FlatList

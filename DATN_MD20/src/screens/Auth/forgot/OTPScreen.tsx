@@ -34,49 +34,51 @@ const OTPScreen = () => {
     // }
   };
   return (
-    <TouchableWithoutFeedback
-      onPress={() => {
-        Keyboard.dismiss();
-      }}>
-      <ContainerView>
-        <Header label="Xác thực OTP" paddingTop={top} />
-        <Block alignCT padT={30}>
-          <TextSmall style={{textAlign: 'center'}}>
-            Mã OTP đã gửi về số điện thoại
-          </TextSmall>
-          <TextSmall style={{textAlign: 'center'}}>
-            Bạn cần nhập mã OTP để tiếp tục
-          </TextSmall>
-        </Block>
-        <Block flex1 pad={30} alignCT marT={30}>
-          <OTPTextInput
-            inputCount={6}
-            keyboardType="numeric"
-            offTintColor={colors.black03}
-            tintColor={colors.black}
-            autoFocus
-            handleTextChange={text => {
-              setOtpCode(text);
-              console.log('OTP:', text);
+    <ContainerView>
+      <Header label="Xác thực OTP" paddingTop={top - 10} />
+      <TouchableWithoutFeedback
+        onPress={() => {
+          Keyboard.dismiss();
+        }}>
+        <Block flex1>
+          <Block alignCT padT={30}>
+            <TextSmall style={{textAlign: 'center'}}>
+              Mã OTP đã gửi về số điện thoại
+            </TextSmall>
+            <TextSmall style={{textAlign: 'center'}}>
+              Bạn cần nhập mã OTP để tiếp tục
+            </TextSmall>
+          </Block>
+          <Block flex1 pad={30} alignCT marT={30}>
+            <OTPTextInput
+              inputCount={6}
+              keyboardType="numeric"
+              offTintColor={colors.black03}
+              tintColor={colors.black}
+              autoFocus
+              handleTextChange={text => {
+                setOtpCode(text);
+                console.log('OTP:', text);
+              }}
+            />
+
+            <TouchableOpacity onPress={() => {}}>
+              <TextMedium bold color={colors.green} style={styles.text}>
+                Gửi lại
+              </TextMedium>
+            </TouchableOpacity>
+          </Block>
+
+          <ButtonBase
+            title="Tiếp tục"
+            containerStyle={{marginBottom: 70, marginHorizontal: 20}}
+            onPress={() => {
+              handleNext();
             }}
           />
-
-          <TouchableOpacity onPress={() => {}}>
-            <TextMedium bold color={colors.green} style={styles.text}>
-              Gửi lại
-            </TextMedium>
-          </TouchableOpacity>
         </Block>
-
-        <ButtonBase
-          title="Tiếp tục"
-          containerStyle={{marginBottom: 70, marginHorizontal: 20}}
-          onPress={() => {
-            handleNext();
-          }}
-        />
-      </ContainerView>
-    </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
+    </ContainerView>
   );
 };
 

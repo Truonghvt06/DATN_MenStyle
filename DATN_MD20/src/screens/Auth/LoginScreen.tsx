@@ -3,6 +3,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -39,7 +40,7 @@ const LoginScreen = () => {
   const [showPass, setShowPass] = useState(false);
 
   const handleLogin = () => {
-    navigation.resetToHome(ScreenName.Main.BottonTab);
+    navigation.reset(ScreenName.Main.MainStack);
   };
   const handleRegister = () => {
     navigation.navigate(ScreenName.Auth.Register);
@@ -49,19 +50,19 @@ const LoginScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{flex: 1}}>
+    <LayoutImage>
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <LayoutImage>
-          <Block flex1 middle>
-            <Block
-              borderRadius={20}
-              width={'85%'}
-              height={500}
-              pad={metrics.space + 5}
-              backgroundColor={colors.black65}>
-              <Block flex1 justifyCT>
+        <Block flex1 middle>
+          <Block
+            borderRadius={20}
+            width={'85%'}
+            height={500}
+            pad={metrics.space + 5}
+            backgroundColor={colors.black65}>
+            <Block flex1 justifyCT>
+              <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={{flex: 1, justifyContent: 'center'}}>
                 <TextSizeCustom
                   bold
                   size={30}
@@ -173,25 +174,25 @@ const LoginScreen = () => {
                     handleLogin();
                   }}
                 />
-              </Block>
-              <Block row middle>
-                <TextSmall color={colors.while}>
-                  Bạn không có tài khoản?{' '}
+              </KeyboardAvoidingView>
+            </Block>
+            <Block row middle>
+              <TextSmall color={colors.while}>
+                Bạn không có tài khoản?{' '}
+              </TextSmall>
+              <TouchableOpacity
+                onPress={() => {
+                  handleRegister();
+                }}>
+                <TextSmall color={colors.green} bold>
+                  Tạo tài khoản
                 </TextSmall>
-                <TouchableOpacity
-                  onPress={() => {
-                    handleRegister();
-                  }}>
-                  <TextSmall color={colors.green} bold>
-                    Tạo tài khoản
-                  </TextSmall>
-                </TouchableOpacity>
-              </Block>
+              </TouchableOpacity>
             </Block>
           </Block>
-        </LayoutImage>
+        </Block>
       </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+    </LayoutImage>
   );
 };
 

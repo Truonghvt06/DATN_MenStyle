@@ -11,7 +11,8 @@ import NewPassScreen from '../screens/Auth/forgot/NewPassScreen';
 const Stack = createNativeStackNavigator();
 const AuthStack = () => {
   return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Navigator
+      screenOptions={{headerShown: false, gestureEnabled: false}}>
       <Stack.Screen name={ScreenName.Auth.Login} component={LoginScreen} />
       <Stack.Screen
         name={ScreenName.Auth.Register}

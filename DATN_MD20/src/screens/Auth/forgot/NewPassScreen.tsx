@@ -51,9 +51,9 @@ const NewPassScreen = () => {
     navigation.navigate(ScreenName.Auth.Login);
   };
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <ContainerView>
-        <Header label="Đổi mật khẩu" paddingTop={top} />
+    <ContainerView>
+      <Header label="Đổi mật khẩu" paddingTop={top - 10} />
+      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <Block flex1 pad={20}>
           <TextMedium bold>Nhập mật khẩu mới:</TextMedium>
           <InputBase
@@ -102,8 +102,8 @@ const NewPassScreen = () => {
             onPress={() => handleSave()}
           />
         </Block>
-      </ContainerView>
-    </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
+    </ContainerView>
   );
 };
 

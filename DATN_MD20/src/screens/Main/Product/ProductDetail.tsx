@@ -60,7 +60,7 @@ const ProductDetail = () => {
         <Header
           label=" chi tiết Sản phẩm"
           paddingTop={top}
-          onPressLeft={() => navigation.resetToHome(ScreenName.Main.BottonTab)}
+          onPressLeft={() => navigation.goBack()}
         />
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -199,6 +199,8 @@ const ProductDetail = () => {
           }}
         />
         <ModalBottom
+          // header
+          // label="Thêm sản phẩm"
           visible={openModal}
           animationType="fade"
           heightModal={metrics.diviceHeight * 0.6}

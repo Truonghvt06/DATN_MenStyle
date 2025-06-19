@@ -32,40 +32,38 @@ const ForgotPassScreen = () => {
   };
 
   return (
-    <TouchableWithoutFeedback
-      onPress={() => {
-        Keyboard.dismiss();
-      }}>
-      <ContainerView>
-        <Header label="Quên mật khẩu" paddingTop={top - 5} />
-        <Block pad={20} marT={30}>
+    <ContainerView>
+      <Header label="Quên mật khẩu" paddingTop={top - 10} />
+      <TouchableWithoutFeedback
+        onPress={() => {
+          Keyboard.dismiss();
+        }}
+        style={{flexGrow: 1}}>
+        <Block flex1 pad={20} marT={30}>
           <TextSizeCustom
             size={20}
             bold
             style={{textTransform: 'capitalize', textAlign: 'center'}}>
-            Số điện thoại đăng ký
+            Nhập email đăng ký
           </TextSizeCustom>
           <TextSmall
             style={{textAlign: 'center', marginTop: 10, paddingHorizontal: 40}}>
-            Hãy điền số điện thoại liên kết với tài khoản của bạn để MenStyle có
-            thể gửi bạn mã OTP nhé:
+            Hãy điền email liên kết với tài khoản của bạn để MenStyle có thể gửi
+            bạn mã OTP nhé:
           </TextSmall>
           <TextMedium bold style={{marginTop: 40}}>
-            Nhập số điện thoại:
+            Nhập Email:
           </TextMedium>
           <InputBase
             value={phone}
-            placeholder="Nhập số điện thoại"
-            keyboardType="numeric"
+            placeholder="Nhập email"
+            // keyboardType="numeric"
             containerStyle={{marginTop: 5}}
             onChangeText={(text: string) => {
               setPhone(text);
             }}
             customLeft={
-              <Image
-                style={styles.icon_left}
-                source={IconBottomTab.icon_user}
-              />
+              <Image style={styles.icon_left} source={IconSRC.icon_email} />
             }
           />
           <ButtonBase
@@ -80,8 +78,8 @@ const ForgotPassScreen = () => {
             }}
           />
         </Block>
-      </ContainerView>
-    </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
+    </ContainerView>
   );
 };
 
@@ -89,6 +87,8 @@ export default ForgotPassScreen;
 
 const styles = StyleSheet.create({
   icon_left: {
+    width: 25,
+    height: 25,
     padding: 2,
     alignSelf: 'center',
     justifyContent: 'center',

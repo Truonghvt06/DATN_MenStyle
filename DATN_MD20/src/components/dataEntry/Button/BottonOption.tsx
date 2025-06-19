@@ -15,7 +15,7 @@ import TouchIcon from './TouchIcon';
 
 interface Props {
   iconLeft?: IconSRC;
-  iconRight?: IconSRC;
+  iconRight?: IconSRC | null;
   sizeRight?: number;
   sizeLeft?: number;
   name?: string;
@@ -37,7 +37,7 @@ const ButtonOption = (props: Props) => {
     iconLeft,
     iconRight = IconSRC.icon_back_right,
     iconColor = colors.black,
-    borderBottom = 0.7,
+    borderBottom = 0.5,
     borderColor = colors.gray3,
     containerStyle,
     onPress,
@@ -73,14 +73,16 @@ const ButtonOption = (props: Props) => {
           {content && <TextSmall color={colors.gray}>{content}</TextSmall>}
         </Block>
       </Block>
-      <TouchIcon
-        icon={iconRight}
-        size={sizeRight}
-        color={iconColor}
-        onPress={() => {
-          onPress;
-        }}
-      />
+      {iconRight && (
+        <TouchIcon
+          icon={iconRight}
+          size={sizeRight}
+          color={iconColor}
+          onPress={() => {
+            onPress;
+          }}
+        />
+      )}
     </TouchableOpacity>
   );
 };

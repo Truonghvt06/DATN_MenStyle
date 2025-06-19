@@ -45,24 +45,9 @@ const goBack = () => {
   }
 };
 
-const goBackMain = (routeName: string, params?: any) => {
-  if (isReadyRef.current && navigationRef.current) {
-    if (navigationRef.current.canGoBack()) {
-      navigationRef.current.goBack();
-    } else {
-      const action = CommonActions.reset({
-        index: 0,
-        routes: [{name: routeName, params}],
-      });
-      navigationRef.current.dispatch(action);
-    }
-  }
-};
-
 export default {
   navigate,
   goBack,
   reset,
   resetToHome,
-  goBackMain,
 };

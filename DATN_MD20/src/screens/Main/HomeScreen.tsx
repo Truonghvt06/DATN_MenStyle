@@ -36,13 +36,13 @@ const HomeScreen = () => {
   const [proData, setProData] = useState<any>(dataProduct);
 
   const handleSearch = () => {
-    navigation.resetToHome(ScreenName.Main.SearchDetail);
+    navigation.navigate(ScreenName.Main.SearchDetail);
   };
   const handleNotification = () => {
     // navigation.resetToHome(ScreenName.Main.Notifications);
   };
   const handleProDetail = (item: any) => {
-    navigation.resetToHome(ScreenName.Main.ProductDetail, {product: item});
+    navigation.navigate(ScreenName.Main.ProductDetail, {product: item});
   };
 
   const handleFavorite = (id: number) => {
