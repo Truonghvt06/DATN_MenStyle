@@ -131,15 +131,29 @@ const ProfileScreen = () => {
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
         />
         <ButtonBase
-          title="đăng xuất"
+          title="Đăng xuất"
           containerStyle={styles.btnLogout}
           size={14}
           icon={IconSRC.icon_logout}
           colorIcon={colors.while}
           onPress={() => {
-            navigation.reset(ScreenName.Auth.AuthStack);
+
+            Alert.alert(
+              'Đăng xuất',
+              'Bạn có chắc chắn muốn đăng xuất?',
+              [
+                { text: 'Huỷ', style: 'cancel' },
+                {
+                  text: 'Đồng ý',
+                  onPress: () => navigation.resetToAuth(ScreenName.Auth.Login),
+                },
+              ],
+              { cancelable: true }
+            );
+
           }}
         />
+
       </ScrollView>
     </ContainerView>
   );
