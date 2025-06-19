@@ -34,7 +34,7 @@ const SearchScreen = () => {
   const [value, setValue] = useState('');
 
   const handleSearch = () => {
-    navigation.resetToHome(ScreenName.Main.SearchDetail);
+    navigation.navigate(ScreenName.Main.SearchDetail);
   };
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>

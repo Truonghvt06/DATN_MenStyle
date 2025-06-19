@@ -12,6 +12,10 @@ const productSchema = new mongoose.Schema({
   type: { type: String, required: true },
   description: { type: String, required: true },
   price: { type: Number, required: true },
+  rating_avg: { type: Number, default: 0 },
+  rating_count: { type: Number, default: 0 },
+  sold_count: { type: Number, default: 0 },
+
   variants: [variantSchema],
 }, { timestamps: true });
 

@@ -19,11 +19,9 @@ const ProfileScreen = () => {
       <Header
         visibleLeft
         label="Tài khoản"
-        paddingTop={top}
+        paddingTop={top - 10}
         containerStyle={{
-          alignItems: 'center',
-          paddingLeft: 40,
-          height: top + 45,
+          height: top + 35,
         }}
       />
       <ScrollView
@@ -139,6 +137,7 @@ const ProfileScreen = () => {
           icon={IconSRC.icon_logout}
           colorIcon={colors.while}
           onPress={() => {
+
             Alert.alert(
               'Đăng xuất',
               'Bạn có chắc chắn muốn đăng xuất?',
@@ -151,6 +150,7 @@ const ProfileScreen = () => {
               ],
               { cancelable: true }
             );
+
           }}
         />
 

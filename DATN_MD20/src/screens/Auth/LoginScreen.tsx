@@ -3,6 +3,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -38,6 +39,7 @@ const LoginScreen = () => {
   const [errorInp, setErrorInp] = useState('');
   const [showPass, setShowPass] = useState(false);
 
+
   const handleLogin = async () => {
     try {
       await auth().signInWithEmailAndPassword(email, password);
@@ -54,6 +56,7 @@ const LoginScreen = () => {
         setErrorInp('Đăng nhập thất bại, thử lại sau!');
       }
     }
+
   };
 
   const handleRegister = () => {
@@ -65,19 +68,21 @@ const LoginScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1 }}>
+
+    <LayoutImage>
+
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <LayoutImage>
-          <Block flex1 middle>
-            <Block
-              borderRadius={20}
-              width={'85%'}
-              height={500}
-              pad={metrics.space + 5}
-              backgroundColor={colors.black65}>
-              <Block flex1 justifyCT>
+        <Block flex1 middle>
+          <Block
+            borderRadius={20}
+            width={'85%'}
+            height={500}
+            pad={metrics.space + 5}
+            backgroundColor={colors.black65}>
+            <Block flex1 justifyCT>
+              <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={{flex: 1, justifyContent: 'center'}}>
                 <TextSizeCustom
                   bold
                   size={30}
@@ -172,22 +177,32 @@ const LoginScreen = () => {
                   title="Đăng nhập"
                   onPress={handleLogin}
                 />
-              </Block>
-              <Block row middle>
-                <TextSmall color={colors.while}>
-                  Bạn không có tài khoản?{' '}
+              </KeyboardAvoidingView>
+            </Block>
+            <Block row middle>
+              <TextSmall color={colors.while}>
+                Bạn không có tài khoản?{' '}
+              </TextSmall>
+              <TouchableOpacity
+                onPress={() => {
+                  handleRegister();
+                }}>
+                <TextSmall color={colors.green} bold>
+                  Tạo tài khoản
                 </TextSmall>
+
                 <TouchableOpacity onPress={handleRegister}>
                   <TextSmall color={colors.green} bold>
                     Tạo tài khoản
                   </TextSmall>
                 </TouchableOpacity>
               </Block>
+
             </Block>
           </Block>
-        </LayoutImage>
+        </Block>
       </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+    </LayoutImage>
   );
 };
 

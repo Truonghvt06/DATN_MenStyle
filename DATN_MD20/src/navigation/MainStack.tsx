@@ -1,6 +1,8 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {createStackNavigator} from '@react-navigation/stack';
+
 import ScreenName from './ScreenName';
 import HomeScreen from '../screens/Main/HomeScreen';
 import ProfileScreen from '../screens/Main/ProfileScreen';
@@ -12,11 +14,13 @@ import FavoriteScreen from '../screens/Main/FavoriteScreen';
 import SearchDetail from '../screens/Main/SearchDetail';
 import ProductDetail from '../screens/Main/Product/ProductDetail';
 
-const Stack = createNativeStackNavigator();
+const Stack = createStackNavigator();
 
 const MainStack = () => {
   return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Navigator
+      screenOptions={{headerShown: false, gestureEnabled: false}}
+      initialRouteName={ScreenName.Main.BottonTab}>
       <Stack.Screen name={ScreenName.Main.BottonTab} component={BottomTab} />
       <Stack.Screen name={ScreenName.Main.Home} component={HomeScreen} />
       <Stack.Screen name={ScreenName.Main.Profile} component={ProfileScreen} />
