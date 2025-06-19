@@ -11,6 +11,7 @@ import FavoriteScreen from '../screens/Main/FavoriteScreen';
 import {colors} from '../themes/colors';
 import Block from '../components/layout/Block';
 import {TextSizeCustom, TextSmall} from '../components/dataEntry/TextBase';
+import {dataProduct} from '../constants/data';
 
 const Tab = createBottomTabNavigator();
 const BottomTab = () => {
@@ -83,7 +84,7 @@ const BottomTab = () => {
                     color="white"
                     size={13}
                     style={{textAlign: 'center'}}>
-                    2
+                    {dataProduct.length}
                   </TextSizeCustom>
                 </View>
                 <Image

@@ -3,7 +3,8 @@ import React from 'react';
 import {colors} from '../../themes/colors';
 
 interface Props {
-  containerStyle?: ViewStyle;
+  paddingTop?: number;
+  containerStyle?: ViewStyle | any;
   children?: React.ReactNode;
   backgroundColor?: string;
 }
@@ -13,7 +14,8 @@ const ContainerView = (props: Props) => {
     <View
       style={{
         flex: 1,
-        backgroundColor: props.backgroundColor || colors.sky_blue,
+        paddingTop: props.paddingTop || 0,
+        backgroundColor: props.backgroundColor || colors.while,
         ...props.containerStyle,
       }}>
       {props.children}

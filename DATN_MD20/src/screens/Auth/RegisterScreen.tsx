@@ -74,18 +74,17 @@ const RegisterScreen = () => {
     navigation.navigate(ScreenName.Auth.Login);
   };
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{flex: 1}}>
+    <LayoutImage>
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <LayoutImage>
-          <Block flex1 middle>
-            <Block
-              borderRadius={20}
-              width={'85%'}
-              pad={metrics.space + 5}
-              backgroundColor={colors.black65}>
-              <Block justifyCT padV={20}>
+        <Block flex1 middle>
+          <Block
+            borderRadius={20}
+            width={'85%'}
+            pad={metrics.space + 5}
+            backgroundColor={colors.black65}>
+            <Block justifyCT padV={20}>
+              <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
                 <TextSizeCustom
                   size={30}
                   bold
@@ -196,25 +195,24 @@ const RegisterScreen = () => {
                     handleRegister();
                   }}
                 />
-              </Block>
-              <Block row middle>
-                <TextSmall color={colors.while}>
-                  Bạn đã có tài khoản?{' '}
+              </KeyboardAvoidingView>
+            </Block>
+
+            <Block row middle>
+              <TextSmall color={colors.while}>Bạn đã có tài khoản? </TextSmall>
+              <TouchableOpacity
+                onPress={() => {
+                  handleLogin();
+                }}>
+                <TextSmall color={colors.green} bold>
+                  Đăng nhập
                 </TextSmall>
-                <TouchableOpacity
-                  onPress={() => {
-                    handleLogin();
-                  }}>
-                  <TextSmall color={colors.green} bold>
-                    Đăng nhập
-                  </TextSmall>
-                </TouchableOpacity>
-              </Block>
+              </TouchableOpacity>
             </Block>
           </Block>
-        </LayoutImage>
+        </Block>
       </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+    </LayoutImage>
   );
 };
 

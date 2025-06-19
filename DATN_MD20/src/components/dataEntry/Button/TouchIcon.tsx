@@ -3,6 +3,7 @@ import {
   ImageStyle,
   StyleSheet,
   Text,
+  TextStyle,
   TouchableOpacity,
   View,
   ViewStyle,
@@ -24,10 +25,10 @@ interface Props {
   onPress?: () => void;
   containerStyle?: ViewStyle | any;
   imageStyle?: ImageStyle;
-  // title?: string
+  titleStyle?: TextStyle;
 }
 const TouchIcon = (props: Props) => {
-  const {sizeText = 14, size = 20, color = colors.black} = props;
+  const {sizeText = 14, size = 20, color = colors.black, titleStyle} = props;
   return (
     <TouchableOpacity
       activeOpacity={0.9}
@@ -35,7 +36,11 @@ const TouchIcon = (props: Props) => {
       style={[props.containerStyle]}
       {...props}>
       {props.title && (
-        <TextSizeCustom size={sizeText} color={props.colorTitle} medium>
+        <TextSizeCustom
+          size={sizeText}
+          color={props.colorTitle}
+          style={titleStyle}
+          medium>
           {props.title}
         </TextSizeCustom>
       )}
