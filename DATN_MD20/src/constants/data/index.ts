@@ -204,3 +204,194 @@ export const notifications = [
     read: false,
   },
 ];
+
+export const allProducts = [
+  // Áo thun
+  {
+    id: '1',
+    name: 'Áo thun A',
+    image: require('../../assets/images/img2.jpg'),
+
+    category: 'Áo thun',
+    createdAt: '2024-06-01',
+    sold: 10,
+    price: 200000,
+  },
+  {
+    id: '2',
+    name: 'Áo thun B',
+    image: require('../../assets/images/img2.jpg'),
+
+    category: 'Áo thun',
+    createdAt: '2024-06-15',
+    sold: 25,
+    price: 220000,
+  },
+  {
+    id: '3',
+    name: 'Áo thun C',
+    image: require('../../assets/images/img2.jpg'),
+
+    category: 'Áo thun',
+    createdAt: '2024-06-10',
+    sold: 5,
+    price: 180000,
+  },
+
+  // Áo polo
+  {
+    id: '4',
+    name: 'Áo polo A',
+    image: require('../../assets/images/img2.jpg'),
+
+    category: 'Áo polo',
+    createdAt: '2024-06-18',
+    sold: 30,
+    price: 150000,
+  },
+  {
+    id: '5',
+    name: 'Áo polo B',
+    image: require('../../assets/images/img2.jpg'),
+
+    category: 'Áo polo',
+    createdAt: '2024-06-20',
+    sold: 12,
+    price: 170000,
+  },
+  {
+    id: '6',
+    name: 'Áo polo C',
+    image: require('../../assets/images/img2.jpg'),
+
+    category: 'Áo polo',
+    createdAt: '2024-06-12',
+    sold: 18,
+    price: 160000,
+  },
+
+  // Áo sơ mi
+  {
+    id: '7',
+    name: 'Áo sơ mi A',
+    image: require('../../assets/images/img2.jpg'),
+
+    category: 'Áo sơ mi',
+    createdAt: '2024-06-10',
+    sold: 5,
+    price: 100000,
+  },
+  {
+    id: '8',
+    name: 'Áo sơ mi B',
+    image: require('../../assets/images/img2.jpg'),
+
+    category: 'Áo sơ mi',
+    createdAt: '2024-06-17',
+    sold: 22,
+    price: 130000,
+  },
+  {
+    id: '9',
+    name: 'Áo sơ mi C',
+    image: require('../../assets/images/img2.jpg'),
+
+    category: 'Áo sơ mi',
+    createdAt: '2024-06-08',
+    sold: 9,
+    price: 120000,
+  },
+
+  // Áo khoác
+  {
+    id: '10',
+    name: 'Áo khoác A',
+    image: require('../../assets/images/img2.jpg'),
+
+    category: 'Áo khoác',
+    createdAt: '2024-06-19',
+    sold: 20,
+    price: 300000,
+  },
+  {
+    id: '11',
+    name: 'Áo khoác B',
+    image: require('../../assets/images/img2.jpg'),
+
+    category: 'Áo khoác',
+    createdAt: '2024-06-13',
+    sold: 15,
+    price: 280000,
+  },
+  {
+    id: '12',
+    name: 'Áo khoác C',
+    image: require('../../assets/images/img2.jpg'),
+
+    category: 'Áo khoác',
+    createdAt: '2024-06-09',
+    sold: 7,
+    price: 320000,
+  },
+
+  // Áo thể thao
+  {
+    id: '13',
+    image: require('../../assets/images/img2.jpg'),
+    name: 'Áo thể thao A',
+    category: 'Áo thể thao',
+    createdAt: '2024-06-12',
+    sold: 15,
+    price: 250000,
+  },
+  {
+    id: '14',
+    image: require('../../assets/images/img2.jpg'),
+    name: 'Áo thể thao B',
+    category: 'Áo thể thao',
+    createdAt: '2024-06-16',
+    sold: 21,
+    price: 270000,
+  },
+  {
+    id: '15',
+    image: require('../../assets/images/img2.jpg'),
+    name: 'Áo thể thao C',
+    category: 'Áo thể thao',
+    createdAt: '2024-06-11',
+    sold: 10,
+    price: 240000,
+  },
+
+  // Áo hoodie
+  {
+    id: '16',
+    name: 'Áo hoodie A',
+    image: require('../../assets/images/img2.jpg'),
+
+    category: 'Áo hoodie',
+    createdAt: '2024-06-05',
+    sold: 8,
+    price: 350000,
+  },
+  {
+    id: '17',
+    name: 'Áo hoodie B',
+    image: require('../../assets/images/img2.jpg'),
+
+    category: 'Áo hoodie',
+    createdAt: '2024-06-14',
+    sold: 13,
+    price: 330000,
+  },
+  {
+    id: '18',
+    name: 'Áo hoodie C',
+    image: require('../../assets/images/img2.jpg'),
+
+    category: 'Áo hoodie',
+    createdAt: '2024-06-07',
+    sold: 6,
+    price: 360000,
+  },
+];

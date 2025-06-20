@@ -36,22 +36,17 @@ const SearchScreen = () => {
   const handleSearch = () => {
     navigation.navigate(ScreenName.Main.SearchDetail);
   };
+  const handleCategory = (name: string) => {
+    navigation.navigate(ScreenName.Main.Category, {name: name});
+  };
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ContainerView
       // containerStyle={{paddingTop: top, paddingHorizontal: metrics.space}}
       >
-        <Header
-          visibleLeft
-          label="Tìm kiếm"
-          paddingTop={top}
-          containerStyle={{
-            alignItems: 'center',
-            paddingLeft: 40,
-            height: top + 45,
-          }}
-        />
+        <Header visibleLeft label="Tìm kiếm" paddingTop={top} />
         <ScrollView
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingHorizontal: metrics.space,
             marginTop: 10,
@@ -70,42 +65,55 @@ const SearchScreen = () => {
           <Image style={styles.banner} source={ImgSRC.img_banner} />
 
           {/* <TextHeight bold>Danh Mục:</TextHeight> */}
-          <ButtonOption
+          {/* <ButtonOption
             name="Áo Polo"
             iconLeft={IconSRC.icon_polo}
-            onPress={() => {}}
+            onPress={() => {
+              handleCategory('Áo Polo');
+            }}
           />
           <ButtonOption
             name="Áo Thun"
             iconLeft={IconSRC.icon_t_shirt}
-            onPress={() => {}}
+            onPress={() => {
+              handleCategory('Áo Thun');
+            }}
           />
           <ButtonOption
             name="Áo Sơ Mi"
             iconLeft={IconSRC.icon_shirt}
-            onPress={() => {}}
+            onPress={() => {
+              handleCategory('Áo Sơ Mi');
+            }}
           />
           <ButtonOption
             name="Áo Thể Thao"
             iconLeft={IconSRC.icon_thethao}
-            onPress={() => {}}
+            onPress={() => {
+              handleCategory('Áo Thể Thao');
+            }}
           />
           <ButtonOption
             name="Áo Khoác"
             iconLeft={IconSRC.icon_khoac}
-            onPress={() => {}}
+            onPress={() => {
+              handleCategory('Áo Khoác');
+            }}
           />
           <ButtonOption
             name="Áo Hoodie"
             iconLeft={IconSRC.icon_hoodie}
-            onPress={() => {}}
-          />
+            onPress={() => {
+              handleCategory('Áo Hoodie');
+            }}
+          /> */}
           <TextHeight style={styles.titel} bold>
             Sản Phẩm Mới:
           </TextHeight>
           <ListProduct
             data={dataProduct}
             horizontal={true}
+            isSeemore
             onPress={() => {}}
             onPressSee={() => {}}
           />
@@ -116,6 +124,7 @@ const SearchScreen = () => {
           <ListProduct
             data={dataProduct}
             horizontal={true}
+            isSeemore
             onPress={() => {}}
             onPressSee={() => {}}
           />

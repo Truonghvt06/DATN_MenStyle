@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import ContainerView from '../../components/layout/ContainerView';
 import Block from '../../components/layout/Block';
 import {
@@ -26,6 +26,7 @@ import Avatar from '../../components/dataDisplay/Avatar';
 import ListProduct from '../../components/dataDisplay/ListProduct';
 import {dataProduct} from '../../constants/data';
 import {FlatList} from 'react-native-gesture-handler';
+import products from '../../services/products';
 
 const ITEM_MARGIN = 10;
 const NUM_COLUMNS = 2;
@@ -33,7 +34,20 @@ const width = metrics.diviceScreenWidth;
 const ITEM_WIDTH = (width - ITEM_MARGIN * (NUM_COLUMNS + 1.5)) / NUM_COLUMNS;
 const HomeScreen = () => {
   const {top} = useSafeAreaInsets();
-  const [proData, setProData] = useState<any>(dataProduct);
+  const [proData, setProData] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await products.getProducts();
+        setProData(res.data); // res.data là mảng sản phẩm
+      } catch (error) {
+        console.error('Lỗi lấy sản phẩm:', error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const handleSearch = () => {
     navigation.navigate(ScreenName.Main.SearchDetail);
@@ -43,6 +57,9 @@ const HomeScreen = () => {
   };
   const handleProDetail = (item: any) => {
     navigation.navigate(ScreenName.Main.ProductDetail, {product: item});
+  };
+  const handleCategory = (name: string) => {
+    navigation.navigate(ScreenName.Main.Category, {name: name});
   };
 
   const handleFavorite = (id: number) => {
@@ -71,31 +88,37 @@ const HomeScreen = () => {
           title="Áo Polo"
           icon={IconSRC.icon_polo}
           containerStyle={{paddingHorizontal: 20}}
+          onPress={() => handleCategory('Áo polo')}
         />
         <Avatar
           title="Áo Thun"
           icon={IconSRC.icon_t_shirt}
           containerStyle={{paddingHorizontal: 20}}
+          onPress={() => handleCategory('Áo thun')}
         />
         <Avatar
           title="Áo Sơ Mi"
           icon={IconSRC.icon_shirt}
           containerStyle={{paddingHorizontal: 20}}
+          onPress={() => handleCategory('Áo sơ mi')}
         />
         <Avatar
           title="Áo Thể Thao"
           icon={IconSRC.icon_thethao}
           containerStyle={{paddingHorizontal: 10}}
+          onPress={() => handleCategory('Áo thể thao')}
         />
         <Avatar
           title="Áo Khoác"
           icon={IconSRC.icon_khoac}
           containerStyle={{paddingHorizontal: 20}}
+          onPress={() => handleCategory('Áo Khoác')}
         />
         <Avatar
           title="Áo Hoodie"
           icon={IconSRC.icon_hoodie}
           containerStyle={{paddingHorizontal: 20}}
+          onPress={() => handleCategory('Áo hoodie')}
         />
       </ScrollView>
 
@@ -149,7 +172,7 @@ const HomeScreen = () => {
       {/* Sản phẩm  */}
       <FlatList
         data={proData}
-        keyExtractor={(item, index) => item.id.toString() + index}
+        keyExtractor={(item, index) => item._id}
         ListHeaderComponent={renderHeader}
         renderItem={({item}) => {
           return (
@@ -175,17 +198,20 @@ const HomeScreen = () => {
                       style={{width: 20, height: 20}}
                     />
                   </TouchableOpacity>
-                  <Image style={styles.image} source={item.image} />
+                  <Image
+                    style={styles.image}
+                    source={{uri: item.variants?.[0]?.image || ''}}
+                  />
                   <Block mar={5}>
                     <TextSmall medium numberOfLines={2} ellipsizeMode="tail">
                       {item.name}
                     </TextSmall>
                     <Block row alignCT>
                       <Image style={styles.star} source={IconSRC.icon_star} />
-                      <TextSmall>{item.star}</TextSmall>
+                      <TextSmall>{item.rating_avg}</TextSmall>
                     </Block>
                     <TextHeight color={colors.red} bold>
-                      {item.price}đ
+                      {item.price.toLocaleString('vi-VN')}đ
                     </TextHeight>
                   </Block>
                 </Block>

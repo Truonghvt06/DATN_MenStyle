@@ -42,12 +42,7 @@ const FavoriteScreen = () => {
       <Header
         visibleLeft
         label="Yêu thích"
-        paddingTop={top - 10}
-        containerStyle={{
-          // alignItems: 'center',
-          // paddingLeft: 40,
-          height: top + 35,
-        }}
+        paddingTop={top}
         right={
           <TouchIcon
             size={25}

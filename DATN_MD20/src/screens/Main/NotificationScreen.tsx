@@ -33,7 +33,7 @@ export default function NotificationScreen() {
     <ContainerView>
       <Header
         label="Thông báo"
-        paddingTop={top - 10}
+        paddingTop={top}
         onPressLeft={() => navigation.goBack()}
       />
       <FlatList

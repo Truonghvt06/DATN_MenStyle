@@ -33,7 +33,7 @@ const ForgotPassScreen = () => {
 
   return (
     <ContainerView>
-      <Header label="Quên mật khẩu" paddingTop={top - 10} />
+      <Header label="Quên mật khẩu" paddingTop={top} />
       <TouchableWithoutFeedback
         onPress={() => {
           Keyboard.dismiss();

@@ -13,6 +13,7 @@ import Block from '../layout/Block';
 import {IconSRC} from '../../constants/icons';
 import {TextSizeCustom} from '../dataEntry/TextBase';
 import navigation from '../../navigation/navigation';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 interface Props {
   label?: string;
@@ -27,17 +28,18 @@ interface Props {
   onPressLeft?: () => void;
 }
 const Header = (props: Props) => {
+  const {top} = useSafeAreaInsets();
   const {
     label,
     left,
     right,
-    paddingTop = 0,
+    paddingTop = top,
     onPressLeft,
     visibleLeft,
     styleLeft,
     containerStyle,
     labelColor = colors.while,
-    iconColor,
+    iconColor = colors.black,
   } = props;
 
   return (
@@ -45,9 +47,9 @@ const Header = (props: Props) => {
       style={[
         {
           backgroundColor: colors.while,
-          height: paddingTop + 50,
+          height: paddingTop + 35,
           width: metrics.diviceScreenWidth,
-          paddingTop: paddingTop,
+          paddingTop: paddingTop - 15,
           paddingHorizontal: metrics.space,
           // paddingBottom: metrics.space * 2,
           ...containerStyle,
@@ -105,8 +107,8 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   image: {
-    width: 24,
-    height: 24,
+    width: 25,
+    height: 25,
   },
   btnLeft: {
     height: 40,
@@ -114,6 +116,6 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.green,
+    // backgroundColor: colors.green,
   },
 });
