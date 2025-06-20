@@ -173,7 +173,7 @@ const LoginScreen = () => {
                 <ButtonBase
                   title="Đăng nhập"
                   onPress={() =>
-                    //  navigation.navigate(ScreenName.Main.MainStack)
+                    // navigation.navigate(ScreenName.Main.MainStack)
                     handleLogin()
                   }
                 />

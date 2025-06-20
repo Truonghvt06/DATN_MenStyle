@@ -52,7 +52,7 @@ const NewPassScreen = () => {
   };
   return (
     <ContainerView>
-      <Header label="Đổi mật khẩu" paddingTop={top - 10} />
+      <Header label="Đổi mật khẩu" paddingTop={top} />
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <Block flex1 pad={20}>
           <TextMedium bold>Nhập mật khẩu mới:</TextMedium>

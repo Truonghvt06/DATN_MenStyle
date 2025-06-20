@@ -13,6 +13,7 @@ import BottomTab from './BottomTab';
 import FavoriteScreen from '../screens/Main/FavoriteScreen';
 import SearchDetail from '../screens/Main/SearchDetail';
 import ProductDetail from '../screens/Main/Product/ProductDetail';
+import CategoryScreen from '../screens/Main/Categorys/CategoryScreen';
 
 const Stack = createStackNavigator();
 
@@ -43,6 +44,10 @@ const MainStack = () => {
       <Stack.Screen
         name={ScreenName.Main.ProductDetail}
         component={ProductDetail}
+      />
+      <Stack.Screen
+        name={ScreenName.Main.Category}
+        component={CategoryScreen}
       />
     </Stack.Navigator>
   );

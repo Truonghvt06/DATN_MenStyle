@@ -49,14 +49,7 @@ const CartScreen = () => {
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ContainerView>
-        <Header
-          visibleLeft
-          label="Giỏ hàng"
-          paddingTop={top - 10}
-          containerStyle={{
-            height: top + 35,
-          }}
-        />
+        <Header visibleLeft label="Giỏ hàng" paddingTop={top} />
         <FlatList
           data={cartData}
           keyExtractor={(item, index) => item.id + ''}
