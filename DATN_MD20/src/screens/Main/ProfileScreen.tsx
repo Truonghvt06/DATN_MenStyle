@@ -14,6 +14,7 @@ import ScreenName from '../../navigation/ScreenName';
 
 const ProfileScreen = () => {
   const {top} = useSafeAreaInsets();
+  
   return (
     <ContainerView>
       <Header
@@ -103,6 +104,7 @@ const ProfileScreen = () => {
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
+          onPress={() => navigation.navigate('DieuKhoan')}
         />
         <ButtonOption
           name="Chính sách quyền riêng tư"
@@ -111,6 +113,7 @@ const ProfileScreen = () => {
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5, marginBottom: 30}}
+          onPress={() => navigation.navigate('ChinhSach')}
         />
         <TextHeight bold>Hỗ Trợ</TextHeight>
         <Block w100 borderWidth={0.5} borderColor={colors.gray3} marV={5} />
