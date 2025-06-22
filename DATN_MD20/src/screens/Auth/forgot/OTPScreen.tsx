@@ -35,7 +35,7 @@ const OTPScreen = () => {
   };
   return (
     <ContainerView>
-      <Header label="Xác thực OTP" paddingTop={top - 10} />
+      <Header label="Xác thực OTP" paddingTop={top} />
       <TouchableWithoutFeedback
         onPress={() => {
           Keyboard.dismiss();

@@ -32,24 +32,31 @@ import ButtonBase from '../../../components/dataEntry/Button/ButtonBase';
 import ModalBottom from '../../../components/dataDisplay/Modal/ModalBottom';
 import AddCart from './AddCart';
 
-const dataSize = [
-  {id: 12, size: 'S'},
-  {id: 13, size: 'M'},
-  {id: 14, size: 'L'},
-  {id: 15, size: 'XL'},
-];
+// const dataSize = [
+//   {id: 12, size: 'S'},
+//   {id: 13, size: 'M'},
+//   {id: 14, size: 'L'},
+//   {id: 15, size: 'XL'},
+// ];
 const ProductDetail = () => {
   const {top} = useSafeAreaInsets();
   const route = useRoute();
-  const {product}: any = route.params;
+  const {product} = route.params as {product: any};
 
   const [proData, setProData] = useState<any>(dataProduct);
   const [showDescription, setShowDescription] = useState(false);
-  const [selectedSize, setSelectedSize] = useState(product.size[0]);
-  const [selectedColor, setSelectedColor] = useState(product.colors[0]);
+  const [selectedSize, setSelectedSize] = useState(
+    product.variants[0]?.size || '',
+  );
+  const [selectedColor, setSelectedColor] = useState(
+    product.variants[0]?.color || '',
+  );
   const [quantity, setQuantity] = useState('1');
-
   const [openModal, setOpenModal] = useState(false);
+
+  //tạo mảng chứa
+  const sizes = [...new Set(product.variants.map((v: any) => v.size))];
+  const colorss = [...new Set(product.variants.map((v: any) => v.color))];
 
   const handleFavorite = () => {
     setProData((prev: any) => ({...prev, favorite: !prev.favorite}));
@@ -80,57 +87,32 @@ const ProductDetail = () => {
               style={{width: 25, height: 25}}
             />
           </TouchableOpacity>
-          <Image style={styles.img} source={ImgSRC.img_pro} />
+          <Image
+            style={styles.img}
+            source={{uri: product.variants?.[0]?.image || ''}}
+          />
           <Block pad={metrics.space}>
-            <TextMedium numberOfLines={2} ellipsizeMode="tail">
-              Sản Phẩm 1 Sản Phẩm 1 Sản Phẩm 1 Sản Phẩm 1 Sản Phẩm 1 Sản Phẩm 1
-              Sản Phẩm 1 Sản Phẩm 1 Sản Phẩm 1 Sản Phẩm 1
+            <TextMedium medium numberOfLines={2} ellipsizeMode="tail">
+              {product.name}
             </TextMedium>
             <TextHeight bold color={colors.red}>
-              {product.price}đ
+              {product.price.toLocaleString('vi-VN')}đ
             </TextHeight>
-            <Block row alignCT justifyBW marR={20} marV={10}>
+            <Block row alignCT justifyBW marR={20} marT={10} marB={30}>
               <Block row alignCT>
                 <Image
                   style={{width: 16, height: 16}}
                   source={IconSRC.icon_star}
                 />
                 <TextSmall style={{marginLeft: 5}}>
-                  4.9 (12k đánh giá)
+                  {product.rating_avg} ({product.rating_count})
                 </TextSmall>
               </Block>
-              <TextSmall style={{marginLeft: 5}}>Đã bán 12,8k</TextSmall>
+              <TextSmall style={{marginLeft: 5}}>
+                Đã bán {product.sold_count}
+              </TextSmall>
             </Block>
-            {/* <TextMedium bold>Màu sắc:</TextMedium>
-            <Block row>
-              <TouchIcon containerStyle={styles.color} />
-            </Block> */}
-            {/* <TextMedium bold style={styles.boW}>
-              Kích thước
-            </TextMedium>
-            <View style={{flexDirection: 'row'}}>
-              {product.size.map((size: string, index: number) => {
-                return (
-                  <TouchIcon
-                    key={index}
-                    colorTitle={
-                      selectedSize === size ? colors.while : colors.black
-                    }
-                    title={size}
-                    containerStyle={[
-                      styles.size,
-                      {
-                        backgroundColor:
-                          selectedSize === size ? colors.blue1 : colors.gray1,
-                      },
-                    ]}
-                    onPress={() => {
-                      setSelectedSize(size);
-                    }}
-                  />
-                );
-              })}
-            </View> */}
+
             <>
               <TextMedium
                 bold
@@ -144,10 +126,6 @@ const ProductDetail = () => {
               <Block>
                 <TextSmall numberOfLines={showDescription ? undefined : 5}>
                   {product.description}
-                  Áo được thiết kế với chất liệu cao cấp, thoáng mát và thấm hút
-                  mồ hôi tốt. Form dáng hiện đại, phù hợp với nhiều dáng người.
-                  Dễ dàng phối đồ trong nhiều hoàn cảnh khác nhau từ đi làm đến
-                  dạo phố.
                 </TextSmall>
 
                 <TouchIcon
@@ -182,6 +160,7 @@ const ProductDetail = () => {
               {dataProduct.map((item, index) => {
                 return (
                   <ReviewItem
+                    key={`review-${index}`}
                     star={item.star}
                     name="Nguyen Van A"
                     review="Sản phẩm chất lượng tốt, vải mềm mại và thoáng mát. Rất hài lòng với lần mua hàng này."
@@ -209,9 +188,19 @@ const ProductDetail = () => {
           }}
           children={
             <AddCart
-              image={product.image}
-              price={product.price}
-              quantity_kho={product.quantity_kho}
+              image={
+                product.variants.find(
+                  (v: any) =>
+                    v.size === selectedSize && v.color === selectedColor,
+                )?.image || ''
+              }
+              price={product.price.toLocaleString('vi-VN')}
+              quantity_kho={
+                product.variants.find(
+                  (v: any) =>
+                    v.size === selectedSize && v.color === selectedColor,
+                )?.quantity || 0
+              }
               onColse={() => setOpenModal(false)}
               value={quantity}
               onChangeText={text => setQuantity(text)}
@@ -220,10 +209,10 @@ const ProductDetail = () => {
                 <>
                   <TextSmall style={styles.boW}>Kích thước</TextSmall>
                   <View style={{flexDirection: 'row'}}>
-                    {product.size.map((size: string, index: number) => {
+                    {sizes.map((size: any, index): any => {
                       return (
                         <TouchIcon
-                          key={index}
+                          key={`size-${index}`}
                           colorTitle={
                             selectedSize === size ? colors.while : colors.black
                           }
@@ -250,22 +239,43 @@ const ProductDetail = () => {
                 <>
                   <TextSmall style={{marginTop: 7}}>Màu sắc</TextSmall>
                   <View style={{flexDirection: 'row'}}>
-                    {product.colors.map((color: string, index: number) => {
+                    {colorss.map((color: any, index) => {
                       return (
+                        // <TouchableOpacity
+                        //   onPress={() => setSelectedColor(color)}
+                        //   key={`color-${index}`}
+                        //   style={[
+                        //     styles.color,
+                        //     {
+                        //       borderWidth: selectedColor === color ? 2.5 : 0,
+                        //       borderColor:
+                        //         selectedColor === color ? colors.blue1 : color,
+                        //     },
+                        //   ]}>
+                        //   <View
+                        //     style={[styles.colorView, {backgroundColor: color}]}
+                        //   />
+                        // </TouchableOpacity>
                         <TouchableOpacity
                           onPress={() => setSelectedColor(color)}
-                          key={index}
+                          key={`color-${index}`}
                           style={[
                             styles.color,
                             {
-                              borderWidth: selectedColor === color ? 2.5 : 0,
-                              borderColor:
-                                selectedColor === color ? colors.blue1 : color,
+                              backgroundColor:
+                                selectedColor === color
+                                  ? colors.blue1
+                                  : colors.while,
                             },
                           ]}>
-                          <View
-                            style={[styles.colorView, {backgroundColor: color}]}
-                          />
+                          <TextSmall
+                            color={
+                              selectedColor === color
+                                ? colors.while
+                                : colors.black
+                            }>
+                            {color}
+                          </TextSmall>
                         </TouchableOpacity>
                       );
                     })}
@@ -317,7 +327,11 @@ const styles = StyleSheet.create({
   },
   color: {
     overflow: 'hidden',
-    borderRadius: 70,
+    borderRadius: 7,
+    height: 35,
+    backgroundColor: colors.while,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     marginRight: 8,
     marginBottom: 15,
     alignItems: 'center',

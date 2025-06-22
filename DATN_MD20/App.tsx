@@ -9,13 +9,15 @@ const App = () => {
   return (
     // <Provider store={store}>
     //   <PersistGate loading={null} persistor={persistor}>
-    //     <StatusBar
-    //       backgroundColor={'transparent'}
-    //       translucent
-    //       barStyle="light-content"
-    //     />
+    <>
+      <StatusBar
+        backgroundColor={'transparent'}
+        translucent
+        barStyle="light-content"
+      />
 
-    <AppNavigation />
+      <AppNavigation />
+    </>
     //   </PersistGate>
     // </Provider>
   );

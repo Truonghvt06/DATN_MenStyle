@@ -59,9 +59,9 @@ const AddCart = (props: Props) => {
   return (
     <View style={styles.container}>
       <Block row containerStyle={styles.boW}>
-        <Image style={styles.img} source={image} />
+        <Image style={styles.img} source={{uri: image}} />
         <Block flex1 marL={10} justifyContent="flex-end">
-          <TextHeight medium color={colors.red}>
+          <TextHeight bold color={colors.red}>
             {price}đ
           </TextHeight>
           <TextSmall color={colors.gray}>Kho:{quantity_kho}</TextSmall>

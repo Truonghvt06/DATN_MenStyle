@@ -1,3 +1,4 @@
+import {CatchClause} from './../../../node_modules/@babel/types/lib/index-legacy.d';
 export default {
   Auth: {
     AuthStack: 'AuthStack',
@@ -21,5 +22,6 @@ export default {
     Orders: 'OrdersScreen',
     Notifications: 'NotificationsScreen',
     ProductDetail: 'ProductDetail',
+    Category: 'CategoryScreen',
   },
 };

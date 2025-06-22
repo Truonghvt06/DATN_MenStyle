@@ -11,20 +11,13 @@ import {colors} from '../../themes/colors';
 import ButtonBase from '../../components/dataEntry/Button/ButtonBase';
 import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
+import {useRoute} from '@react-navigation/native';
 
 const ProfileScreen = () => {
   const {top} = useSafeAreaInsets();
-  
   return (
     <ContainerView>
-      <Header
-        visibleLeft
-        label="Tài khoản"
-        paddingTop={top - 10}
-        containerStyle={{
-          height: top + 35,
-        }}
-      />
+      <Header visibleLeft label="Tài khoản" paddingTop={top} />
       <ScrollView
         contentContainerStyle={{paddingHorizontal: 8, paddingBottom: 20}}>
         <Block alignCT marT={16} marB={50}>
