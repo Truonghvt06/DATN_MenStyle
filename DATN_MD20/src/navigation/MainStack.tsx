@@ -13,6 +13,8 @@ import BottomTab from './BottomTab';
 import FavoriteScreen from '../screens/Main/FavoriteScreen';
 import SearchDetail from '../screens/Main/SearchDetail';
 import ProductDetail from '../screens/Main/Product/ProductDetail';
+import ChinhSach from '../screens/Main/ChinhSach';
+import DieuKhoanVaDieuKien from '../screens/Main/DieuKhoanVaDieuKien';
 import CategoryScreen from '../screens/Main/Categorys/CategoryScreen';
 
 const Stack = createStackNavigator();
@@ -28,6 +30,9 @@ const MainStack = () => {
       <Stack.Screen name={ScreenName.Main.Cart} component={CartScreen} />
       <Stack.Screen name={ScreenName.Main.Settings} component={HomeScreen} />
       <Stack.Screen name={ScreenName.Main.Search} component={SearchScreen} />
+      <Stack.Screen name="DieuKhoan" component={DieuKhoanVaDieuKien} />
+      <Stack.Screen name="ChinhSach" component={ChinhSach} />
+        
       <Stack.Screen
         name={ScreenName.Main.Favorite}
         component={FavoriteScreen}
