@@ -15,7 +15,7 @@ const ContainerView = (props: Props) => {
       style={{
         flex: 1,
         paddingTop: props.paddingTop || 0,
-        backgroundColor: props.backgroundColor || colors.while,
+        backgroundColor: props.backgroundColor || '#EEEEEE',
         ...props.containerStyle,
       }}>
       {props.children}

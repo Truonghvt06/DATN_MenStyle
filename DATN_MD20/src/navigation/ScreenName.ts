@@ -23,5 +23,8 @@ export default {
     Notifications: 'NotificationsScreen',
     ProductDetail: 'ProductDetail',
     Category: 'CategoryScreen',
+    Address: 'AddressScreen',
+    AddressDetail: 'AddressDetailScreen',
+    AddAddress: 'AddAddressScreen',
   },
 };

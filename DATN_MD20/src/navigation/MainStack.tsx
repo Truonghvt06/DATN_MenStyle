@@ -14,6 +14,9 @@ import FavoriteScreen from '../screens/Main/FavoriteScreen';
 import SearchDetail from '../screens/Main/SearchDetail';
 import ProductDetail from '../screens/Main/Product/ProductDetail';
 import CategoryScreen from '../screens/Main/Categorys/CategoryScreen';
+import AddressScreen from '../screens/Main/Profile/Address/AddressScreen';
+import AddressDetailScreen from '../screens/Main/Profile/Address/AddressDetailScreen';
+import AddAddress from '../screens/Main/Profile/Address/AddAddress';
 
 const Stack = createStackNavigator();
 
@@ -49,6 +52,12 @@ const MainStack = () => {
         name={ScreenName.Main.Category}
         component={CategoryScreen}
       />
+      <Stack.Screen name={ScreenName.Main.Address} component={AddressScreen} />
+      <Stack.Screen
+        name={ScreenName.Main.AddressDetail}
+        component={AddressDetailScreen}
+      />
+      <Stack.Screen name={ScreenName.Main.AddAddress} component={AddAddress} />
     </Stack.Navigator>
   );
 };

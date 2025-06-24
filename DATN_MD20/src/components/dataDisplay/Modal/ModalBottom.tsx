@@ -48,7 +48,7 @@ const ModalBottom = (props: Props) => {
             {
               width: widthModal,
               height: heightModal,
-              backgroundColor: colors.gray1,
+              backgroundColor: colors.gray2,
             },
             containerStyle,
           ]}>
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-    borderBottomColor: 'rgba(255, 255, 255, 0.3)',
-    borderBottomWidth: 1,
+    borderBottomColor: colors.gray1,
+    borderBottomWidth: 0.3,
   },
 });

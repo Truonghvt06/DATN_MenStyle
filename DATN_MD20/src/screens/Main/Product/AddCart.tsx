@@ -96,7 +96,12 @@ const AddCart = (props: Props) => {
               ref={inputRef}
               value={value}
               onChangeText={onChangeText}
-              style={{flex: 1.5, textAlign: 'center'}}
+              style={{
+                flex: 1.5,
+                textAlign: 'center',
+                height: 50,
+                paddingVertical: 0,
+              }}
               keyboardType="numeric"
             />
             <TouchIcon

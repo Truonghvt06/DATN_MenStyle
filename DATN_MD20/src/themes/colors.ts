@@ -9,6 +9,7 @@ export const colors = {
   red: '#EF4444',
   gray: '#8B8B8B',
   gray1: '#C0C0C0',
+  gray2: '#EEEEEE',
   gray3: '#ABABAB',
   while: '#FFFFFF',
   white10: 'rgba(255, 255, 255, 0.1)',
