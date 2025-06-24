@@ -5,12 +5,19 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
+  ViewStyle,
 } from 'react-native';
 import React from 'react';
 import {colors} from '../../../themes/colors';
 import metrics from '../../../constants/metrics';
 
-const ModalCenter = props => {
+interface Props {
+  widthModal?: number;
+  heightModal?: number;
+  containerStyle?: ViewStyle;
+  onClose?: () => void;
+}
+const ModalCenter = (props: Props) => {
   const {
     widthModal = metrics.diviceWidth,
     heightModal = metrics.diviceHeight,
