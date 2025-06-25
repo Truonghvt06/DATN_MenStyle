@@ -7,17 +7,20 @@ import {
   View,
 } from 'react-native';
 import React from 'react';
-import ContainerView from '../../../../components/layout/ContainerView';
-import Header from '../../../../components/dataDisplay/Header';
+import ContainerView from '../../../../../components/layout/ContainerView';
+import Header from '../../../../../components/dataDisplay/Header';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import Block from '../../../../components/layout/Block';
-import metrics from '../../../../constants/metrics';
-import AddressItem from '../../../../components/dataDisplay/AddressItem';
-import {TextMedium, TextSmall} from '../../../../components/dataEntry/TextBase';
-import {colors} from '../../../../themes/colors';
-import {IconSRC} from '../../../../constants/icons';
-import navigation from '../../../../navigation/navigation';
-import ScreenName from '../../../../navigation/ScreenName';
+import Block from '../../../../../components/layout/Block';
+import metrics from '../../../../../constants/metrics';
+import AddressItem from '../../../../../components/dataDisplay/AddressItem';
+import {
+  TextMedium,
+  TextSmall,
+} from '../../../../../components/dataEntry/TextBase';
+import {colors} from '../../../../../themes/colors';
+import {IconSRC} from '../../../../../constants/icons';
+import navigation from '../../../../../navigation/navigation';
+import ScreenName from '../../../../../navigation/ScreenName';
 
 const DataAddress = [
   {

@@ -14,16 +14,16 @@ import {
 } from 'react-native';
 import React, {createRef, useRef, useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import ContainerView from '../../../../components/layout/ContainerView';
-import Header from '../../../../components/dataDisplay/Header';
-import Block from '../../../../components/layout/Block';
-import metrics from '../../../../constants/metrics';
-import {colors} from '../../../../themes/colors';
-import InputPlace from '../../../../components/dataEntry/Input/InputPlace';
+import ContainerView from '../../../../../components/layout/ContainerView';
+import Header from '../../../../../components/dataDisplay/Header';
+import Block from '../../../../../components/layout/Block';
+import metrics from '../../../../../constants/metrics';
+import {colors} from '../../../../../themes/colors';
+import InputPlace from '../../../../../components/dataEntry/Input/InputPlace';
 import {KeyboardAvoidingView} from 'react-native';
-import {TextMedium} from '../../../../components/dataEntry/TextBase';
-import TouchIcon from '../../../../components/dataEntry/Button/TouchIcon';
-import {IconSRC} from '../../../../constants/icons';
+import {TextMedium} from '../../../../../components/dataEntry/TextBase';
+import TouchIcon from '../../../../../components/dataEntry/Button/TouchIcon';
+import {IconSRC} from '../../../../../constants/icons';
 import {provinces, districts, wards} from 'vietnam-provinces';
 
 import {
@@ -31,7 +31,7 @@ import {
   //   getDistrictsByProvinceCode,
   //   getWardsByDistrictCode,
 } from 'vietnam-provinces';
-import SelectAddress from '../../../../components/utils/SelectAddress';
+import SelectAddress from '../../../../../components/utils/SelectAddress';
 
 interface IAddress {
   name: string;
