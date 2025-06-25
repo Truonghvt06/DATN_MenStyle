@@ -172,9 +172,9 @@ const LoginScreen = () => {
 
                 <ButtonBase
                   title="Đăng nhập"
-                  onPress={
-                    () => handleLogin()
-                    // navigation.navigate(ScreenName.Main.MainStack)
+                  onPress={() =>
+                    // handleLogin()
+                    navigation.navigate(ScreenName.Main.MainStack)
                   }
                 />
               </KeyboardAvoidingView>

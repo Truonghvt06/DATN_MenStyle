@@ -21,6 +21,7 @@ export const colors = {
   blue: '#F9FAFB',
   blue1: '#2563EB',
   blue2: '#FBBF24',
+  orange: '#FF7F24',
 
   text: '#111827',
   text1: '#6B7280',

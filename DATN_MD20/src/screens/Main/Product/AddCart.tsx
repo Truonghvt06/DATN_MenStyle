@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: metrics.space,
-    backgroundColor: colors.gray1,
+    backgroundColor: colors.gray2,
   },
   img: {
     width: 100,

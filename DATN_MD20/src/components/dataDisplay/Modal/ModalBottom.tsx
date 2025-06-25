@@ -68,8 +68,8 @@ const ModalBottom = (props: Props) => {
                 bold
                 size={20}
                 // color="rgba(255, 255, 255, 1)"
-              >
-                {label?.toLocaleUpperCase()}
+                style={{textTransform: 'capitalize'}}>
+                {label}
               </TextSizeCustom>
               <View
                 style={{

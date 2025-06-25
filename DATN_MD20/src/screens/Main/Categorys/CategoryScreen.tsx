@@ -18,7 +18,7 @@ const tabs = ['Tất cả', 'Mới nhất', 'Bán chạy', 'Giá'];
 const CategoryScreen = () => {
   const route = useRoute();
   const {top} = useSafeAreaInsets();
-  const {name} = route.params as {name: string};
+  const {name} = route.params as {name: string}; //từ home
   const [selectedTab, setSelectedTab] = useState('Tất cả');
 
   const handleTabPress = (tab: string) => {
@@ -98,11 +98,13 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderBottomWidth: 2,
     alignItems: 'center',
+    backgroundColor: colors.while,
   },
   tab: {
     width: '100%',
     flexDirection: 'row',
     borderBottomWidth: 0.3,
     borderBottomColor: colors.gray1,
+    backgroundColor: colors.while,
   },
 });

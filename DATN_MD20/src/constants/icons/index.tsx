@@ -1,6 +1,8 @@
 export enum IconSRC {
   icon_check = require('../../assets/images/check1.png'),
   icon_uncheck = require('../../assets/images/un_check1.png'),
+  ic_check = require('../../assets/images/checkm.png'),
+
   icon_cart = require('../../assets/images/shopping-cart.png'),
   icon_cart1 = require('../../assets/images/shopping-bag.png'),
   icon_add = require('../../assets/images/add.png'),
