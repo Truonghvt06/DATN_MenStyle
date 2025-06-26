@@ -16,7 +16,7 @@ import ProductDetail from '../screens/Main/Product/ProductDetail';
 import ChinhSach from '../screens/Main/ChinhSach';
 import DieuKhoanVaDieuKien from '../screens/Main/DieuKhoanVaDieuKien';
 import CategoryScreen from '../screens/Main/Categorys/CategoryScreen';
-
+import ThongTinCaNhan from '../screens/Main/ThongTinCaNhan';
 const Stack = createStackNavigator();
 
 const MainStack = () => {
@@ -32,6 +32,7 @@ const MainStack = () => {
       <Stack.Screen name={ScreenName.Main.Search} component={SearchScreen} />
       <Stack.Screen name="DieuKhoan" component={DieuKhoanVaDieuKien} />
       <Stack.Screen name="ChinhSach" component={ChinhSach} />
+      <Stack.Screen name="ThongTinCaNhan" component={ThongTinCaNhan} />
         
       <Stack.Screen
         name={ScreenName.Main.Favorite}

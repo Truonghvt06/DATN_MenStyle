@@ -13,6 +13,7 @@ import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
 import {useRoute} from '@react-navigation/native';
 
+
 const ProfileScreen = () => {
   const {top} = useSafeAreaInsets();
   return (
@@ -35,6 +36,7 @@ const ProfileScreen = () => {
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
+          onPress={() => navigation.navigate('ThongTinCaNhan')}
         />
         <ButtonOption
           name="Đơn hàng"
