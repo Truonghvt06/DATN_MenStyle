@@ -45,6 +45,7 @@ const ProfileScreen = () => {
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
+          onPress={() => navigation.navigate(ScreenName.Main.Orders)}
         />
         <ButtonOption
           name="Ưa thích"
@@ -61,6 +62,7 @@ const ProfileScreen = () => {
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, marginBottom: 30}}
+          onPress={() => navigation.navigate(ScreenName.Main.Address)}
         />
 
         <TextHeight bold>Khác</TextHeight>

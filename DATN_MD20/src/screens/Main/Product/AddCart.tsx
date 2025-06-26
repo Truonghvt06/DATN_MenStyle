@@ -96,7 +96,12 @@ const AddCart = (props: Props) => {
               ref={inputRef}
               value={value}
               onChangeText={onChangeText}
-              style={{flex: 1.5, textAlign: 'center'}}
+              style={{
+                flex: 1.5,
+                textAlign: 'center',
+                height: 50,
+                paddingVertical: 0,
+              }}
               keyboardType="numeric"
             />
             <TouchIcon
@@ -120,7 +125,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: metrics.space,
-    backgroundColor: colors.gray1,
+    backgroundColor: colors.gray2,
   },
   img: {
     width: 100,

@@ -13,10 +13,16 @@ import BottomTab from './BottomTab';
 import FavoriteScreen from '../screens/Main/FavoriteScreen';
 import SearchDetail from '../screens/Main/SearchDetail';
 import ProductDetail from '../screens/Main/Product/ProductDetail';
-import ChinhSach from '../screens/Main/ChinhSach';
-import DieuKhoanVaDieuKien from '../screens/Main/DieuKhoanVaDieuKien';
+import ChinhSach from '../screens/Main/Profile/Terms & Policies/ChinhSach';
+import DieuKhoanVaDieuKien from '../screens/Main/Profile/Terms & Policies/DieuKhoanVaDieuKien';
 import CategoryScreen from '../screens/Main/Categorys/CategoryScreen';
 import ThongTinCaNhan from '../screens/Main/ThongTinCaNhan';
+import AddressDetailScreen from '../screens/Main/Profile/Account/Address/AddressDetailScreen';
+import AddressScreen from '../screens/Main/Profile/Account/Address/AddressScreen';
+import AddAddress from '../screens/Main/Profile/Account/Address/AddAddress';
+import OrderScreen from '../screens/Main/Profile/Account/Order/OrderScreen';
+import OrderDetailScreen from '../screens/Main/Profile/Account/Order/OrderDetailScreen';
+
 const Stack = createStackNavigator();
 
 const MainStack = () => {
@@ -33,7 +39,7 @@ const MainStack = () => {
       <Stack.Screen name="DieuKhoan" component={DieuKhoanVaDieuKien} />
       <Stack.Screen name="ChinhSach" component={ChinhSach} />
       <Stack.Screen name="ThongTinCaNhan" component={ThongTinCaNhan} />
-        
+      
       <Stack.Screen
         name={ScreenName.Main.Favorite}
         component={FavoriteScreen}
@@ -54,6 +60,17 @@ const MainStack = () => {
       <Stack.Screen
         name={ScreenName.Main.Category}
         component={CategoryScreen}
+      />
+      <Stack.Screen name={ScreenName.Main.Address} component={AddressScreen} />
+      <Stack.Screen
+        name={ScreenName.Main.AddressDetail}
+        component={AddressDetailScreen}
+      />
+      <Stack.Screen name={ScreenName.Main.AddAddress} component={AddAddress} />
+      <Stack.Screen name={ScreenName.Main.Orders} component={OrderScreen} />
+      <Stack.Screen
+        name={ScreenName.Main.OrderDetail}
+        component={OrderDetailScreen}
       />
     </Stack.Navigator>
   );

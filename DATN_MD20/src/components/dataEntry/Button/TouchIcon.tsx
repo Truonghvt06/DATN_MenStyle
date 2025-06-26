@@ -5,6 +5,7 @@ import {
   Text,
   TextStyle,
   TouchableOpacity,
+  TouchableOpacityProps,
   View,
   ViewStyle,
 } from 'react-native';
@@ -13,8 +14,8 @@ import {IconSRC} from '../../../constants/icons';
 import {TextMedium, TextSizeCustom, TextSmall} from '../TextBase';
 import {colors} from '../../../themes/colors';
 
-interface Props {
-  title?: string;
+interface Props extends TouchableOpacityProps {
+  title?: string | any;
   icon?: IconSRC;
   size?: number;
   sizeText?: number;
@@ -31,16 +32,15 @@ const TouchIcon = (props: Props) => {
   const {sizeText = 14, size = 20, color = colors.black, titleStyle} = props;
   return (
     <TouchableOpacity
+      {...props}
       activeOpacity={0.9}
       onPress={props.onPress}
-      style={[props.containerStyle]}
-      {...props}>
+      style={[props.containerStyle]}>
       {props.title && (
         <TextSizeCustom
           size={sizeText}
           color={props.colorTitle}
-          style={titleStyle}
-          medium>
+          style={titleStyle}>
           {props.title}
         </TextSizeCustom>
       )}

@@ -187,7 +187,7 @@ const HomeScreen = () => {
                     activeOpacity={0.8}
                     style={styles.tim}
                     onPress={() => {
-                      handleFavorite(item.id);
+                      handleFavorite(item._id);
                     }}>
                     <Image
                       source={
