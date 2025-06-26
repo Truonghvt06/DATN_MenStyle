@@ -13,6 +13,7 @@ import {colors} from '../../themes/colors';
 import Block from '../../components/layout/Block';
 import TouchIcon from '../../components/dataEntry/Button/TouchIcon';
 import {TextMedium, TextSmall} from '../../components/dataEntry/TextBase';
+import {useAppTheme} from '../../themes/ThemeContext';
 
 const search = [
   {
@@ -30,24 +31,32 @@ const search = [
 ];
 const SearchDetail = () => {
   const {top} = useSafeAreaInsets();
-  //   const navigation = useNavigation();
+  const theme = useAppTheme();
+
   return (
-    <ContainerView paddingTop={top} containerStyle={styles.container}>
+    <ContainerView
+      paddingTop={top}
+      style={[styles.container, {backgroundColor: theme.background}]}>
       <Block row alignCT>
         <InputBase
           autoFocus
           radius={10}
-          inputStyle={styles.input}
+          style={[styles.input, {color: theme.text}]}
           containerStyle={{width: '90%'}}
           placeholder="Nhập sản phẩm tìm kiếm..."
+          placeholderTextColor={theme.text}
           customLeft={
-            <Image style={styles.icon_search} source={IconSRC.icon_search} />
+            <Image
+              style={[styles.icon_search, {tintColor: theme.text}]}
+              source={IconSRC.icon_search}
+            />
           }
         />
         <TouchIcon
           size={30}
           containerStyle={styles.back}
           title="Huỷ"
+          colorTitle={theme.text}
           onPress={() => navigation.goBack()}
         />
       </Block>
@@ -57,13 +66,16 @@ const SearchDetail = () => {
         keyExtractor={(item, index) => index.toString()}
         renderItem={({item}) => {
           return (
-            <Block borderBottomWidth={0.5} borderColor={colors.gray3} padV={10}>
+            <Block
+              borderBottomWidth={0.5}
+              borderColor={colors.gray3}
+              padV={10}>
               <Block row justifyBW alignCT marR={7}>
-                <TextMedium>{item.title}</TextMedium>
+                <TextMedium style={{color: theme.text}}>{item.title}</TextMedium>
                 <TouchIcon
                   icon={IconSRC.icon_close}
                   size={10}
-                  color={colors.gray3}
+                  color={theme.text}
                   onPress={() => {
                     // Handle delete item
                   }}
@@ -76,7 +88,7 @@ const SearchDetail = () => {
           search.length > 0 ? (
             <TouchIcon
               title="Xoá tất cả lịch sử"
-              colorTitle={colors.gray3}
+              colorTitle={theme.text}
               containerStyle={{marginVertical: 16, alignSelf: 'flex-end'}}
               onPress={() => {
                 // Handle clear history
@@ -97,9 +109,7 @@ const styles = StyleSheet.create({
   },
   back: {
     flex: 1,
-    tintColor: colors.black,
     alignItems: 'flex-end',
-    // justifyContent: 'center',
   },
   input: {
     height: 37,
@@ -109,7 +119,6 @@ const styles = StyleSheet.create({
   icon_search: {
     width: 20,
     height: 20,
-    tintColor: colors.black,
     alignSelf: 'center',
     marginLeft: 7,
   },

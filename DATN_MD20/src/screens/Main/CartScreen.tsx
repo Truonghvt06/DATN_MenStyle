@@ -1,11 +1,8 @@
 import {
   FlatList,
   Keyboard,
-  ScrollView,
-  StyleSheet,
-  Text,
   TouchableWithoutFeedback,
-  View,
+  StyleSheet,
 } from 'react-native';
 import React, {useState} from 'react';
 import ContainerView from '../../components/layout/ContainerView';
@@ -24,11 +21,12 @@ import {
 import {dataProduct} from '../../constants/data';
 import CartItem from '../../components/dataDisplay/CartItem';
 import {IconSRC} from '../../constants/icons';
+import {useAppTheme} from '../../themes/ThemeContext';
 
 const CartScreen = () => {
+  const theme = useAppTheme();
   const {top} = useSafeAreaInsets();
   const [check, setCheck] = useState(false);
-  // const [value, setValue] = useState('1');
   const [cartData, setCartData] = useState<any>(dataProduct);
 
   const handleChangeQuantity = (id: number, value: string) => {
@@ -48,14 +46,16 @@ const CartScreen = () => {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <ContainerView>
+      <ContainerView style={{backgroundColor: theme.background}}>
         <Header
           visibleLeft
           label="Giỏ hàng"
           paddingTop={top - 10}
           containerStyle={{
             height: top + 35,
+            backgroundColor: theme.background,
           }}
+          labelStyle={{color: theme.text}}
         />
         <FlatList
           data={cartData}
@@ -71,6 +71,7 @@ const CartScreen = () => {
                 size={item.size}
                 containerStyle={{
                   paddingHorizontal: metrics.space,
+                  backgroundColor: theme.background,
                 }}
                 value={item.quantity}
                 onChangeText={text => handleChangeQuantity(item.id, text)}
@@ -79,6 +80,7 @@ const CartScreen = () => {
                 onPressCheck={() => {
                   handleToggleCheck(item.id);
                 }}
+                textColor={theme.text}
               />
             );
           }}
@@ -88,14 +90,14 @@ const CartScreen = () => {
           w100
           padV={5}
           padH={metrics.space}
-          backgroundColor={colors.while}
+          backgroundColor={theme.background}
           borderBottomW={0.6}
           borderColor={colors.gray3}
           positionA
           bottom0>
           <Block row justifyBW marB={10} alignCT>
-            <TextMedium>Tổng cộng:</TextMedium>
-            <TextSizeCustom size={20} bold color={colors.red}>
+            <TextMedium style={{color: theme.text}}>Tổng cộng:</TextMedium>
+            <TextSizeCustom size={20} bold style={{color: theme.text}}>
               200.000đ
             </TextSizeCustom>
           </Block>

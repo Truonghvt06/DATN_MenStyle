@@ -1,24 +1,32 @@
-import {StyleSheet, Text, View, ViewStyle} from 'react-native';
+import {StyleSheet, View, ViewProps} from 'react-native';
 import React from 'react';
 import {colors} from '../../themes/colors';
 
-interface Props {
+interface ContainerViewProps extends ViewProps {
   paddingTop?: number;
-  containerStyle?: ViewStyle | any;
-  children?: React.ReactNode;
   backgroundColor?: string;
+  children?: React.ReactNode;
 }
 
-const ContainerView = (props: Props) => {
+const ContainerView: React.FC<ContainerViewProps> = ({
+  paddingTop = 0,
+  backgroundColor,
+  style,
+  children,
+  ...rest
+}) => {
   return (
     <View
-      style={{
-        flex: 1,
-        paddingTop: props.paddingTop || 0,
-        backgroundColor: props.backgroundColor || colors.while,
-        ...props.containerStyle,
-      }}>
-      {props.children}
+      style={[
+        {
+          flex: 1,
+          paddingTop,
+          backgroundColor: backgroundColor || colors.while,
+        },
+        style,
+      ]}
+      {...rest}>
+      {children}
     </View>
   );
 };

@@ -30,6 +30,7 @@ interface Props {
   onPress?: () => void;
   onPressDelete?: () => void;
   onPressCheck?: () => void;
+  textColor?: string;
 }
 const CartItem = (props: Props) => {
   const inputRef = useRef<TextInput>(null);

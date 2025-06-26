@@ -11,11 +11,13 @@ import {colors} from '../../themes/colors';
 import ButtonBase from '../../components/dataEntry/Button/ButtonBase';
 import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
+import { useAppTheme } from '../../themes/ThemeContext';
 
 const ProfileScreen = () => {
+  const theme = useAppTheme();
   const {top} = useSafeAreaInsets();
   return (
-    <ContainerView>
+    <ContainerView style={{backgroundColor: theme.background}}>
       <Header
         visibleLeft
         label="Tài khoản"
@@ -28,11 +30,11 @@ const ProfileScreen = () => {
         contentContainerStyle={{paddingHorizontal: 8, paddingBottom: 20}}>
         <Block alignCT marT={16} marB={50}>
           <Image style={styles.avatar} source={ImgSRC.img_avatar} />
-          <TextSizeCustom size={20} bold>
+          <TextSizeCustom size={20} bold style={{ color: theme.text }}>
             Nguyễn Văn A
           </TextSizeCustom>
         </Block>
-        <TextHeight bold>Tài Khoản</TextHeight>
+        <TextHeight bold style={{ color: theme.text }}>Tài Khoản</TextHeight>
         <Block w100 borderWidth={0.5} borderColor={colors.gray3} marV={5} />
         <ButtonOption
           name="Thông tin cá nhân"
@@ -41,6 +43,7 @@ const ProfileScreen = () => {
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
+          textColor={theme.text}
         />
         <ButtonOption
           name="Đơn hàng"
@@ -49,6 +52,7 @@ const ProfileScreen = () => {
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
+          textColor={theme.text}
         />
         <ButtonOption
           name="Ưa thích"
@@ -57,6 +61,7 @@ const ProfileScreen = () => {
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
+          textColor={theme.text}
         />
         <ButtonOption
           name="Địa chỉ"
@@ -65,9 +70,10 @@ const ProfileScreen = () => {
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, marginBottom: 30}}
+          textColor={theme.text}
         />
 
-        <TextHeight bold>Khác</TextHeight>
+        <TextHeight bold style={{ color: theme.text }}>Khác</TextHeight>
         <Block w100 borderWidth={0.5} borderColor={colors.gray3} marV={5} />
         <ButtonOption
           name="Voucher"
@@ -76,6 +82,7 @@ const ProfileScreen = () => {
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
+          textColor={theme.text}
         />
         <ButtonOption
           name="Ngôn ngữ"
@@ -84,6 +91,7 @@ const ProfileScreen = () => {
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
+          textColor={theme.text}
         />
         <ButtonOption
           name="Chủ đề"
@@ -92,9 +100,11 @@ const ProfileScreen = () => {
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5, marginBottom: 30}}
+          onPress={() => navigation.navigate(ScreenName.Main.Theme)}
+          textColor={theme.text}
         />
 
-        <TextHeight bold>Chính Sách & Điều khoản</TextHeight>
+        <TextHeight bold style={{ color: theme.text }}>Chính Sách & Điều khoản</TextHeight>
         <Block w100 borderWidth={0.5} borderColor={colors.gray3} marV={5} />
         <ButtonOption
           name="Điều khoản & Điều kiện"
@@ -103,6 +113,7 @@ const ProfileScreen = () => {
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
+          textColor={theme.text}
         />
         <ButtonOption
           name="Chính sách quyền riêng tư"
@@ -111,8 +122,9 @@ const ProfileScreen = () => {
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5, marginBottom: 30}}
+          textColor={theme.text}
         />
-        <TextHeight bold>Hỗ Trợ</TextHeight>
+        <TextHeight bold style={{ color: theme.text }}>Hỗ Trợ</TextHeight>
         <Block w100 borderWidth={0.5} borderColor={colors.gray3} marV={5} />
         <ButtonOption
           name="Liên hệ"
@@ -121,6 +133,7 @@ const ProfileScreen = () => {
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
+          textColor={theme.text}
         />
         <ButtonOption
           name="Email"
@@ -129,6 +142,7 @@ const ProfileScreen = () => {
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
+          textColor={theme.text}
         />
         <ButtonBase
           title="Đăng xuất"
@@ -137,7 +151,6 @@ const ProfileScreen = () => {
           icon={IconSRC.icon_logout}
           colorIcon={colors.while}
           onPress={() => {
-
             Alert.alert(
               'Đăng xuất',
               'Bạn có chắc chắn muốn đăng xuất?',
@@ -145,12 +158,11 @@ const ProfileScreen = () => {
                 { text: 'Huỷ', style: 'cancel' },
                 {
                   text: 'Đồng ý',
-                  onPress: () => navigation.resetToAuth(ScreenName.Auth.Login),
+                  onPress: () => navigation.reset(ScreenName.Auth.Login),
                 },
               ],
               { cancelable: true }
             );
-
           }}
         />
 

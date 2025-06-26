@@ -19,7 +19,11 @@ const RootStack = () => {
         if (route.params?.transition === 'vertical') {
           return {
             headerShown: false,
-            ...TransitionEvent,
+            transitionSpec: {
+              open: TransitionSpecs.TransitionIOSSpec,
+              close: TransitionSpecs.TransitionIOSSpec,
+            },
+            cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
             cardStyle: {backgroundColor: colors.while},
           };
         }

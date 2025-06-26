@@ -1,93 +1,86 @@
+import React, { useState } from 'react';
 import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
   Alert,
   Keyboard,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
   TouchableWithoutFeedback,
-  View,
 } from 'react-native';
-import React, {useState} from 'react';
 import ContainerView from '../../../components/layout/ContainerView';
 import Header from '../../../components/dataDisplay/Header';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import Block from '../../../components/layout/Block';
-import {TextMedium, TextSmall} from '../../../components/dataEntry/TextBase';
 import ButtonBase from '../../../components/dataEntry/Button/ButtonBase';
-import {colors} from '../../../themes/colors';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Block from '../../../components/layout/Block';
+import { colors } from '../../../themes/colors';
 import navigation from '../../../navigation/navigation';
 import ScreenName from '../../../navigation/ScreenName';
-import OTPTextInput from 'react-native-otp-textinput';
+import axios from 'axios';
+import { TextSmall } from '../../../components/dataEntry/TextBase';
 
-const OTPScreen = () => {
-  const {top} = useSafeAreaInsets();
-  const [otpCode, setOtpCode] = useState('');
+const OTPScreen = ({ route }: any) => {
+  const { email } = route.params;
+  const { top } = useSafeAreaInsets();
+  const [otp, setOtp] = useState('');
 
-  const handleNext = () => {
-    navigation.navigate(ScreenName.Auth.NewPass);
-    // const expectedOTP = '123456'; // Giả sử mã gửi từ server
+  const handleVerify = async () => {
+    if (!otp.trim()) {
+      Alert.alert('Lỗi', 'Vui lòng nhập mã OTP.');
+      return;
+    }
 
-    // if (otpCode === expectedOTP) {
-    //   navigation.navigate(ScreenName.Auth.NewPass);
-    // } else {
-    //   Alert.alert('Lỗi', 'Mã OTP không đúng, vui lòng thử lại');
-    // }
+    try {
+      const res = await axios.post('http://192.168.111.188:3000/api/otp/verify-otp', {
+        email,
+        otp,
+      });
+
+      if (res.data.message === 'OTP hợp lệ') {
+        navigation.navigate(ScreenName.Auth.NewPass, { email, otp });
+      }
+    } catch (error: any) {
+      Alert.alert('Lỗi', error?.response?.data?.message || 'Xác thực OTP thất bại.');
+    }
   };
-  return (
-    <ContainerView>
-      <Header label="Xác thực OTP" paddingTop={top - 10} />
-      <TouchableWithoutFeedback
-        onPress={() => {
-          Keyboard.dismiss();
-        }}>
-        <Block flex1>
-          <Block alignCT padT={30}>
-            <TextSmall style={{textAlign: 'center'}}>
-              Mã OTP đã gửi về số điện thoại
-            </TextSmall>
-            <TextSmall style={{textAlign: 'center'}}>
-              Bạn cần nhập mã OTP để tiếp tục
-            </TextSmall>
-          </Block>
-          <Block flex1 pad={30} alignCT marT={30}>
-            <OTPTextInput
-              inputCount={6}
-              keyboardType="numeric"
-              offTintColor={colors.black03}
-              tintColor={colors.black}
-              autoFocus
-              handleTextChange={text => {
-                setOtpCode(text);
-                console.log('OTP:', text);
-              }}
-            />
 
-            <TouchableOpacity onPress={() => {}}>
-              <TextMedium bold color={colors.green} style={styles.text}>
-                Gửi lại
-              </TextMedium>
-            </TouchableOpacity>
-          </Block>
+  return (
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <ContainerView>
+        <Header label="Xác nhận OTP" paddingTop={top} />
+        <Block pad={20}>
+          <TextSmall style={{ textAlign: 'center' }}>
+            Nhập mã OTP đã gửi tới email <Text style={{ fontWeight: 'bold' }}>{email}</Text>
+          </TextSmall>
+
+          <TextInput
+            value={otp}
+            keyboardType="number-pad"
+            onChangeText={setOtp}
+            placeholder="Nhập mã OTP"
+            style={styles.input}
+          />
 
           <ButtonBase
-            title="Tiếp tục"
-            containerStyle={{marginBottom: 70, marginHorizontal: 20}}
-            onPress={() => {
-              handleNext();
-            }}
+            title="Xác nhận"
+            onPress={handleVerify}
+            containerStyle={{ marginTop: 30 }}
           />
         </Block>
-      </TouchableWithoutFeedback>
-    </ContainerView>
+      </ContainerView>
+    </TouchableWithoutFeedback>
   );
 };
 
 export default OTPScreen;
 
 const styles = StyleSheet.create({
-  text: {
-    textAlign: 'center',
-    marginTop: 40,
-    textDecorationLine: 'underline',
+  input: {
+    borderWidth: 1,
+    borderColor: colors.gray,
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 20,
+    fontSize: 16,
   },
 });

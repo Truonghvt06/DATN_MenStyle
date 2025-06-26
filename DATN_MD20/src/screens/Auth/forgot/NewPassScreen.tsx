@@ -1,59 +1,68 @@
+import React, { useState } from 'react';
 import {
-  Keyboard,
-  StyleSheet,
-  Text,
-  TouchableWithoutFeedback,
   View,
+  Text,
+  StyleSheet,
+  Alert,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native';
-import React, {useState} from 'react';
 import ContainerView from '../../../components/layout/ContainerView';
 import Header from '../../../components/dataDisplay/Header';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import Block from '../../../components/layout/Block';
-import {
-  TextMedium,
-  TextSizeCustom,
-} from '../../../components/dataEntry/TextBase';
-import InputBase from '../../../components/dataEntry/Input/InputBase';
-import {IconSRC} from '../../../constants/icons';
 import ButtonBase from '../../../components/dataEntry/Button/ButtonBase';
-import {colors} from '../../../themes/colors';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Block from '../../../components/layout/Block';
+import { colors } from '../../../themes/colors';
+import axios from 'axios';
 import navigation from '../../../navigation/navigation';
 import ScreenName from '../../../navigation/ScreenName';
+import InputBase from '../../../components/dataEntry/Input/InputBase';
+import { IconSRC } from '../../../constants/icons';
+import { TextMedium } from '../../../components/dataEntry/TextBase';
 
-interface Error {
-  passNew?: string;
-  rePassNew?: string;
-}
-const NewPassScreen = () => {
-  const {top} = useSafeAreaInsets();
+const NewPasswordScreen = ({ route }: any) => {
+  const { top } = useSafeAreaInsets();
+  const { email, otp } = route.params;
+
   const [passNew, setPassNew] = useState('');
-  const [rePassNew, setRePassNew] = useState('');
+  const [reNewPassword, setReNewPassword] = useState('');
   const [showPassNew, setShowPassNew] = useState(false);
-  const [showRePassNew, setShowRePassNew] = useState(false);
-  const [errorInp, setErrorInp] = useState<Error>({});
+  const [errorInp, setErrorInp] = useState<{ passNew?: string }>({});
 
-  const validate = () => {
-    const newError: Error = {};
-    if (passNew.trim() === '') {
-      newError.passNew = 'Vui lòng nhập mật khẩu mới!';
+  const handleSave = async () => {
+    if (!passNew || !reNewPassword) {
+      Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin');
+      return;
     }
-    if (rePassNew.trim() === '') {
-      newError.rePassNew = 'Vui lòng xác nhận mật khẩu mới!';
-    } else if (rePassNew !== passNew) {
-      newError.rePassNew = 'Mật khẩu xác nhận không khớp!';
+    if (passNew !== reNewPassword) {
+      Alert.alert('Lỗi', 'Mật khẩu không khớp');
+      return;
     }
-    setErrorInp(newError);
-    return Object.keys(newError).length === 0;
+
+    try {
+      const res = await axios.post('http://192.168.111.188:3000/api/otp/update-password', {
+        email,
+        otp,
+        newPassword: passNew,
+      });
+
+      if (res.data.message === 'Mật khẩu đã được cập nhật') {
+        Alert.alert('Thành công', 'Đổi mật khẩu thành công!', [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate(ScreenName.Auth.Login),
+          },
+        ]);
+      }
+    } catch (error: any) {
+      Alert.alert('Lỗi', error?.response?.data?.message || 'Đổi mật khẩu thất bại');
+    }
   };
-  const handleSave = () => {
-    if (!validate()) return;
-    navigation.navigate(ScreenName.Auth.Login);
-  };
+
   return (
     <ContainerView>
       <Header label="Đổi mật khẩu" paddingTop={top - 10} />
-      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <Block flex1 pad={20}>
           <TextMedium bold>Nhập mật khẩu mới:</TextMedium>
           <InputBase
@@ -64,42 +73,25 @@ const NewPassScreen = () => {
             imageName={showPassNew ? IconSRC.icon_eye_off : IconSRC.icon_eye}
             onChangeText={(text: string) => {
               setPassNew(text);
-              setErrorInp({...errorInp, passNew: ''});
+              setErrorInp({ ...errorInp, passNew: '' });
             }}
             onPressRight={() => setShowPassNew(!showPassNew)}
             containerStyle={styles.input}
           />
-          {errorInp.passNew && (
-            <TextSizeCustom size={12} color={colors.red} style={{marginTop: 3}}>
-              {errorInp.passNew}
-            </TextSizeCustom>
-          )}
 
-          <TextMedium bold style={{marginTop: 10}}>
-            Xác nhận mật khẩu mới:
-          </TextMedium>
+          <Text style={{ marginTop: 10 }}>Xác nhận mật khẩu:</Text>
           <InputBase
-            value={rePassNew}
-            placeholder="Nhập mật khẩu mới"
-            secureTextEntry={!showRePassNew}
-            iconRight
-            imageName={showRePassNew ? IconSRC.icon_eye_off : IconSRC.icon_eye}
-            onChangeText={(text: string) => {
-              setRePassNew(text);
-              setErrorInp({...errorInp, rePassNew: ''});
-            }}
-            onPressRight={() => setShowRePassNew(!showRePassNew)}
+            value={reNewPassword}
+            placeholder="Nhập lại mật khẩu"
+            secureTextEntry
+            onChangeText={setReNewPassword}
             containerStyle={styles.input}
           />
-          {errorInp.rePassNew && (
-            <TextSizeCustom size={12} color={colors.red} style={{marginTop: 3}}>
-              {errorInp.rePassNew}
-            </TextSizeCustom>
-          )}
+
           <ButtonBase
             title="Lưu"
-            containerStyle={{marginTop: 50}}
-            onPress={() => handleSave()}
+            onPress={handleSave}
+            containerStyle={{ marginTop: 40 }}
           />
         </Block>
       </TouchableWithoutFeedback>
@@ -107,10 +99,14 @@ const NewPassScreen = () => {
   );
 };
 
-export default NewPassScreen;
+export default NewPasswordScreen;
 
 const styles = StyleSheet.create({
   input: {
-    marginTop: 3,
+    borderWidth: 1,
+    borderColor: colors.gray,
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 5,
   },
 });

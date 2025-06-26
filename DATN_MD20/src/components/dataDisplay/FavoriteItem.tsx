@@ -15,6 +15,7 @@ interface Props {
   onPress?: () => void;
   onPressAdd?: () => void;
   onPressIcon?: () => void;
+   textColor?: string;
 }
 const FavoriteItem = (props: Props) => {
   const {name, price, image, onPress, onPressIcon, onPressAdd} = props;

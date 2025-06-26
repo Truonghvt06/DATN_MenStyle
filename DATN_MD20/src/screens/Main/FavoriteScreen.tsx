@@ -13,8 +13,10 @@ import metrics from '../../constants/metrics';
 import ButtonOption from '../../components/dataEntry/Button/BottonOption';
 import Block from '../../components/layout/Block';
 import ModalCenter from '../../components/dataDisplay/Modal/ModalCenter';
+import { useAppTheme } from '../../themes/ThemeContext';
 
 const FavoriteScreen = () => {
+  const theme = useAppTheme();
   const {top} = useSafeAreaInsets();
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenDel, setIsOpenDel] = useState(false);
@@ -38,16 +40,16 @@ const FavoriteScreen = () => {
     );
   };
   return (
-    <ContainerView>
+    <ContainerView style={{ backgroundColor: theme.background }}>
       <Header
         visibleLeft
         label="Yêu thích"
         paddingTop={top - 10}
         containerStyle={{
-          // alignItems: 'center',
-          // paddingLeft: 40,
           height: top + 35,
+          backgroundColor: theme.background,
         }}
+        labelStyle={{ color: theme.text }}
         right={
           <TouchIcon
             size={25}
@@ -73,11 +75,13 @@ const FavoriteScreen = () => {
               onPress={() => {}}
               onPressAdd={() => {}}
               onPressIcon={() => setIsOpen(true)}
+              textColor={theme.text} // Nếu FavoriteItem hỗ trợ prop này
             />
           );
         }}
         contentContainerStyle={{paddingBottom: 20}}
         showsVerticalScrollIndicator={false}
+        style={{ backgroundColor: theme.background }}
       />
       <ModalBottom
         header
@@ -96,6 +100,7 @@ const FavoriteScreen = () => {
               containerStyle={{paddingVertical: 20}}
               name="Thêm vào giỏ hàng"
               onPress={() => {}}
+              textColor={theme.text}
             />
             <ButtonOption
               iconLeft={IconSRC.icon_delete}
@@ -105,6 +110,7 @@ const FavoriteScreen = () => {
               containerStyle={{paddingVertical: 20}}
               name="Xoá khỏi yêu thích"
               onPress={() => {}}
+              textColor={theme.text}
             />
           </Block>
         }

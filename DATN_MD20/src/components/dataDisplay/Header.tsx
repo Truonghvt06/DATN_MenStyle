@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
   ViewStyle,
+  TextStyle,
 } from 'react-native';
 import React from 'react';
 import {colors} from '../../themes/colors';
@@ -25,6 +26,7 @@ interface Props {
   labelColor?: string;
   iconColor?: string;
   onPressLeft?: () => void;
+  labelStyle?: TextStyle; 
 }
 const Header = (props: Props) => {
   const {
@@ -38,6 +40,7 @@ const Header = (props: Props) => {
     containerStyle,
     labelColor = colors.while,
     iconColor,
+    labelStyle,
   } = props;
 
   return (

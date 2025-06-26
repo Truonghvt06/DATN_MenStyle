@@ -26,6 +26,7 @@ interface Props {
   containerStyle?: ViewStyle;
   sizeText?: number;
   onPress?: () => void;
+  textColor?: string;
 }
 const ButtonOption = (props: Props) => {
   const {

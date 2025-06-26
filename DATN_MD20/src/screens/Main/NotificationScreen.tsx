@@ -4,6 +4,8 @@ import Header from '../../components/dataDisplay/Header';
 import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
 import { notifications as demoNotifications } from '../../constants/data';
+import { useAppTheme } from '../../themes/ThemeContext';
+
 type NotificationItem = {
   id: string;
   title: string;
@@ -14,20 +16,26 @@ type NotificationItem = {
 
 export default function NotificationScreen() {
   const [notifications, setNotifications] = useState(demoNotifications);
+  const theme = useAppTheme();
 
-const renderItem = ({ item }: { item: NotificationItem }) => (
-  <View style={[styles.item, !item.read && styles.unread]}>
-    <Text style={styles.title}>{item.title}</Text>
-    <Text>{item.content}</Text>
-    <Text style={styles.time}>{item.time}</Text>
-  </View>
-);
-
+  const renderItem = ({ item }: { item: NotificationItem }) => (
+    <View
+      style={[
+        styles.item,
+        { backgroundColor: item.read ? theme.background : '#eaf4ff' },
+      ]}
+    >
+      <Text style={[styles.title]}>{item.title}</Text>
+      <Text>{item.content}</Text>
+      <Text style={[styles.time, ]}>{item.time}</Text>
+    </View>
+  );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <Header
         label="Thông báo"
+        labelStyle={{ color: theme.text }}
         onPressLeft={() => navigation.resetToHome(ScreenName.Main.BottonTab)}
       />
       <FlatList
@@ -41,7 +49,7 @@ const renderItem = ({ item }: { item: NotificationItem }) => (
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
+  container: { flex: 1, padding: 16 },
   item: {
     padding: 16,
     backgroundColor: '#f9f9f9',

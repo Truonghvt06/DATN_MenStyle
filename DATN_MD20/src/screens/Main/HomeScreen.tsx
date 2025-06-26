@@ -26,12 +26,16 @@ import Avatar from '../../components/dataDisplay/Avatar';
 import ListProduct from '../../components/dataDisplay/ListProduct';
 import {dataProduct} from '../../constants/data';
 import {FlatList} from 'react-native-gesture-handler';
+import { useAppTheme } from '../../themes/ThemeContext';
+
+
 
 const ITEM_MARGIN = 10;
 const NUM_COLUMNS = 2;
 const width = metrics.diviceScreenWidth;
 const ITEM_WIDTH = (width - ITEM_MARGIN * (NUM_COLUMNS + 1.5)) / NUM_COLUMNS;
 const HomeScreen = () => {
+  const theme = useAppTheme();
   const {top} = useSafeAreaInsets();
   const [proData, setProData] = useState<any>(dataProduct);
 
@@ -62,7 +66,7 @@ const HomeScreen = () => {
 
       {/* Danh mục */}
       <TextHeight
-        style={{textTransform: 'capitalize', marginVertical: 10}}
+        style={{textTransform: 'capitalize', marginVertical: 10, color: theme.text}}
         bold>
         Danh mục:
       </TextHeight>
@@ -100,7 +104,7 @@ const HomeScreen = () => {
       </ScrollView>
 
       <TextHeight
-        style={{textTransform: 'capitalize', marginVertical: 15}}
+        style={{textTransform: 'capitalize', marginVertical: 15, color: theme.text}}
         bold>
         Sản phẩm nổi bật:
       </TextHeight>
@@ -109,18 +113,22 @@ const HomeScreen = () => {
 
   return (
     <ContainerView
-      containerStyle={{paddingTop: top, paddingHorizontal: metrics.space}}>
+      style={{
+        paddingTop: top,
+        paddingHorizontal: metrics.space,
+        backgroundColor: theme.background,
+      }}>
       {/* Header */}
       <Block row justifyBW>
         <Block>
-          <TextSmall style={{marginBottom: -5}}>Xin chào!</TextSmall>
-          <TextSizeCustom size={30} bold>
+          <TextSmall style={{marginBottom: -5, color: theme.text}}>Xin chào!</TextSmall>
+          <TextSizeCustom size={30} bold style={{ color: theme.text }}>
             MenStyle
           </TextSizeCustom>
         </Block>
         <Block row alignItems="flex-end" marB={5} marR={5}>
           <TouchIcon
-            color={colors.black}
+            color={theme.text}
             size={25}
             icon={IconSRC.icon_search}
             imageStyle={{marginHorizontal: 7}}
@@ -136,7 +144,7 @@ const HomeScreen = () => {
               </TextSizeCustom>
             </View>
             <TouchIcon
-              color={colors.black}
+              color={theme.text}
               size={25}
               icon={IconSRC.icon_notification}
               imageStyle={{marginHorizontal: 7}}
@@ -159,10 +167,10 @@ const HomeScreen = () => {
                 handleProDetail(item);
               }}>
               <Block containerStyle={styles.shadowWrap}>
-                <Block containerStyle={[styles.btn]}>
+                <Block containerStyle={[styles.btn, { backgroundColor: theme.background }]}>
                   <TouchableOpacity
                     activeOpacity={0.8}
-                    style={styles.tim}
+                    style={[styles.tim, { backgroundColor: theme.background }]}
                     onPress={() => {
                       handleFavorite(item.id);
                     }}>
@@ -177,12 +185,12 @@ const HomeScreen = () => {
                   </TouchableOpacity>
                   <Image style={styles.image} source={item.image} />
                   <Block mar={5}>
-                    <TextSmall medium numberOfLines={2} ellipsizeMode="tail">
+                    <TextSmall medium numberOfLines={2} ellipsizeMode="tail" style={{ color: theme.text }}>
                       {item.name}
                     </TextSmall>
                     <Block row alignCT>
                       <Image style={styles.star} source={IconSRC.icon_star} />
-                      <TextSmall>{item.star}</TextSmall>
+                      <TextSmall style={{ color: theme.text }}>{item.star}</TextSmall>
                     </Block>
                     <TextHeight color={colors.red} bold>
                       {item.price}đ

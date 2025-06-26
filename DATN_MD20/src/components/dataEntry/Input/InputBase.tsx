@@ -1,12 +1,10 @@
 import {
   Image,
   StyleSheet,
-  Text,
   TextInput,
   TextInputProps,
   TextStyle,
   TouchableOpacity,
-  View,
   ViewStyle,
 } from 'react-native';
 import React from 'react';
@@ -19,7 +17,7 @@ interface Props extends TextInputProps {
   customRight?: React.ReactElement;
   customLeft?: React.ReactElement;
   containerStyle?: ViewStyle;
-  inputStyle?: TextStyle | ViewStyle;
+  inputStyle?: TextStyle; // Chỉ nhận TextStyle
   borderBottom?: boolean;
   border?: boolean;
   borderTop?: number;

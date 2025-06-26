@@ -21,5 +21,6 @@ export default {
     Orders: 'OrdersScreen',
     Notifications: 'NotificationsScreen',
     ProductDetail: 'ProductDetail',
+    Theme : 'Theme',
   },
 };

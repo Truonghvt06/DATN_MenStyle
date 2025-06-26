@@ -28,10 +28,12 @@ import Header from '../../components/dataDisplay/Header';
 import ButtonOption from '../../components/dataEntry/Button/BottonOption';
 import ListProduct from '../../components/dataDisplay/ListProduct';
 import {dataProduct} from '../../constants/data';
+import {useAppTheme} from '../../themes/ThemeContext';
 
 const SearchScreen = () => {
   const {top} = useSafeAreaInsets();
   const [value, setValue] = useState('');
+  const theme = useAppTheme();
 
   const handleSearch = () => {
     navigation.navigate(ScreenName.Main.SearchDetail);
@@ -39,7 +41,7 @@ const SearchScreen = () => {
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ContainerView
-      // containerStyle={{paddingTop: top, paddingHorizontal: metrics.space}}
+        style={{backgroundColor: theme.background}}
       >
         <Header
           visibleLeft
@@ -49,7 +51,9 @@ const SearchScreen = () => {
             alignItems: 'center',
             paddingLeft: 40,
             height: top + 45,
+            backgroundColor: theme.background,
           }}
+          labelStyle={{color: theme.text}}
         />
         <ScrollView
           contentContainerStyle={{
@@ -58,49 +62,57 @@ const SearchScreen = () => {
             paddingBottom: 30,
           }}>
           <TouchableOpacity
-            style={styles.search}
+            style={[
+              styles.search,
+              {backgroundColor: theme.background, borderColor: theme.text}
+            ]}
             activeOpacity={0.7}
             onPress={() => {
               handleSearch();
             }}>
-            <Image style={styles.icon} source={IconSRC.icon_search} />
-            <TextSmall color={colors.gray3}>Tìm sản phẩm...</TextSmall>
+            <Image style={[styles.icon, {tintColor: theme.text}]} source={IconSRC.icon_search} />
+            <TextSmall style={{color: theme.text}}>Tìm sản phẩm...</TextSmall>
           </TouchableOpacity>
 
           <Image style={styles.banner} source={ImgSRC.img_banner} />
 
-          {/* <TextHeight bold>Danh Mục:</TextHeight> */}
           <ButtonOption
             name="Áo Polo"
             iconLeft={IconSRC.icon_polo}
             onPress={() => {}}
+            textColor={theme.text}
           />
           <ButtonOption
             name="Áo Thun"
             iconLeft={IconSRC.icon_t_shirt}
             onPress={() => {}}
+            textColor={theme.text}
           />
           <ButtonOption
             name="Áo Sơ Mi"
             iconLeft={IconSRC.icon_shirt}
             onPress={() => {}}
+            textColor={theme.text}
           />
           <ButtonOption
             name="Áo Thể Thao"
             iconLeft={IconSRC.icon_thethao}
             onPress={() => {}}
+            textColor={theme.text}
           />
           <ButtonOption
             name="Áo Khoác"
             iconLeft={IconSRC.icon_khoac}
             onPress={() => {}}
+            textColor={theme.text}
           />
           <ButtonOption
             name="Áo Hoodie"
             iconLeft={IconSRC.icon_hoodie}
             onPress={() => {}}
+            textColor={theme.text}
           />
-          <TextHeight style={styles.titel} bold>
+          <TextHeight style={{ ...styles.titel, color: theme.text }} bold>
             Sản Phẩm Mới:
           </TextHeight>
           <ListProduct
@@ -108,9 +120,10 @@ const SearchScreen = () => {
             horizontal={true}
             onPress={() => {}}
             onPressSee={() => {}}
+            textColor={theme.text}
           />
 
-          <TextHeight style={styles.titel} bold>
+          <TextHeight style={{ ...styles.titel, color: theme.text }} bold>
             Sản Phẩm Bán Chạy:
           </TextHeight>
           <ListProduct
@@ -118,6 +131,7 @@ const SearchScreen = () => {
             horizontal={true}
             onPress={() => {}}
             onPressSee={() => {}}
+            textColor={theme.text}
           />
         </ScrollView>
       </ContainerView>

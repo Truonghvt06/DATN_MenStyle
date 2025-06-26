@@ -28,6 +28,7 @@ interface Props {
   horizontal?: boolean;
   onPress?: () => void;
   onPressSee?: () => void;
+  textColor?: string; 
 }
 
 const ITEM_MARGIN = 10;
