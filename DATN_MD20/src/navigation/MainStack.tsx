@@ -16,6 +16,7 @@ import ProductDetail from '../screens/Main/Product/ProductDetail';
 import ChinhSach from '../screens/Main/Profile/Terms & Policies/ChinhSach';
 import DieuKhoanVaDieuKien from '../screens/Main/Profile/Terms & Policies/DieuKhoanVaDieuKien';
 import CategoryScreen from '../screens/Main/Categorys/CategoryScreen';
+import ThongTinCaNhan from '../screens/Main/ThongTinCaNhan';
 import AddressDetailScreen from '../screens/Main/Profile/Account/Address/AddressDetailScreen';
 import AddressScreen from '../screens/Main/Profile/Account/Address/AddressScreen';
 import AddAddress from '../screens/Main/Profile/Account/Address/AddAddress';
@@ -37,7 +38,8 @@ const MainStack = () => {
       <Stack.Screen name={ScreenName.Main.Search} component={SearchScreen} />
       <Stack.Screen name="DieuKhoan" component={DieuKhoanVaDieuKien} />
       <Stack.Screen name="ChinhSach" component={ChinhSach} />
-
+      <Stack.Screen name="ThongTinCaNhan" component={ThongTinCaNhan} />
+      
       <Stack.Screen
         name={ScreenName.Main.Favorite}
         component={FavoriteScreen}
