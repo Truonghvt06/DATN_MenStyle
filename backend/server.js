@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const productRouter = require('./routes/product');
+const accountRouter = require('./routes/account');
+
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -25,6 +27,8 @@ mongoose.connect(process.env.MONGO_URI)
 
     // Router quản lý sản phẩm
     app.use('/products', productRouter);
+    app.use('/accounts', accountRouter);// 👈 gắn route user
+
 
     // Có thể thêm router khác như /coupons, /accounts
 
