@@ -24,6 +24,7 @@ import ButtonBase from '../../components/dataEntry/Button/ButtonBase';
 import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
 import {auth} from '../../services/firebase'; // ✅ THÊM
+import useLanguage from '../../hooks/useLanguage';
 console.log('auth', auth); // ✅ THÊM
 
 interface IEroror {
@@ -34,6 +35,8 @@ interface IEroror {
 }
 
 const RegisterScreen = () => {
+  const {getTranslation} = useLanguage();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -47,20 +50,20 @@ const RegisterScreen = () => {
 
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-    if (!name) newErrors.name = 'Vui lòng nhập họ tên!';
+    if (!name) newErrors.name = getTranslation('vui_long_ho_ten');
     if (!email) {
-      newErrors.email = 'Vui lòng nhập email!';
+      newErrors.email = getTranslation('vui_long_email');
     } else if (!emailRegex.test(email)) {
       newErrors.email = 'Email không hợp lệ!';
     }
 
     if (!phone) {
-      newErrors.phone = 'Vui lòng nhập số điện thoại!';
+      newErrors.phone = getTranslation('vui_long_sdt');
     } else if (phone.length !== 10) {
       newErrors.phone = 'Số điện thoại phải có 10 chữ số!';
     }
     if (!password) {
-      newErrors.password = 'Vui lòng nhập mật khẩu!';
+      newErrors.password = getTranslation('vui_long_mk');
     } else if (password.length < 6) {
       newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự!';
     }
@@ -114,15 +117,15 @@ const RegisterScreen = () => {
                   bold
                   color={'white'}
                   style={{textAlign: 'center'}}>
-                  Đăng ký
+                  {getTranslation('dang_ky')}
                 </TextSizeCustom>
                 <TextSmall color={colors.while} style={{textAlign: 'center'}}>
-                  MenStyle - Đẳng cấp là mãi mãi!
+                  {getTranslation('khau_hieu')}
                 </TextSmall>
 
                 <Block marT={30} />
                 <InputBase
-                  placeholder="Họ và tên"
+                  placeholder={getTranslation('nhap_ho_va_ten')}
                   value={name}
                   onChangeText={(text: string) => {
                     setName(text);
@@ -143,7 +146,7 @@ const RegisterScreen = () => {
                 )}
 
                 <InputBase
-                  placeholder="Email"
+                  placeholder={getTranslation('nhap_email')}
                   value={email}
                   onChangeText={(text: string) => {
                     setEmail(text);
@@ -165,7 +168,7 @@ const RegisterScreen = () => {
                 )}
 
                 <InputBase
-                  placeholder="Số điện thoại"
+                  placeholder={getTranslation('nhap_so_dien_thoai')}
                   value={phone}
                   keyboardType="numeric"
                   onChangeText={(text: string) => {
@@ -188,7 +191,7 @@ const RegisterScreen = () => {
                 )}
 
                 <InputBase
-                  placeholder="Mật khẩu"
+                  placeholder={getTranslation('nhap_mat_khau')}
                   value={password}
                   onChangeText={(text: string) => {
                     setPassword(text);
@@ -215,7 +218,7 @@ const RegisterScreen = () => {
                 )}
 
                 <ButtonBase
-                  title="Đăng ký"
+                  title={getTranslation('dang_ky')}
                   containerStyle={{marginVertical: 40}}
                   onPress={handleRegister}
                 />
@@ -223,13 +226,15 @@ const RegisterScreen = () => {
             </Block>
 
             <Block row middle>
-              <TextSmall color={colors.while}>Bạn đã có tài khoản? </TextSmall>
+              <TextSmall color={colors.while}>
+                {getTranslation('da_co_tk')}{' '}
+              </TextSmall>
               <TouchableOpacity
                 onPress={() => {
                   handleLogin();
                 }}>
                 <TextSmall color={colors.green} bold>
-                  Đăng nhập
+                  {getTranslation('dang_nhap')}
                 </TextSmall>
 
                 {/* <TouchableOpacity onPress={handleLogin}>

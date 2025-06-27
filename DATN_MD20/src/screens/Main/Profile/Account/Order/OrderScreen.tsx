@@ -10,11 +10,7 @@ import React, {useMemo, useRef, useState} from 'react';
 import ContainerView from '../../../../../components/layout/ContainerView';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Header from '../../../../../components/dataDisplay/Header';
-import {
-  dataItemOrder,
-  dataOrder,
-  dataProduct,
-} from '../../../../../constants/data';
+import {dataItemOrder, dataProduct} from '../../../../../constants/data';
 import {colors} from '../../../../../themes/colors';
 import Block from '../../../../../components/layout/Block';
 import {TextSmall} from '../../../../../components/dataEntry/TextBase';
@@ -22,10 +18,21 @@ import metrics from '../../../../../constants/metrics';
 import OrderItem from '../../../../../components/dataDisplay/Order/OrderItem';
 import navigation from '../../../../../navigation/navigation';
 import ScreenName from '../../../../../navigation/ScreenName';
+import useLanguage from '../../../../../hooks/useLanguage';
 
 const OrderScreen = () => {
   const {top} = useSafeAreaInsets();
+  const {getTranslation} = useLanguage();
   const [selectedTab, setSelectedTab] = useState('Chờ xác nhận');
+
+  const dataOrder = [
+    {id: 'o1', name: getTranslation('tat_ca')},
+    {id: 'o2', name: getTranslation('cho_xac_nhan')},
+    {id: 'o3', name: getTranslation('da_xac_nhan')},
+    {id: 'o4', name: getTranslation('cho_giao_hang')},
+    {id: 'o5', name: getTranslation('da_giao')},
+    {id: 'o6', name: getTranslation('da_huy')},
+  ];
 
   const handleTabPress = (tab: string) => {
     setSelectedTab(tab);
@@ -82,7 +89,7 @@ const OrderScreen = () => {
   );
   return (
     <ContainerView>
-      <Header label="Đơn hàng" paddingTop={top} />
+      <Header label={getTranslation('don_hang')} paddingTop={top} />
       <View style={{backgroundColor: colors.while, paddingHorizontal: 5}}>
         <ScrollView
           showsHorizontalScrollIndicator={false}

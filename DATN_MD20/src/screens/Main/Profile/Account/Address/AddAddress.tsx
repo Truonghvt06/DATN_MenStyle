@@ -32,6 +32,7 @@ import {
   //   getWardsByDistrictCode,
 } from 'vietnam-provinces';
 import SelectAddress from '../../../../../components/utils/SelectAddress';
+import useLanguage from '../../../../../hooks/useLanguage';
 
 interface IAddress {
   name: string;
@@ -43,6 +44,7 @@ interface IAddress {
 }
 const AddAddress = () => {
   const {top} = useSafeAreaInsets();
+  const {getTranslation} = useLanguage();
   const [isFocused, setIsFocused] = useState(false);
   const [isSwitch, setIsSwitch] = useState(false);
   const [address, setAddress] = useState<IAddress>({
@@ -80,7 +82,7 @@ const AddAddress = () => {
         setIsFocused(false);
       }}>
       <ContainerView>
-        <Header label="địa chỉ mới" paddingTop={top} />
+        <Header label={getTranslation('dia_chi_moi')} paddingTop={top} />
         <ScrollView>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -91,10 +93,10 @@ const AddAddress = () => {
                 padH={8}
                 padV={12}
                 borderRadius={10}>
-                <TextMedium medium>Địa chỉ</TextMedium>
+                <TextMedium medium>{getTranslation('dia_chi')}</TextMedium>
                 <InputPlace
                   is_Focused={isFocused}
-                  label="Họ và tên"
+                  label={getTranslation('ho_va_ten')}
                   value={address.name}
                   onChangeText={(text: string) =>
                     setAddress({...address, name: text})
@@ -102,7 +104,7 @@ const AddAddress = () => {
                 />
                 <InputPlace
                   is_Focused={isFocused}
-                  label="Số điện thoại"
+                  label={getTranslation('sdt')}
                   value={address.phone}
                   onChangeText={(text: string) =>
                     setAddress({...address, phone: text})
@@ -111,7 +113,7 @@ const AddAddress = () => {
                 <InputPlace
                   readOnly
                   is_Focused={isFocused}
-                  label="Chọn Tỉnh/Thành phố"
+                  label={getTranslation('chon_tinh')}
                   value={address.province}
                   iconRight
                   containerView={{
@@ -124,7 +126,7 @@ const AddAddress = () => {
                 <InputPlace
                   readOnly
                   is_Focused={isFocused}
-                  label="Chọn Quận/Huyện"
+                  label={getTranslation('chon_huyen')}
                   value={address.district}
                   iconRight
                   disabled={!address.province}
@@ -142,7 +144,7 @@ const AddAddress = () => {
                 <InputPlace
                   readOnly
                   is_Focused={isFocused}
-                  label="Chọn Phường/Xã"
+                  label={getTranslation('chon_xa')}
                   value={address.ward}
                   iconRight
                   disabled={!address.district}
@@ -163,7 +165,7 @@ const AddAddress = () => {
 
                 <InputPlace
                   is_Focused={isFocused}
-                  label="Tên đường, Toà nhà, Số nhà"
+                  label={getTranslation('ten_duong')}
                   value={address.addres_line}
                   onChangeText={(text: string) =>
                     setAddress({...address, addres_line: text})
@@ -179,7 +181,7 @@ const AddAddress = () => {
                 padV={12}
                 marT={10}
                 borderRadius={10}>
-                <TextMedium medium>Đặt làm mặc định</TextMedium>
+                <TextMedium medium>{getTranslation('dat_mac_dinh')}</TextMedium>
                 <Switch
                   value={isSwitch}
                   onValueChange={() => setIsSwitch(!isSwitch)}
@@ -190,7 +192,7 @@ const AddAddress = () => {
         </ScrollView>
 
         <SelectAddress
-          label="Chọn Tỉnh"
+          label={getTranslation('chon_tinh')}
           visible={isOpenProvince}
           data={provinces}
           onClose={() => setIsOpenProvince(false)}
@@ -209,7 +211,7 @@ const AddAddress = () => {
         />
 
         <SelectAddress
-          label="Chọn Huyện"
+          label={getTranslation('chon_huyen')}
           visible={isOpenDistrict}
           data={districtss}
           onClose={() => setIsOpenDistrict(false)}
@@ -222,7 +224,7 @@ const AddAddress = () => {
         />
 
         <SelectAddress
-          label="Chọn Xã"
+          label={getTranslation('chon_xa')}
           visible={isOpenWard}
           data={wardss}
           onClose={() => setIsOpenWard(false)}

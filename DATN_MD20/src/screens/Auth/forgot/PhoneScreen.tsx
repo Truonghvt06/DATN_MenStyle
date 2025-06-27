@@ -23,9 +23,11 @@ import ButtonBase from '../../../components/dataEntry/Button/ButtonBase';
 import {colors} from '../../../themes/colors';
 import navigation from '../../../navigation/navigation';
 import ScreenName from '../../../navigation/ScreenName';
+import useLanguage from '../../../hooks/useLanguage';
 
 const ForgotPassScreen = () => {
   const {top} = useSafeAreaInsets();
+  const {getTranslation} = useLanguage();
   const [phone, setPhone] = React.useState<string>('');
   const handleContuinue = () => {
     navigation.navigate(ScreenName.Auth.OTPScreen);
@@ -33,7 +35,7 @@ const ForgotPassScreen = () => {
 
   return (
     <ContainerView>
-      <Header label="Quên mật khẩu" paddingTop={top} />
+      <Header label={getTranslation('quen_mk')} paddingTop={top} />
       <TouchableWithoutFeedback
         onPress={() => {
           Keyboard.dismiss();
@@ -44,19 +46,18 @@ const ForgotPassScreen = () => {
             size={20}
             bold
             style={{textTransform: 'capitalize', textAlign: 'center'}}>
-            Nhập email đăng ký
+            {getTranslation('nhap_email_dang_ky')}
           </TextSizeCustom>
           <TextSmall
             style={{textAlign: 'center', marginTop: 10, paddingHorizontal: 40}}>
-            Hãy điền email liên kết với tài khoản của bạn để MenStyle có thể gửi
-            bạn mã OTP nhé:
+            {getTranslation('dien_email_dk')}
           </TextSmall>
-          <TextMedium bold style={{marginTop: 40}}>
-            Nhập Email:
+          <TextMedium bold style={{marginTop: 40, textTransform: 'capitalize'}}>
+            {getTranslation('nhap_email')}:
           </TextMedium>
           <InputBase
             value={phone}
-            placeholder="Nhập email"
+            placeholder={getTranslation('nhap_email')}
             // keyboardType="numeric"
             containerStyle={{marginTop: 5}}
             onChangeText={(text: string) => {
@@ -67,7 +68,7 @@ const ForgotPassScreen = () => {
             }
           />
           <ButtonBase
-            title="Tiếp Tục"
+            title={getTranslation('tiep_tuc')}
             radius={10}
             backgroundColor={colors.green}
             size={16}

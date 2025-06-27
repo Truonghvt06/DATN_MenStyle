@@ -10,16 +10,23 @@ import {allProducts} from '../../../constants/data';
 import ListProduct from '../../../components/dataDisplay/ListProduct';
 import Block from '../../../components/layout/Block';
 import metrics from '../../../constants/metrics';
-
-const tabs = ['Tất cả', 'Mới nhất', 'Bán chạy', 'Giá'];
+import useLanguage from '../../../hooks/useLanguage';
 
 // Dữ liệu giả
 
 const CategoryScreen = () => {
   const route = useRoute();
+  const {getTranslation} = useLanguage();
   const {top} = useSafeAreaInsets();
-  const {name} = route.params as {name: string}; //từ home
-  const [selectedTab, setSelectedTab] = useState('Tất cả');
+  const {name, title} = route.params as {name: string; title: string}; //từ home
+  const [selectedTab, setSelectedTab] = useState(getTranslation('tat_ca'));
+
+  const tabs = [
+    getTranslation('tat_ca'),
+    getTranslation('moi_nhat'),
+    getTranslation('ban_chay'),
+    getTranslation('gia'),
+  ];
 
   const handleTabPress = (tab: string) => {
     setSelectedTab(tab);
@@ -31,16 +38,16 @@ const CategoryScreen = () => {
 
     // Sau đó sắp xếp theo tab
     switch (selectedTab) {
-      case 'Mới nhất':
+      case getTranslation('moi_nhat'):
         return [...productsByCategory].sort(
           (a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
         );
-      case 'Bán chạy':
+      case getTranslation('ban_chay'):
         return [...productsByCategory].sort((a, b) => b.sold - a.sold);
-      case 'Giá':
+      case getTranslation('gia'):
         return [...productsByCategory].sort((a, b) => a.price - b.price);
-      case 'Tất cả':
+      case getTranslation('tat_ca'):
       default:
         return productsByCategory;
     }
@@ -75,7 +82,7 @@ const CategoryScreen = () => {
 
   return (
     <ContainerView>
-      <Header label={name} paddingTop={top} />
+      <Header label={title} paddingTop={top} />
       <View style={[styles.tab]}>{tabs.map(renderTab)}</View>
 
       <Block padH={8} flex1>

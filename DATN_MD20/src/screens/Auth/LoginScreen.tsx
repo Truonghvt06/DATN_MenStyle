@@ -30,8 +30,10 @@ import MaskedView from '@react-native-masked-view/masked-view';
 import LinearGradient from 'react-native-linear-gradient';
 import {colorGradient} from '../../themes/theme_gradient';
 import {auth} from '../../services/firebase'; // ✅ thêm dòng này
+import useLanguage from '../../hooks/useLanguage';
 
 const LoginScreen = () => {
+  const {getTranslation} = useLanguage();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [isCheckBox, setIsCheckBox] = useState(false);
@@ -84,17 +86,17 @@ const LoginScreen = () => {
                   size={30}
                   color={colors.while}
                   style={{textAlign: 'center'}}>
-                  Chào mừng!
+                  {getTranslation('chao_mung')}
                 </TextSizeCustom>
                 <TextHeight
                   color={colors.while}
                   style={{textAlign: 'center', marginBottom: 30}}>
-                  Đăng nhập tài khoản
+                  {getTranslation('dang_nhap_tk')}
                 </TextHeight>
 
                 <InputBase
                   value={email}
-                  placeholder="Nhập email hoặc số điện thoại"
+                  placeholder={getTranslation('nhap_tai_khoan')}
                   isFocused={focusedInput === 'email'}
                   onFocus={() => setFocusedInput('email')}
                   onBlur={() => setFocusedInput(null)}
@@ -106,7 +108,7 @@ const LoginScreen = () => {
                 />
                 <InputBase
                   value={password}
-                  placeholder="Nhập mật khẩu"
+                  placeholder={getTranslation('nhap_mat_khau')}
                   secureTextEntry={!showPass}
                   isFocused={focusedInput === 'password'}
                   onFocus={() => setFocusedInput('password')}
@@ -146,7 +148,7 @@ const LoginScreen = () => {
                       size={13}
                       color={colors.while}
                       style={{marginLeft: 5}}>
-                      Nhớ tài khoản
+                      {getTranslation('nho_tk')}
                     </TextSizeCustom>
                   </Block>
 
@@ -156,7 +158,7 @@ const LoginScreen = () => {
                         activeOpacity={0.5}
                         onPress={handleForgotPassword}>
                         <TextSizeCustom size={13} color={colors.green}>
-                          Quên mật khẩu?
+                          {getTranslation('quen_mk')}
                         </TextSizeCustom>
                       </TouchableOpacity>
                     }>
@@ -164,14 +166,14 @@ const LoginScreen = () => {
                       activeOpacity={0.5}
                       onPress={handleForgotPassword}>
                       <TextSizeCustom size={13} color={colors.green}>
-                        Quên mật khẩu?
+                        {getTranslation('quen_mk')}
                       </TextSizeCustom>
                     </TouchableOpacity>
                   </MaskedView>
                 </Block>
 
                 <ButtonBase
-                  title="Đăng nhập"
+                  title={getTranslation('dang_nhap')}
                   onPress={() =>
                     // handleLogin()
                     navigation.navigate(ScreenName.Main.MainStack)
@@ -181,14 +183,14 @@ const LoginScreen = () => {
             </Block>
             <Block row middle>
               <TextSmall color={colors.while}>
-                Bạn không có tài khoản?{' '}
+                {getTranslation('khong_co_tk')}{' '}
               </TextSmall>
               <TouchableOpacity
                 onPress={() => {
                   handleRegister();
                 }}>
                 <TextSmall color={colors.green} bold>
-                  Tạo tài khoản
+                  {getTranslation('tao_tk')}
                 </TextSmall>
 
                 {/* <TouchableOpacity onPress={handleRegister}>

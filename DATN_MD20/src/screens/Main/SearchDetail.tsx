@@ -13,6 +13,7 @@ import {colors} from '../../themes/colors';
 import Block from '../../components/layout/Block';
 import TouchIcon from '../../components/dataEntry/Button/TouchIcon';
 import {TextMedium, TextSmall} from '../../components/dataEntry/TextBase';
+import useLanguage from '../../hooks/useLanguage';
 
 const search = [
   {
@@ -30,6 +31,8 @@ const search = [
 ];
 const SearchDetail = () => {
   const {top} = useSafeAreaInsets();
+  const {getTranslation} = useLanguage();
+
   //   const navigation = useNavigation();
   return (
     <ContainerView paddingTop={top} containerStyle={styles.container}>
@@ -38,8 +41,8 @@ const SearchDetail = () => {
           autoFocus
           radius={10}
           inputStyle={styles.input}
-          containerStyle={{width: '90%'}}
-          placeholder="Nhập sản phẩm tìm kiếm..."
+          containerStyle={{width: '85%'}}
+          placeholder={getTranslation('nhap_sp_tim_kiem')}
           customLeft={
             <Image style={styles.icon_search} source={IconSRC.icon_search} />
           }
@@ -47,7 +50,7 @@ const SearchDetail = () => {
         <TouchIcon
           size={30}
           containerStyle={styles.back}
-          title="Huỷ"
+          title={getTranslation('huy')}
           onPress={() => navigation.goBack()}
         />
       </Block>
@@ -75,7 +78,7 @@ const SearchDetail = () => {
         ListFooterComponent={() =>
           search.length > 0 ? (
             <TouchIcon
-              title="Xoá tất cả lịch sử"
+              title={getTranslation('xoa_lich_su_tim_kiem')}
               colorTitle={colors.gray3}
               containerStyle={{marginVertical: 16, alignSelf: 'flex-end'}}
               onPress={() => {

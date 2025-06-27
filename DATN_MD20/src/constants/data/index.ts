@@ -1,4 +1,7 @@
+import useLanguage from '../../hooks/useLanguage';
 import {colors} from '../../themes/colors';
+
+// const {getTranslation} = useLanguage();
 
 export const dataBanner = [
   {title: 'Slide 1', image: require('../../assets/images/slide1.png')},

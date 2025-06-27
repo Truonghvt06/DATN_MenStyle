@@ -17,6 +17,7 @@ import {
 } from '../dataEntry/TextBase';
 import {IconSRC, ImgSRC} from '../../constants/icons';
 import metrics from '../../constants/metrics';
+import useLanguage from '../../hooks/useLanguage';
 
 interface Props {
   data: any;
@@ -35,6 +36,7 @@ const NUM_COLUMNS = 2;
 const width = metrics.diviceScreenWidth;
 const ITEM_WIDTH = (width - ITEM_MARGIN * (NUM_COLUMNS + 1.5)) / NUM_COLUMNS;
 const ListProduct = (props: Props) => {
+  const {getTranslation} = useLanguage();
   const {
     data,
     isSeemore,
@@ -89,7 +91,7 @@ const ListProduct = (props: Props) => {
       {isSeemore && (
         <TouchableOpacity onPress={onPressSee}>
           <TextSizeCustom size={16} style={styles.see} medium>
-            {'Xem Thêm -->'}{' '}
+            {getTranslation('xem_them')}
           </TextSizeCustom>
         </TouchableOpacity>
       )}

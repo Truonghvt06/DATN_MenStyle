@@ -16,6 +16,7 @@ import {
   TextSmall,
 } from '../../dataEntry/TextBase';
 import {colors} from '../../../themes/colors';
+import useLanguage from '../../../hooks/useLanguage';
 
 interface Propos {
   data: any;
@@ -28,6 +29,7 @@ interface Propos {
   onPress?: () => void;
 }
 const OrderItem = (props: Propos) => {
+  const {getTranslation} = useLanguage();
   const {
     data,
     code_order,
@@ -102,7 +104,7 @@ const OrderItem = (props: Propos) => {
                       Size: {item.size} |{' '}
                     </TextSizeCustom>
                     <TextSizeCustom size={12} color={colors.gray}>
-                      Màu: {item.color} |{' '}
+                      {getTranslation('mau')}: {item.color} |{' '}
                     </TextSizeCustom>
                     <TextSizeCustom size={12} color={colors.gray}>
                       SL: {item.quantity}
@@ -122,8 +124,12 @@ const OrderItem = (props: Propos) => {
           //   }
         />
         <Block borderTopW={0.3} borderColor={colors.gray} padT={8} marT={8}>
-          <TextSmall color={colors.gray}>{totalOrder} sản phẩm</TextSmall>
-          <TextHeight bold>Tổng: {total?.toLocaleString('vi-VN')}đ</TextHeight>
+          <TextSmall color={colors.gray}>
+            {totalOrder} {getTranslation('san_pham_')}
+          </TextSmall>
+          <TextHeight bold>
+            {getTranslation('tong')}: {total?.toLocaleString('vi-VN')}đ
+          </TextHeight>
         </Block>
       </Block>
     </TouchableOpacity>

@@ -18,9 +18,11 @@ import {colors} from '../../../themes/colors';
 import navigation from '../../../navigation/navigation';
 import ScreenName from '../../../navigation/ScreenName';
 import OTPTextInput from 'react-native-otp-textinput';
+import useLanguage from '../../../hooks/useLanguage';
 
 const OTPScreen = () => {
   const {top} = useSafeAreaInsets();
+  const {getTranslation} = useLanguage();
   const [otpCode, setOtpCode] = useState('');
 
   const handleNext = () => {
@@ -35,7 +37,7 @@ const OTPScreen = () => {
   };
   return (
     <ContainerView>
-      <Header label="Xác thực OTP" paddingTop={top} />
+      <Header label={getTranslation('xac_thuc_otp')} paddingTop={top} />
       <TouchableWithoutFeedback
         onPress={() => {
           Keyboard.dismiss();
@@ -43,10 +45,10 @@ const OTPScreen = () => {
         <Block flex1>
           <Block alignCT padT={30}>
             <TextSmall style={{textAlign: 'center'}}>
-              Mã OTP đã gửi về số điện thoại
+              {getTranslation('ma_otp_da_gui')}
             </TextSmall>
             <TextSmall style={{textAlign: 'center'}}>
-              Bạn cần nhập mã OTP để tiếp tục
+              {getTranslation('nhap_otp')}
             </TextSmall>
           </Block>
           <Block flex1 pad={30} alignCT marT={30}>
@@ -64,13 +66,13 @@ const OTPScreen = () => {
 
             <TouchableOpacity onPress={() => {}}>
               <TextMedium bold color={colors.green} style={styles.text}>
-                Gửi lại
+                {getTranslation('gui_lai_otp')}
               </TextMedium>
             </TouchableOpacity>
           </Block>
 
           <ButtonBase
-            title="Tiếp tục"
+            title={getTranslation('tiep_tuc')}
             containerStyle={{marginBottom: 70, marginHorizontal: 20}}
             onPress={() => {
               handleNext();

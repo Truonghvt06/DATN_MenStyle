@@ -13,19 +13,22 @@ import metrics from '../../constants/metrics';
 import ButtonOption from '../../components/dataEntry/Button/BottonOption';
 import Block from '../../components/layout/Block';
 import ModalCenter from '../../components/dataDisplay/Modal/ModalCenter';
+import useLanguage from '../../hooks/useLanguage';
 
 const FavoriteScreen = () => {
   const {top} = useSafeAreaInsets();
+  const {getTranslation} = useLanguage();
+
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenDel, setIsOpenDel] = useState(false);
 
   const showAlert = () => {
     Alert.alert(
-      'Xác nhận',
-      'Bạn có chắc muốn xoá toàn bộ?',
+      getTranslation('thong_bao'),
+      getTranslation('xoa_toan_bo'),
       [
         {
-          text: 'Huỷ',
+          text: getTranslation('huy'),
           onPress: () => console.log('Đã huỷ'),
           style: 'cancel',
         },
@@ -41,7 +44,7 @@ const FavoriteScreen = () => {
     <ContainerView>
       <Header
         visibleLeft
-        label="Yêu thích"
+        label={getTranslation('ua_thich')}
         paddingTop={top}
         right={
           <TouchIcon
@@ -76,7 +79,7 @@ const FavoriteScreen = () => {
       />
       <ModalBottom
         header
-        label="Tuỳ Chọn"
+        label={getTranslation('tuy_chon')}
         visible={isOpen}
         animationType="fade"
         onClose={() => setIsOpen(false)}
@@ -89,7 +92,7 @@ const FavoriteScreen = () => {
               sizeLeft={20}
               borderColor={colors.white30}
               containerStyle={{paddingVertical: 20}}
-              name="Thêm vào giỏ hàng"
+              name={getTranslation('them_vao_gio_hang')}
               onPress={() => {}}
             />
             <ButtonOption
@@ -98,7 +101,7 @@ const FavoriteScreen = () => {
               sizeLeft={20}
               borderColor={colors.white30}
               containerStyle={{paddingVertical: 20}}
-              name="Xoá khỏi yêu thích"
+              name={getTranslation('xoa_yeu_thich')}
               onPress={() => {}}
             />
           </Block>

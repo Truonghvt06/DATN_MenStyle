@@ -27,6 +27,7 @@ import ListProduct from '../../components/dataDisplay/ListProduct';
 import {dataProduct} from '../../constants/data';
 import {FlatList} from 'react-native-gesture-handler';
 import products from '../../services/products';
+import useLanguage from '../../hooks/useLanguage';
 
 const ITEM_MARGIN = 10;
 const NUM_COLUMNS = 2;
@@ -34,6 +35,7 @@ const width = metrics.diviceScreenWidth;
 const ITEM_WIDTH = (width - ITEM_MARGIN * (NUM_COLUMNS + 1.5)) / NUM_COLUMNS;
 const HomeScreen = () => {
   const {top} = useSafeAreaInsets();
+  const {getTranslation} = useLanguage();
   const [proData, setProData] = useState<any[]>([]);
 
   useEffect(() => {
@@ -58,8 +60,8 @@ const HomeScreen = () => {
   const handleProDetail = (item: any) => {
     navigation.navigate(ScreenName.Main.ProductDetail, {product: item});
   };
-  const handleCategory = (name: string) => {
-    navigation.navigate(ScreenName.Main.Category, {name: name});
+  const handleCategory = (name: string, title: string) => {
+    navigation.navigate(ScreenName.Main.Category, {name: name, title: title});
   };
 
   const handleFavorite = (id: number) => {
@@ -81,51 +83,55 @@ const HomeScreen = () => {
       <TextHeight
         style={{textTransform: 'capitalize', marginVertical: 10}}
         bold>
-        Danh mục:
+        {getTranslation('danh_muc')}:
       </TextHeight>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <Avatar
-          title="Áo Polo"
+          title={getTranslation('ao_polo')}
           icon={IconSRC.icon_polo}
           containerStyle={{paddingHorizontal: 20}}
-          onPress={() => handleCategory('Áo polo')}
+          onPress={() => handleCategory('Áo polo', getTranslation('ao_polo'))}
         />
         <Avatar
-          title="Áo Thun"
+          title={getTranslation('ao_thun')}
           icon={IconSRC.icon_t_shirt}
           containerStyle={{paddingHorizontal: 20}}
-          onPress={() => handleCategory('Áo thun')}
+          onPress={() => handleCategory('Áo thun', getTranslation('ao_thun'))}
         />
         <Avatar
-          title="Áo Sơ Mi"
+          title={getTranslation('ao_so_mi')}
           icon={IconSRC.icon_shirt}
           containerStyle={{paddingHorizontal: 20}}
-          onPress={() => handleCategory('Áo sơ mi')}
+          onPress={() => handleCategory('Áo sơ mi', getTranslation('ao_so_mi'))}
         />
         <Avatar
-          title="Áo Thể Thao"
+          title={getTranslation('ao_the_thao')}
           icon={IconSRC.icon_thethao}
           containerStyle={{paddingHorizontal: 10}}
-          onPress={() => handleCategory('Áo thể thao')}
+          onPress={() =>
+            handleCategory('Áo thể thao', getTranslation('ao_the_thao'))
+          }
         />
         <Avatar
-          title="Áo Khoác"
+          title={getTranslation('ao_khoac')}
           icon={IconSRC.icon_khoac}
           containerStyle={{paddingHorizontal: 20}}
-          onPress={() => handleCategory('Áo Khoác')}
+          onPress={() => handleCategory('Áo khoác', getTranslation('ao_khoac'))}
         />
         <Avatar
-          title="Áo Hoodie"
+          title={getTranslation('ao_hoodie')}
           icon={IconSRC.icon_hoodie}
           containerStyle={{paddingHorizontal: 20}}
-          onPress={() => handleCategory('Áo hoodie')}
+          onPress={() =>
+            handleCategory('Áo hoodie', getTranslation('ao_hoodie'))
+          }
         />
       </ScrollView>
 
       <TextHeight
         style={{textTransform: 'capitalize', marginVertical: 15}}
         bold>
-        Sản phẩm nổi bật:
+        {getTranslation('san_pham_noi_bat')}:
       </TextHeight>
     </>
   );
@@ -136,7 +142,9 @@ const HomeScreen = () => {
       {/* Header */}
       <Block row justifyBW>
         <Block>
-          <TextSmall style={{marginBottom: -5}}>Xin chào!</TextSmall>
+          <TextSmall style={{marginBottom: -5}}>
+            {getTranslation('xin_chao')}
+          </TextSmall>
           <TextSizeCustom size={30} bold>
             MenStyle
           </TextSizeCustom>

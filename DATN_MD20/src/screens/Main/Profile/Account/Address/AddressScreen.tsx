@@ -21,6 +21,7 @@ import {colors} from '../../../../../themes/colors';
 import {IconSRC} from '../../../../../constants/icons';
 import navigation from '../../../../../navigation/navigation';
 import ScreenName from '../../../../../navigation/ScreenName';
+import useLanguage from '../../../../../hooks/useLanguage';
 
 const DataAddress = [
   {
@@ -42,9 +43,10 @@ const DataAddress = [
 ];
 const AddressScreen = () => {
   const {top} = useSafeAreaInsets();
+  const {getTranslation} = useLanguage();
   return (
     <ContainerView>
-      <Header label="Địa chỉ" paddingTop={top} />
+      <Header label={getTranslation('dia_chi')} paddingTop={top} />
       <FlatList
         data={DataAddress}
         keyExtractor={item => item.id}
@@ -60,7 +62,7 @@ const AddressScreen = () => {
                 style={{width: 20, height: 20, marginRight: 10}}
               />
               <TextSmall style={{textTransform: 'capitalize'}}>
-                Thêm địa chỉ mới
+                {getTranslation('them_dia_chi')}
               </TextSmall>
             </Block>
           </TouchableOpacity>
