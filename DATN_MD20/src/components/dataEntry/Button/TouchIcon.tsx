@@ -16,7 +16,7 @@ import {colors} from '../../../themes/colors';
 
 interface Props extends TouchableOpacityProps {
   title?: string | any;
-  icon?: IconSRC;
+  icon?: IconSRC | any;
   size?: number;
   sizeText?: number;
 

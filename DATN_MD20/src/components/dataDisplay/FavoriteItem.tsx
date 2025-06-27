@@ -7,6 +7,7 @@ import ButtonBase from '../dataEntry/Button/ButtonBase';
 import {IconSRC} from '../../constants/icons';
 import {colors} from '../../themes/colors';
 import TouchIcon from '../dataEntry/Button/TouchIcon';
+import useLanguage from '../../hooks/useLanguage';
 
 interface Props {
   name?: string;
@@ -17,6 +18,7 @@ interface Props {
   onPressIcon?: () => void;
 }
 const FavoriteItem = (props: Props) => {
+  const {getTranslation} = useLanguage();
   const {name, price, image, onPress, onPressIcon, onPressAdd} = props;
   return (
     <TouchableOpacity
@@ -38,7 +40,7 @@ const FavoriteItem = (props: Props) => {
           </TextMedium>
           <ButtonBase
             containerStyle={styles.btnAdd}
-            title="Thêm vào giỏ"
+            title={getTranslation('them_vao_gio')}
             size={12}
             radius={5}
             titleStyle={{fontWeight: '100'}}

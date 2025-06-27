@@ -5,8 +5,7 @@ import {colors} from '../../../themes/colors';
 import {Check} from 'lucide-react-native'; // Hoặc dùng icon từ react-native-vector-icons
 import {IconSRC} from '../../../constants/icons';
 import {colorGradient} from '../../../themes/theme_gradient';
-
-const labels = ['Chờ xác nhận', 'Đã xác nhận', 'Chờ giao hàng', 'Đã giao'];
+import useLanguage from '../../../hooks/useLanguage';
 
 const customStyles = {
   stepIndicatorSize: 37,
@@ -36,6 +35,15 @@ interface Props {
 }
 
 const OrderStatusStep = ({status}: Props) => {
+  const {getTranslation} = useLanguage();
+
+  const labels = [
+    getTranslation('cho_xac_nhan'),
+    getTranslation('da_xac_nhan'),
+    getTranslation('cho_giao_hang'),
+    getTranslation('da_giao'),
+  ];
+
   const statusIndex: any = {
     'Chờ xác nhận': 0,
     'Đã xác nhận': 1,

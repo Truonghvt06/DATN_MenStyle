@@ -12,13 +12,22 @@ import ButtonBase from '../../components/dataEntry/Button/ButtonBase';
 import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
 import {useRoute} from '@react-navigation/native';
+import {useAppSelector} from '../../redux/store';
+import useLanguage from '../../hooks/useLanguage';
 
 const ProfileScreen = () => {
   const {top} = useSafeAreaInsets();
+  const {getTranslation} = useLanguage();
+  const language = useAppSelector(state => state.application.lang.label);
   return (
     <ContainerView>
-      <Header visibleLeft label="Tài khoản" paddingTop={top} />
+      <Header
+        visibleLeft
+        label={getTranslation('tai_khoan')}
+        paddingTop={top}
+      />
       <ScrollView
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingHorizontal: 8, paddingBottom: 20}}>
         <Block alignCT marT={16} marB={50}>
           <Image style={styles.avatar} source={ImgSRC.img_avatar} />
@@ -26,19 +35,19 @@ const ProfileScreen = () => {
             Nguyễn Văn A
           </TextSizeCustom>
         </Block>
-        <TextHeight bold>Tài Khoản</TextHeight>
+        <TextHeight bold>{getTranslation('tai_khoan1')}</TextHeight>
         <Block w100 borderWidth={0.5} borderColor={colors.gray3} marV={5} />
         <ButtonOption
-          name="Thông tin cá nhân"
-          content="Thay đổi thông tin cá nhân"
+          name={getTranslation('thong_tin_ca_nhan')}
+          content={getTranslation('thay_doi_thong_tin')}
           iconLeft={IconSRC.icon_user}
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
         />
         <ButtonOption
-          name="Đơn hàng"
-          content="Xem lịch sử đơn hàng"
+          name={getTranslation('don_hang')}
+          content={getTranslation('xem_don_hang')}
           iconLeft={IconSRC.icon_order}
           sizeLeft={25}
           borderBottom={0}
@@ -46,16 +55,16 @@ const ProfileScreen = () => {
           onPress={() => navigation.navigate(ScreenName.Main.Orders)}
         />
         <ButtonOption
-          name="Ưa thích"
-          content="Sản phẩm đã lưu"
+          name={getTranslation('ua_thich')}
+          content={getTranslation('sp_da_luu')}
           iconLeft={IconSRC.icon_favorite}
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
         />
         <ButtonOption
-          name="Địa chỉ"
-          content="Quản lý địa chỉ giao hàng"
+          name={getTranslation('dia_chi')}
+          content={getTranslation('ql_dia_chi')}
           iconLeft={IconSRC.icon_address}
           sizeLeft={25}
           borderBottom={0}
@@ -63,38 +72,39 @@ const ProfileScreen = () => {
           onPress={() => navigation.navigate(ScreenName.Main.Address)}
         />
 
-        <TextHeight bold>Khác</TextHeight>
+        <TextHeight bold>{getTranslation('khac')}</TextHeight>
         <Block w100 borderWidth={0.5} borderColor={colors.gray3} marV={5} />
         <ButtonOption
-          name="Voucher"
-          content="Kho quà giảm giá"
+          name={getTranslation('ma_giam_gia')}
+          content={getTranslation('kho_ma_giam_gia')}
           iconLeft={IconSRC.icon_voucher}
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
         />
         <ButtonOption
-          name="Ngôn ngữ"
-          content="Thay đổi ngôn ngữ"
+          name={getTranslation('ngon_ngu')}
+          content={language}
           iconLeft={IconSRC.icon_language}
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
+          onPress={() => navigation.navigate(ScreenName.Main.Language)}
         />
         <ButtonOption
-          name="Chủ đề"
-          content="Thay đổi màu sắc"
+          name={getTranslation('chu_de')}
+          content={getTranslation('thay_doi_chu_de')}
           iconLeft={IconSRC.icon_theme}
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5, marginBottom: 30}}
         />
 
-        <TextHeight bold>Chính Sách & Điều khoản</TextHeight>
+        <TextHeight bold>{getTranslation('chinh_sach_dieu_khoan')}</TextHeight>
         <Block w100 borderWidth={0.5} borderColor={colors.gray3} marV={5} />
         <ButtonOption
-          name="Điều khoản & Điều kiện"
-          content="Điều khoản và diều kiện của MenStyle"
+          name={getTranslation('dieu_khoan_dieu_kien')}
+          content={getTranslation('dieu_khoan_dieu_kien_')}
           iconLeft={IconSRC.icon_terms}
           sizeLeft={25}
           borderBottom={0}
@@ -102,18 +112,18 @@ const ProfileScreen = () => {
           onPress={() => navigation.navigate('DieuKhoan')}
         />
         <ButtonOption
-          name="Chính sách quyền riêng tư"
-          content="Chính sánh về quyền riêng tư "
+          name={getTranslation('chinh_sach_rieng_tu')}
+          content={getTranslation('chinh_sach_rieng_tu_')}
           iconLeft={IconSRC.icon_policy}
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5, marginBottom: 30}}
           onPress={() => navigation.navigate('ChinhSach')}
         />
-        <TextHeight bold>Hỗ Trợ</TextHeight>
+        <TextHeight bold>{getTranslation('ho_tro')}</TextHeight>
         <Block w100 borderWidth={0.5} borderColor={colors.gray3} marV={5} />
         <ButtonOption
-          name="Liên hệ"
+          name={getTranslation('lien_he')}
           content="0986868686"
           iconLeft={IconSRC.icon_contact}
           sizeLeft={25}
@@ -121,7 +131,7 @@ const ProfileScreen = () => {
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
         />
         <ButtonOption
-          name="Email"
+          name={getTranslation('email')}
           content="admin@gmail.con"
           iconLeft={IconSRC.icon_email}
           sizeLeft={25}
@@ -129,19 +139,19 @@ const ProfileScreen = () => {
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
         />
         <ButtonBase
-          title="Đăng xuất"
+          title={getTranslation('dang_xuat')}
           containerStyle={styles.btnLogout}
           size={14}
           icon={IconSRC.icon_logout}
           colorIcon={colors.while}
           onPress={() => {
             Alert.alert(
-              'Đăng xuất',
-              'Bạn có chắc chắn muốn đăng xuất?',
+              getTranslation('thong_bao'),
+              getTranslation('thong_bao_dang_xuat'),
               [
-                {text: 'Huỷ', style: 'cancel'},
+                {text: getTranslation('huy'), style: 'cancel'},
                 {
-                  text: 'Đồng ý',
+                  text: 'OK',
                   onPress: () => navigation.reset(ScreenName.Auth.AuthStack),
                 },
               ],

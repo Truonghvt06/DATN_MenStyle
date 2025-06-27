@@ -8,6 +8,7 @@ import ContainerView from '../../components/layout/ContainerView';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import metrics from '../../constants/metrics';
 import {colors} from '../../themes/colors';
+import useLanguage from '../../hooks/useLanguage';
 type NotificationItem = {
   id: string;
   title: string;
@@ -18,6 +19,7 @@ type NotificationItem = {
 
 export default function NotificationScreen() {
   const {top} = useSafeAreaInsets();
+  const {getTranslation} = useLanguage();
   const [notifications, setNotifications] = useState(demoNotifications);
 
   const renderItem = ({item}: {item: NotificationItem}) => (
@@ -32,7 +34,7 @@ export default function NotificationScreen() {
   return (
     <ContainerView>
       <Header
-        label="Thông báo"
+        label={getTranslation('thong_bao')}
         paddingTop={top}
         onPressLeft={() => navigation.goBack()}
       />

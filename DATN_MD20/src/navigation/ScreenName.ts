@@ -27,5 +27,6 @@ export default {
     AddressDetail: 'AddressDetailScreen',
     AddAddress: 'AddAddressScreen',
     OrderDetail: 'OrderDetailScreen',
+    Language: 'LangguageScreen',
   },
 };

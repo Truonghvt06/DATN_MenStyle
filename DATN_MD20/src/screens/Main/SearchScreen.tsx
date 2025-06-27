@@ -28,9 +28,12 @@ import Header from '../../components/dataDisplay/Header';
 import ButtonOption from '../../components/dataEntry/Button/BottonOption';
 import ListProduct from '../../components/dataDisplay/ListProduct';
 import {dataProduct} from '../../constants/data';
+import useLanguage from '../../hooks/useLanguage';
 
 const SearchScreen = () => {
   const {top} = useSafeAreaInsets();
+  const {getTranslation} = useLanguage();
+
   const [value, setValue] = useState('');
 
   const handleSearch = () => {
@@ -44,7 +47,11 @@ const SearchScreen = () => {
       <ContainerView
       // containerStyle={{paddingTop: top, paddingHorizontal: metrics.space}}
       >
-        <Header visibleLeft label="Tìm kiếm" paddingTop={top} />
+        <Header
+          visibleLeft
+          label={getTranslation('tim_kiem')}
+          paddingTop={top}
+        />
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
@@ -59,7 +66,9 @@ const SearchScreen = () => {
               handleSearch();
             }}>
             <Image style={styles.icon} source={IconSRC.icon_search} />
-            <TextSmall color={colors.gray3}>Tìm sản phẩm...</TextSmall>
+            <TextSmall color={colors.gray3}>
+              {getTranslation('tim_sp')}
+            </TextSmall>
           </TouchableOpacity>
 
           <Image style={styles.banner} source={ImgSRC.img_banner} />
@@ -108,7 +117,7 @@ const SearchScreen = () => {
             }}
           /> */}
           <TextHeight style={styles.titel} bold>
-            Sản Phẩm Mới:
+            {getTranslation('san_pham_moi')}:
           </TextHeight>
           <ListProduct
             data={dataProduct}
@@ -119,7 +128,7 @@ const SearchScreen = () => {
           />
 
           <TextHeight style={styles.titel} bold>
-            Sản Phẩm Bán Chạy:
+            {getTranslation('san_pham_ban_chay')}:
           </TextHeight>
           <ListProduct
             data={dataProduct}
@@ -162,7 +171,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   titel: {
-    textTransform: 'uppercase',
+    textTransform: 'capitalize',
     marginTop: 20,
     marginBottom: 10,
   },

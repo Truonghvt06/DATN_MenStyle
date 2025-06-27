@@ -24,9 +24,11 @@ import {
 import {dataProduct} from '../../constants/data';
 import CartItem from '../../components/dataDisplay/CartItem';
 import {IconSRC} from '../../constants/icons';
+import useLanguage from '../../hooks/useLanguage';
 
 const CartScreen = () => {
   const {top} = useSafeAreaInsets();
+  const {getTranslation} = useLanguage();
   const [check, setCheck] = useState(false);
   // const [value, setValue] = useState('1');
   const [cartData, setCartData] = useState<any>(dataProduct);
@@ -49,7 +51,11 @@ const CartScreen = () => {
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ContainerView>
-        <Header visibleLeft label="Giỏ hàng" paddingTop={top} />
+        <Header
+          visibleLeft
+          label={getTranslation('gio_hang')}
+          paddingTop={top}
+        />
         <FlatList
           data={cartData}
           keyExtractor={(item, index) => item.id + ''}
@@ -87,12 +93,12 @@ const CartScreen = () => {
           positionA
           bottom0>
           <Block row justifyBW marB={10} alignCT>
-            <TextMedium>Tổng cộng:</TextMedium>
+            <TextMedium>{getTranslation('tong_cong')}:</TextMedium>
             <TextSizeCustom size={20} bold color={colors.red}>
               200.000đ
             </TextSizeCustom>
           </Block>
-          <ButtonBase title="Thanh toán" onPress={() => {}} />
+          <ButtonBase title={getTranslation('thanh_toan')} onPress={() => {}} />
         </Block>
       </ContainerView>
     </TouchableWithoutFeedback>

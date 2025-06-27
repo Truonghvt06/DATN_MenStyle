@@ -20,6 +20,7 @@ import ButtonBase from '../../../components/dataEntry/Button/ButtonBase';
 import {colors} from '../../../themes/colors';
 import navigation from '../../../navigation/navigation';
 import ScreenName from '../../../navigation/ScreenName';
+import useLanguage from '../../../hooks/useLanguage';
 
 interface Error {
   passNew?: string;
@@ -27,6 +28,7 @@ interface Error {
 }
 const NewPassScreen = () => {
   const {top} = useSafeAreaInsets();
+  const {getTranslation} = useLanguage();
   const [passNew, setPassNew] = useState('');
   const [rePassNew, setRePassNew] = useState('');
   const [showPassNew, setShowPassNew] = useState(false);
@@ -36,12 +38,12 @@ const NewPassScreen = () => {
   const validate = () => {
     const newError: Error = {};
     if (passNew.trim() === '') {
-      newError.passNew = 'Vui lòng nhập mật khẩu mới!';
+      newError.passNew = getTranslation('vui_long_mk_moi');
     }
     if (rePassNew.trim() === '') {
-      newError.rePassNew = 'Vui lòng xác nhận mật khẩu mới!';
+      newError.rePassNew = getTranslation('vui_long_xnh_mk_moi');
     } else if (rePassNew !== passNew) {
-      newError.rePassNew = 'Mật khẩu xác nhận không khớp!';
+      newError.rePassNew = getTranslation('mk_khong_trung');
     }
     setErrorInp(newError);
     return Object.keys(newError).length === 0;
@@ -52,13 +54,13 @@ const NewPassScreen = () => {
   };
   return (
     <ContainerView>
-      <Header label="Đổi mật khẩu" paddingTop={top} />
+      <Header label={getTranslation('doi_mat_khau')} paddingTop={top} />
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <Block flex1 pad={20}>
-          <TextMedium bold>Nhập mật khẩu mới:</TextMedium>
+          <TextMedium bold>{getTranslation('nhap_mk_moi')}:</TextMedium>
           <InputBase
             value={passNew}
-            placeholder="Nhập mật khẩu mới"
+            placeholder={getTranslation('nhap_mk_moi')}
             secureTextEntry={!showPassNew}
             iconRight
             imageName={showPassNew ? IconSRC.icon_eye_off : IconSRC.icon_eye}
@@ -76,11 +78,11 @@ const NewPassScreen = () => {
           )}
 
           <TextMedium bold style={{marginTop: 10}}>
-            Xác nhận mật khẩu mới:
+            {getTranslation('xac_nhan_mk_moi')}
           </TextMedium>
           <InputBase
             value={rePassNew}
-            placeholder="Nhập mật khẩu mới"
+            placeholder={getTranslation('nhap_lai_mk_moi')}
             secureTextEntry={!showRePassNew}
             iconRight
             imageName={showRePassNew ? IconSRC.icon_eye_off : IconSRC.icon_eye}
@@ -97,7 +99,7 @@ const NewPassScreen = () => {
             </TextSizeCustom>
           )}
           <ButtonBase
-            title="Lưu"
+            title={getTranslation('luu')}
             containerStyle={{marginTop: 50}}
             onPress={() => handleSave()}
           />

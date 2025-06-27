@@ -27,9 +27,11 @@ import OrderStatusStep from '../../../../../components/dataDisplay/Order/OrderSt
 import ButtonBase from '../../../../../components/dataEntry/Button/ButtonBase';
 import ModalBottom from '../../../../../components/dataDisplay/Modal/ModalBottom';
 import RadioGroup, {RadioButton} from 'react-native-radio-buttons-group';
+import useLanguage from '../../../../../hooks/useLanguage';
 
 const OrderDetailScreen = () => {
   const {top} = useSafeAreaInsets();
+  const {getTranslation} = useLanguage();
   const route = useRoute();
   const {orders} = route.params as {orders?: any};
   const [isOpen, setIsOpen] = useState(false);
@@ -39,11 +41,11 @@ const OrderDetailScreen = () => {
   const displayData = showAll ? dataItemOrder : dataItemOrder.slice(0, 2);
 
   const reasons = [
-    {id: '1', label: 'Thay đổi ý định'},
-    {id: '2', label: 'Tìm được mẫu ưng hơn'},
-    {id: '3', label: 'Thời gian giao hàng chậm'},
-    {id: '4', label: 'Chọn nhầm size hoặc màu sắc'},
-    {id: '5', label: 'Khác'},
+    {id: '1', label: getTranslation('thay_doi_y')},
+    {id: '2', label: getTranslation('tim_mau_moi')},
+    {id: '3', label: getTranslation('thoi_gian_cham')},
+    {id: '4', label: getTranslation('chon_nhan_size')},
+    {id: '5', label: getTranslation('khac')},
   ];
 
   const handleToggle = () => {
@@ -83,8 +85,10 @@ const OrderDetailScreen = () => {
 
   return (
     <ContainerView>
-      <Header label="Chi tiết đơn hàng" paddingTop={top} />
-      <ScrollView contentContainerStyle={{paddingBottom: 80}}>
+      <Header label={getTranslation('chi_tiet_don_hang')} paddingTop={top} />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{paddingBottom: 80}}>
         <Block padH={metrics.space} padV={20}>
           <Block row justifyBW>
             <Block>
@@ -92,7 +96,7 @@ const OrderDetailScreen = () => {
                 ID: #ABCDEFD
               </TextHeight>
               <TextSizeCustom size={12} color={colors.gray}>
-                Đặt hàng: 12/05/2025
+                {getTranslation('ngay')}: 12/05/2025
               </TextSizeCustom>
             </Block>
             <Block
@@ -110,7 +114,9 @@ const OrderDetailScreen = () => {
           {/* Trang thái  */}
           {orders?.status !== 'Đã huỷ' && (
             <Block marT={30}>
-              <TextHeight medium>Trạng thái đơn hàng</TextHeight>
+              <TextHeight medium>
+                {getTranslation('trang_thai_don_hang')}
+              </TextHeight>
               {/* <OrderProgress statusIndex={getStatusIndex(orders?.status)} /> */}
               <OrderStatusStep status={orders?.status} />
             </Block>
@@ -118,9 +124,9 @@ const OrderDetailScreen = () => {
           {/* Sản phẩm   */}
           <Block marT={30}>
             <TextHeight medium>
-              Sản phẩm{' '}
+              {getTranslation('san_pham')}
               <TextSmall color={colors.gray}>
-                ({dataItemOrder.length} sản phẩm)
+                ({dataItemOrder.length} {getTranslation('san_pham_')})
               </TextSmall>
             </TextHeight>
 
@@ -144,7 +150,7 @@ const OrderDetailScreen = () => {
                       Size: {item.size} |{' '}
                     </TextSizeCustom>
                     <TextSizeCustom size={12} color={colors.gray}>
-                      Màu: {item.color} |{' '}
+                      {getTranslation('mau')}: {item.color} |{' '}
                     </TextSizeCustom>
                     <TextSizeCustom size={12} color={colors.gray}>
                       SL: {item.quantity}
@@ -160,14 +166,20 @@ const OrderDetailScreen = () => {
               <TouchableOpacity
                 onPress={handleToggle}
                 style={{alignItems: 'center', marginTop: 10}}>
-                <TextSmall>{showAll ? 'Ẩn bớt ' : 'Xem thêm'}</TextSmall>
+                <TextSmall>
+                  {showAll
+                    ? getTranslation('an_bot')
+                    : getTranslation('xem_them')}
+                </TextSmall>
               </TouchableOpacity>
             ) : null}
           </Block>
 
           {/* Địa chỉ  */}
           <Block marT={30}>
-            <TextHeight medium>Thông tin giao hàng</TextHeight>
+            <TextHeight medium>
+              {getTranslation('thong_tin_giao_hang')}
+            </TextHeight>
             <Block row marT={5} alignCT>
               <Image source={IconSRC.icon_address} style={styles.icon_add} />
               <TextSmall>
@@ -178,23 +190,25 @@ const OrderDetailScreen = () => {
 
           {/* Thanh toán  */}
           <Block marT={30}>
-            <TextHeight medium>Thanh toán</TextHeight>
-            <TextSmall>Phương thức: COD</TextSmall>
+            <TextHeight medium>{getTranslation('thanh_toan')}</TextHeight>
+            <TextSmall>
+              {getTranslation('phuong_thuc_thanh_toan')}: COD
+            </TextSmall>
           </Block>
           <Block row justifyBW alignCT marV={30}>
-            <TextHeight bold>Tổng cộng:</TextHeight>
+            <TextHeight bold>{getTranslation('tong_cong')}:</TextHeight>
             <TextHeight bold>890.000đ</TextHeight>
           </Block>
           {orders?.status !== 'Đã huỷ' ? (
             <ButtonBase
-              title="Huỷ đơn hàng"
+              title={getTranslation('huy_don')}
               onPress={() => {
                 setIsOpen(true);
               }}
             />
           ) : (
             <ButtonBase
-              title="Mua lại"
+              title={getTranslation('mua_lai')}
               onPress={() => {
                 setIsOpen(true);
               }}
@@ -204,14 +218,14 @@ const OrderDetailScreen = () => {
       </ScrollView>
       <ModalBottom
         header
-        label="Chọn lý do"
-        heightModal={metrics.diviceScreenHeight * 0.55}
+        label={getTranslation('chon_ly_do')}
+        heightModal={450}
         visible={isOpen}
-        onClose={() => setIsOpen(false)}>
-        <View style={{flex: 1, paddingHorizontal: 16, paddingVertical: 12}}>
+        onClose={() => setIsOpen(false)}
+        children={
           <ScrollView
-            style={{flexGrow: 0}}
-            contentContainerStyle={{paddingBottom: 20}}>
+            showsVerticalScrollIndicator={false}
+            style={{flex: 1, padding: 8}}>
             {reasons.map(reason => (
               <RadioButton
                 key={reason.id}
@@ -221,17 +235,18 @@ const OrderDetailScreen = () => {
                 selected={selectedId === reason.id}
                 onPress={setSelectedId}
                 labelStyle={styles.label}
-                size={20}
                 containerStyle={styles.radioContainer}
+                size={20}
               />
             ))}
+            <ButtonBase
+              containerStyle={{marginTop: 30}}
+              title={getTranslation('xac_nhan_huy')}
+              onPress={() => {}}
+            />
           </ScrollView>
-
-          <View style={styles.btnContainer}>
-            <ButtonBase title="Xác nhận huỷ" onPress={() => {}} />
-          </View>
-        </View>
-      </ModalBottom>
+        }
+      />
     </ContainerView>
   );
 };
@@ -268,8 +283,5 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginLeft: 8,
-  },
-  btnContainer: {
-    paddingTop: 12,
   },
 });

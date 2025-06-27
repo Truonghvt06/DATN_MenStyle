@@ -12,9 +12,11 @@ import {colors} from '../themes/colors';
 import Block from '../components/layout/Block';
 import {TextSizeCustom, TextSmall} from '../components/dataEntry/TextBase';
 import {dataProduct} from '../constants/data';
+import useLanguage from '../hooks/useLanguage';
 
 const Tab = createBottomTabNavigator();
 const BottomTab = () => {
+  const {getTranslation} = useLanguage();
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
@@ -28,24 +30,24 @@ const BottomTab = () => {
           switch (route.name) {
             case ScreenName.Main.Home:
               iconName = IconBottomTab.icon_home;
-              label = 'Trang chủ';
+              label = getTranslation('trang_chu');
               break;
 
             case ScreenName.Main.Search:
               iconName = IconBottomTab.icon_search;
-              label = 'Tìm kiếm';
+              label = getTranslation('tim_kiem');
               break;
             case ScreenName.Main.Favorite:
               iconName = IconBottomTab.icon_category;
-              label = 'Yêu thích';
+              label = getTranslation('ua_thich');
               break;
             case ScreenName.Main.Cart:
               iconName = IconBottomTab.icon_cart;
-              label = 'Giỏ hàng';
+              label = getTranslation('gio_hang');
               break;
             case ScreenName.Main.Profile:
               iconName = IconBottomTab.icon_user;
-              label = 'Profile';
+              label = getTranslation('tai_khoan');
               break;
           }
 
@@ -96,7 +98,9 @@ const BottomTab = () => {
                   }}
                 />
               </Block>
-              {focused && <Text style={styles.text}>Giỏ hàng</Text>}
+              {focused && (
+                <Text style={styles.text}>{getTranslation('gio_hang')}</Text>
+              )}
             </View>
           ),
         }}
