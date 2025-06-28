@@ -54,9 +54,9 @@ const ModalBottom = (props: Props) => {
           ]}>
           <View
             style={{
-              height: 3,
+              height: 5,
               backgroundColor: colors.black,
-              width: 100,
+              width: 80,
               alignSelf: 'center',
               marginVertical: metrics.space * 2,
               borderRadius: 10,
@@ -80,14 +80,7 @@ const ModalBottom = (props: Props) => {
                 }}>
                 <TouchableOpacity
                   activeOpacity={1}
-                  style={{
-                    height: 20,
-                    width: 20,
-                    backgroundColor: 'rgba(235, 235, 245, 0.6)',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: 20,
-                  }}
+                  style={styles.close}
                   onPress={props.onClose}>
                   <Image style={styles.image} source={IconSRC.icon_close} />
                 </TouchableOpacity>
@@ -132,5 +125,13 @@ const styles = StyleSheet.create({
     width: '100%',
     borderBottomColor: colors.gray1,
     borderBottomWidth: 0.3,
+  },
+  close: {
+    height: 20,
+    width: 20,
+    backgroundColor: 'rgba(235, 235, 245, 0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
   },
 });

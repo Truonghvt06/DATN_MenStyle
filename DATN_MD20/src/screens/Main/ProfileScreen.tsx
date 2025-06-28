@@ -15,7 +15,6 @@ import {useRoute} from '@react-navigation/native';
 import {useAppSelector} from '../../redux/store';
 import useLanguage from '../../hooks/useLanguage';
 
-
 const ProfileScreen = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
