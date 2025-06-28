@@ -29,20 +29,24 @@ interface Props extends TouchableOpacityProps {
   titleStyle?: TextStyle;
 }
 const TouchIcon = (props: Props) => {
-  const {sizeText = 14, size = 20, color = colors.black, titleStyle} = props;
+  const {
+    sizeText = 14,
+    size = 20,
+    color = colors.black,
+    titleStyle,
+    containerStyle,
+    colorTitle,
+  } = props;
   return (
     <TouchableOpacity
       {...props}
       activeOpacity={0.9}
       onPress={props.onPress}
-      style={[props.containerStyle]}>
+      style={containerStyle}>
       {props.title && (
-        <TextSizeCustom
-          size={sizeText}
-          color={props.colorTitle}
-          style={titleStyle}>
+        <Text style={[{fontSize: sizeText, color: colorTitle}, titleStyle]}>
           {props.title}
-        </TextSizeCustom>
+        </Text>
       )}
       {props.icon && (
         <Image
@@ -63,4 +67,6 @@ const TouchIcon = (props: Props) => {
 
 export default TouchIcon;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  txt: {fontWeight: 'bold'},
+});

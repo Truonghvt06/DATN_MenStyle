@@ -109,6 +109,12 @@
   "lien_he": "Contact",
   "email": "Email",
 
+  "gioi_tinh": "Gender",
+  "ngay_sinh": "Date of birth",
+  "dien_thoai": "Phone number",
+  "cap_nhat_ngay": "Update now",
+  "chon_ngay": "Choose date",
+
   "tat_ca": "All",
   "cho_xac_nhan": "Pending Confirmation",
   "da_xac_nhan": "Confirmed",

@@ -10,7 +10,7 @@ interface Props extends TextProps {
 
 interface PropsSizeCustom extends TextProps, Props {
   size: number;
-  style?: TextStyle;
+  style?: TextStyle | any;
 }
 export const TextSmall = (props: Props) => {
   const {color = colors.black, medium = false, bold = false, style} = props;

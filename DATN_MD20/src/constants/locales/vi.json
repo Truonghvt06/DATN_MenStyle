@@ -109,6 +109,12 @@
   "lien_he": "Liên hệ",
   "email": "Email",
 
+  "gioi_tinh": "Giới tính",
+  "ngay_sinh": "Ngày sinh",
+  "dien_thoai": "Điện thoại",
+  "cap_nhat_ngay": "Cập nhật ngay",
+  "chon_ngay": "Chọn ngày",
+
   "tat_ca": "Tất cả",
   "cho_xac_nhan": "Chờ xác nhận",
   "da_xac_nhan": "Đã xác nhận",

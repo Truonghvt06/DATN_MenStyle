@@ -1,5 +1,6 @@
 import {
   Image,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -20,6 +21,7 @@ interface Props {
   sizeLeft?: number;
   name?: string;
   content?: string;
+  content1?: string | any;
   borderBottom?: number;
   borderColor?: string;
   iconColor?: string;
@@ -31,6 +33,7 @@ const ButtonOption = (props: Props) => {
   const {
     name,
     content,
+    content1,
     sizeRight = 25,
     sizeLeft = 30,
     sizeText = 16,
@@ -66,23 +69,32 @@ const ButtonOption = (props: Props) => {
         <Block>
           <TextSizeCustom
             size={sizeText}
-            medium
+            // medium
             style={{textTransform: 'capitalize'}}>
             {name}
           </TextSizeCustom>
           {content && <TextSmall color={colors.gray}>{content}</TextSmall>}
         </Block>
       </Block>
-      {iconRight && (
-        <TouchIcon
-          icon={iconRight}
-          size={sizeRight}
-          color={iconColor}
-          onPress={() => {
-            onPress;
-          }}
-        />
-      )}
+      <Block row alignCT>
+        <TextSizeCustom
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          style={{width: Platform.OS === 'ios' ? 100 : 120, textAlign: 'right'}}
+          size={sizeText}>
+          {content1}
+        </TextSizeCustom>
+        {iconRight && (
+          <TouchIcon
+            icon={iconRight}
+            size={sizeRight}
+            color={iconColor}
+            onPress={() => {
+              onPress;
+            }}
+          />
+        )}
+      </Block>
     </TouchableOpacity>
   );
 };
