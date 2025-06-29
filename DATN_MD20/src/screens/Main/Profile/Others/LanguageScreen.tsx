@@ -8,7 +8,6 @@ import Block from '../../../../components/layout/Block';
 import TouchIcon from '../../../../components/dataEntry/Button/TouchIcon';
 import {IconSRC} from '../../../../constants/icons';
 import {useAppDispatch} from '../../../../redux/store';
-import {useTranslation} from 'react-i18next';
 import {setChangeLanguage} from '../../../../redux/reducers/application';
 import i18n from '../../../../constants/i18n';
 import navigation from '../../../../navigation/navigation';
