@@ -4,13 +4,12 @@ import {colors} from '../../themes/colors';
 // const {getTranslation} = useLanguage();
 
 export const dataBanner = [
-  {title: 'Slide 1', image: require('../../assets/images/slide1.png')},
-  {title: 'Slide 2', image: require('../../assets/images/slide2.png')},
-  {title: 'Slide 3', image: require('../../assets/images/slide3.png')},
-  {title: 'Slide 4', image: require('../../assets/images/slide4.png')},
-  {title: 'Slide 5', image: require('../../assets/images/slide5.png')},
-  {title: 'Slide 6', image: require('../../assets/images/slide1.png')},
-  {title: 'Slide 7', image: require('../../assets/images/slide1.png')},
+  {title: 'Slide 1', image: require('../../assets/images/Banno5.png')},
+  {title: 'Slide 2', image: require('../../assets/images/Banno2.png')},
+  {title: 'Slide 3', image: require('../../assets/images/Banno3.png')},
+  {title: 'Slide 4', image: require('../../assets/images/Banno4.png')},
+  {title: 'Slide 5', image: require('../../assets/images/Banno1.png')},
+
 ];
 export const dataOrder = [
   {
