@@ -10,14 +10,27 @@ const cartItemSchema = new mongoose.Schema({
   },
   variantIndex: {
     type: Number,
-    required: true, // vị trí biến thể trong mảng variants
+    required: true,
   },
   quantity: {
     type: Number,
     required: true,
     default: 1,
   },
-}, { _id: false }); // không tạo _id cho mỗi item
+}, { _id: false });
+
+// ✅ Schema cho từng mục yêu thích
+const favoriteItemSchema = new mongoose.Schema({
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
+    required: true,
+  },
+  variantIndex: {
+    type: Number,
+    required: false, // không bắt buộc nếu chỉ thích sản phẩm chung
+  },
+}, { _id: false });
 
 // Schema chính của User
 const userSchema = new mongoose.Schema({
@@ -41,7 +54,7 @@ const userSchema = new mongoose.Schema({
   gender: {
     type: String,
     required: false,
-    enum: ["Nam", "Nữ", "Khác"], // gợi ý
+    enum: ["Nam", "Nữ", "Khác"],
   },
   avatar: {
     type: String,
@@ -59,18 +72,14 @@ const userSchema = new mongoose.Schema({
   // Giỏ hàng
   cart: [cartItemSchema],
 
-  // Danh sách yêu thích
-  favorites: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Product",
-    }
-  ],
+  // ✅ Danh sách yêu thích (đã sửa)
+  favorites: [favoriteItemSchema],
+
 }, {
-  timestamps: true // tự động thêm createdAt, updatedAt
+  timestamps: true,
 });
 
-// Mã hóa mật khẩu trước khi lưu
+// Mã hóa mật khẩu
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(10);
@@ -78,7 +87,7 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// So sánh mật khẩu nhập vào khi login
+// So sánh mật khẩu khi đăng nhập
 userSchema.methods.comparePassword = async function (password) {
   return bcrypt.compare(password, this.password);
 };

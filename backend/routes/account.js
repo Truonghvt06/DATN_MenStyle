@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
+const Product = require("../models/Product"); 
 const authController = require("../controllers/authController");
 const auth = require("../middleware/authMiddleware");
 
@@ -8,14 +9,17 @@ const auth = require("../middleware/authMiddleware");
 router.get("/view", async (req, res) => {
   try {
     const users = await User.find()
-      .populate("favorites") // populate sản phẩm yêu thích
-      .populate("cart.productId"); // populate sản phẩm trong giỏ
-    console.log(JSON.stringify(users[0].cart, null, 2));
-    res.render("users", { users });
+      .populate("favorites.productId")
+      .populate("cart.productId");
+
+    const products = await Product.find(); // truyền thêm danh sách sản phẩm
+
+    res.render("users", { users, products });
   } catch (err) {
     res.status(500).send("Lỗi khi tải tài khoản: " + err.message);
   }
 });
+
 
 // [POST] Đăng nhập và đăng ký
 router.post("/login", authController.login);
@@ -23,14 +27,49 @@ router.post("/register", authController.register);
 router.get("/profile", auth, authController.profile);
 
 // =======================
-// ➕ Thêm sản phẩm vào yêu thích
-router.post("/favorites/add", auth, async (req, res) => {
-  try {
-    const { productId } = req.body;
-    const user = await User.findById(req.user.id);
 
-    if (!user.favorites.includes(productId)) {
-      user.favorites.push(productId);
+
+// ✅ [GET] Danh sách yêu thích (kèm chi tiết product + variant)
+router.get("/favorites", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id)
+      .populate("favorites.productId");
+
+    const favoritesWithDetails = user.favorites.map((fav) => {
+      const product = fav.productId;
+      const variant = product?.variants?.[fav.variantIndex] || {};
+
+      return {
+        productId: product?._id,
+        name: product?.name,
+        image: variant.image || product.image,
+        price: product?.price,
+        variant: {
+          size: variant.size,
+          color: variant.color,
+        },
+      };
+    });
+
+    res.json({ success: true, favorites: favoritesWithDetails });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ✅ Thêm vào yêu thích theo userId
+router.post("/favorites/add-by-id",auth, async (req, res) => {
+  try {
+    const { userId, productId, variantIndex = 0 } = req.body;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "Không tìm thấy user" });
+
+    const exists = user.favorites.some(
+      (item) => item.productId.toString() === productId && item.variantIndex === variantIndex
+    );
+
+    if (!exists) {
+      user.favorites.push({ productId, variantIndex });
       await user.save();
     }
 
@@ -40,37 +79,19 @@ router.post("/favorites/add", auth, async (req, res) => {
   }
 });
 
-// ❌ Xóa sản phẩm khỏi yêu thích
-router.post("/favorites/remove", auth, async (req, res) => {
+// ✅ Thêm vào giỏ hàng theo userId
+router.post("/cart/add-by-id",auth, async (req, res) => {
   try {
-    const { productId } = req.body;
-    const user = await User.findById(req.user.id);
+    const { userId, productId, variantIndex = 0, quantity = 1 } = req.body;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "Không tìm thấy user" });
 
-    user.favorites = user.favorites.filter(
-      (id) => id.toString() !== productId
-    );
-    await user.save();
-
-    res.json({ success: true, message: "Đã xóa khỏi yêu thích." });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-// 🛒 Thêm sản phẩm vào giỏ hàng
-router.post("/cart/add", auth, async (req, res) => {
-  try {
-    const { productId, variantIndex, quantity } = req.body;
-    const user = await User.findById(req.user.id);
-
-    const existingItem = user.cart.find(
-      (item) =>
-        item.productId.toString() === productId &&
-        item.variantIndex === variantIndex
+    const existing = user.cart.find(
+      (item) => item.productId.toString() === productId && item.variantIndex === variantIndex
     );
 
-    if (existingItem) {
-      existingItem.quantity += quantity;
+    if (existing) {
+      existing.quantity += quantity;
     } else {
       user.cart.push({ productId, variantIndex, quantity });
     }
@@ -82,23 +103,8 @@ router.post("/cart/add", auth, async (req, res) => {
   }
 });
 
-// 🧺 Xóa sản phẩm khỏi giỏ hàng
-router.post("/cart/remove", auth, async (req, res) => {
-  try {
-    const { productId, variantIndex } = req.body;
-    const user = await User.findById(req.user.id);
 
-    user.cart = user.cart.filter(
-      (item) =>
-        item.productId.toString() !== productId ||
-        item.variantIndex !== variantIndex
-    );
 
-    await user.save();
-    res.json({ success: true, message: "Đã xóa khỏi giỏ hàng." });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
+
 
 module.exports = router;
