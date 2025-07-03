@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {CommonActions} from '@react-navigation/native';
+import {CommonActions, StackActions} from '@react-navigation/native';
 import ScreenName from './ScreenName';
 
 export const navigationRef = React.createRef<any>();
@@ -45,9 +45,17 @@ const goBack = () => {
   }
 };
 
+const replace = (routeName: string, params?: any) => {
+  if (isReadyRef.current && navigationRef.current) {
+    const action = StackActions.replace(routeName, params);
+    navigationRef.current.dispatch(action);
+  }
+};
+
 export default {
   navigate,
   goBack,
   reset,
   resetToHome,
+  replace,
 };

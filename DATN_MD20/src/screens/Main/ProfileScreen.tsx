@@ -12,13 +12,18 @@ import ButtonBase from '../../components/dataEntry/Button/ButtonBase';
 import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
 import {useRoute} from '@react-navigation/native';
-import {useAppSelector} from '../../redux/store';
+import {useAppDispatch, useAppSelector} from '../../redux/store';
 import useLanguage from '../../hooks/useLanguage';
+import {logout} from '../../redux/reducers/auth';
 
 const ProfileScreen = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
   const language = useAppSelector(state => state.application.lang.label);
+
+  const dispatch = useAppDispatch();
+  const {user} = useAppSelector(state => state.auth);
+
   return (
     <ContainerView>
       <Header
@@ -30,9 +35,12 @@ const ProfileScreen = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingHorizontal: 8, paddingBottom: 20}}>
         <Block alignCT marT={16} marB={50}>
-          <Image style={styles.avatar} source={ImgSRC.img_avatar} />
+          <Image
+            style={styles.avatar}
+            source={user?.avatar ? {uri: user.avatar} : ImgSRC.img_avatar}
+          />
           <TextSizeCustom size={20} bold>
-            Nguyễn Văn A
+            {user?.name}
           </TextSizeCustom>
         </Block>
         <TextHeight bold>{getTranslation('tai_khoan1')}</TextHeight>
@@ -44,7 +52,10 @@ const ProfileScreen = () => {
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
-          onPress={() => navigation.navigate('ThongTinCaNhan')}
+          onPress={() => {
+            // navigation.navigate('ThongTinCaNhan')
+            navigation.navigate(ScreenName.Main.Information);
+          }}
         />
         <ButtonOption
           name={getTranslation('don_hang')}
@@ -153,7 +164,10 @@ const ProfileScreen = () => {
                 {text: getTranslation('huy'), style: 'cancel'},
                 {
                   text: 'OK',
-                  onPress: () => navigation.reset(ScreenName.Auth.AuthStack),
+                  onPress: () => {
+                    dispatch(logout());
+                    navigation.reset(ScreenName.Auth.AuthStack);
+                  },
                 },
               ],
               {cancelable: true},

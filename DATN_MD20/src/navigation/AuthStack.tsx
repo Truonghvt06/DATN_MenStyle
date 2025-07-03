@@ -7,12 +7,14 @@ import RegisterScreen from '../screens/Auth/RegisterScreen';
 import ForgotPassScreen from '../screens/Auth/forgot/PhoneScreen';
 import OTPScreen from '../screens/Auth/forgot/OTPScreen';
 import NewPassScreen from '../screens/Auth/forgot/NewPassScreen';
+import WelcomeScreen from '../screens/Main/WelcomeScreen';
 
 const Stack = createNativeStackNavigator();
 const AuthStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{headerShown: false, gestureEnabled: false}}>
+      <Stack.Screen name={ScreenName.Auth.Welcome} component={WelcomeScreen} />
       <Stack.Screen name={ScreenName.Auth.Login} component={LoginScreen} />
       <Stack.Screen
         name={ScreenName.Auth.Register}

@@ -1,11 +1,13 @@
 import {
+  Alert,
   Image,
+  KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {use, useEffect, useMemo, useState} from 'react';
 import {IconSRC, ImgSRC} from '../../../../../constants/icons'; // Đảm bảo đường dẫn đúng
 import {colors} from '../../../../../themes/colors';
 import ContainerView from '../../../../../components/layout/ContainerView';
@@ -25,95 +27,202 @@ import {Picker} from '@react-native-picker/picker';
 // import DatePicker from 'react-native-date-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
+import {useAppDispatch, useAppSelector} from '../../../../../redux/store';
+import {ProfileState} from '../../../../../services/auth';
+import navigation from '../../../../../navigation/navigation';
+import ScreenName from '../../../../../navigation/ScreenName';
+import ButtonLoading from '../../../../../components/dataEntry/Button/ButtonLoading';
+import {updateUserProfile} from '../../../../../redux/actions/auth';
 
 const ThongTinCaNhan = () => {
   const {getTranslation} = useLanguage();
-  const [selectedGender, setSelectedGender] = useState('');
-  const [tempGender, setTempGender] = useState('Nam');
   const [isOpen, setIsOpen] = useState(false);
 
   const [date, setDate] = useState(new Date());
-  const [tempDate, setTempDate] = useState(new Date());
   const [open, setOpen] = useState(false);
-  const [valueDate, setValueDate] = useState('');
+  // const [valueDate, setValueDate] = useState('');
+  // const [selectedGender, setSelectedGender] = useState('');
+  const [dataUser, setDataUser] = useState<ProfileState>({
+    name: 'ab',
+    gender: '',
+    date_of_birth: '',
+    phone: '',
+    email: '',
+  });
 
   const genders = ['Nam', 'Nữ', 'Khác'];
+
+  const dispatch = useAppDispatch();
+  const {user, loading} = useAppSelector(state => state.auth);
+
+  const handleSave = async () => {
+    if (!isChanged) return;
+
+    try {
+      // setDisable(true);
+      const resultAction = await dispatch(updateUserProfile(dataUser));
+
+      if (updateUserProfile.fulfilled.match(resultAction)) {
+        Alert.alert(getTranslation('thong_bao'), 'Cập nhật thành công!');
+        navigation.goBack();
+        // const newUser = resultAction.payload.user;
+        // console.log('new user:', newUser);
+
+        // setDataUser({
+        //   name: newUser.name,
+        //   phone: newUser.phone,
+        //   email: newUser.email,
+        //   gender: newUser.gender,
+        //   date_of_birth: newUser.date_of_birth,
+        // });
+      } else {
+        Alert.alert(getTranslation('thong_bao'), 'Cập nhật thất bại!');
+      }
+    } finally {
+      // setDisable(false);
+    }
+  };
+
+  const isChanged = useMemo(() => {
+    if (!user) return false;
+    const current = {
+      name: dataUser.name,
+      phone: dataUser.phone,
+      email: dataUser.email,
+      gender: dataUser.gender,
+      date_of_birth: dataUser.date_of_birth,
+    };
+    const original = {
+      name: user.name,
+      phone: user.phone,
+      email: user.email,
+      gender: user.gender,
+      date_of_birth: user.date_of_birth,
+    };
+
+    return JSON.stringify(current) !== JSON.stringify(original);
+  }, [dataUser, user]);
+
+  useEffect(() => {
+    if (user) {
+      setDataUser({
+        name: user.name || '',
+        phone: user.phone || '',
+        email: user.email || '',
+        gender: user.gender || '',
+        date_of_birth: user.date_of_birth || '',
+      });
+    }
+  }, [user]);
   return (
     <ContainerView>
       <Header label={getTranslation('thong_tin_ca_nhan')} />
       {/* Avatar */}
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Block alignCT justifyCT h={200} backgroundColor={colors.sky_blue}>
-          <TouchableOpacity activeOpacity={0.9} onPress={() => {}}>
-            <Image style={styles.avatar} source={ImgSRC.img_avatar} />
-            <TouchIcon
-              containerStyle={styles.ic_edit}
-              icon={IconSRC.icon_edit}
-              size={28}
-              color={colors.black}
-              onPress={() => {}}
-            />
-          </TouchableOpacity>
-        </Block>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{flex: 1}}>
+          <Block alignCT justifyCT h={200} backgroundColor={colors.sky_blue}>
+            <TouchableOpacity activeOpacity={0.9} onPress={() => {}}>
+              <Image
+                style={styles.avatar}
+                source={user?.avatar ? {uri: user.avatar} : ImgSRC.img_avatar}
+              />
+              <TouchIcon
+                containerStyle={styles.ic_edit}
+                icon={IconSRC.icon_edit}
+                size={28}
+                color={colors.black}
+                onPress={() => {}}
+              />
+            </TouchableOpacity>
+          </Block>
 
-        <Block padH={8} backgroundColor={colors.while}>
-          <ButtonOption
-            name={getTranslation('ho_va_ten')}
-            sizeText={14}
-            content1="Hoàng Văn Trường"
-          />
-          <ButtonOption
-            name={getTranslation('gioi_tinh')}
-            sizeText={14}
-            content1={
-              <>
-                {selectedGender ? (
-                  <TextSmall color={colors.black}>{selectedGender}</TextSmall>
-                ) : (
-                  <TextSmall color={colors.gray3}>
-                    {getTranslation('cap_nhat_ngay')}
-                  </TextSmall>
-                )}
-              </>
-            }
-            onPress={() => setIsOpen(true)}
-          />
-          <ButtonOption
-            name={getTranslation('ngay_sinh')}
-            sizeText={14}
-            content1={
-              <>
-                {valueDate ? (
-                  <TextSmall color={colors.black}>{valueDate}</TextSmall>
-                ) : (
-                  <TextSmall color={colors.gray3}>
-                    {getTranslation('cap_nhat_ngay')}
-                  </TextSmall>
-                )}
-              </>
-            }
-            onPress={() => setOpen(true)}
-          />
-          <ButtonOption
-            name={getTranslation('dien_thoai')}
-            sizeText={14}
-            content1="0999999999"
-          />
-          <ButtonOption
-            name={getTranslation('email')}
-            sizeText={14}
-            content1="use@gmail.com"
-          />
-        </Block>
+          <Block padH={8} backgroundColor={colors.while}>
+            <ButtonOption
+              name={getTranslation('ho_va_ten')}
+              sizeText={14}
+              content1={dataUser.name || user.name}
+              onPress={() =>
+                navigation.navigate(ScreenName.Main.UpdateInfo, {
+                  name: dataUser.name,
+                  title: getTranslation('ho_va_ten'),
+                  onSave: (newValue: string) => {
+                    setDataUser({...dataUser, name: newValue});
+                  },
+                })
+              }
+            />
+            <ButtonOption
+              name={getTranslation('gioi_tinh')}
+              sizeText={14}
+              content1={
+                <>
+                  {dataUser.gender ? (
+                    <TextSmall color={colors.black}>
+                      {dataUser.gender}
+                    </TextSmall>
+                  ) : (
+                    <TextSmall color={colors.gray3}>
+                      {getTranslation('cap_nhat_ngay')}
+                    </TextSmall>
+                  )}
+                </>
+              }
+              onPress={() => setIsOpen(true)}
+            />
+            <ButtonOption
+              name={getTranslation('ngay_sinh')}
+              sizeText={14}
+              content1={
+                <>
+                  {dataUser.date_of_birth ? (
+                    <TextSmall color={colors.black}>
+                      {dataUser.date_of_birth}
+                    </TextSmall>
+                  ) : (
+                    <TextSmall color={colors.gray3}>
+                      {getTranslation('cap_nhat_ngay')}
+                    </TextSmall>
+                  )}
+                </>
+              }
+              onPress={() => setOpen(true)}
+            />
+            <ButtonOption
+              name={getTranslation('dien_thoai')}
+              sizeText={14}
+              content1={dataUser.phone}
+              onPress={() =>
+                navigation.navigate(ScreenName.Main.UpdateInfo, {
+                  name: dataUser.phone,
+                  title: getTranslation('sdt'),
+                })
+              }
+            />
+            <ButtonOption
+              name={getTranslation('email')}
+              sizeText={14}
+              content1={dataUser.email}
+              disabled={true}
+              iconRight={null}
+              onPress={() =>
+                navigation.navigate(ScreenName.Main.UpdateInfo, {
+                  name: dataUser.email,
+                  title: getTranslation('email'),
+                })
+              }
+            />
+          </Block>
+        </KeyboardAvoidingView>
       </ScrollView>
       <Block containerStyle={styles.btn}>
-        <Block>
-          <ButtonBase
-            containerStyle={{width: metrics.diviceScreenWidth - 16}}
-            title={getTranslation('luu')}
-            onPress={() => {}}
-          />
-        </Block>
+        <ButtonLoading
+          title={getTranslation('luu')}
+          loading={loading}
+          disabled={!isChanged || loading}
+          onPress={handleSave}
+        />
       </Block>
 
       {/* Ngoài  */}
@@ -131,7 +240,11 @@ const ThongTinCaNhan = () => {
               setOpen(false);
               if (event.type === 'set' && selectedDate) {
                 setDate(selectedDate);
-                setValueDate(moment(selectedDate).format('DD/MM/YYYY'));
+                // setValueDate(moment(selectedDate).format('DD/MM/YYYY'));
+                setDataUser({
+                  ...dataUser,
+                  date_of_birth: moment(selectedDate).format('DD/MM/YYYY'),
+                });
               }
             }}
           />
@@ -175,7 +288,10 @@ const ThongTinCaNhan = () => {
                   titleStyle={styles.comfor}
                   onPress={() => {
                     setDate(date);
-                    setValueDate(moment(date).format('DD/MM/YYYY'));
+                    setDataUser({
+                      ...dataUser,
+                      date_of_birth: moment(date).format('DD/MM/YYYY'),
+                    });
                     setOpen(false);
                   }}
                 />
@@ -201,7 +317,7 @@ const ThongTinCaNhan = () => {
                   key={gender}
                   style={styles.item}
                   onPress={() => {
-                    setSelectedGender(gender);
+                    setDataUser({...dataUser, gender: gender});
                     setIsOpen(false);
                   }}>
                   <TextSizeCustom size={16}>{gender}</TextSizeCustom>
@@ -237,9 +353,11 @@ const styles = StyleSheet.create({
   },
 
   btn: {
-    position: 'absolute',
-    bottom: 35,
-    left: 8,
+    // position: 'absolute',
+    // bottom: 35,
+    // left: 8,
+    paddingHorizontal: 8,
+    paddingBottom: 35,
   },
 
   avatar: {

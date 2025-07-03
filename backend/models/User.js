@@ -15,13 +15,16 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   phone: { type: String, required: true },
-  gender: { type: String, require: false },
-  avatar: { type: String, require: false },
-  date_of_birth: { type: Date, require: false },
+  gender: { type: String, require: false, default: "" },
+  avatar: { type: String, require: false, default: "" },
+  date_of_birth: { type: String, require: false, default: "" },
   password: { type: String, required: true },
-
   cart: [cartItemSchema],
   favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }], // danh sách yêu thích
+
+  resetOTP: { type: String, require: false, default: "" },
+  resetOTPExpires: { type: Date, require: false, default: null },
+  otpVerified: { type: Boolean, require: false, default: false },
 });
 
 // Mã hoá mật khẩu trước khi lưu

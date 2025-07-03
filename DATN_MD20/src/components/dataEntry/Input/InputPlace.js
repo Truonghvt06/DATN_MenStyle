@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  Platform,
 } from 'react-native';
 import {colors} from '../../../themes/colors';
 import {IconSRC} from '../../../constants/icons';
@@ -58,7 +59,14 @@ const InputPlace = props => {
   return (
     <TouchableOpacity
       activeOpacity={1}
-      style={[styles.container, containerView, {opacity: disabled ? 0.5 : 1}]}
+      style={[
+        styles.container,
+        containerView,
+        {
+          opacity: disabled ? 0.5 : 1,
+          paddingTop: Platform.OS === 'android' ? 13 : 5,
+        },
+      ]}
       onPress={() => {
         if (!disabled && onPress) {
           onPress();
@@ -68,7 +76,7 @@ const InputPlace = props => {
       <TextInput
         value={value}
         onChangeText={onChangeText}
-        style={styles.input}
+        style={[styles.input, {marginLeft: Platform.OS === 'android' ? -3 : 0}]}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         {...props}
@@ -80,7 +88,6 @@ const InputPlace = props => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 10,
     marginBottom: 10,
     color: colors.black,
     borderBottomWidth: 0.3,
@@ -88,7 +95,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    height: 35,
+    height: 40,
     fontSize: 14,
   },
   icon: {

@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User"); // nếu User là tài khoản
 const authController = require("../controllers/authController");
-const auth = require("../middleware/authMiddleware");
+const authMiddleware = require("../middleware/authMiddleware");
+
+const upload = require("../utils/upload");
 router.get("/view", async (req, res) => {
   try {
     const users = await User.find()
@@ -17,6 +19,16 @@ router.get("/view", async (req, res) => {
 
 router.post("/login", authController.login);
 router.post("/register", authController.register);
-router.get("/profile", auth, authController.profile);
+router.get("/profile", authMiddleware, authController.profile);
+router.put("/update-profile", authMiddleware, authController.updateProfile);
+router.put(
+  "/update-avatar",
+  authMiddleware,
+  upload.single("avatar"),
+  authController.updateAvatar
+);
+router.post("/forgot-password", authController.forgotPass);
+router.post("/verify-otp", authController.verifyOTP);
+router.post("/reset-password", authController.resetPassword);
 
 module.exports = router;

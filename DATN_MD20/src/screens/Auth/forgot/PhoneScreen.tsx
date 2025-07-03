@@ -1,13 +1,15 @@
 import {
+  ActivityIndicator,
   Image,
   Keyboard,
   StyleSheet,
   Text,
+  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
   ViewStyle,
 } from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
 import ContainerView from '../../../components/layout/ContainerView';
 import Header from '../../../components/dataDisplay/Header';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -24,13 +26,32 @@ import {colors} from '../../../themes/colors';
 import navigation from '../../../navigation/navigation';
 import ScreenName from '../../../navigation/ScreenName';
 import useLanguage from '../../../hooks/useLanguage';
+import {useAppDispatch, useAppSelector} from '../../../redux/store';
+import {sendForgotOTP} from '../../../redux/actions/auth';
+import LinearGradient from 'react-native-linear-gradient';
+import {colorGradient} from '../../../themes/theme_gradient';
 
 const ForgotPassScreen = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
-  const [phone, setPhone] = React.useState<string>('');
-  const handleContuinue = () => {
-    navigation.navigate(ScreenName.Auth.OTPScreen);
+  const [email, setEmail] = useState<string>('');
+  const [error, setError] = useState('');
+
+  const dispatch = useAppDispatch();
+  const loading = useAppSelector(state => state.auth.loading);
+
+  const handleContuinue = async () => {
+    if (!email) {
+      setError('Vui lòng nhập email!');
+      return;
+    }
+    const result = await dispatch(sendForgotOTP(email));
+    if (sendForgotOTP.fulfilled.match(result)) {
+      navigation.navigate(ScreenName.Auth.OTPScreen, {email}); // truyền email sang
+      setEmail('');
+    } else {
+      setError(result.payload as string);
+    }
   };
 
   return (
@@ -56,28 +77,57 @@ const ForgotPassScreen = () => {
             {getTranslation('nhap_email')}:
           </TextMedium>
           <InputBase
-            value={phone}
+            value={email}
             placeholder={getTranslation('nhap_email')}
             // keyboardType="numeric"
             containerStyle={{marginTop: 5}}
             onChangeText={(text: string) => {
-              setPhone(text);
+              setEmail(text);
+              setError('');
             }}
             customLeft={
               <Image style={styles.icon_left} source={IconSRC.icon_email} />
             }
           />
-          <ButtonBase
-            title={getTranslation('tiep_tuc')}
-            radius={10}
-            backgroundColor={colors.green}
-            size={16}
-            color={'white'}
-            containerStyle={{marginTop: 40}}
-            onPress={() => {
-              handleContuinue();
-            }}
-          />
+          {error && (
+            <TextSizeCustom size={12} color={colors.red} style={{marginTop: 3}}>
+              {error}
+            </TextSizeCustom>
+          )}
+          {/* {loading ? (
+            <ActivityIndicator
+              size={'large'}
+              color={colors.green}
+              style={{marginTop: 40}}
+            />
+          ) : (
+            <ButtonBase
+              title={getTranslation('tiep_tuc')}
+              radius={10}
+              backgroundColor={colors.green}
+              size={16}
+              color={'white'}
+              containerStyle={{marginTop: 40}}
+              onPress={() => {
+                handleContuinue();
+              }}
+            />
+          )} */}
+          <LinearGradient
+            colors={colorGradient['theme-10']}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 1}}
+            style={[styles.btn, {borderRadius: 10}]}>
+            <TouchableOpacity style={styles.btn1} onPress={handleContuinue}>
+              {loading ? (
+                <ActivityIndicator size={25} color={colors.while} />
+              ) : (
+                <TextSizeCustom bold size={18} color={colors.while}>
+                  {getTranslation('tiep_tuc')?.toLocaleUpperCase()}
+                </TextSizeCustom>
+              )}
+            </TouchableOpacity>
+          </LinearGradient>
         </Block>
       </TouchableWithoutFeedback>
     </ContainerView>
@@ -94,5 +144,17 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     marginLeft: 5,
+  },
+  btn: {
+    height: 45,
+    marginTop: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  btn1: {
+    width: '100%',
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
 });
