@@ -67,7 +67,7 @@ export enum IconSupport {
 
 export enum ImgSRC {
   img_login = require('../../assets/images/imglg.jpg'),
-  img_banner = require('../../assets/images/slide4.png'),
+  img_banner = require('../../assets/images/Banno1.png'),
   img_avatar = require('../../assets/images/avatar.jpg'),
   img_pro = require('../../assets/images/img2.jpg'),
   img_logo = require('../../assets/images/logo_.png'),

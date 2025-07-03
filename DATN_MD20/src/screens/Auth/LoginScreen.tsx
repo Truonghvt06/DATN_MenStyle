@@ -241,12 +241,6 @@ const LoginScreen = () => {
                 <TextSmall color={colors.green} bold>
                   {getTranslation('tao_tk')}
                 </TextSmall>
-
-                {/* <TouchableOpacity onPress={handleRegister}>
-                  <TextSmall color={colors.green} bold>
-                    Tạo tài khoản
-                  </TextSmall>
-                </TouchableOpacity> */}
               </TouchableOpacity>
             </Block>
           </Block>
