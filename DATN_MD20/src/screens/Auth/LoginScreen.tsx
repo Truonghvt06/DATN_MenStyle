@@ -10,7 +10,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import LayoutImage from '../../components/layout/LayoutImage';
 import Block from '../../components/layout/Block';
 import {colors} from '../../themes/colors';
@@ -31,6 +31,9 @@ import LinearGradient from 'react-native-linear-gradient';
 import {colorGradient} from '../../themes/theme_gradient';
 import {auth} from '../../services/firebase'; // ✅ thêm dòng này
 import useLanguage from '../../hooks/useLanguage';
+import {useAppDispatch, useAppSelector} from '../../redux/store';
+import {loginUser} from '../../redux/actions/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = () => {
   const {getTranslation} = useLanguage();
@@ -41,23 +44,69 @@ const LoginScreen = () => {
   const [errorInp, setErrorInp] = useState('');
   const [showPass, setShowPass] = useState(false);
 
+  const dispatch = useAppDispatch();
+  const {loading, error, user, token} = useAppSelector(state => state.auth);
+
   const handleLogin = async () => {
-    try {
-      await auth().signInWithEmailAndPassword(email, password);
-      navigation.navigate(ScreenName.Main.MainStack);
-    } catch (error: any) {
-      console.log('Login error:', error);
-      if (error.code === 'auth/user-not-found') {
-        setErrorInp('Tài khoản không tồn tại!');
-      } else if (error.code === 'auth/wrong-password') {
-        setErrorInp('Mật khẩu không đúng!');
-      } else if (error.code === 'auth/invalid-email') {
-        setErrorInp('Email không hợp lệ!');
+    if (!email || !password) {
+      setErrorInp('Vui lòng nhập đầy đủ');
+      return;
+    }
+
+    const resultAction = await dispatch(loginUser({email, password}));
+
+    if (loginUser.fulfilled.match(resultAction)) {
+      if (isCheckBox) {
+        await AsyncStorage.setItem(
+          'autoLogin',
+          JSON.stringify({email, password}),
+        );
       } else {
-        setErrorInp('Đăng nhập thất bại, thử lại sau!');
+        await AsyncStorage.removeItem('autoLogin');
       }
+      navigation.navigate(ScreenName.Main.MainStack);
+    } else {
+      setErrorInp(resultAction.payload as string);
     }
   };
+
+  useEffect(() => {
+    const loadRememberedAccount = async () => {
+      const saved = await AsyncStorage.getItem('autoLogin');
+      if (saved) {
+        const {email, password} = JSON.parse(saved);
+        setEmail(email);
+        setPassword(password);
+        setIsCheckBox(true);
+      }
+    };
+
+    loadRememberedAccount();
+  }, []);
+
+  // useEffect(() => {
+  //   if (token) {
+  //     AsyncStorage.setItem('token', token);
+  //   }
+  // }, [token]);
+
+  // const handleLogin = async () => {
+  //   try {
+  //     await auth().signInWithEmailAndPassword(email, password);
+  //     navigation.navigate(ScreenName.Main.MainStack);
+  //   } catch (error: any) {
+  //     console.log('Login error:', error);
+  //     if (error.code === 'auth/user-not-found') {
+  //       setErrorInp('Tài khoản không tồn tại!');
+  //     } else if (error.code === 'auth/wrong-password') {
+  //       setErrorInp('Mật khẩu không đúng!');
+  //     } else if (error.code === 'auth/invalid-email') {
+  //       setErrorInp('Email không hợp lệ!');
+  //     } else {
+  //       setErrorInp('Đăng nhập thất bại, thử lại sau!');
+  //     }
+  //   }
+  // };
 
   const handleRegister = () => {
     navigation.navigate(ScreenName.Auth.Register);
@@ -115,7 +164,7 @@ const LoginScreen = () => {
                   onBlur={() => setFocusedInput(null)}
                   containerStyle={{marginTop: 10}}
                   iconRight
-                  imageName={showPass ? IconSRC.icon_eye : IconSRC.icon_eye_off}
+                  imageName={showPass ? IconSRC.icon_eye_off : IconSRC.icon_eye}
                   iconColor={colors.black65}
                   onChangeText={(text: string) => {
                     setPassword(text);
@@ -174,9 +223,9 @@ const LoginScreen = () => {
 
                 <ButtonBase
                   title={getTranslation('dang_nhap')}
-                  onPress={() =>
-                    // handleLogin()
-                    navigation.navigate(ScreenName.Main.MainStack)
+                  onPress={
+                    () => handleLogin()
+                    // navigation.navigate(ScreenName.Main.MainStack)
                   }
                 />
               </KeyboardAvoidingView>
@@ -192,12 +241,6 @@ const LoginScreen = () => {
                 <TextSmall color={colors.green} bold>
                   {getTranslation('tao_tk')}
                 </TextSmall>
-
-                {/* <TouchableOpacity onPress={handleRegister}>
-                  <TextSmall color={colors.green} bold>
-                    Tạo tài khoản
-                  </TextSmall>
-                </TouchableOpacity> */}
               </TouchableOpacity>
             </Block>
           </Block>

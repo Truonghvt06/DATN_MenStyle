@@ -21,6 +21,9 @@ import {colors} from '../../../themes/colors';
 import navigation from '../../../navigation/navigation';
 import ScreenName from '../../../navigation/ScreenName';
 import useLanguage from '../../../hooks/useLanguage';
+import {useAppDispatch} from '../../../redux/store';
+import {useRoute} from '@react-navigation/native';
+import {resetPassword} from '../../../redux/actions/auth';
 
 interface Error {
   passNew?: string;
@@ -35,6 +38,11 @@ const NewPassScreen = () => {
   const [showRePassNew, setShowRePassNew] = useState(false);
   const [errorInp, setErrorInp] = useState<Error>({});
 
+  const dispatch = useAppDispatch();
+  const route = useRoute<any>();
+  const email = route.params?.email;
+  const [errorGlobal, setErrorGlobal] = useState('');
+
   const validate = () => {
     const newError: Error = {};
     if (passNew.trim() === '') {
@@ -48,9 +56,15 @@ const NewPassScreen = () => {
     setErrorInp(newError);
     return Object.keys(newError).length === 0;
   };
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!validate()) return;
-    navigation.navigate(ScreenName.Auth.Login);
+
+    const result = await dispatch(resetPassword({email, newPassword: passNew}));
+    if (resetPassword.fulfilled.match(result)) {
+      navigation.navigate(ScreenName.Auth.Login);
+    } else {
+      setErrorGlobal(result.payload as string);
+    }
   };
   return (
     <ContainerView>
@@ -96,6 +110,11 @@ const NewPassScreen = () => {
           {errorInp.rePassNew && (
             <TextSizeCustom size={12} color={colors.red} style={{marginTop: 3}}>
               {errorInp.rePassNew}
+            </TextSizeCustom>
+          )}
+          {errorGlobal && (
+            <TextSizeCustom size={12} color={colors.red} style={{marginTop: 3}}>
+              {errorGlobal}
             </TextSizeCustom>
           )}
           <ButtonBase

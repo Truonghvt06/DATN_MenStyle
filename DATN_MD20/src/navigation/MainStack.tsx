@@ -23,6 +23,8 @@ import AddAddress from '../screens/Main/Profile/Account/Address/AddAddress';
 import OrderScreen from '../screens/Main/Profile/Account/Order/OrderScreen';
 import OrderDetailScreen from '../screens/Main/Profile/Account/Order/OrderDetailScreen';
 import LanguageScreen from '../screens/Main/Profile/Others/LanguageScreen';
+import InformationScreen from '../screens/Main/Profile/Account/Information/InformationScreen';
+import UpdateInfor from '../screens/Main/Profile/Account/Information/UpdateInfor';
 
 const Stack = createStackNavigator();
 
@@ -77,6 +79,11 @@ const MainStack = () => {
         name={ScreenName.Main.Language}
         component={LanguageScreen}
       />
+      <Stack.Screen
+        name={ScreenName.Main.Information}
+        component={InformationScreen}
+      />
+      <Stack.Screen name={ScreenName.Main.UpdateInfo} component={UpdateInfor} />
     </Stack.Navigator>
   );
 };

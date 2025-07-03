@@ -2,82 +2,67 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
 // Schema cho từng item trong giỏ hàng
-const cartItemSchema = new mongoose.Schema({
-  productId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Product",
-    required: true,
+const cartItemSchema = new mongoose.Schema(
+  {
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+    variantIndex: { type: Number, required: true },
+    quantity: { type: Number, required: true, default: 1 },
   },
-  variantIndex: {
-    type: Number,
-    required: true,
-  },
-  quantity: {
-    type: Number,
-    required: true,
-    default: 1,
-  },
-}, { _id: false });
+  { _id: false }
+);
 
 // ✅ Schema cho từng mục yêu thích
-const favoriteItemSchema = new mongoose.Schema({
-  productId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Product",
-    required: true,
+const favoriteItemSchema = new mongoose.Schema(
+  {
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+    variantIndex: { type: Number, required: false },
   },
-  variantIndex: {
-    type: Number,
-    required: false, // không bắt buộc nếu chỉ thích sản phẩm chung
-  },
-}, { _id: false });
+  { _id: false }
+);
 
 // Schema chính của User
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true,
-  },
-  phone: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  gender: {
-    type: String,
-    required: false,
-    enum: ["Nam", "Nữ", "Khác"],
-  },
-  avatar: {
-    type: String,
-    required: false,
-  },
-  date_of_birth: {
-    type: Date,
-    required: false,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    phone: { type: String, required: true, trim: true },
+    gender: {
+      type: String,
+      required: false,
+      enum: ["Nam", "Nữ", "Khác"],
+      default: "",
+    },
+    avatar: { type: String, required: false, default: "" },
+    date_of_birth: { type: String, required: false, default: "" },
+    password: { type: String, required: true },
 
-  // Giỏ hàng
-  cart: [cartItemSchema],
+    resetOTP: { type: String, require: false, default: "" },
+    resetOTPExpires: { type: Date, require: false, default: null },
+    otpVerified: { type: Boolean, require: false, default: false },
 
-  // ✅ Danh sách yêu thích (đã sửa)
-  favorites: [favoriteItemSchema],
-
-}, {
-  timestamps: true,
-});
+    // Giỏ hàng
+    cart: [cartItemSchema],
+    // ✅ Danh sách yêu thích (đã sửa)
+    favorites: [favoriteItemSchema],
+  },
+  {
+    timestamps: true,
+  }
+);
 
 // Mã hóa mật khẩu
 userSchema.pre("save", async function (next) {

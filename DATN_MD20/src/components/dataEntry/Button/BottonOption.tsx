@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableOpacityProps,
   View,
   ViewStyle,
 } from 'react-native';
@@ -14,7 +15,7 @@ import {colors} from '../../../themes/colors';
 import {TextHeight, TextMedium, TextSizeCustom, TextSmall} from '../TextBase';
 import TouchIcon from './TouchIcon';
 
-interface Props {
+interface Props extends TouchableOpacityProps {
   iconLeft?: IconSRC;
   iconRight?: IconSRC | null;
   sizeRight?: number;
@@ -43,12 +44,14 @@ const ButtonOption = (props: Props) => {
     borderBottom = 0.5,
     borderColor = colors.gray3,
     containerStyle,
+    disabled = false,
     onPress,
   } = props;
   return (
     <TouchableOpacity
       activeOpacity={0.6}
       onPress={onPress}
+      disabled={disabled}
       style={[
         styles.container,
         {borderBottomWidth: borderBottom, borderColor: borderColor},
@@ -80,7 +83,7 @@ const ButtonOption = (props: Props) => {
         <TextSizeCustom
           numberOfLines={1}
           ellipsizeMode="tail"
-          style={{width: Platform.OS === 'ios' ? 100 : 120, textAlign: 'right'}}
+          style={{paddingLeft: 30, textAlign: 'right'}}
           size={sizeText}>
           {content1}
         </TextSizeCustom>

@@ -25,6 +25,8 @@ import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
 import {auth} from '../../services/firebase'; // ✅ THÊM
 import useLanguage from '../../hooks/useLanguage';
+import {useAppDispatch} from '../../redux/store';
+import {registerUser} from '../../redux/actions/auth';
 console.log('auth', auth); // ✅ THÊM
 
 interface IEroror {
@@ -44,6 +46,8 @@ const RegisterScreen = () => {
   const [errors, setErrors] = useState<IEroror>({});
   const [showPass, setShowPass] = useState(false);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
+
+  const dispatch = useAppDispatch();
 
   const vallidateInputs = () => {
     const newErrors: IEroror = {};
@@ -75,26 +79,44 @@ const RegisterScreen = () => {
     if (!vallidateInputs()) return;
 
     try {
-      const userCredential = await auth().createUserWithEmailAndPassword(
-        email,
-        password,
+      const result = await dispatch(
+        registerUser({name, email, phone, password}),
       );
-      await userCredential.user.updateProfile({displayName: name});
-      console.log('Đăng ký thành công:', userCredential.user.email);
-      navigation.navigate(ScreenName.Auth.Login);
-    } catch (error: any) {
-      console.log('Đăng ký lỗi:', error);
-      if (error.code === 'auth/email-already-in-use') {
-        setErrors({...errors, email: 'Email đã tồn tại!'});
-      } else if (error.code === 'auth/invalid-email') {
-        setErrors({...errors, email: 'Email không hợp lệ!'});
-      } else if (error.code === 'auth/weak-password') {
-        setErrors({...errors, password: 'Mật khẩu quá yếu!'});
+
+      if (registerUser.fulfilled.match(result)) {
+        navigation.navigate(ScreenName.Auth.Login);
       } else {
-        setErrors({...errors, email: 'Đăng ký thất bại, thử lại sau!'});
+        setErrors({email: result.payload as string});
       }
+    } catch (error) {
+      console.log('Lỗi đăng ký:', error);
     }
   };
+
+  // const handleRegister = async () => {
+  //   if (!vallidateInputs()) return;
+
+  //   try {
+  //     const userCredential = await auth().createUserWithEmailAndPassword(
+  //       email,
+  //       password,
+  //     );
+  //     await userCredential.user.updateProfile({displayName: name});
+  //     console.log('Đăng ký thành công:', userCredential.user.email);
+  //     navigation.navigate(ScreenName.Auth.Login);
+  //   } catch (error: any) {
+  //     console.log('Đăng ký lỗi:', error);
+  //     if (error.code === 'auth/email-already-in-use') {
+  //       setErrors({...errors, email: 'Email đã tồn tại!'});
+  //     } else if (error.code === 'auth/invalid-email') {
+  //       setErrors({...errors, email: 'Email không hợp lệ!'});
+  //     } else if (error.code === 'auth/weak-password') {
+  //       setErrors({...errors, password: 'Mật khẩu quá yếu!'});
+  //     } else {
+  //       setErrors({...errors, email: 'Đăng ký thất bại, thử lại sau!'});
+  //     }
+  //   }
+  // };
 
   const handleLogin = () => {
     navigation.navigate(ScreenName.Auth.Login);

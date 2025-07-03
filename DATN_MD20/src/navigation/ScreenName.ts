@@ -1,6 +1,7 @@
 import {CatchClause} from './../../../node_modules/@babel/types/lib/index-legacy.d';
 export default {
   Auth: {
+    Welcome: 'WelcomeScreen',
     AuthStack: 'AuthStack',
     Login: 'LoginScreen',
     Register: 'RegisterScreen',
@@ -28,5 +29,7 @@ export default {
     AddAddress: 'AddAddressScreen',
     OrderDetail: 'OrderDetailScreen',
     Language: 'LangguageScreen',
+    Information: 'InformationScreen',
+    UpdateInfo: 'UpdateInfo',
   },
 };

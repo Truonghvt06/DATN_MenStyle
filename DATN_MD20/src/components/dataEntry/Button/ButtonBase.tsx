@@ -15,7 +15,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {colorGradient} from '../../../themes/theme_gradient';
 
 interface Props extends TouchableOpacityProps {
-  title?: string;
+  title?: string | any;
   radius?: number;
   backgroundColor?: string;
   size?: number;
@@ -41,14 +41,35 @@ const ButtonBase = (props: Props) => {
     colorIcon,
     backgroundColor = colors.green,
     onPress,
+    disabled, // THÊM disabled
   } = props;
+
+  const isDisabled = disabled ?? false;
+
   return (
-    <LinearGradient
-      colors={colorGradient['theme-10']}
-      start={{x: 0, y: 0}}
-      end={{x: 1, y: 1}}
-      style={[styles.btn, {borderRadius: radius}, containerStyle]}>
-      <TouchableOpacity {...props} style={styles.btn1} onPress={onPress}>
+    <View
+      style={[
+        styles.btn,
+        {
+          borderRadius: radius,
+          backgroundColor: isDisabled ? colors.gray : undefined,
+        },
+        containerStyle,
+      ]}>
+      {!isDisabled ? (
+        <LinearGradient
+          colors={colorGradient['theme-10']}
+          start={{x: 0, y: 0}}
+          end={{x: 1, y: 1}}
+          style={[StyleSheet.absoluteFill, {borderRadius: radius}]}
+        />
+      ) : null}
+
+      <TouchableOpacity
+        {...props}
+        disabled={isDisabled}
+        style={[styles.btn1, {opacity: isDisabled ? 0.6 : 1}]}
+        onPress={onPress}>
         {icon && (
           <Image
             source={icon}
@@ -64,11 +85,11 @@ const ButtonBase = (props: Props) => {
           bold
           size={size}
           color={color ?? colors.while}
-          style={{...titleStyle}}>
+          style={titleStyle}>
           {title?.toLocaleUpperCase()}
         </TextSizeCustom>
       </TouchableOpacity>
-    </LinearGradient>
+    </View>
   );
 };
 
