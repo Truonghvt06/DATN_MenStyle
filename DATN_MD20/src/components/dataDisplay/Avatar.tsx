@@ -21,6 +21,7 @@ interface Props {
   containerStyle?: ViewStyle;
   backgroundColor?: string;
   onPress?: () => void;
+  
 }
 const Avatar = (props: Props) => {
   const {
