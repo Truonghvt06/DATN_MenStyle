@@ -8,41 +8,65 @@
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f8f9fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      background-color: #f8f9fa;
+    }
+
+    .sidebar {
+      width: 240px;
+      min-height: 100vh;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      padding: 20px 0;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar.collapsed {
+      width: 60px;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      color: #333;
+      text-decoration: none;
+      font-weight: 500;
+      transition: 0.3s;
+      white-space: nowrap;
+    }
+
+    .sidebar a:hover {
+      background: #111;
+      color: #fff;
+    }
+
+    .sidebar.collapsed a span {
+      display: none;
+    }
+
+    .sidebar a i {
+      font-size: 20px;
+    }
+
+    .content {
+      flex: 1;
       padding: 30px;
     }
 
     header {
       background-color: #111;
       color: #fff;
-      padding: 20px 30px;
-      font-size: 28px;
+      padding: 15px 20px;
+      font-size: 24px;
       font-weight: 600;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-
-    nav {
       display: flex;
-      gap: 20px;
-      padding: 20px 30px;
-      background: #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-
-    nav a {
-      text-decoration: none;
-      color: #333;
-      font-weight: 500;
-      padding: 10px 20px;
-      border-radius: 6px;
-      transition: 0.3s;
-      border: 1px solid transparent;
-    }
-
-    nav a:hover {
-      background: #111;
-      color: #fff;
-      border-color: #111;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 30px;
     }
 
     .avatar {
@@ -53,77 +77,94 @@
     }
 
     .btn-small {
-      margin-top: 5px;
       font-size: 12px;
     }
 
-    .variant-info {
-      font-size: 14px;
-      line-height: 1.6;
+    .table th {
+      background-color: #007bff;
+      color: white;
+      text-align: center;
+    }
+
+    .table td {
+      vertical-align: middle;
     }
   </style>
 </head>
 <body>
-  <header>MenStyle - Quản lý tài khoản</header>
-  <nav>
-    <a href="/products/view"><i class="bi bi-box"></i> Sản phẩm</a>
-    <a href="/coupons/view"><i class="bi bi-ticket"></i> Phiếu giảm giá</a>
-    <a href="/accounts/view"><i class="bi bi-people"></i> Tài khoản</a>
+  <nav class="sidebar" id="sidebar">
+    <a href="/"><i class="bi bi-house"></i><span> Trang chủ</span></a>
+    <a href="/products/view"><i class="bi bi-box"></i><span> Sản phẩm</span></a>
+    <a href="/coupons/view"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
+    <a href="/accounts/view"><i class="bi bi-people"></i><span> Tài khoản</span></a>
+    <a href="/orders/view"><i class="bi bi-receipt-cutoff"></i><span> Đơn hàng</span></a>
+    <a href="/stats/overview"><i class="bi bi-bar-chart-line"></i><span> Thống kê</span></a>
   </nav>
 
-  <main class="bg-white p-4 rounded shadow-sm">
-    <h3 class="mb-4">Danh sách tài khoản</h3>
-    <div class="table-responsive">
-      <table class="table table-bordered table-hover align-middle text-center">
-        <thead class="table-primary">
-          <tr>
-            <th>Họ tên</th>
-            <th>Email</th>
-            <th>SĐT</th>
-            <th>Giới tính</th>
-            <th>Ngày sinh</th>
-            <th>Avatar</th>
-            <th>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% users.forEach(user => { %>
+  <div class="content" id="content">
+    <header>
+      <button id="toggleBtn" class="btn btn-dark"><i class="bi bi-list"></i></button>
+      MenStyle - Quản lý tài khoản
+    </header>
+
+    <main class="bg-white p-4 rounded shadow-sm">
+      <h3 class="mb-4">Danh sách tài khoản</h3>
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle text-center">
+          <thead class="table-primary">
             <tr>
-              <td><%= user.name %></td>
-              <td><%= user.email %></td>
-              <td><%= user.phone %></td>
-              <td><%= user.gender || '-' %></td>
-              <td>
-                <%
-                  const dob = user.date_of_birth ? new Date(user.date_of_birth) : null;
-                  const dobFormatted = dob
-                    ? `${dob.getDate().toString().padStart(2, '0')}/${(dob.getMonth() + 1).toString().padStart(2, '0')}/${dob.getFullYear()}`
-                    : '-';
-                %>
-                <%= dobFormatted %>
-              </td>
-              
-              <td>
-                <% if (user.avatar) { %>
-                  <img src="<%= user.avatar %>" class="avatar" alt="avatar" />
-                <% } else { %>
-                  <span class="text-muted">Không có</span>
-                <% } %>
-              </td>
-              <td>
-                <button class="btn btn-sm btn-primary btn-small" onclick="addToCart('<%= user._id %>')">+ Giỏ hàng</button>
-                <button class="btn btn-sm btn-success btn-small" onclick="addToFavorite('<%= user._id %>')">+ Yêu thích</button>
-              </td>
+              <th>Họ tên</th>
+              <th>Email</th>
+              <th>SĐT</th>
+              <th>Giới tính</th>
+              <th>Ngày sinh</th>
+              <th>Avatar</th>
+              <th>Thao tác</th>
             </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    </div>
-  </main>
+          </thead>
+          <tbody>
+            <% users.forEach(user => { %>
+              <tr>
+                <td><%= user.name %></td>
+                <td><%= user.email %></td>
+                <td><%= user.phone %></td>
+                <td><%= user.gender || '-' %></td>
+                <td>
+                  <%
+                    const dob = user.date_of_birth ? new Date(user.date_of_birth) : null;
+                    const dobFormatted = dob
+                      ? `${dob.getDate().toString().padStart(2, '0')}/${(dob.getMonth() + 1).toString().padStart(2, '0')}/${dob.getFullYear()}`
+                      : '-';
+                  %>
+                  <%= dobFormatted %>
+                </td>
+                <td>
+                  <% if (user.avatar) { %>
+                    <img src="<%= user.avatar %>" class="avatar" alt="avatar" />
+                  <% } else { %>
+                    <span class="text-muted">Không có</span>
+                  <% } %>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-primary btn-small" onclick="addToCart('<%= user._id %>')">+ Giỏ hàng</button>
+                  <button class="btn btn-sm btn-success btn-small" onclick="addToFavorite('<%= user._id %>')">+ Yêu thích</button>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
 
   <script>
-    // Chọn 1 sản phẩm test để thêm vào giỏ hàng hoặc yêu thích
-    const TEST_PRODUCT_ID = '<%= products[0]?._id || "" %>';
+    const toggleBtn = document.getElementById('toggleBtn');
+    const sidebar = document.getElementById('sidebar');
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+    });
+
+    const TEST_PRODUCT_ID = '<%= products?.[0]?._id || "" %>';
     const TEST_VARIANT_INDEX = 0;
 
     async function addToCart(userId) {
