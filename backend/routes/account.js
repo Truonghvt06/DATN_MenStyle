@@ -35,7 +35,7 @@ router.post("/verify-otp", authController.verifyOTP);
 router.post("/reset-password", authController.resetPassword);
 
 // ✅ [GET] Danh sách yêu thích (kèm chi tiết product + variant)
-router.get("/favorites", auth, async (req, res) => {
+router.get("/favorites", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate(
       "favorites.productId"
@@ -64,7 +64,7 @@ router.get("/favorites", auth, async (req, res) => {
 });
 
 // ✅ Thêm vào yêu thích theo userId
-router.post("/favorites/add-by-id", auth, async (req, res) => {
+router.post("/favorites/add-by-id", authMiddleware, async (req, res) => {
   try {
     const { userId, productId, variantIndex = 0 } = req.body;
     const user = await User.findById(userId);
@@ -88,7 +88,7 @@ router.post("/favorites/add-by-id", auth, async (req, res) => {
 });
 
 // ✅ Thêm vào giỏ hàng theo userId
-router.post("/cart/add-by-id", auth, async (req, res) => {
+router.post("/cart/add-by-id", authMiddleware, async (req, res) => {
   try {
     const { userId, productId, variantIndex = 0, quantity = 1 } = req.body;
     const user = await User.findById(userId);
