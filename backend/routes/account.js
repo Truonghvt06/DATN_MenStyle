@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require("../models/User");
 const Product = require("../models/Product");
 const authController = require("../controllers/authController");
-const authMiddleware = require("../middleware/authMiddleware");
+const auth = require("../middleware/authMiddleware");
 
 const upload = require("../utils/upload");
 router.get("/view", async (req, res) => {
@@ -22,11 +22,11 @@ router.get("/view", async (req, res) => {
 
 router.post("/login", authController.login);
 router.post("/register", authController.register);
-router.get("/profile", authMiddleware, authController.profile);
-router.put("/update-profile", authMiddleware, authController.updateProfile);
+router.get("/profile", auth, authController.profile);
+router.put("/update-profile", auth, authController.updateProfile);
 router.put(
   "/update-avatar",
-  authMiddleware,
+  auth,
   upload.single("avatar"),
   authController.updateAvatar
 );
