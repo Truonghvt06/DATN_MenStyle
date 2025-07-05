@@ -2,13 +2,23 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const Product = require("../models/Product");
+const productController = require("../controllers/productController");
 
+//ROUTER
+router.post("/add-product", productController.createProduct);
+router.get("/product-all", productController.getAllProducts);
+router.get(
+  "/product-category/:categoryId",
+  productController.getProductsByCategory
+);
+router.get("/best-seller", productController.getBestSellerProducts);
+router.get("/product-new", productController.getNewestProducts);
 // API lấy danh sách sản phẩm JSON
 router.get("/", async (req, res) => {
   try {
     const products = await Product.find().lean();
     if (products.length > 0) {
-      // console.log('First product:', products[0]);
+      // console.log("First product:", products[0]);
     } else {
       console.log("No products found");
     }

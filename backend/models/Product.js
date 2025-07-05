@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const variantSchema = new mongoose.Schema({
   size: { type: String, required: true },
@@ -7,16 +7,23 @@ const variantSchema = new mongoose.Schema({
   image: { type: String },
 });
 
-const productSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  type: { type: String, required: true },
-  description: { type: String, required: true },
-  price: { type: Number, required: true },
-  rating_avg: { type: Number, default: 0 },
-  rating_count: { type: Number, default: 0 },
-  sold_count: { type: Number, default: 0 },
+const productSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    category_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+    },
+    description: { type: String, required: true },
+    price: { type: Number, required: true },
+    rating_avg: { type: Number, default: 0 },
+    rating_count: { type: Number, default: 0 },
+    sold_count: { type: Number, default: 0 },
 
-  variants: [variantSchema],
-}, { timestamps: true });
+    variants: [variantSchema],
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('Product', productSchema);
+module.exports = mongoose.model("Product", productSchema);
