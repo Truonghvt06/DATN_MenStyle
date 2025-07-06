@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
   <meta charset="UTF-8" />
   <title>Sửa sản phẩm</title>
@@ -98,7 +97,6 @@
     }
   </style>
 </head>
-
 <body>
   <header>MenStyle</header>
 
@@ -108,18 +106,28 @@
     <label>Tên sản phẩm:</label>
     <input type="text" name="name" value="<%= product.name %>" required><br>
 
+    <label>Loại:</label>
+    <input type="text" name="type" value="<%= product.type %>" required><br>
+
+    <label>Mô tả:</label>
+    <input type="text" name="description" value="<%= product.description %>" required><br>
+
+    <label>Giá:</label>
+    <input type="number" name="price" value="<%= product.price %>" required><br>
+
     <h3>Biến thể:</h3>
     <% product.variants.forEach((v, index) => { %>
       <div class="variant-block">
         <h4>Biến thể <%= index + 1 %></h4>
         <label>Size:</label>
         <input type="text" name="variants[<%= index %>][size]" value="<%= v.size %>" required><br>
+
         <label>Màu:</label>
         <input type="text" name="variants[<%= index %>][color]" value="<%= v.color %>" required><br>
-        <label>Giá:</label>
-        <input type="number" name="variants[<%= index %>][price]" value="<%= v.price %>" required><br>
+
         <label>Số lượng:</label>
         <input type="number" name="variants[<%= index %>][quantity]" value="<%= v.quantity %>" required><br>
+
         <label>Ảnh:</label>
         <input type="text" name="variants[<%= index %>][image]" value="<%= v.image %>"><br>
       </div>
@@ -130,5 +138,4 @@
 
   <a class="back-link" href="/products/view">← Quay lại danh sách</a>
 </body>
-
 </html>

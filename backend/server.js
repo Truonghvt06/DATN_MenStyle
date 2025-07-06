@@ -5,7 +5,6 @@ const mongoose = require("mongoose");
 const User = require("./models/User");
 const productRouter = require("./routes/product");
 const accountRouter = require("./routes/account");
-const categoryRouter = require("./routes/categoryRouter");
 
 const path = require("path");
 
@@ -40,7 +39,6 @@ mongoose
     // Các router khác
     app.use("/products", productRouter);
     app.use("/accounts", accountRouter);
-    app.use("/categorys", categoryRouter);
 
     app.listen(port, () => {
       console.log(`Server chạy ở http://localhost:${port}`);

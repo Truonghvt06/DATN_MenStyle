@@ -119,13 +119,17 @@
               <th>Giới tính</th>
               <th>Ngày sinh</th>
               <th>Avatar</th>
-              <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
             <% users.forEach(user => { %>
               <tr>
-                <td><%= user.name %></td>
+                <td>
+                  <a href="/accounts/detail/<%= user._id %>" class="text-decoration-none">
+                    <%= user.name %>
+                  </a>
+                </td>
+                
                 <td><%= user.email %></td>
                 <td><%= user.phone %></td>
                 <td><%= user.gender || '-' %></td>
@@ -144,10 +148,6 @@
                   <% } else { %>
                     <span class="text-muted">Không có</span>
                   <% } %>
-                </td>
-                <td>
-                  <button class="btn btn-sm btn-primary btn-small" onclick="addToCart('<%= user._id %>')">+ Giỏ hàng</button>
-                  <button class="btn btn-sm btn-success btn-small" onclick="addToFavorite('<%= user._id %>')">+ Yêu thích</button>
                 </td>
               </tr>
             <% }) %>

@@ -120,54 +120,35 @@ router.get("/edit/:id", async (req, res) => {
   }
 });
 
+// routes/product.js
 router.post("/edit/:id", async (req, res) => {
   try {
-    if (!mongoose.isValidObjectId(req.params.id)) {
-      return res.status(400).send("ID sản phẩm không hợp lệ");
-    }
-    const { name, type, description, price, variants } = req.body;
-    if (
-      !name ||
-      !type ||
-      !description ||
-      !price ||
-      !variants ||
-      !Array.isArray(variants)
-    ) {
-      return res
-        .status(400)
-        .send("Thiếu thông tin hoặc variants không đúng định dạng");
-    }
+    const { name, variants } = req.body;
 
-    const productPrice = Number(price);
-    if (isNaN(productPrice)) {
-      return res.status(400).send("Giá sản phẩm phải là số");
-    }
+    // Đảm bảo mảng variants là đúng định dạng
+    const updatedVariants = Object.values(variants).map((v) => ({
+      size: v.size,
+      color: v.color,
+      quantity: Number(v.quantity),
+      image: v.image,
+    }));
 
-    for (const v of variants) {
-      if (!v.size || !v.color || !v.quantity) {
-        return res.status(400).send("Thiếu trường trong biến thể");
-      }
-      v.quantity = Number(v.quantity);
-      if (isNaN(v.quantity)) {
-        return res.status(400).send("Số lượng phải là số");
-      }
-    }
+    await Product.findByIdAndUpdate(
+      req.params.id,
+      {
+        name,
+        variants: updatedVariants,
+      },
+      { new: true } // Trả về bản ghi mới sau khi update (tuỳ chọn)
+    );
 
-    await Product.findByIdAndUpdate(req.params.id, {
-      name,
-      type,
-      description,
-      price: productPrice,
-      variants,
-    });
-    console.log("Product updated:", req.params.id);
     res.redirect("/products/view");
-  } catch (error) {
-    console.error("Error updating product:", error);
-    res.status(500).send("Lỗi server khi cập nhật sản phẩm");
+  } catch (err) {
+    console.error("❌ Lỗi update sản phẩm:", err);
+    res.status(500).send("Lỗi khi cập nhật sản phẩm");
   }
 });
+
 
 // Xóa sản phẩm
 router.get("/delete/:id", async (req, res) => {

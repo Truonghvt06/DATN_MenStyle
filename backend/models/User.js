@@ -15,7 +15,6 @@ const cartItemSchema = new mongoose.Schema(
   { _id: false }
 );
 
-// ✅ Schema cho từng mục yêu thích
 const favoriteItemSchema = new mongoose.Schema(
   {
     productId: {
@@ -28,7 +27,6 @@ const favoriteItemSchema = new mongoose.Schema(
   { _id: false }
 );
 
-// Schema chính của User
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },

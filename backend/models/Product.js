@@ -4,17 +4,14 @@ const variantSchema = new mongoose.Schema({
   size: { type: String, required: true },
   color: { type: String, required: true },
   quantity: { type: Number, required: true },
-  image: { type: String },
+  image: { type: String ,require: true},
 });
 
 const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    category_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
-      required: true,
-    },
+    type: {
+      type:String,required: true,},
     description: { type: String, required: true },
     price: { type: Number, required: true },
     rating_avg: { type: Number, default: 0 },
