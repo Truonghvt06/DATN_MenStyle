@@ -28,5 +28,6 @@ export default {
     AddAddress: 'AddAddressScreen',
     OrderDetail: 'OrderDetailScreen',
     Language: 'LangguageScreen',
+    Payment: 'PaymentScreen'
   },
 };

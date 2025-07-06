@@ -534,3 +534,47 @@ export const allProducts = [
     price: 360000,
   },
 ];
+
+export const cartProduct = [
+  {
+    id: 1,
+    name: 'Sản phẩm 1',
+    price: 20000,
+    image: require('../../assets/images/img2.jpg'),
+    size: ['S', 'M', 'L', 'XL'],
+    color: 'Xanh',
+    star: 4.5,
+    checked: true,
+    quantity: '1',
+    favorite: false,
+    quantity_kho: 123,
+    colors: ['#000', '#fff', '#FF6B6B'],
+    status: 'Đã xác nhận',
+    createdAt: '2024-06-01',
+    total: 120000,
+
+    description:
+      'You are generating images too quickly. To ensure the best experience for everyone, we have rate limits in place. Please wait for an hour before generating more images.',
+  },
+  {
+    id: 2,
+
+    name: 'Sản phẩm 2',
+    price: 20000,
+    image: require('../../assets/images/img2.jpg'),
+    size: ['S', 'M', 'L', 'XL'],
+    color: 'Xanh',
+    star: 4.5,
+    checked: true,
+    quantity: '1',
+    favorite: false,
+    quantity_kho: 123,
+    colors: ['#000', '#fff', '#FF6B6B'],
+    status: 'Chờ xác nhận',
+    createdAt: '2024-06-01',
+    total: 190000,
+
+    description:
+      'You are generating images too quickly. To ensure the best experience for everyone, we have rate limits in place. Please wait for an hour before generating more images.',
+  },
+];

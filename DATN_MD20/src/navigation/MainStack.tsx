@@ -23,6 +23,7 @@ import AddAddress from '../screens/Main/Profile/Account/Address/AddAddress';
 import OrderScreen from '../screens/Main/Profile/Account/Order/OrderScreen';
 import OrderDetailScreen from '../screens/Main/Profile/Account/Order/OrderDetailScreen';
 import LanguageScreen from '../screens/Main/Profile/Others/LanguageScreen';
+import PaymentScreen from '../screens/Main/PaymentScreen';
 
 const Stack = createStackNavigator();
 
@@ -40,6 +41,7 @@ const MainStack = () => {
       <Stack.Screen name="DieuKhoan" component={DieuKhoanVaDieuKien} />
       <Stack.Screen name="ChinhSach" component={ChinhSach} />
       <Stack.Screen name="ThongTinCaNhan" component={ThongTinCaNhan} />
+      <Stack.Screen name={ScreenName.Main.Payment} component={PaymentScreen} />
 
       <Stack.Screen
         name={ScreenName.Main.Favorite}
