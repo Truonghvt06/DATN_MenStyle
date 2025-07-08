@@ -56,15 +56,15 @@ exports.getAllProducts = async (req, res) => {
       { $limit: limit_ },
       {
         $lookup: {
-          from: "categories",
-          localField: "category_id",
+          from: "producttypes",
+          localField: "type",
           foreignField: "_id",
-          as: "category",
+          as: "producttype",
         },
       },
       {
         $unwind: {
-          path: "$category",
+          path: "$producttype",
           // preserveNullAndEmptyArrays: true   // ✅ giữ lại product không có category
         },
       },
@@ -84,10 +84,8 @@ exports.getAllProducts = async (req, res) => {
 // GET /products/category/:categoryId
 exports.getProductsByCategory = async (req, res) => {
   try {
-    const { categoryId } = req.params;
-    const products = await Product.find({ category_id: categoryId }).populate(
-      "category_id"
-    );
+    const { type } = req.params;
+    const products = await Product.find({ type: type }).populate("type");
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: "Lỗi khi lấy sản phẩm theo thể loại." });
@@ -101,8 +99,8 @@ exports.getBestSellerProducts = async (req, res) => {
 
     const products = await Product.find()
       .sort({ sold_count: -1 })
-      .limit(parseInt(limit))
-      .populate("category_id");
+      .limit(parseInt(limit));
+    // .populate("type");
 
     res.json(products);
   } catch (error) {
@@ -118,7 +116,7 @@ exports.getNewestProducts = async (req, res) => {
     const products = await Product.find()
       .sort({ createdAt: -1 })
       .limit(parseInt(limit))
-      .populate("category_id");
+      .populate("type");
 
     res.json(products);
   } catch (error) {

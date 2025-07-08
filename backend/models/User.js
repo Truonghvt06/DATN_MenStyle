@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false,
       enum: ["Nam", "Nữ", "Khác"],
-      default: "",
+      default: null,
     },
     avatar: { type: String, required: false, default: "" },
     date_of_birth: { type: String, required: false, default: "" },
