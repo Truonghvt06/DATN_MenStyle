@@ -73,7 +73,7 @@ router.post("/favorites/add-by-id", async (req, res) => {
       user.favorites.push({ productId, variantIndex });
       await user.save();
     }
-    res.json({ success: true, message: "Đã thêm vào yêu thích." });
+    res.json({ success: true, message: "Đã thêm sản phẩm vào yêu thích." });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
