@@ -22,7 +22,6 @@ const favoriteItemSchema = new mongoose.Schema(
       ref: "Product",
       required: true,
     },
-    variantIndex: { type: Number, required: false },
   },
   { _id: false }
 );

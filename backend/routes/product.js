@@ -2,39 +2,31 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const Product = require("../models/Product");
+const ProductType = require("../models/ProductType");
 const productController = require("../controllers/productController");
 
-//ROUTER
+// API JSON
 router.post("/add-product", productController.createProduct);
 router.get("/product-all", productController.getAllProducts);
-router.get(
-  "/product-category/:categoryId",
-  productController.getProductsByCategory
-);
+router.get("/product-category/:categoryId", productController.getProductsByCategory);
 router.get("/best-seller", productController.getBestSellerProducts);
 router.get("/product-new", productController.getNewestProducts);
-// API lấy danh sách sản phẩm JSON
+
+// API: Lấy toàn bộ sản phẩm dạng JSON
 router.get("/", async (req, res) => {
   try {
-    const products = await Product.find().lean();
-    if (products.length > 0) {
-      // console.log("First product:", products[0]);
-    } else {
-      console.log("No products found");
-    }
+    const products = await Product.find().populate("type").lean();
     res.json(products);
   } catch (error) {
     console.error("Error fetching products:", error);
-    res
-      .status(500)
-      .json({ message: "Lỗi khi lấy sản phẩm", error: error.message });
+    res.status(500).json({ message: "Lỗi khi lấy sản phẩm", error: error.message });
   }
 });
 
 // Giao diện danh sách sản phẩm
 router.get("/view", async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find().populate("type");
     res.render("products", { products });
   } catch (error) {
     console.error("Error fetching products for view:", error);
@@ -43,44 +35,39 @@ router.get("/view", async (req, res) => {
 });
 
 // Form thêm sản phẩm
-router.get("/add", (req, res) => {
-  res.render("product_add");
+router.get("/add", async (req, res) => {
+  try {
+    const types = await ProductType.find();
+    res.render("product_add", { types });
+  } catch (error) {
+    console.error("Error fetching types:", error);
+    res.status(500).send("Lỗi khi tải form thêm sản phẩm");
+  }
 });
 
+// Xử lý thêm sản phẩm
 router.post("/add", async (req, res) => {
   try {
     const { name, type, description, price, variants } = req.body;
 
-    if (
-      !name ||
-      !type ||
-      !description ||
-      !price ||
-      !variants ||
-      !Array.isArray(variants)
-    ) {
-      return res
-        .status(400)
-        .send("Thiếu thông tin bắt buộc hoặc variants không đúng định dạng");
+    if (!name || !type || !description || !price || !variants || !Array.isArray(variants)) {
+      return res.status(400).send("Thiếu thông tin bắt buộc hoặc variants không đúng định dạng");
     }
+
+    const typeDoc = await ProductType.findById(type);
+    if (!typeDoc) return res.status(400).send("Loại sản phẩm không tồn tại");
 
     const productPrice = Number(price);
-    if (isNaN(productPrice)) {
-      return res.status(400).send("Giá sản phẩm phải là số");
-    }
+    if (isNaN(productPrice)) return res.status(400).send("Giá sản phẩm phải là số");
 
-    // Kiểm tra từng biến thể
     for (const v of variants) {
       if (!v.size || !v.color || !v.quantity) {
         return res.status(400).send("Thiếu trường trong biến thể");
       }
       v.quantity = Number(v.quantity);
-      if (isNaN(v.quantity)) {
-        return res.status(400).send("Số lượng phải là số");
-      }
+      if (isNaN(v.quantity)) return res.status(400).send("Số lượng phải là số");
     }
 
-    // 👇 Thêm các trường mặc định vào đây
     const product = new Product({
       name,
       type,
@@ -93,7 +80,7 @@ router.post("/add", async (req, res) => {
     });
 
     await product.save();
-    console.log("Product added:", product._id);
+    console.log("✅ Product added:", product._id);
     res.redirect("/products/view");
   } catch (error) {
     console.error("Error adding product:", error);
@@ -105,27 +92,23 @@ router.post("/add", async (req, res) => {
 router.get("/edit/:id", async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) {
-      console.log("Invalid ObjectId:", req.params.id);
       return res.status(400).send("ID sản phẩm không hợp lệ");
     }
     const product = await Product.findById(req.params.id);
-    if (!product) {
-      console.log("Product not found for ID:", req.params.id);
-      return res.status(404).send("Không tìm thấy sản phẩm");
-    }
-    res.render("product_edit", { product });
+    const types = await ProductType.find();
+    if (!product) return res.status(404).send("Không tìm thấy sản phẩm");
+    res.render("product_edit", { product, types });
   } catch (error) {
     console.error("Error fetching product for edit:", error);
     res.status(500).send("Lỗi server khi lấy sản phẩm để chỉnh sửa");
   }
 });
 
-// routes/product.js
+// Xử lý chỉnh sửa sản phẩm
 router.post("/edit/:id", async (req, res) => {
   try {
-    const { name, variants } = req.body;
+    const { name, type, variants } = req.body;
 
-    // Đảm bảo mảng variants là đúng định dạng
     const updatedVariants = Object.values(variants).map((v) => ({
       size: v.size,
       color: v.color,
@@ -133,13 +116,13 @@ router.post("/edit/:id", async (req, res) => {
       image: v.image,
     }));
 
+    const typeDoc = await ProductType.findById(type);
+    if (!typeDoc) return res.status(400).send("Loại sản phẩm không hợp lệ");
+
     await Product.findByIdAndUpdate(
       req.params.id,
-      {
-        name,
-        variants: updatedVariants,
-      },
-      { new: true } // Trả về bản ghi mới sau khi update (tuỳ chọn)
+      { name, type, variants: updatedVariants },
+      { new: true }
     );
 
     res.redirect("/products/view");
@@ -149,41 +132,27 @@ router.post("/edit/:id", async (req, res) => {
   }
 });
 
-
-// Xóa sản phẩm
-router.get("/delete/:id", async (req, res) => {
-  try {
-    if (!mongoose.isValidObjectId(req.params.id)) {
-      return res.status(400).send("ID sản phẩm không hợp lệ");
-    }
-    const product = await Product.findByIdAndDelete(req.params.id);
-    if (!product) {
-      return res.status(404).send("Không tìm thấy sản phẩm để xóa");
-    }
-    console.log("Product deleted:", req.params.id);
-    res.redirect("/products/view");
-  } catch (error) {
-    console.error("Error deleting product:", error);
-    res.status(500).send("Lỗi khi xóa sản phẩm");
-  }
-});
-
 // Chi tiết sản phẩm
 router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  // Kiểm tra định dạng ObjectId
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).send("ID sản phẩm không hợp lệ");
+  }
+
   try {
-    if (!mongoose.isValidObjectId(req.params.id)) {
-      console.log("Invalid ObjectId:", req.params.id);
-      return res.status(400).send("ID sản phẩm không hợp lệ");
-    }
-    const product = await Product.findById(req.params.id).lean();
+    const product = await Product.findById(id)
+      .populate("type") // Populate để lấy tên loại
+      .lean(); // Convert Mongoose Document -> plain JS object
+
     if (!product) {
-      console.log("Product not found for ID:", req.params.id);
       return res.status(404).send("Không tìm thấy sản phẩm");
     }
-    console.log("Product found:", product);
+
     res.render("product_detail", { product });
   } catch (error) {
-    console.error("Error fetching product details:", error);
+    console.error("Lỗi khi lấy chi tiết sản phẩm:", error);
     res.status(500).send("Lỗi server khi lấy chi tiết sản phẩm");
   }
 });
