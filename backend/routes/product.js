@@ -24,11 +24,23 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Giao diện danh sách sản phẩm
 router.get("/view", async (req, res) => {
   try {
-    const products = await Product.find().populate("type");
-    res.render("products", { products });
+    const typeFilter = req.query.type;
+    const types = await ProductType.find();
+
+    let query = {};
+    if (typeFilter && typeFilter !== 'all') {
+      query.type = typeFilter;
+    }
+
+    const products = await Product.find(query).populate("type");
+
+    res.render("products", {
+      products,
+      types,
+      selectedType: typeFilter || 'all', // ✅ Thêm dòng này
+    });
   } catch (error) {
     console.error("Error fetching products for view:", error);
     res.status(500).send("Lỗi khi lấy danh sách sản phẩm");
@@ -161,6 +173,7 @@ router.get('/check-edit/:id', async (req, res) => {
   try {
     const productId = req.params.id;
 
+    // Tìm tất cả user có cart chứa sản phẩm này (bất kỳ biến thể nào)
     const users = await User.find({ "cart.productId": productId });
 
     // Kiểm tra sản phẩm có tồn tại trong giỏ hàng của bất kỳ user nào không

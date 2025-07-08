@@ -59,12 +59,13 @@
       transition: 0.3s;
       white-space: nowrap;
     }
+
     .description-cell {
-  max-width: 200px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
     .sidebar a:hover {
       background: #111;
@@ -141,6 +142,12 @@
     .action-link:hover {
       text-decoration: underline;
     }
+    form select.form-select-sm {
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 14px;
+}
+
 
     .no-image {
       color: gray;
@@ -165,7 +172,19 @@
       <button id="toggleBtn" class="btn btn-dark"><i class="bi bi-list"></i></button>
       MenStyle - Danh sách sản phẩm
     </header>
-
+    <form method="GET" action="/products/view" class="d-flex align-items-center gap-3 mb-4">
+      <span class="fw-semibold mb-0"><i class="bi bi-funnel"></i> Lọc theo loại:</span>
+      <select name="type" id="type" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+        <option value="all" <%= selectedType === 'all' ? 'selected' : '' %>>Tất cả</option>
+        <% types.forEach(type => { %>
+          <option value="<%= type._id %>" <%= selectedType === String(type._id) ? 'selected' : '' %>>
+            <%= type.name %>
+          </option>
+        <% }) %>
+      </select>
+    </form>
+    
+    
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3 class="mb-0">Sản phẩm hiện có</h3>
       <a href="/products/add" class="btn btn-add"><i class="bi bi-plus-circle"></i> Thêm sản phẩm</a>
@@ -208,8 +227,8 @@
                   <%= product.type?.name || 'N/A' %>
                 </td>
                 <td class="description-cell" title="<%= product.description %>">
-  <%= product.description || 'N/A' %>
-</td>
+                  <%= product.description || 'N/A' %>
+                </td>
 
                 <td>
                   <%= product.price !=null ? Number(product.price).toLocaleString() : 'N/A' %> VNĐ
@@ -250,7 +269,7 @@
                   <%= totalQty %>
                 </td>
                 <td class="text-center">
-                  <a href="/products/edit/<%= product._id %>" class="action-link text-primary">Sửa</a>
+                  <a href="javascript:void(0);" class="action-link text-primary" onclick="checkBeforeEdit('<%= product._id %>')">Sửa</a>
                 </td>
               </tr>
               <% }) %>
@@ -284,6 +303,19 @@
         fullDiv.style.display = 'block';
       }
     }
+    function checkBeforeEdit(productId) {
+    fetch(`/products/check-edit/${productId}`)
+      .then(res => {
+        if (!res.ok) {
+          return res.text().then(msg => { throw new Error(msg); });
+        }
+        // Nếu OK thì chuyển đến trang sửa
+        window.location.href = `/products/edit/${productId}`;
+      })
+      .catch(err => {
+        alert(err.message); // Hiển thị lỗi trực tiếp trên trang
+      });
+  }
   </script>
 </body>
 

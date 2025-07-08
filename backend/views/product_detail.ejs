@@ -1,138 +1,242 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Chi tiết sản phẩm - <%= product.name || 'Sản phẩm' %></title>
+  <meta charset="UTF-8" />
+  <title>Chi tiết sản phẩm - <%= product.name || 'Sản phẩm' %>
+  </title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px 40px;
-      background: #f9f9f9;
+    * {
       box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      display: flex;
       min-height: 100vh;
     }
 
-    header {
-      background-color: #333;
-      color: #fff;
-      padding: 15px 40px;
-      font-size: 24px;
-      font-weight: bold;
-      letter-spacing: 1.5px;
-      position: sticky;
+    .sidebar {
+      width: 240px;
+      height: 100vh;
+      background: #fff;
+      padding: 30px 20px;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+      position: fixed;
       top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      left: 0;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
-    h1 {
-      margin-top: 20px;
+    .sidebar a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      padding: 10px 15px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: 0.3s;
     }
 
-    .info {
-      background: white;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    .sidebar a:hover {
+      background: #111;
+      color: #fff;
+    }
+
+    .content {
+      margin-left: 240px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: #1a1a1a;
+      color: #fff;
+      padding: 15px 20px;
+      font-size: 20px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    header .toggle-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    main {
+      padding: 30px;
+    }
+
+    .card-box {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      padding: 25px;
       margin-bottom: 30px;
     }
 
-    .info p {
-      font-size: 16px;
-      margin: 10px 0;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    th, td {
-      border: 1px solid #ddd;
-      padding: 12px 15px;
-      text-align: left;
-      vertical-align: middle;
-    }
-
-    th {
-      background: #007BFF;
-      color: white;
+    .card-box h5 {
+      font-size: 20px;
       font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .product-info p {
+      margin-bottom: 10px;
       font-size: 16px;
+      color: #444;
     }
 
-    tr:hover {
-      background: #f1f1f1;
+    .table th {
+      background-color: #007BFF;
+      color: white;
     }
 
-    img {
-      border-radius: 4px;
+    .table img {
       width: 60px;
       height: 60px;
       object-fit: cover;
+      border-radius: 4px;
     }
 
-    a {
-      display: inline-block;
-      margin-top: 20px;
+    .back-link {
       color: #007BFF;
       font-weight: 600;
       text-decoration: none;
     }
 
-    a:hover {
+    .back-link:hover {
       text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        position: absolute;
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .content {
+        margin-left: 0;
+      }
     }
   </style>
 </head>
+
 <body>
-  <header>MenStyle</header>
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <a href="/"><i class="bi bi-house"></i> Trang chủ</a>
+    <a href="/products/view"><i class="bi bi-box"></i> Sản phẩm</a>
+    <a href="/coupons/view"><i class="bi bi-ticket"></i> Phiếu giảm giá</a>
+    <a href="/accounts/view"><i class="bi bi-people"></i> Tài khoản</a>
+    <a href="/orders/view"><i class="bi bi-receipt-cutoff"></i> Đơn hàng</a>
+    <a href="/stats-overview"><i class="bi bi-bar-chart-line"></i> Thống kê</a>
+  </nav>
 
-  <h1>Chi tiết sản phẩm</h1>
+  <!-- Main Content -->
+  <div class="content" id="main-content">
+    <header>
+      <button class="toggle-btn" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+      MenStyle - Chi tiết sản phẩm
+    </header>
 
-  <div class="info">
-    <p><strong>Tên sản phẩm:</strong> <%= product.name || 'N/A' %></p>
-    <p><strong>Loại:</strong> <%= product.type || 'N/A' %></p>
-    <p><strong>Mô tả:</strong> <%= product.description || 'N/A' %></p>
-    <p><strong>Giá:</strong> <%= product.price != null ? Number(product.price).toLocaleString() : 'N/A' %> VNĐ</p>
-    <p><strong>Đánh giá trung bình:</strong> <%= product.rating_avg ?? 'Chưa có' %></p>
-    <p><strong>Đã bán:</strong> <%= product.sold_count ?? 0 %></p>
+    <main>
+      <div class="card-box">
+        <h5>Thông tin sản phẩm</h5>
+        <div class="product-info">
+          <p><strong>Tên sản phẩm:</strong>
+            <%= product.name || 'N/A' %>
+          </p>
+          <p><strong>Loại:</strong>
+            <%= product.type.name || product.type || 'N/A' %>
+          </p>
+          <p><strong>Mô tả:</strong>
+            <%= product.description || 'N/A' %>
+          </p>
+          <p><strong>Giá:</strong>
+            <%= product.price?.toLocaleString() %> VNĐ
+          </p>
+          <p><strong>Đánh giá trung bình:</strong>
+            <%= product.rating_avg ?? 'Chưa có' %>
+          </p>
+          <p><strong>Đã bán:</strong>
+            <%= product.sold_count ?? 0 %>
+          </p>
+        </div>
+      </div>
+
+      <div class="card-box">
+        <h5>Danh sách biến thể</h5>
+        <% if (product.variants?.length> 0) { %>
+          <table class="table table-bordered align-middle">
+            <thead>
+              <tr>
+                <th>Ảnh</th>
+                <th>Size</th>
+                <th>Màu</th>
+                <th>Số lượng</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% product.variants.forEach(v=> { %>
+                <tr>
+                  <td>
+                    <% if (v.image) { %>
+                      <img src="<%= v.image %>" alt="Ảnh biến thể" />
+                      <% } else { %>
+                        <span>Không có ảnh</span>
+                        <% } %>
+                  </td>
+                  <td>
+                    <%= v.size %>
+                  </td>
+                  <td>
+                    <%= v.color %>
+                  </td>
+                  <td>
+                    <%= v.quantity %>
+                  </td>
+                </tr>
+                <% }) %>
+            </tbody>
+          </table>
+          <% } else { %>
+            <p class="text-muted">Không có biến thể</p>
+            <% } %>
+      </div>
+
+      <a href="/products/view" class="back-link">← Quay lại danh sách sản phẩm</a>
+    </main>
   </div>
 
-  <h2>Danh sách biến thể</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Ảnh</th>
-        <th>Size</th>
-        <th>Màu</th>
-        <th>Số lượng</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% if (product.variants && product.variants.length > 0) { %>
-        <% product.variants.forEach(v => { %>
-          <tr>
-            <td>
-              <% if (v.image) { %>
-                <img src="<%= v.image %>" alt="Ảnh biến thể" />
-              <% } else { %>
-                <span>Không có ảnh</span>
-              <% } %>
-            </td>
-            <td><%= v.size || 'N/A' %></td>
-            <td><%= v.color || 'N/A' %></td>
-            <td><%= v.quantity || 0 %></td>
-          </tr>
-        <% }) %>
-      <% } else { %>
-        <tr><td colspan="4">Không có biến thể</td></tr>
-      <% } %>
-    </tbody>
-  </table>
-
-  <a href="/products/view">← Quay lại danh sách sản phẩm</a>
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const content = document.getElementById('main-content');
+      sidebar.classList.toggle('active');
+      content.classList.toggle('shifted');
+    }
+  </script>
 </body>
+
 </html>
