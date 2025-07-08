@@ -33,7 +33,7 @@ router.put(
 router.post("/forgot-password", authController.forgotPass);
 router.post("/verify-otp", authController.verifyOTP);
 router.post("/reset-password", authController.resetPassword);
-
+//
 router.get("/favorites", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate("favorites.productId");
@@ -110,7 +110,7 @@ router.get("/detail/:id", async (req, res) => {
       .populate("favorites.productId")
       .lean();
     const products = await Product.find().lean();
-    console.log('Products sent to template:', products);
+    console.log('Số lượng sản phẩm trong giỏ hàng:', products.length);  
     res.render("user_detail", { user, products });
   } catch (err) {
     console.error(err);
