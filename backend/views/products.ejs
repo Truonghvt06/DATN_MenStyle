@@ -59,12 +59,13 @@
       transition: 0.3s;
       white-space: nowrap;
     }
+
     .description-cell {
-  max-width: 200px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
     .sidebar a:hover {
       background: #111;
@@ -208,8 +209,8 @@
                   <%= product.type?.name || 'N/A' %>
                 </td>
                 <td class="description-cell" title="<%= product.description %>">
-  <%= product.description || 'N/A' %>
-</td>
+                  <%= product.description || 'N/A' %>
+                </td>
 
                 <td>
                   <%= product.price !=null ? Number(product.price).toLocaleString() : 'N/A' %> VNĐ
@@ -250,7 +251,7 @@
                   <%= totalQty %>
                 </td>
                 <td class="text-center">
-                  <a href="/products/edit/<%= product._id %>" class="action-link text-primary">Sửa</a>
+                  <a href="javascript:void(0);" class="action-link text-primary" onclick="checkBeforeEdit('<%= product._id %>')">Sửa</a>
                 </td>
               </tr>
               <% }) %>
@@ -284,6 +285,19 @@
         fullDiv.style.display = 'block';
       }
     }
+    function checkBeforeEdit(productId) {
+    fetch(`/products/check-edit/${productId}`)
+      .then(res => {
+        if (!res.ok) {
+          return res.text().then(msg => { throw new Error(msg); });
+        }
+        // Nếu OK thì chuyển đến trang sửa
+        window.location.href = `/products/edit/${productId}`;
+      })
+      .catch(err => {
+        alert(err.message); // Hiển thị lỗi trực tiếp trên trang
+      });
+  }
   </script>
 </body>
 

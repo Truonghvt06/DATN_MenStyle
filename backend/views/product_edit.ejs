@@ -45,9 +45,9 @@
     .content {
       flex: 1;
       margin-left: 240px;
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
     }
 
     header {
@@ -73,12 +73,6 @@
       box-shadow: 0 0 12px rgba(0,0,0,0.06);
     }
 
-    .form-container h2 {
-      font-size: 22px;
-      font-weight: 600;
-      margin-bottom: 20px;
-    }
-
     .form-group {
       margin-bottom: 16px;
     }
@@ -93,6 +87,7 @@
       border-radius: 8px;
       background: #f4f4f4;
       margin-bottom: 20px;
+      position: relative;
     }
 
     .variant-block h5 {
@@ -101,10 +96,25 @@
       color: #007bff;
     }
 
-    button.btn-primary {
-      padding: 10px 20px;
-      font-weight: 600;
+    .btn-remove {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 14px;
+    }
+
+    .btn-variant {
+      background: #28a745;
+      color: white;
+      padding: 10px 18px;
+      border: none;
       border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-variant:hover {
+      background: #218838;
     }
 
     .back-link {
@@ -145,7 +155,13 @@
 
           <div class="form-group">
             <label class="form-label">Loại:</label>
-            <input type="text" name="type" class="form-control" value="<%= product.type %>" required />
+            <select name="type" class="form-select" required>
+              <% types.forEach(type => { %>
+                <option value="<%= type._id %>" <%= (product.type.toString() === type._id.toString()) ? 'selected' : '' %>>
+                  <%= type.name %>
+                </option>
+              <% }) %>
+            </select>
           </div>
 
           <div class="form-group">
@@ -159,28 +175,34 @@
           </div>
 
           <h4 class="mt-4 mb-3">Biến thể sản phẩm</h4>
-          <% product.variants.forEach((v, index) => { %>
-            <div class="variant-block">
-              <h5>Biến thể <%= index + 1 %></h5>
-              <div class="form-group">
-                <label class="form-label">Size:</label>
-                <input type="text" name="variants[<%= index %>][size]" class="form-control" value="<%= v.size %>" required />
+          <div id="variants">
+            <% product.variants.forEach((v, index) => { %>
+              <div class="variant-block" data-index="<%= index %>">
+                <h5>Biến thể <%= index + 1 %></h5>
+                <button type="button" class="btn btn-sm btn-danger btn-remove" onclick="removeVariant(this)">
+                  <i class="bi bi-trash"></i> Xoá
+                </button>
+                <div class="form-group">
+                  <label class="form-label">Size:</label>
+                  <input type="text" name="variants[<%= index %>][size]" class="form-control" value="<%= v.size %>" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Màu:</label>
+                  <input type="text" name="variants[<%= index %>][color]" class="form-control" value="<%= v.color %>" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Số lượng:</label>
+                  <input type="number" name="variants[<%= index %>][quantity]" class="form-control" value="<%= v.quantity %>" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Ảnh:</label>
+                  <input type="text" name="variants[<%= index %>][image]" class="form-control" value="<%= v.image %>" />
+                </div>
               </div>
-              <div class="form-group">
-                <label class="form-label">Màu:</label>
-                <input type="text" name="variants[<%= index %>][color]" class="form-control" value="<%= v.color %>" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Số lượng:</label>
-                <input type="number" name="variants[<%= index %>][quantity]" class="form-control" value="<%= v.quantity %>" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Ảnh:</label>
-                <input type="text" name="variants[<%= index %>][image]" class="form-control" value="<%= v.image %>" />
-              </div>
-            </div>
-          <% }) %>
+            <% }) %>
+          </div>
 
+          <button type="button" class="btn-variant mb-3" onclick="addVariant()">+ Thêm biến thể</button><br>
           <button type="submit" class="btn btn-primary mt-3">Cập nhật</button>
         </form>
 
@@ -188,5 +210,65 @@
       </div>
     </main>
   </div>
+
+  <script>
+    let count = <%= product.variants.length %>;
+    function createVariantBlock(index) {
+      const div = document.createElement('div');
+      div.className = 'variant-block';
+      div.setAttribute('data-index', index);
+      div.innerHTML = `
+        <h5>Biến thể ${index + 1}</h5>
+        <button type="button" class="btn btn-sm btn-danger btn-remove" onclick="removeVariant(this)">
+          <i class="bi bi-trash"></i> Xoá
+        </button>
+        <div class="form-group">
+          <label class="form-label">Size:</label>
+          <input type="text" name="variants[${index}][size]" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Màu:</label>
+          <input type="text" name="variants[${index}][color]" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Số lượng:</label>
+          <input type="number" name="variants[${index}][quantity]" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ảnh:</label>
+          <input type="text" name="variants[${index}][image]" class="form-control" />
+        </div>
+      `;
+      return div;
+    }
+
+    function addVariant() {
+      const container = document.getElementById('variants');
+      const block = createVariantBlock(count);
+      container.appendChild(block);
+      count++;
+    }
+
+    function removeVariant(btn) {
+      const block = btn.closest('.variant-block');
+      block.remove();
+      updateVariantIndexes();
+    }
+
+    function updateVariantIndexes() {
+      const container = document.getElementById('variants');
+      const blocks = container.querySelectorAll('.variant-block');
+      count = 0;
+      blocks.forEach((block, index) => {
+        block.setAttribute('data-index', index);
+        block.querySelector('h5').textContent = `Biến thể ${index + 1}`;
+        block.querySelectorAll('input').forEach(input => {
+          const field = input.name.split('][')[1].replace(']', '');
+          input.name = `variants[${index}][${field}]`;
+        });
+        count++;
+      });
+    }
+  </script>
 </body>
 </html>

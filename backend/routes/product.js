@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const Product = require("../models/Product");
 const ProductType = require("../models/ProductType");
 const productController = require("../controllers/productController");
+const User = require('../models/User');
 
 // API JSON
 router.post("/add-product", productController.createProduct);
@@ -154,6 +155,31 @@ router.get("/:id", async (req, res) => {
   } catch (error) {
     console.error("Lỗi khi lấy chi tiết sản phẩm:", error);
     res.status(500).send("Lỗi server khi lấy chi tiết sản phẩm");
+  }
+});
+router.get('/check-edit/:id', async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    // Tìm tất cả user có cart chứa sản phẩm này (bất kỳ biến thể nào)
+    const users = await User.find({ "cart.productId": productId });
+
+    // Kiểm tra sản phẩm có tồn tại trong giỏ hàng của bất kỳ user nào không
+    const isInCart = users.some(user =>
+      user.cart.some(item =>
+        item.productId.toString() === productId
+      )
+    );
+
+    if (isInCart) {
+      return res.status(400).send("❌ Không thể sửa vì sản phẩm đang có trong giỏ hàng của người dùng.");
+    }
+
+    // ✅ Nếu không tồn tại → Cho phép chuyển đến trang sửa sản phẩm
+    return res.redirect(`/products/edit/${productId}`);
+  } catch (err) {
+    console.error("Lỗi kiểm tra giỏ hàng:", err);
+    return res.status(500).send("Đã xảy ra lỗi máy chủ.");
   }
 });
 
