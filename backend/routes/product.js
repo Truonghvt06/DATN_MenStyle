@@ -161,7 +161,6 @@ router.get('/check-edit/:id', async (req, res) => {
   try {
     const productId = req.params.id;
 
-    // Tìm tất cả user có cart chứa sản phẩm này (bất kỳ biến thể nào)
     const users = await User.find({ "cart.productId": productId });
 
     // Kiểm tra sản phẩm có tồn tại trong giỏ hàng của bất kỳ user nào không
