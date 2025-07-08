@@ -4,7 +4,7 @@ import {store} from '../redux/store';
 import {logout} from '../redux/reducers/auth';
 
 export const axiosInstance = axios.create({
-  baseURL: 'http://192.168.1.7:3000', // hoặc domain chính thức
+  baseURL: 'http://192.168.55.106:3000', // hoặc domain chính thức
   timeout: 30000,
 });
 
