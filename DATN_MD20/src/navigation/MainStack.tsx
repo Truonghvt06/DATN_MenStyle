@@ -25,6 +25,7 @@ import OrderDetailScreen from '../screens/Main/Profile/Account/Order/OrderDetail
 import LanguageScreen from '../screens/Main/Profile/Others/LanguageScreen';
 import InformationScreen from '../screens/Main/Profile/Account/Information/InformationScreen';
 import UpdateInfor from '../screens/Main/Profile/Account/Information/UpdateInfor';
+import WelcomeScreen from '../screens/Main/WelcomeScreen';
 
 const Stack = createStackNavigator();
 
@@ -32,7 +33,8 @@ const MainStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{headerShown: false, gestureEnabled: false}}
-      initialRouteName={ScreenName.Main.BottonTab}>
+      initialRouteName={ScreenName.Auth.Welcome}>
+      <Stack.Screen name={ScreenName.Auth.Welcome} component={WelcomeScreen} />
       <Stack.Screen name={ScreenName.Main.BottonTab} component={BottomTab} />
       <Stack.Screen name={ScreenName.Main.Home} component={HomeScreen} />
       <Stack.Screen name={ScreenName.Main.Profile} component={ProfileScreen} />

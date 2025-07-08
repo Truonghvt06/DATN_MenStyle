@@ -1,5 +1,9 @@
 import * as React from 'react';
-import {CommonActions, StackActions} from '@react-navigation/native';
+import {
+  CommonActions,
+  StackActions,
+  TabActions,
+} from '@react-navigation/native';
 import ScreenName from './ScreenName';
 
 export const navigationRef = React.createRef<any>();
@@ -45,6 +49,7 @@ const goBack = () => {
   }
 };
 
+// chuyển màn và k cho back lại
 const replace = (routeName: string, params?: any) => {
   if (isReadyRef.current && navigationRef.current) {
     const action = StackActions.replace(routeName, params);
@@ -52,10 +57,50 @@ const replace = (routeName: string, params?: any) => {
   }
 };
 
+//Dùng để chuyển tab trong Tab Navigator.
+const jumpTo = (routeName: string, params?: any) => {
+  if (isReadyRef.current && navigationRef.current) {
+    const action = TabActions.jumpTo(routeName, params);
+    navigationRef.current.dispatch(action);
+  }
+};
+const resetToStackWithScreen = (
+  rootStackName: string,
+  screenName: string,
+  params?: any,
+) => {
+  if (isReadyRef.current && navigationRef.current) {
+    const action = CommonActions.reset({
+      index: 0,
+      routes: [
+        {
+          name: rootStackName,
+          state: {
+            index: 0,
+            routes: [{name: screenName, params}],
+          },
+        },
+      ],
+    });
+    navigationRef.current.dispatch(action);
+  }
+};
+
+// quay lại n màn trước đấy
+const pop = (index: number) => {
+  if (isReadyRef.current && navigationRef.current) {
+    const action = StackActions.pop(index);
+    navigationRef.current.dispatch(action);
+  }
+};
+
 export default {
+  pop,
+  jumpTo,
   navigate,
   goBack,
   reset,
+  resetToStackWithScreen,
   resetToHome,
   replace,
 };

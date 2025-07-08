@@ -24,7 +24,7 @@ import metrics from '../../constants/metrics';
 import {IconSRC} from '../../constants/icons';
 import ButtonBase from '../../components/dataEntry/Button/ButtonBase';
 import ScreenName from '../../navigation/ScreenName';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import navigation from '../../navigation/navigation';
 import MaskedView from '@react-native-masked-view/masked-view';
 import LinearGradient from 'react-native-linear-gradient';
@@ -34,9 +34,15 @@ import useLanguage from '../../hooks/useLanguage';
 import {useAppDispatch, useAppSelector} from '../../redux/store';
 import {loginUser} from '../../redux/actions/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import TouchIcon from '../../components/dataEntry/Button/TouchIcon';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 const LoginScreen = () => {
+  const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
+  const route = useRoute();
+  const {nameScreen} = route.params as {nameScreen: string};
+
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [isCheckBox, setIsCheckBox] = useState(false);
@@ -64,7 +70,10 @@ const LoginScreen = () => {
       } else {
         await AsyncStorage.removeItem('autoLogin');
       }
-      navigation.navigate(ScreenName.Main.MainStack);
+      navigation.resetToStackWithScreen(
+        ScreenName.Main.MainStack,
+        ScreenName.Main.BottonTab,
+      );
     } else {
       setErrorInp(resultAction.payload as string);
     }
@@ -84,32 +93,12 @@ const LoginScreen = () => {
     loadRememberedAccount();
   }, []);
 
-  // useEffect(() => {
-  //   if (token) {
-  //     AsyncStorage.setItem('token', token);
-  //   }
-  // }, [token]);
-
-  // const handleLogin = async () => {
-  //   try {
-  //     await auth().signInWithEmailAndPassword(email, password);
-  //     navigation.navigate(ScreenName.Main.MainStack);
-  //   } catch (error: any) {
-  //     console.log('Login error:', error);
-  //     if (error.code === 'auth/user-not-found') {
-  //       setErrorInp('Tài khoản không tồn tại!');
-  //     } else if (error.code === 'auth/wrong-password') {
-  //       setErrorInp('Mật khẩu không đúng!');
-  //     } else if (error.code === 'auth/invalid-email') {
-  //       setErrorInp('Email không hợp lệ!');
-  //     } else {
-  //       setErrorInp('Đăng nhập thất bại, thử lại sau!');
-  //     }
-  //   }
-  // };
-
-  const handleRegister = () => {
-    navigation.navigate(ScreenName.Auth.Register);
+  const handleRegister = (prams: any) => {
+    if (nameScreen === 'NextLogin') {
+      navigation.goBack();
+    } else {
+      navigation.navigate(ScreenName.Auth.Register, {nameScreen: prams});
+    }
   };
 
   const handleForgotPassword = () => {
@@ -120,6 +109,17 @@ const LoginScreen = () => {
     <LayoutImage>
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <Block flex1 middle>
+          <TouchIcon
+            icon={IconSRC.icon_back_left}
+            size={25}
+            color="white"
+            containerStyle={[styles.btn, {top: top}]}
+            onPress={() =>
+              nameScreen === 'NextLogin'
+                ? navigation.goBack()
+                : navigation.goBack()
+            }
+          />
           <Block
             borderRadius={20}
             width={'85%'}
@@ -236,7 +236,7 @@ const LoginScreen = () => {
               </TextSmall>
               <TouchableOpacity
                 onPress={() => {
-                  handleRegister();
+                  handleRegister('NextRegister');
                 }}>
                 <TextSmall color={colors.green} bold>
                   {getTranslation('tao_tk')}
@@ -252,4 +252,15 @@ const LoginScreen = () => {
 
 export default LoginScreen;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  btn: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    left: 20,
+    backgroundColor: colors.gray,
+    height: 45,
+    width: 45,
+    borderRadius: 18,
+  },
+});
