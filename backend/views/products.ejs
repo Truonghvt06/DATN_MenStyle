@@ -142,6 +142,12 @@
     .action-link:hover {
       text-decoration: underline;
     }
+    form select.form-select-sm {
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 14px;
+}
+
 
     .no-image {
       color: gray;
@@ -166,7 +172,19 @@
       <button id="toggleBtn" class="btn btn-dark"><i class="bi bi-list"></i></button>
       MenStyle - Danh sách sản phẩm
     </header>
-
+    <form method="GET" action="/products/view" class="d-flex align-items-center gap-3 mb-4">
+      <span class="fw-semibold mb-0"><i class="bi bi-funnel"></i> Lọc theo loại:</span>
+      <select name="type" id="type" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+        <option value="all" <%= selectedType === 'all' ? 'selected' : '' %>>Tất cả</option>
+        <% types.forEach(type => { %>
+          <option value="<%= type._id %>" <%= selectedType === String(type._id) ? 'selected' : '' %>>
+            <%= type.name %>
+          </option>
+        <% }) %>
+      </select>
+    </form>
+    
+    
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3 class="mb-0">Sản phẩm hiện có</h3>
       <a href="/products/add" class="btn btn-add"><i class="bi bi-plus-circle"></i> Thêm sản phẩm</a>
