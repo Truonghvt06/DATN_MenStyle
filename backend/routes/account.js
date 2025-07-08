@@ -33,7 +33,7 @@ router.put(
 router.post("/forgot-password", authController.forgotPass);
 router.post("/verify-otp", authController.verifyOTP);
 router.post("/reset-password", authController.resetPassword);
-
+//
 router.get("/favorites", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate("favorites.productId");
