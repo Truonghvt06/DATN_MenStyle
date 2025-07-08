@@ -14,7 +14,7 @@ const AuthStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{headerShown: false, gestureEnabled: false}}>
-      <Stack.Screen name={ScreenName.Auth.Welcome} component={WelcomeScreen} />
+      {/* <Stack.Screen name={ScreenName.Auth.Welcome} component={WelcomeScreen} /> */}
       <Stack.Screen name={ScreenName.Auth.Login} component={LoginScreen} />
       <Stack.Screen
         name={ScreenName.Auth.Register}

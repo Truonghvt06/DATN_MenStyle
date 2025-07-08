@@ -27,6 +27,9 @@ import {auth} from '../../services/firebase'; // ✅ THÊM
 import useLanguage from '../../hooks/useLanguage';
 import {useAppDispatch} from '../../redux/store';
 import {registerUser} from '../../redux/actions/auth';
+import TouchIcon from '../../components/dataEntry/Button/TouchIcon';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useRoute} from '@react-navigation/native';
 console.log('auth', auth); // ✅ THÊM
 
 interface IEroror {
@@ -38,6 +41,9 @@ interface IEroror {
 
 const RegisterScreen = () => {
   const {getTranslation} = useLanguage();
+  const {top} = useSafeAreaInsets();
+  const route = useRoute();
+  const {nameScreen} = route.params as {nameScreen: string};
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -93,39 +99,29 @@ const RegisterScreen = () => {
     }
   };
 
-  // const handleRegister = async () => {
-  //   if (!vallidateInputs()) return;
-
-  //   try {
-  //     const userCredential = await auth().createUserWithEmailAndPassword(
-  //       email,
-  //       password,
-  //     );
-  //     await userCredential.user.updateProfile({displayName: name});
-  //     console.log('Đăng ký thành công:', userCredential.user.email);
-  //     navigation.navigate(ScreenName.Auth.Login);
-  //   } catch (error: any) {
-  //     console.log('Đăng ký lỗi:', error);
-  //     if (error.code === 'auth/email-already-in-use') {
-  //       setErrors({...errors, email: 'Email đã tồn tại!'});
-  //     } else if (error.code === 'auth/invalid-email') {
-  //       setErrors({...errors, email: 'Email không hợp lệ!'});
-  //     } else if (error.code === 'auth/weak-password') {
-  //       setErrors({...errors, password: 'Mật khẩu quá yếu!'});
-  //     } else {
-  //       setErrors({...errors, email: 'Đăng ký thất bại, thử lại sau!'});
-  //     }
-  //   }
-  // };
-
-  const handleLogin = () => {
-    navigation.navigate(ScreenName.Auth.Login);
+  const handleLogin = (prams: any) => {
+    if (nameScreen === 'NextRegister') {
+      navigation.goBack();
+    } else {
+      navigation.navigate(ScreenName.Auth.Login, {nameScreen: prams});
+    }
   };
 
   return (
     <LayoutImage>
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <Block flex1 middle>
+          <TouchIcon
+            icon={IconSRC.icon_back_left}
+            size={25}
+            color="white"
+            containerStyle={[styles.btn, {top: top}]}
+            onPress={() =>
+              nameScreen === 'NextRegister'
+                ? navigation.goBack()
+                : navigation.goBack()
+            }
+          />
           <Block
             borderRadius={20}
             width={'85%'}
@@ -224,7 +220,9 @@ const RegisterScreen = () => {
                   onBlur={() => setFocusedInput(null)}
                   secureTextEntry={!showPass}
                   iconRight
-                  imageName={showPass ? IconSRC.icon_eye : IconSRC.icon_eye_off}
+                  imageName={
+                    !showPass ? IconSRC.icon_eye : IconSRC.icon_eye_off
+                  }
                   iconColor={colors.black65}
                   onPressRight={() => setShowPass(!showPass)}
                   containerStyle={{marginTop: 10}}
@@ -253,17 +251,11 @@ const RegisterScreen = () => {
               </TextSmall>
               <TouchableOpacity
                 onPress={() => {
-                  handleLogin();
+                  handleLogin('NextLogin');
                 }}>
                 <TextSmall color={colors.green} bold>
                   {getTranslation('dang_nhap')}
                 </TextSmall>
-
-                {/* <TouchableOpacity onPress={handleLogin}>
-                  <TextSmall color={colors.green} bold>
-                    Đăng nhập
-                  </TextSmall>
-                </TouchableOpacity> */}
               </TouchableOpacity>
             </Block>
           </Block>
@@ -275,4 +267,15 @@ const RegisterScreen = () => {
 
 export default RegisterScreen;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  btn: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    left: 20,
+    backgroundColor: colors.gray,
+    height: 45,
+    width: 45,
+    borderRadius: 18,
+  },
+});

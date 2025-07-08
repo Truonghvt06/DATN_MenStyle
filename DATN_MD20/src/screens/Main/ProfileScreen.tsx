@@ -22,7 +22,23 @@ const ProfileScreen = () => {
   const language = useAppSelector(state => state.application.lang.label);
 
   const dispatch = useAppDispatch();
-  const {user} = useAppSelector(state => state.auth);
+  const {user, token} = useAppSelector(state => state.auth);
+
+  // const handleNextLogin = () => {
+  //   Alert.alert(getTranslation('thong_bao'), 'Bạn phải đăng nhập để sử dụng!', [
+  //     {text: getTranslation('huy'), style: 'cancel'},
+  //     {
+  //       text: getTranslation('dang_nhap'),
+  //       onPress: () => {
+  //         navigation.resetToStackWithScreen(
+  //           ScreenName.Auth.AuthStack,
+  //           ScreenName.Auth.Login,
+  //           {nameScreen: ''},
+  //         );
+  //       },
+  //     },
+  //   ]);
+  // };
 
   return (
     <ContainerView>
@@ -34,55 +50,94 @@ const ProfileScreen = () => {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingHorizontal: 8, paddingBottom: 20}}>
-        <Block alignCT marT={16} marB={50}>
-          <Image
-            style={styles.avatar}
-            source={user?.avatar ? {uri: user.avatar} : ImgSRC.img_avatar}
-          />
-          <TextSizeCustom size={20} bold>
-            {user?.name}
-          </TextSizeCustom>
-        </Block>
-        <TextHeight bold>{getTranslation('tai_khoan1')}</TextHeight>
-        <Block w100 borderWidth={0.5} borderColor={colors.gray3} marV={5} />
-        <ButtonOption
-          name={getTranslation('thong_tin_ca_nhan')}
-          content={getTranslation('thay_doi_thong_tin')}
-          iconLeft={IconSRC.icon_user}
-          sizeLeft={25}
-          borderBottom={0}
-          containerStyle={{paddingBottom: -12, paddingTop: 5}}
-          onPress={() => {
-            // navigation.navigate('ThongTinCaNhan')
-            navigation.navigate(ScreenName.Main.Information);
-          }}
-        />
-        <ButtonOption
-          name={getTranslation('don_hang')}
-          content={getTranslation('xem_don_hang')}
-          iconLeft={IconSRC.icon_order}
-          sizeLeft={25}
-          borderBottom={0}
-          containerStyle={{paddingBottom: -12, paddingTop: 5}}
-          onPress={() => navigation.navigate(ScreenName.Main.Orders)}
-        />
-        <ButtonOption
-          name={getTranslation('ua_thich')}
-          content={getTranslation('sp_da_luu')}
-          iconLeft={IconSRC.icon_favorite}
-          sizeLeft={25}
-          borderBottom={0}
-          containerStyle={{paddingBottom: -12, paddingTop: 5}}
-        />
-        <ButtonOption
-          name={getTranslation('dia_chi')}
-          content={getTranslation('ql_dia_chi')}
-          iconLeft={IconSRC.icon_address}
-          sizeLeft={25}
-          borderBottom={0}
-          containerStyle={{paddingBottom: -12, marginBottom: 30}}
-          onPress={() => navigation.navigate(ScreenName.Main.Address)}
-        />
+        {token ? (
+          <Block alignCT marT={16} marB={50}>
+            <Image
+              style={styles.avatar}
+              source={user?.avatar ? {uri: user.avatar} : ImgSRC.img_avatar}
+            />
+            <TextSizeCustom size={20} bold>
+              {user?.name}
+            </TextSizeCustom>
+          </Block>
+        ) : (
+          <Block alignCT padV={20}>
+            <Image style={styles.avatar} source={ImgSRC.img_avatar} />
+            <Block row padT={20} alignCT>
+              <ButtonBase
+                title={getTranslation('dang_nhap')}
+                size={14}
+                containerStyle={{height: 38, width: 160, marginRight: 20}}
+                onPress={() =>
+                  navigation.navigate(ScreenName.Auth.AuthStack, {
+                    screen: ScreenName.Auth.Login,
+                    params: {
+                      nameScreen: '',
+                    },
+                  })
+                }
+              />
+              <ButtonBase
+                title={getTranslation('dang_ky')}
+                size={14}
+                containerStyle={{height: 38, width: 160}}
+                onPress={() =>
+                  navigation.navigate(ScreenName.Auth.AuthStack, {
+                    screen: ScreenName.Auth.Register,
+                    params: {
+                      nameScreen: '',
+                    },
+                  })
+                }
+              />
+            </Block>
+          </Block>
+        )}
+        {token && (
+          <>
+            <TextHeight bold>{getTranslation('tai_khoan1')}</TextHeight>
+            <Block w100 borderWidth={0.5} borderColor={colors.gray3} marV={5} />
+            <ButtonOption
+              name={getTranslation('thong_tin_ca_nhan')}
+              content={getTranslation('thay_doi_thong_tin')}
+              iconLeft={IconSRC.icon_user}
+              sizeLeft={25}
+              borderBottom={0}
+              containerStyle={{paddingBottom: -12, paddingTop: 5}}
+              onPress={() => {
+                // navigation.navigate('ThongTinCaNhan')
+                navigation.navigate(ScreenName.Main.Information);
+                // : handleNextLogin();
+              }}
+            />
+            <ButtonOption
+              name={getTranslation('don_hang')}
+              content={getTranslation('xem_don_hang')}
+              iconLeft={IconSRC.icon_order}
+              sizeLeft={25}
+              borderBottom={0}
+              containerStyle={{paddingBottom: -12, paddingTop: 5}}
+              onPress={() => navigation.navigate(ScreenName.Main.Orders)}
+            />
+            <ButtonOption
+              name={getTranslation('ua_thich')}
+              content={getTranslation('sp_da_luu')}
+              iconLeft={IconSRC.icon_favorite}
+              sizeLeft={25}
+              borderBottom={0}
+              containerStyle={{paddingBottom: -12, paddingTop: 5}}
+            />
+            <ButtonOption
+              name={getTranslation('dia_chi')}
+              content={getTranslation('ql_dia_chi')}
+              iconLeft={IconSRC.icon_address}
+              sizeLeft={25}
+              borderBottom={0}
+              containerStyle={{paddingBottom: -12, marginBottom: 30}}
+              onPress={() => navigation.navigate(ScreenName.Main.Address)}
+            />
+          </>
+        )}
 
         <TextHeight bold>{getTranslation('khac')}</TextHeight>
         <Block w100 borderWidth={0.5} borderColor={colors.gray3} marV={5} />
@@ -150,30 +205,32 @@ const ProfileScreen = () => {
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
         />
-        <ButtonBase
-          title={getTranslation('dang_xuat')}
-          containerStyle={styles.btnLogout}
-          size={14}
-          icon={IconSRC.icon_logout}
-          colorIcon={colors.while}
-          onPress={() => {
-            Alert.alert(
-              getTranslation('thong_bao'),
-              getTranslation('thong_bao_dang_xuat'),
-              [
-                {text: getTranslation('huy'), style: 'cancel'},
-                {
-                  text: 'OK',
-                  onPress: () => {
-                    dispatch(logout());
-                    navigation.reset(ScreenName.Auth.AuthStack);
+        {token && (
+          <ButtonBase
+            title={getTranslation('dang_xuat')}
+            containerStyle={styles.btnLogout}
+            size={14}
+            icon={IconSRC.icon_logout}
+            colorIcon={colors.while}
+            onPress={() => {
+              Alert.alert(
+                getTranslation('thong_bao'),
+                getTranslation('thong_bao_dang_xuat'),
+                [
+                  {text: getTranslation('huy'), style: 'cancel'},
+                  {
+                    text: 'OK',
+                    onPress: () => {
+                      dispatch(logout());
+                      navigation.reset(ScreenName.Main.MainStack);
+                    },
                   },
-                },
-              ],
-              {cancelable: true},
-            );
-          }}
-        />
+                ],
+                {cancelable: true},
+              );
+            }}
+          />
+        )}
       </ScrollView>
     </ContainerView>
   );

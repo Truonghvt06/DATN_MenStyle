@@ -15,7 +15,10 @@ import {colors} from '../../../../../themes/colors';
 import ContainerView from '../../../../../components/layout/ContainerView';
 import Header from '../../../../../components/dataDisplay/Header';
 import useLanguage from '../../../../../hooks/useLanguage';
-import {TextSizeCustom} from '../../../../../components/dataEntry/TextBase';
+import {
+  TextMedium,
+  TextSizeCustom,
+} from '../../../../../components/dataEntry/TextBase';
 import TouchIcon from '../../../../../components/dataEntry/Button/TouchIcon';
 import Block from '../../../../../components/layout/Block';
 import ButtonBase from '../../../../../components/dataEntry/Button/ButtonBase';
@@ -55,7 +58,7 @@ const InformationScreen = () => {
   const genders = ['Nam', 'Nữ', 'Khác'];
 
   const dispatch = useAppDispatch();
-  const {user, loading} = useAppSelector(state => state.auth);
+  const {user, loading, token} = useAppSelector(state => state.auth);
 
   const isChanged = useMemo(() => {
     if (!user) return false;
@@ -141,34 +144,6 @@ const InformationScreen = () => {
       },
     );
   };
-  //   const handlePickAvatar = () => {
-  //     launchImageLibrary(
-  //       {
-  //         mediaType: 'photo',
-  //         maxWidth: 600,
-  //         maxHeight: 600,
-  //         quality: 0.8,
-  //       },
-  //       async res => {
-  //         if (res.didCancel) return;
-  //         if (res.errorCode) {
-  //           Alert.alert('Lỗi', res.errorMessage || 'Không thể chọn ảnh');
-  //           return;
-  //         }
-  //         const asset = res.assets?.[0];
-  //         if (!asset?.uri) return;
-
-  //         const formData = buildFormData(asset);
-  //         const result = await dispatch(updateUserAvatar(formData));
-
-  //         if (updateUserAvatar.fulfilled.match(result)) {
-  //           Alert.alert('Thành công', 'Ảnh đại diện đã được cập nhật!');
-  //         } else {
-  //           Alert.alert('Lỗi', result.payload as string);
-  //         }
-  //       },
-  //     );
-  //   };
 
   useEffect(() => {
     if (user) {
@@ -206,110 +181,124 @@ const InformationScreen = () => {
             }
           }}
         />
-        <ScrollView>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{flex: 1}}>
-            <Block alignCT justifyCT h={200} backgroundColor={colors.sky_blue}>
-              <TouchableOpacity
-                activeOpacity={0.9}
-                onPress={() => {
-                  handlePickAvatar1();
-                }}>
-                <Image
-                  style={styles.avatar}
-                  source={
-                    localAvatar?.uri
-                      ? {uri: localAvatar.uri}
-                      : user?.avatar
-                      ? {uri: user.avatar}
-                      : ImgSRC.img_avatar
-                  }
-                />
-                <TouchIcon
-                  containerStyle={styles.ic_edit}
-                  icon={IconSRC.icon_edit}
-                  size={28}
-                  color={colors.gray1}
+        {token ? (
+          <ScrollView>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              style={{flex: 1}}>
+              <Block
+                alignCT
+                justifyCT
+                h={200}
+                backgroundColor={colors.sky_blue}>
+                <TouchableOpacity
+                  activeOpacity={0.9}
                   onPress={() => {
                     handlePickAvatar1();
-                  }}
-                />
-              </TouchableOpacity>
-            </Block>
-            <Block pad={metrics.space}>
-              <Block
-                backgroundColor={colors.while}
-                padH={8}
-                padV={12}
-                borderRadius={10}>
-                <InputPlace
-                  is_Focused={isFocused}
-                  label={getTranslation('ho_va_ten')}
-                  value={dataUser.name}
-                  onChangeText={(text: string) =>
-                    setDataUser({...dataUser, name: text})
-                  }
-                />
-
-                <InputPlace
-                  readOnly
-                  is_Focused={isFocused}
-                  label={getTranslation('gioi_tinh')}
-                  value={dataUser.gender}
-                  iconRight
-                  containerView={{
-                    flexDirection: 'row',
-                  }}
-                  onPress={() => {
-                    setIsOpen(true);
-                  }}
-                />
-                <InputPlace
-                  readOnly
-                  is_Focused={isFocused}
-                  label={getTranslation('ngay_sinh')}
-                  value={dataUser.date_of_birth}
-                  iconRight
-                  //   disabled={!address.province}
-                  containerView={{
-                    flexDirection: 'row',
-                  }}
-                  onPress={() => {
-                    setOpen(true);
-                  }}
-                />
-                <InputPlace
-                  is_Focused={isFocused}
-                  label={getTranslation('sdt')}
-                  value={dataUser.phone}
-                  onChangeText={(text: string) =>
-                    setDataUser({...dataUser, phone: text})
-                  }
-                />
-
-                <InputPlace
-                  readOnly
-                  is_Focused={isFocused}
-                  label={getTranslation('email')}
-                  value={dataUser.email}
-                  onChangeText={(text: string) =>
-                    setDataUser({...dataUser, email: text})
-                  }
-                />
+                  }}>
+                  <Image
+                    style={styles.avatar}
+                    source={
+                      localAvatar?.uri
+                        ? {uri: localAvatar.uri}
+                        : user?.avatar
+                        ? {uri: user.avatar}
+                        : ImgSRC.img_avatar
+                    }
+                  />
+                  <TouchIcon
+                    containerStyle={styles.ic_edit}
+                    icon={IconSRC.icon_edit}
+                    size={28}
+                    color={colors.gray1}
+                    onPress={() => {
+                      handlePickAvatar1();
+                    }}
+                  />
+                </TouchableOpacity>
               </Block>
-            </Block>
-          </KeyboardAvoidingView>
-        </ScrollView>
+              <Block pad={metrics.space}>
+                <Block
+                  backgroundColor={colors.while}
+                  padH={8}
+                  padV={12}
+                  borderRadius={10}>
+                  <InputPlace
+                    is_Focused={isFocused}
+                    label={getTranslation('ho_va_ten')}
+                    value={dataUser.name}
+                    onChangeText={(text: string) =>
+                      setDataUser({...dataUser, name: text})
+                    }
+                  />
 
-        <Block containerStyle={styles.btn}>
-          <ButtonLoading
-            title={getTranslation('luu')}
-            loading={loading}
-            disabled={!canSave || loading}
-            onPress={handleSave}
-          />
-        </Block>
+                  <InputPlace
+                    readOnly
+                    is_Focused={isFocused}
+                    label={getTranslation('gioi_tinh')}
+                    value={dataUser.gender}
+                    iconRight
+                    containerView={{
+                      flexDirection: 'row',
+                    }}
+                    onPress={() => {
+                      setIsOpen(true);
+                    }}
+                  />
+                  <InputPlace
+                    readOnly
+                    is_Focused={isFocused}
+                    label={getTranslation('ngay_sinh')}
+                    value={dataUser.date_of_birth}
+                    iconRight
+                    //   disabled={!address.province}
+                    containerView={{
+                      flexDirection: 'row',
+                    }}
+                    onPress={() => {
+                      setOpen(true);
+                    }}
+                  />
+                  <InputPlace
+                    is_Focused={isFocused}
+                    label={getTranslation('sdt')}
+                    value={dataUser.phone}
+                    onChangeText={(text: string) =>
+                      setDataUser({...dataUser, phone: text})
+                    }
+                  />
+
+                  <InputPlace
+                    readOnly
+                    is_Focused={isFocused}
+                    label={getTranslation('email')}
+                    value={dataUser.email}
+                    onChangeText={(text: string) =>
+                      setDataUser({...dataUser, email: text})
+                    }
+                  />
+                </Block>
+              </Block>
+            </KeyboardAvoidingView>
+          </ScrollView>
+        ) : (
+          <Block flex1 alignCT justifyCT>
+            <TextMedium color={colors.gray}>
+              Đăng nhập để lấy thông tin
+            </TextMedium>
+          </Block>
+        )}
+
+        {token && (
+          <Block containerStyle={styles.btn}>
+            <ButtonLoading
+              title={getTranslation('luu')}
+              loading={loading}
+              disabled={!canSave || loading}
+              onPress={handleSave}
+            />
+          </Block>
+        )}
         {/* Ngoài  */}
 
         {/* Ngày sinh  */}
