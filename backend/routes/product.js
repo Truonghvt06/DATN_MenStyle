@@ -160,7 +160,7 @@ router.get("/:id", async (req, res) => {
       .lean(); // Convert Mongoose Document -> plain JS object
 
     if (!product) {
-      return res.status(404).send("Không tìm thấy sản phẩm");
+      return res.status(404).send("Không tìm thấy sản phẩm bạn cần");
     }
 
     res.render("product_detail", { product });
