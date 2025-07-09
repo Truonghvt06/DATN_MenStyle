@@ -57,52 +57,6 @@ router.get("/favorites", authMiddleware, async (req, res) => {
   }
 });
 
-router.post("/favorites/add-by-id", async (req, res) => {
-  try {
-    const { userId, productId, variantIndex = 0 } = req.body;
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "Không tìm thấy user" });
-
-    const exists = user.favorites.some(
-      (item) =>
-        item.productId.toString() === productId &&
-        item.variantIndex === variantIndex
-    );
-
-    if (!exists) {
-      user.favorites.push({ productId, variantIndex });
-      await user.save();
-    }
-    res.json({ success: true, message: "Đã thêm sản phẩm vào yêu thích." });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-router.post("/cart/add-by-id", async (req, res) => {
-  try {
-    const { userId, productId, variantIndex = 0, quantity = 1 } = req.body;
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "Không tìm thấy user" });
-
-    const existing = user.cart.find(
-      (item) =>
-        item.productId.toString() === productId &&
-        item.variantIndex === variantIndex
-    );
-
-    if (existing) {
-      existing.quantity += quantity;
-    } else {
-      user.cart.push({ productId, variantIndex, quantity });
-    }
-    await user.save();
-    res.json({ success: true, message: "Đã thêm vào giỏ hàng." });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
 router.get("/detail/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
@@ -114,6 +68,128 @@ router.get("/detail/:id", async (req, res) => {
     res.render("user_detail", { user, products });
   } catch (err) {
     console.error(err);
+    res.status(500).send("Lỗi server");
+  }
+});
+router.post("/:id/cart/add-variant", async (req, res) => {
+  const userId = req.params.id;
+  const { productId } = req.body;
+  const variantIndex = Number(req.body.variantIndex);
+
+  try {
+    if (isNaN(variantIndex)) {
+      return res.status(400).send("Biến thể không hợp lệ");
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).send("Không tìm thấy người dùng");
+
+    const existing = user.cart.find(
+      (item) =>
+        item.productId.toString() === productId &&
+        item.variantIndex === variantIndex
+    );
+
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      user.cart.push({ productId, variantIndex, quantity: 1 });
+    }
+
+    await user.save();
+    res.redirect(`/accounts/detail/${userId}`);
+  } catch (err) {
+    console.error("Lỗi thêm vào giỏ hàng:", err);
+    res.status(500).send("Lỗi server");
+  }
+});
+
+router.post("/:id/favorites/add", async (req, res) => {
+  try {
+    const { productId } = req.body;
+    const userId = req.params.id;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).send("Không tìm thấy người dùng");
+
+    const exists = user.favorites.some(
+      (item) => item.productId.toString() === productId
+    );
+
+    if (!exists) {
+      user.favorites.push({ productId });
+      await user.save();
+    }
+
+    res.redirect(`/accounts/detail/${userId}`);
+  } catch (err) {
+    console.error("Lỗi thêm vào yêu thích:", err);
+    res.status(500).send("Lỗi server khi thêm vào yêu thích");
+  }
+});
+router.post("/:id/cart/update-all", async (req, res) => {
+  console.log("Request body:", req.body);
+  const { action } = req.body;
+  const userId = req.params.id;
+
+  try {
+    const users = await User.findById(userId);
+    if (!users) return res.status(404).send("Không tìm thấy người dùng");
+    if (users.cart.length === 0) {
+      return res.status(400).send("Giỏ hàng trống, không thể cập nhật");
+    }
+
+    if (!action || !action.includes("-")) {
+      return res.status(400).send("Thiếu hoặc sai định dạng action");
+    }
+
+    const [type, indexStr] = action.split("-");
+    const index = parseInt(indexStr);
+
+    if (isNaN(index)) {
+      return res.status(400).send("Index không hợp lệ");
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).send("Không tìm thấy người dùng");
+
+    if (user.cart[index]) {
+      if (type === "increase") {
+        user.cart[index].quantity += 1;
+      } else if (type === "decrease") {
+        user.cart[index].quantity -= 1;
+
+        // Nếu giảm về 0 hoặc nhỏ hơn thì xóa luôn sản phẩm
+        if (user.cart[index].quantity <= 0) {
+          user.cart.splice(index, 1);
+        }
+      }
+    }
+
+    await user.save();
+    res.redirect(`/accounts/detail/${userId}`);
+  } catch (err) {
+    console.error("Lỗi cập nhật giỏ hàng:", err.message);
+    res.status(500).send("Lỗi server");
+  }
+});
+
+router.post("/:id/cart/remove-item", async (req, res) => {
+  const { id } = req.params;
+  const { index } = req.body;
+
+  try {
+    const user = await User.findById(id);
+    if (!user) return res.status(404).send("Không tìm thấy người dùng");
+
+    if (index >= 0 && index < user.cart.length) {
+      user.cart.splice(index, 1);
+      await user.save();
+    }
+
+    res.redirect(`/accounts/detail/${id}`);
+  } catch (err) {
+    console.error("Lỗi khi xóa sản phẩm khỏi giỏ:", err.message);
     res.status(500).send("Lỗi server");
   }
 });
