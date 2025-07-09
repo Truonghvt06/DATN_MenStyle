@@ -1,5 +1,5 @@
 import {useRoute} from '@react-navigation/native';
-import React, {useState, useMemo} from 'react';
+import React, {useState, useMemo, useEffect} from 'react';
 import {View, Text, TouchableOpacity, FlatList, StyleSheet} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import ContainerView from '../../../components/layout/ContainerView';
@@ -11,6 +11,8 @@ import ListProduct from '../../../components/dataDisplay/ListProduct';
 import Block from '../../../components/layout/Block';
 import metrics from '../../../constants/metrics';
 import useLanguage from '../../../hooks/useLanguage';
+import {useAppDispatch, useAppSelector} from '../../../redux/store';
+import {fetchProductsByCategory} from '../../../redux/actions/product';
 
 // Dữ liệu giả
 
@@ -18,9 +20,19 @@ const CategoryScreen = () => {
   const route = useRoute();
   const {getTranslation} = useLanguage();
   const {top} = useSafeAreaInsets();
-  const {name, title} = route.params as {name: string; title: string}; //từ home
+  const {name, title, type} = route.params as {
+    name: string;
+    title: string;
+    type: string;
+  }; //từ home
   const [selectedTab, setSelectedTab] = useState(getTranslation('tat_ca'));
 
+  const dispatch = useAppDispatch();
+  const {products} = useAppSelector(state => state.product);
+
+  useEffect(() => {
+    dispatch(fetchProductsByCategory(type));
+  }, []);
   const tabs = [
     getTranslation('tat_ca'),
     getTranslation('moi_nhat'),

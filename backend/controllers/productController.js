@@ -91,6 +91,61 @@ exports.getProductsByCategory = async (req, res) => {
     res.status(500).json({ message: "Lỗi khi lấy sản phẩm theo thể loại." });
   }
 };
+// GET /products/category/:categoryId?sort=new|best|priceAsc|priceDesc&page=&limit=
+exports.getProductsByCategorySort = async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    const {
+      sort = "new", // new | best | priceAsc | priceDesc
+      page = 1,
+      limit = 12,
+    } = req.query;
+
+    if (!mongoose.isValidObjectId(categoryId)) {
+      return res.status(400).json({ message: "categoryId không hợp lệ" });
+    }
+
+    const page_ = Math.max(1, parseInt(page));
+    const limit_ = Math.max(1, parseInt(limit));
+
+    /*-------------- 1. Chọn field sort ----------------*/
+    let sortOption = { createdAt: -1 }; // mặc định: mới nhất
+    switch (sort) {
+      case "best":
+        sortOption = { sold_count: -1 };
+        break;
+      case "priceAsc":
+        sortOption = { price: 1 };
+        break;
+      case "priceDesc":
+        sortOption = { price: -1 };
+        break;
+      // default -> new
+    }
+
+    /*-------------- 2. Đếm tổng & lấy dữ liệu --------*/
+    const filter = { category_id: categoryId };
+
+    const total = await Product.countDocuments(filter);
+    const products = await Product.find(filter)
+      .populate("type")
+      .sort(sortOption)
+      .skip((page_ - 1) * limit_)
+      .limit(limit_);
+
+    res.json({
+      total,
+      page: page_,
+      limit: limit_,
+      data: products,
+    });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ message: "Lỗi server khi lấy sản phẩm theo thể loại" });
+  }
+};
 
 // GET /products/best-seller?limit=10
 exports.getBestSellerProducts = async (req, res) => {
@@ -121,5 +176,46 @@ exports.getNewestProducts = async (req, res) => {
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: "Lỗi server khi lấy sản phẩm mới nhất" });
+  }
+};
+
+exports.getProductDetail = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id).populate("type");
+    if (!product)
+      return res.status(404).json({ message: "Không tìm thấy sản phẩm." });
+
+    // Lấy sản phẩm cùng thể loại (ngoại trừ sản phẩm hiện tại)
+    const related = await Product.find({
+      type: product.type._id,
+      _id: { $ne: product._id },
+    }).limit(10); // lấy tối đa 10 sản phẩm cùng loại
+
+    res.json({
+      product,
+      relatedProducts: related, //sản phẩm liên quan
+    });
+  } catch (error) {
+    console.error("Lỗi getProductDetail:", error);
+    res.status(500).json({ message: "Lỗi khi lấy chi tiết sản phẩm." });
+  }
+};
+exports.searchProducts = async (req, res) => {
+  try {
+    const { q } = req.query;
+
+    if (!q || q.trim() === "")
+      return res
+        .status(400)
+        .json({ message: "Vui lòng nhập từ khóa tìm kiếm." });
+
+    const products = await Product.find({
+      name: { $regex: q, $options: "i" }, // không phân biệt hoa thường
+    }).populate("category_id");
+
+    res.json(products);
+  } catch (error) {
+    console.error("Lỗi searchProducts:", error);
+    res.status(500).json({ message: "Lỗi khi tìm kiếm sản phẩm." });
   }
 };
