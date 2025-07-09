@@ -36,7 +36,9 @@ router.post("/reset-password", authController.resetPassword);
 //
 router.get("/favorites", authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).populate("favorites.productId");
+    const user = await User.findById(req.user.id).populate(
+      "favorites.productId"
+    );
     const favoritesWithDetails = user.favorites.map((fav) => {
       const product = fav.productId;
       const variant = product?.variants?.[fav.variantIndex] || {};
@@ -56,6 +58,20 @@ router.get("/favorites", authMiddleware, async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+router.get("/detail/:id", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id)
+      .populate("cart.productId")
+      .populate("favorites.productId")
+      .lean();
+    const products = await Product.find().lean();
+    console.log("Số lượng sản phẩm trong giỏ hàng:", products.length);
+    res.render("user_detail", { user, products });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Lỗi server");
+  }
+});
 
 router.get("/detail/:id", async (req, res) => {
   try {
@@ -64,8 +80,24 @@ router.get("/detail/:id", async (req, res) => {
       .populate("favorites.productId")
       .lean();
     const products = await Product.find().lean();
-    console.log('Số lượng sản phẩm trong giỏ hàng:', products.length);  
+    console.log("Số lượng sản phẩm trong giỏ hàng:", products.length);
     res.render("user_detail", { user, products });
+    // =======
+    //     const { userId, productId, variantIndex = 0 } = req.body;
+    //     const user = await User.findById(userId);
+    //     if (!user) return res.status(404).json({ message: "Không tìm thấy user" });
+
+    //     const exists = user.favorites.some(
+    //       (item) =>
+    //         item.productId.toString() === productId &&
+    //         item.variantIndex === variantIndex
+    //     );
+
+    //     if (!exists) {
+    //       user.favorites.push({ productId, variantIndex });
+    //       await user.save();
+    //     }
+    //     res.json({ success: true, message: "Đã thêm sản phẩm vào yêu thích." });
   } catch (err) {
     console.error(err);
     res.status(500).send("Lỗi server");
@@ -122,6 +154,15 @@ router.post("/:id/favorites/add", async (req, res) => {
     }
 
     res.redirect(`/accounts/detail/${userId}`);
+    // =======
+    //     const user = await User.findById(req.params.id)
+    //       .populate("cart.productId")
+    //       .populate("favorites.productId")
+    //       .lean();
+    //     const products = await Product.find().lean();
+    //     console.log('Số lượng sản phẩm trong giỏ hàng:', products.length);
+    //     res.render("user_detail", { user, products });
+    // >>>>>>> Stashed changes
   } catch (err) {
     console.error("Lỗi thêm vào yêu thích:", err);
     res.status(500).send("Lỗi server khi thêm vào yêu thích");

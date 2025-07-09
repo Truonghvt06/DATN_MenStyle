@@ -10,8 +10,14 @@ const User = require("../models/User");
 router.post("/add-product", productController.createProduct);
 router.get("/product-all", productController.getAllProducts);
 router.get("/product-category/:type", productController.getProductsByCategory);
+router.get(
+  "/product-category/:type",
+  productController.getProductsByCategorySort
+); // thể loại sắp sếp
 router.get("/best-seller", productController.getBestSellerProducts);
 router.get("/product-new", productController.getNewestProducts);
+router.get("/product-detail/:id", productController.getProductDetail); //chi tiêt
+// router.get("/products/search", productController.searchProducts); //search
 
 // API: Lấy toàn bộ sản phẩm dạng JSON
 router.get("/", async (req, res) => {
@@ -53,14 +59,13 @@ router.get("/view", async (req, res) => {
       types,
       selectedType: typeFilter,
       currentPage: page,
-      totalPages,             // ← Bắt buộc phải truyền biến này
+      totalPages, // ← Bắt buộc phải truyền biến này
     });
   } catch (error) {
     console.error("Error fetching products for view:", error);
     res.status(500).send("Lỗi khi lấy danh sách sản phẩm");
   }
 });
-
 
 // Form thêm sản phẩm
 router.get("/add", async (req, res) => {
@@ -221,7 +226,5 @@ router.get("/check-edit/:id", async (req, res) => {
     return res.status(500).send("Đã xảy ra lỗi máy chủ.");
   }
 });
-
-
 
 module.exports = router;
