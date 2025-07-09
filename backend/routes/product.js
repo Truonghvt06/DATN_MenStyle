@@ -28,26 +28,39 @@ router.get("/", async (req, res) => {
 
 router.get("/view", async (req, res) => {
   try {
-    const typeFilter = req.query.type;
+    const typeFilter = req.query.type || "all";
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+
     const types = await ProductType.find();
 
     let query = {};
-    if (typeFilter && typeFilter !== "all") {
+    if (typeFilter !== "all") {
       query.type = typeFilter;
     }
 
-    const products = await Product.find(query).populate("type");
+    const totalProducts = await Product.countDocuments(query);
+    const totalPages = Math.ceil(totalProducts / limit);
 
+    const products = await Product.find(query)
+      .populate("type")
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    // 🟢 TRUYỀN ĐẦY ĐỦ DỮ LIỆU CHO EJS
     res.render("products", {
       products,
       types,
-      selectedType: typeFilter || "all", // ✅ Thêm dòng này
+      selectedType: typeFilter,
+      currentPage: page,
+      totalPages,             // ← Bắt buộc phải truyền biến này
     });
   } catch (error) {
     console.error("Error fetching products for view:", error);
     res.status(500).send("Lỗi khi lấy danh sách sản phẩm");
   }
 });
+
 
 // Form thêm sản phẩm
 router.get("/add", async (req, res) => {

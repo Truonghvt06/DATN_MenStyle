@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const User = require("./models/User");
 const productRouter = require("./routes/product");
 const accountRouter = require("./routes/account");
+const bannerRoute = require('./routes/banner');
+const settingRoute = require('./routes/setting');
 
 const path = require("path");
 
@@ -20,6 +22,12 @@ app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/avatars", express.static(path.join(__dirname, "assets/avatars")));
+ // Các router khác
+ app.use("/products", productRouter);
+ app.use("/accounts", accountRouter);
+ app.use('/banner', bannerRoute);
+ app.use('/setting', settingRoute);
+
 
 // Kết nối MongoDB
 mongoose
@@ -35,10 +43,6 @@ mongoose
         res.status(500).send("Lỗi khi tải trang chính: " + err.message);
       }
     });
-
-    // Các router khác
-    app.use("/products", productRouter);
-    app.use("/accounts", accountRouter);
 
     app.listen(port, () => {
       console.log(`Server chạy ở http://localhost:${port}`);
