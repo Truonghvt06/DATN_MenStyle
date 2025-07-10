@@ -26,6 +26,7 @@ import LanguageScreen from '../screens/Main/Profile/Others/LanguageScreen';
 import InformationScreen from '../screens/Main/Profile/Account/Information/InformationScreen';
 import UpdateInfor from '../screens/Main/Profile/Account/Information/UpdateInfor';
 import WelcomeScreen from '../screens/Main/WelcomeScreen';
+import SearchResultScreen from '../screens/Main/SearchResultScreen';
 
 const Stack = createStackNavigator();
 
@@ -44,6 +45,7 @@ const MainStack = () => {
       <Stack.Screen name="DieuKhoan" component={DieuKhoanVaDieuKien} />
       <Stack.Screen name="ChinhSach" component={ChinhSach} />
       <Stack.Screen name="ThongTinCaNhan" component={ThongTinCaNhan} />
+      <Stack.Screen name="SearchResultScreen" component={SearchResultScreen} />
 
       <Stack.Screen
         name={ScreenName.Main.Favorite}

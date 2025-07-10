@@ -27,7 +27,7 @@ import Avatar from '../../components/dataDisplay/Avatar';
 import ListProduct from '../../components/dataDisplay/ListProduct';
 import {dataProduct} from '../../constants/data';
 import {FlatList} from 'react-native-gesture-handler';
-import products from '../../services/products';
+import products from '../../services/products/productService';
 import useLanguage from '../../hooks/useLanguage';
 import {useAppDispatch, useAppSelector} from '../../redux/store';
 import {fetchAllProducts} from '../../redux/actions/product';
