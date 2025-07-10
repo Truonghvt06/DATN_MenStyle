@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
   },
   img: {
     width: metrics.diviceScreenWidth,
-    height: 300,
+    height: 380,
     resizeMode: 'cover',
   },
   tim: {

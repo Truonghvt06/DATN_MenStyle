@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   StyleSheet,
@@ -28,6 +29,8 @@ import {dataProduct} from '../../constants/data';
 import {FlatList} from 'react-native-gesture-handler';
 import products from '../../services/products';
 import useLanguage from '../../hooks/useLanguage';
+import {useAppDispatch, useAppSelector} from '../../redux/store';
+import {fetchAllProducts} from '../../redux/actions/product';
 
 const ITEM_MARGIN = 10;
 const NUM_COLUMNS = 2;
@@ -38,18 +41,36 @@ const HomeScreen = () => {
   const {getTranslation} = useLanguage();
   const [proData, setProData] = useState<any[]>([]);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await products.getProducts();
-        setProData(res.data); // res.data là mảng sản phẩm
-      } catch (error) {
-        console.error('Lỗi lấy sản phẩm:', error);
-      }
-    };
+  const [page, setPage] = useState(1);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
 
-    fetchProducts();
-  }, []);
+  const dispatch = useAppDispatch();
+  const {products, total} = useAppSelector(state => state.product);
+
+  useEffect(() => {
+    dispatch(fetchAllProducts({page, limit: 10}));
+  }, [page]);
+
+  useEffect(() => {
+    if (page === 1) {
+      setProData(products); // lần đầu
+    } else {
+      setProData(prev => [...prev, ...products]); // nối thêm
+    }
+    setIsFetchingMore(false);
+  }, [products]);
+
+  console.log('DATA----->:', proData);
+
+  //Loading data
+  const handleLoadMore = () => {
+    if (!isFetchingMore && proData.length < total) {
+      setIsFetchingMore(true);
+      setTimeout(() => {
+        setPage(prev => prev + 1);
+      }, 3000); // ⏳ Delay 3 giây
+    }
+  };
 
   const handleSearch = () => {
     navigation.navigate(ScreenName.Main.SearchDetail);
@@ -60,8 +81,12 @@ const HomeScreen = () => {
   const handleProDetail = (item: any) => {
     navigation.navigate(ScreenName.Main.ProductDetail, {product: item});
   };
-  const handleCategory = (name: string, title: string) => {
-    navigation.navigate(ScreenName.Main.Category, {name: name, title: title});
+  const handleCategory = (name: string, title: string, typetID: string) => {
+    navigation.navigate(ScreenName.Main.Category, {
+      name: name,
+      title: title,
+      type: typetID,
+    });
   };
 
   const handleFavorite = (id: number) => {
@@ -90,40 +115,72 @@ const HomeScreen = () => {
           title={getTranslation('ao_polo')}
           icon={IconSRC.icon_polo}
           containerStyle={{paddingHorizontal: 20}}
-          onPress={() => handleCategory('Áo polo', getTranslation('ao_polo'))}
+          onPress={() =>
+            handleCategory(
+              'Áo polo',
+              getTranslation('ao_polo'),
+              products[0].type,
+            )
+          }
         />
         <Avatar
           title={getTranslation('ao_thun')}
           icon={IconSRC.icon_t_shirt}
           containerStyle={{paddingHorizontal: 20}}
-          onPress={() => handleCategory('Áo thun', getTranslation('ao_thun'))}
+          onPress={() =>
+            handleCategory(
+              'Áo thun',
+              getTranslation('ao_thun'),
+              products[0].type,
+            )
+          }
         />
         <Avatar
           title={getTranslation('ao_so_mi')}
           icon={IconSRC.icon_shirt}
           containerStyle={{paddingHorizontal: 20}}
-          onPress={() => handleCategory('Áo sơ mi', getTranslation('ao_so_mi'))}
+          onPress={() =>
+            handleCategory(
+              'Áo sơ mi',
+              getTranslation('ao_so_mi'),
+              products[0].type,
+            )
+          }
         />
         <Avatar
           title={getTranslation('ao_the_thao')}
           icon={IconSRC.icon_thethao}
           containerStyle={{paddingHorizontal: 10}}
           onPress={() =>
-            handleCategory('Áo thể thao', getTranslation('ao_the_thao'))
+            handleCategory(
+              'Áo thể thao',
+              getTranslation('ao_the_thao'),
+              products[0].type,
+            )
           }
         />
         <Avatar
           title={getTranslation('ao_khoac')}
           icon={IconSRC.icon_khoac}
           containerStyle={{paddingHorizontal: 20}}
-          onPress={() => handleCategory('Áo khoác', getTranslation('ao_khoac'))}
+          onPress={() =>
+            handleCategory(
+              'Áo khoác',
+              getTranslation('ao_khoac'),
+              products[0].type,
+            )
+          }
         />
         <Avatar
           title={getTranslation('ao_hoodie')}
           icon={IconSRC.icon_hoodie}
           containerStyle={{paddingHorizontal: 20}}
           onPress={() =>
-            handleCategory('Áo hoodie', getTranslation('ao_hoodie'))
+            handleCategory(
+              'Áo hoodie',
+              getTranslation('ao_hoodie'),
+              products[0].type,
+            )
           }
         />
       </ScrollView>
@@ -180,51 +237,65 @@ const HomeScreen = () => {
       {/* Sản phẩm  */}
       <FlatList
         data={proData}
-        keyExtractor={(item, index) => item._id}
+        keyExtractor={(item, index) => `${item._id}-${index}`}
         ListHeaderComponent={renderHeader}
         renderItem={({item}) => {
           return (
-            <TouchableOpacity
-              activeOpacity={0.9}
-              onPress={() => {
-                handleProDetail(item);
-              }}>
-              <Block containerStyle={styles.shadowWrap}>
-                <Block containerStyle={[styles.btn]}>
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    style={styles.tim}
-                    onPress={() => {
-                      handleFavorite(item._id);
-                    }}>
-                    <Image
-                      source={
-                        item.favorite
-                          ? IconSRC.icon_unfavorite
-                          : IconSRC.icon_favorite
-                      }
-                      style={{width: 20, height: 20}}
-                    />
-                  </TouchableOpacity>
-                  <Image
-                    style={styles.image}
-                    source={{uri: item.variants?.[0]?.image || ''}}
-                  />
-                  <Block mar={5}>
-                    <TextSmall medium numberOfLines={2} ellipsizeMode="tail">
-                      {item.name}
-                    </TextSmall>
-                    <Block row alignCT>
-                      <Image style={styles.star} source={IconSRC.icon_star} />
-                      <TextSmall>{item.rating_avg}</TextSmall>
+            <>
+              {proData.length === 0 ? (
+                <Text style={{textAlign: 'center', marginTop: 20}}>
+                  Đang tải sản phẩm...
+                </Text>
+              ) : (
+                <TouchableOpacity
+                  activeOpacity={0.9}
+                  onPress={() => {
+                    handleProDetail(item);
+                  }}>
+                  <Block containerStyle={styles.shadowWrap}>
+                    <Block containerStyle={[styles.btn]}>
+                      <TouchableOpacity
+                        activeOpacity={0.8}
+                        style={styles.tim}
+                        onPress={() => {
+                          handleFavorite(item._id);
+                        }}>
+                        <Image
+                          source={
+                            item.favorite
+                              ? IconSRC.icon_unfavorite
+                              : IconSRC.icon_favorite
+                          }
+                          style={{width: 20, height: 20}}
+                        />
+                      </TouchableOpacity>
+                      <Image
+                        style={styles.image}
+                        source={{uri: item.variants?.[0]?.image || ''}}
+                      />
+                      <Block mar={5}>
+                        <TextSmall
+                          medium
+                          numberOfLines={1}
+                          ellipsizeMode="tail">
+                          {item.name}
+                        </TextSmall>
+                        <Block row alignCT>
+                          <Image
+                            style={styles.star}
+                            source={IconSRC.icon_star}
+                          />
+                          <TextSmall>{item.rating_avg}</TextSmall>
+                        </Block>
+                        <TextHeight color={colors.red} bold>
+                          {item.price.toLocaleString('vi-VN')}đ
+                        </TextHeight>
+                      </Block>
                     </Block>
-                    <TextHeight color={colors.red} bold>
-                      {item.price.toLocaleString('vi-VN')}đ
-                    </TextHeight>
                   </Block>
-                </Block>
-              </Block>
-            </TouchableOpacity>
+                </TouchableOpacity>
+              )}
+            </>
           );
         }}
         numColumns={NUM_COLUMNS}
@@ -232,6 +303,17 @@ const HomeScreen = () => {
         contentContainerStyle={{
           paddingBottom: 50,
         }}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.3} // 30% cuối
+        ListFooterComponent={
+          isFetchingMore ? (
+            <ActivityIndicator
+              size="small"
+              color="gray"
+              style={{marginVertical: 10}}
+            />
+          ) : null
+        }
       />
     </ContainerView>
   );
