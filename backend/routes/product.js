@@ -149,8 +149,10 @@ router.get("/view", async (req, res) => {
       types,
       selectedType: typeFilter,
       currentPage: page,
-      totalPages, // ← Bắt buộc phải truyền biến này
+      totalPages,
+      search, // ← Thêm dòng này
     });
+    
   } catch (error) {
     console.error("Error fetching products for view:", error);
     res.status(500).send("Lỗi khi lấy danh sách sản phẩm");
