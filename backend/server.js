@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 
 const User = require("./models/User");
+const Banner = require("./models/Banner");
 const productRouter = require("./routes/product");
 const accountRouter = require("./routes/account");
 const bannerRoute = require('./routes/banner');
@@ -38,7 +39,8 @@ mongoose
     app.get("/", async (req, res) => {
       try {
         const userCount = await User.countDocuments();
-        res.render("home", { userCount });
+        const banners = await Banner.find().sort({ createdAt: -1 });
+        res.render("home", {  banners,userCount });
       } catch (err) {
         res.status(500).send("Lỗi khi tải trang chính: " + err.message);
       }

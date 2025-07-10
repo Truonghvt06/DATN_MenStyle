@@ -86,44 +86,57 @@ router.post('/add', async (req, res) => {
   
   
 
-// PUT: Cập nhật banner
-router.put('/edit/:id', upload.single('image'), async (req, res) => {
+// GET: Hiển thị form sửa banner
+router.get('/edit/:id', async (req, res) => {
   try {
-    const { title } = req.body;
     const banner = await Banner.findById(req.params.id);
-    if (!banner) return res.status(404).json({ message: 'Không tìm thấy banner' });
-
-    // Xoá ảnh cũ nếu có file mới
-    if (req.file) {
-      const oldPath = path.join(__dirname, '..', 'assets', 'banners', banner.image.split('/').pop());
-      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-
-      banner.image = `${req.protocol}://${req.get('host')}/banners/${req.file.filename}`;
-    }
-
-    if (title) banner.title = title;
-    await banner.save();
-
-    res.json({ message: 'Cập nhật banner thành công', banner });
+    if (!banner) return res.status(404).send("Không tìm thấy banner");
+    res.render('banner_edit', { banner });
   } catch (err) {
-    res.status(500).json({ message: 'Lỗi cập nhật banner', error: err.message });
+    console.error("Lỗi hiển thị form sửa banner:", err);
+    res.status(500).send("Lỗi server");
+  }
+});
+// POST: Cập nhật banner
+router.post('/edit/:id', async (req, res) => {
+  try {
+    const { title, image } = req.body;
+    const banner = await Banner.findById(req.params.id);
+    if (!banner) return res.status(404).send("Không tìm thấy banner");
+
+    banner.title = title.trim();
+    banner.image = image.trim();
+
+    await banner.save();
+    res.redirect('/banner/view/options');
+  } catch (err) {
+    console.error("Lỗi cập nhật banner:", err);
+    res.status(500).send("Lỗi server");
   }
 });
 
 // DELETE: Xoá banner
-router.delete('/delete/:id', async (req, res) => {
+// POST: Xoá banner (thay vì DELETE vì form HTML không hỗ trợ DELETE)
+router.post('/delete/:id', async (req, res) => {
+  console.log('Nhận xoá banner:', req.params.id);
   try {
     const banner = await Banner.findById(req.params.id);
-    if (!banner) return res.status(404).json({ message: 'Không tìm thấy banner' });
+    if (!banner) return res.status(404).send('Không tìm thấy banner');
 
-    const filePath = path.join(__dirname, '..', 'assets', 'banners', banner.image.split('/').pop());
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    // Nếu là link ngoài thì không cần xoá file local
+    if (banner.image.startsWith(req.protocol)) {
+      const filename = banner.image.split('/').pop();
+      const filePath = path.join(__dirname, '..', 'assets', 'banners', filename);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
 
     await banner.deleteOne();
-    res.json({ message: 'Xoá banner thành công' });
+    res.redirect('/banner/view/options');
   } catch (err) {
-    res.status(500).json({ message: 'Lỗi xoá banner', error: err.message });
+    console.error('Lỗi xoá banner:', err);
+    res.status(500).send('Lỗi xoá banner');
   }
 });
+
 
 module.exports = router;
