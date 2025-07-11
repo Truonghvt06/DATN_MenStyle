@@ -27,6 +27,33 @@ exports.createProduct = async (req, res) => {
       .json({ message: "Lỗi khi tạo sản phẩm.", error: error.message });
   }
 };
+//get Pro
+router.get("/", async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+
+    const page_ = parseInt(page);
+    const limit_ = parseInt(limit);
+
+    const total = await Product.countDocuments();
+    const products = await Product.find()
+      .populate("type")
+      .skip((page_ - 1) * limit_)
+      .limit(limit_)
+      .lean();
+    res.json({
+      total,
+      page: page_,
+      limit: limit_,
+      data: products,
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res
+      .status(500)
+      .json({ message: "Lỗi khi lấy sản phẩm", error: error.message });
+  }
+});
 
 // GET products?random=true&limit=10: Có random
 // exports.getAllProducts = async (req, res) => {
