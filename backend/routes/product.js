@@ -22,6 +22,7 @@ router.get("/product-detail/:id", productController.getProductDetail); //chi ti�
 // router.get("/products/search", productController.searchProducts); //search
 
 // API: Lấy toàn bộ sản phẩm dạng JSON
+// API: Lấy toàn bộ sản phẩm dạng JSON
 router.get("/", async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
@@ -49,9 +50,135 @@ router.get("/", async (req, res) => {
   }
 });
 
+// ✅ API thêm sản phẩm (Mobile)
+router.post("/add-product", async (req, res) => {
+  try {
+    const { name, type, description, price, variants } = req.body;
+
+    if (!name || !type || !description || !price || !Array.isArray(variants)) {
+      return res
+        .status(400)
+        .json({ message: "Thiếu thông tin hoặc biến thể không hợp lệ" });
+    }
+
+    const product = new Product({
+      name,
+      type,
+      description,
+      price,
+      variants,
+      rating_avg: 0,
+      rating_count: 0,
+      sold_count: 0,
+    });
+
+    await product.save();
+    res.status(201).json({ message: "Đã thêm sản phẩm", product });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Lỗi thêm sản phẩm", error: error.message });
+  }
+});
+
+// ✅ API lấy tất cả sản phẩm (Mobile)
+router.get("/product-all", async (req, res) => {
+  try {
+    const products = await Product.find().populate("type").lean();
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi lấy sản phẩm", error: err.message });
+  }
+});
+
+// ✅ API lọc sản phẩm theo loại + sắp xếp (Mobile)
+router.get("/product-category/:type", async (req, res) => {
+  try {
+    const { type } = req.params;
+    const { sort } = req.query;
+
+    let query = Product.find({ type });
+
+    if (sort === "price_asc") query = query.sort({ price: 1 });
+    else if (sort === "price_desc") query = query.sort({ price: -1 });
+
+    const products = await query.populate("type").lean();
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi lọc sản phẩm", error: err.message });
+  }
+});
+
+// ✅ API best seller
+router.get("/best-seller", async (req, res) => {
+  try {
+    const products = await Product.find()
+      .sort({ sold_count: -1 })
+      .limit(10)
+      .lean();
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi best seller", error: err.message });
+  }
+});
+
+// ✅ API sản phẩm mới nhất
+router.get("/product-new", async (req, res) => {
+  try {
+    const products = await Product.find()
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .lean();
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi sản phẩm mới", error: err.message });
+  }
+});
+
+// ✅ API chi tiết sản phẩm cho app mobile
+router.get("/api/:id", async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.isValidObjectId(id)) {
+    return res.status(400).json({ success: false, message: "ID không hợp lệ" });
+  }
+
+  try {
+    const product = await Product.findById(id).populate("type").lean();
+    if (!product)
+      return res
+        .status(404)
+        .json({ success: false, message: "Không tìm thấy sản phẩm" });
+
+    res.json({ success: true, data: product });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ success: false, message: "Lỗi server", error: err.message });
+  }
+});
+
+// ✅ API tìm kiếm
+router.get("/search", async (req, res) => {
+  const { name } = req.query;
+  if (!name || typeof name !== "string") {
+    return res.status(400).json({ message: "Thiếu hoặc sai định dạng tên" });
+  }
+
+  try {
+    const regex = new RegExp(name, "i");
+    const products = await Product.find({ name: regex }).lean();
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi tìm kiếm", error: err.message });
+  }
+});
+
+// ✅ View: Danh sách sản phẩm (Web)
 router.get("/view", async (req, res) => {
   try {
     const typeFilter = req.query.type || "all";
+    const search = req.query.search || "";
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
 
@@ -76,7 +203,8 @@ router.get("/view", async (req, res) => {
       types,
       selectedType: typeFilter,
       currentPage: page,
-      totalPages, // ← Bắt buộc phải truyền biến này
+      totalPages,
+      search, // ← Thêm dòng này
     });
   } catch (error) {
     console.error("Error fetching products for view:", error);
@@ -89,13 +217,12 @@ router.get("/add", async (req, res) => {
   try {
     const types = await ProductType.find();
     res.render("product_add", { types });
-  } catch (error) {
-    console.error("Error fetching types:", error);
+  } catch (err) {
     res.status(500).send("Lỗi khi tải form thêm sản phẩm");
   }
 });
 
-// Xử lý thêm sản phẩm
+// ✅ View: Xử lý thêm sản phẩm
 router.post("/add", async (req, res) => {
   try {
     const { name, type, description, price, variants } = req.body;
@@ -108,63 +235,40 @@ router.post("/add", async (req, res) => {
       !variants ||
       !Array.isArray(variants)
     ) {
-      return res
-        .status(400)
-        .send("Thiếu thông tin bắt buộc hoặc variants không đúng định dạng");
-    }
-
-    const typeDoc = await ProductType.findById(type);
-    if (!typeDoc) return res.status(400).send("Loại sản phẩm không tồn tại");
-
-    const productPrice = Number(price);
-    if (isNaN(productPrice))
-      return res.status(400).send("Giá sản phẩm phải là số");
-
-    for (const v of variants) {
-      if (!v.size || !v.color || !v.quantity) {
-        return res.status(400).send("Thiếu trường trong biến thể");
-      }
-      v.quantity = Number(v.quantity);
-      if (isNaN(v.quantity)) return res.status(400).send("Số lượng phải là số");
+      return res.status(400).send("Thiếu thông tin hoặc biến thể không hợp lệ");
     }
 
     const product = new Product({
       name,
       type,
       description,
-      price: productPrice,
-      variants,
+      price: Number(price),
+      variants: variants.map((v) => ({ ...v, quantity: Number(v.quantity) })),
       rating_avg: 5,
       rating_count: 0,
       sold_count: 0,
     });
 
     await product.save();
-    console.log("✅ Product added:", product._id);
     res.redirect("/products/view");
-  } catch (error) {
-    console.error("Error adding product:", error);
+  } catch (err) {
     res.status(500).send("Lỗi server khi thêm sản phẩm");
   }
 });
 
-// Form chỉnh sửa sản phẩm
+// ✅ View: Form chỉnh sửa sản phẩm
 router.get("/edit/:id", async (req, res) => {
   try {
-    if (!mongoose.isValidObjectId(req.params.id)) {
-      return res.status(400).send("ID sản phẩm không hợp lệ");
-    }
     const product = await Product.findById(req.params.id);
     const types = await ProductType.find();
     if (!product) return res.status(404).send("Không tìm thấy sản phẩm");
     res.render("product_edit", { product, types });
-  } catch (error) {
-    console.error("Error fetching product for edit:", error);
-    res.status(500).send("Lỗi server khi lấy sản phẩm để chỉnh sửa");
+  } catch (err) {
+    res.status(500).send("Lỗi khi lấy sản phẩm để chỉnh sửa");
   }
 });
 
-// Xử lý chỉnh sửa sản phẩm
+// ✅ View: Xử lý chỉnh sửa sản phẩm
 router.post("/edit/:id", async (req, res) => {
   try {
     const { name, type, variants } = req.body;
@@ -176,9 +280,6 @@ router.post("/edit/:id", async (req, res) => {
       image: v.image,
     }));
 
-    const typeDoc = await ProductType.findById(type);
-    if (!typeDoc) return res.status(400).send("Loại sản phẩm không hợp lệ");
-
     await Product.findByIdAndUpdate(
       req.params.id,
       { name, type, variants: updatedVariants },
@@ -187,60 +288,40 @@ router.post("/edit/:id", async (req, res) => {
 
     res.redirect("/products/view");
   } catch (err) {
-    console.error("❌ Lỗi update sản phẩm:", err);
     res.status(500).send("Lỗi khi cập nhật sản phẩm");
   }
 });
 
-// Chi tiết sản phẩm
+// ✅ View: Chi tiết sản phẩm
 router.get("/:id", async (req, res) => {
-  const { id } = req.params;
-
-  // Kiểm tra định dạng ObjectId
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).send("ID sản phẩm không hợp lệ");
-  }
-
   try {
-    const product = await Product.findById(id)
-      .populate("type") // Populate để lấy tên loại
-      .lean(); // Convert Mongoose Document -> plain JS object
-
-    if (!product) {
-      return res.status(404).send("Không tìm thấy sản phẩm bạn cần");
-    }
-
+    const product = await Product.findById(req.params.id)
+      .populate("type")
+      .lean();
+    if (!product) return res.status(404).send("Không tìm thấy sản phẩm");
     res.render("product_detail", { product });
-  } catch (error) {
-    console.error("Lỗi khi lấy chi tiết sản phẩm:", error);
-    res.status(500).send("Lỗi server khi lấy chi tiết sản phẩm");
+  } catch (err) {
+    res.status(500).send("Lỗi khi lấy chi tiết sản phẩm");
   }
 });
+
+// ✅ Kiểm tra sản phẩm có đang nằm trong giỏ hàng không
 router.get("/check-edit/:id", async (req, res) => {
   try {
-    const productId = req.params.id;
-
-    // Tìm tất cả user có cart chứa sản phẩm này (bất kỳ biến thể nào)
-    const users = await User.find({ "cart.productId": productId });
-
-    // Kiểm tra sản phẩm có tồn tại trong giỏ hàng của bất kỳ user nào không
-    const isInCart = users.some((user) =>
-      user.cart.some((item) => item.productId.toString() === productId)
+    const users = await User.find({ "cart.productId": req.params.id });
+    const isInCart = users.some((u) =>
+      u.cart.some((i) => i.productId.toString() === req.params.id)
     );
 
     if (isInCart) {
       return res
         .status(400)
-        .send(
-          "❌ Không thể sửa vì sản phẩm đang có trong giỏ hàng của người dùng."
-        );
+        .send("❌ Sản phẩm đang có trong giỏ hàng của người dùng.");
     }
 
-    // ✅ Nếu không tồn tại → Cho phép chuyển đến trang sửa sản phẩm
-    return res.redirect(`/products/edit/${productId}`);
+    res.redirect(`/products/edit/${req.params.id}`);
   } catch (err) {
-    console.error("Lỗi kiểm tra giỏ hàng:", err);
-    return res.status(500).send("Đã xảy ra lỗi máy chủ.");
+    res.status(500).send("Lỗi máy chủ khi kiểm tra giỏ hàng");
   }
 });
 

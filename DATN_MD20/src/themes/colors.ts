@@ -22,9 +22,15 @@ export const colors = {
   blue1: '#2563EB',
   blue2: '#FBBF24',
   orange: '#FF7F24',
+  lightGray: '#D3D3D3',
+  darkGray: '#A9A9A9',
+  screenWidth: 360, // Example screen width, adjust as needed
+  border: '#E5E7EB',
+
 
   text: '#111827',
   text1: '#6B7280',
 
   btn: 'rgba(0, 0, 255, 0.8)',
+  primary: '#2563EB',
 };

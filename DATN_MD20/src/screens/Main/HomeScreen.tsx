@@ -25,6 +25,7 @@ import ScreenName from '../../navigation/ScreenName';
 import BannerSlider from './Banner/Banner';
 import Avatar from '../../components/dataDisplay/Avatar';
 import {FlatList} from 'react-native-gesture-handler';
+import products from '../../services/products/productService';
 import useLanguage from '../../hooks/useLanguage';
 import {useAppDispatch, useAppSelector} from '../../redux/store';
 import {
