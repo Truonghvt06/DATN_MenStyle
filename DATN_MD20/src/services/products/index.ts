@@ -3,10 +3,24 @@
 import {axiosInstance} from '..';
 
 const productService = {
-  getProducts: async () => {
+  getCategory: async () => {
     try {
-      const data = await axiosInstance.get('/products');
-      return data;
+      const res = await axiosInstance.get('/products/categories');
+      // console.log('Cate: ', res.data);
+
+      return res.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  getProducts: async (page = 1, limit = 10) => {
+    try {
+      const res = await axiosInstance.get(
+        `/products?page=${page}&limit=${limit}`,
+      );
+      // console.log('PRO---------->: ', res.data);
+
+      return res.data;
     } catch (error) {
       throw error;
     }
@@ -16,7 +30,6 @@ const productService = {
       const res = await axiosInstance.get(
         `/products/product-all?page=${page}&limit=${limit}`,
       );
-      console.log('DATA: ', res.data);
 
       return res.data;
     } catch (error) {
@@ -74,7 +87,9 @@ const productService = {
   getProductDetail: async (id: string) => {
     try {
       const res = await axiosInstance.get(`/products/product-detail/${id}`);
-      return res.data;
+      console.log('Detail: ', res.data.product);
+
+      return res.data; // { product, relatedProducts }
     } catch (error) {
       throw error;
     }

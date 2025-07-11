@@ -4,6 +4,7 @@ const User = require("../models/User");
 const Product = require("../models/Product");
 const authController = require("../controllers/authController");
 const authMiddleware = require("../middleware/authMiddleware");
+const favoriteController = require("../controllers/favoriteController");
 
 const upload = require("../utils/upload");
 
@@ -33,6 +34,26 @@ router.put(
 router.post("/forgot-password", authController.forgotPass);
 router.post("/verify-otp", authController.verifyOTP);
 router.post("/reset-password", authController.resetPassword);
+
+// Yêu thích
+router.post(
+  "/favorite/toggle",
+  authMiddleware,
+  favoriteController.toggleFavorite
+);
+router.get("/favorite", authMiddleware, favoriteController.getFavorites);
+router.delete(
+  "/favorite/delete-all",
+  authMiddleware,
+  favoriteController.clearFavorites
+);
+router.delete(
+  "/favorite/delete/:productId",
+  authMiddleware,
+  favoriteController.removeFavorite
+);
+
+//
 //
 router.get("/favorites", authMiddleware, async (req, res) => {
   try {

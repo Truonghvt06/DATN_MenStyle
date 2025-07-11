@@ -15,11 +15,22 @@ export interface Product {
   rating_avg: number;
   rating_count: number;
   sold_count: number;
+  is_fovorite: boolean;
   variants: Variants[];
+  createdAt: string;
+}
+
+export interface Category {
+  _id: string;
+  name: string;
+  description: string;
+  image: string;
 }
 
 export interface ProductState {
   products: Product[];
+  productCate: Product[];
+  categories: Category[];
   total: number;
   page: number;
   limit: number;

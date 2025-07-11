@@ -4,9 +4,11 @@ const mongoose = require("mongoose");
 const Product = require("../models/Product");
 const ProductType = require("../models/ProductType");
 const productController = require("../controllers/productController");
+const categoryController = require("../controllers/categoryController");
 const User = require("../models/User");
 
 // API JSON
+router.get("/categories", categoryController.getAllCategories);
 router.post("/add-product", productController.createProduct);
 router.get("/product-all", productController.getAllProducts);
 router.get("/product-category/:type", productController.getProductsByCategory);
@@ -22,8 +24,23 @@ router.get("/product-detail/:id", productController.getProductDetail); //chi ti�
 // API: Lấy toàn bộ sản phẩm dạng JSON
 router.get("/", async (req, res) => {
   try {
-    const products = await Product.find().populate("type").lean();
-    res.json(products);
+    const { page = 1, limit = 10 } = req.query;
+
+    const page_ = parseInt(page);
+    const limit_ = parseInt(limit);
+
+    const total = await Product.countDocuments();
+    const products = await Product.find()
+      .populate("type")
+      .skip((page_ - 1) * limit_)
+      .limit(limit_)
+      .lean();
+    res.json({
+      total,
+      page: page_,
+      limit: limit_,
+      data: products,
+    });
   } catch (error) {
     console.error("Error fetching products:", error);
     res
@@ -117,7 +134,7 @@ router.post("/add", async (req, res) => {
       description,
       price: productPrice,
       variants,
-      rating_avg: 0,
+      rating_avg: 5,
       rating_count: 0,
       sold_count: 0,
     });

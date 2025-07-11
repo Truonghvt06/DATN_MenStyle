@@ -31,5 +31,7 @@ export default {
     Language: 'LangguageScreen',
     Information: 'InformationScreen',
     UpdateInfo: 'UpdateInfo',
+    Review: 'ReviewScreen',
+    RelatedProductDetail: 'RelatedProductDetail',
   },
 };

@@ -2,6 +2,33 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
 import productService from '../../../services/products';
 
+export const fetchCategory = createAsyncThunk(
+  'products/fetchCategory',
+  async (_, thunkAPI) => {
+    try {
+      const res = await productService.getCategory();
+      //   console.log('CATE---------->: ', res);
+
+      return res;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(err.response?.data?.message || 'Lỗi');
+    }
+  },
+);
+export const fetchProducts = createAsyncThunk(
+  'products/fetchProductsss',
+  async ({page = 1, limit = 10}: {page?: number; limit?: number}, thunkAPI) => {
+    try {
+      const res = await productService.getProducts(page, limit);
+      //   console.log('PRO---------->: ', res);
+
+      return res;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(err.response?.data?.message || 'Lỗi');
+    }
+  },
+);
+
 export const fetchAllProducts = createAsyncThunk(
   'products/fetchAll',
   async ({page = 1, limit = 10}: {page?: number; limit?: number}, thunkAPI) => {
@@ -76,9 +103,12 @@ export const fetchProductDetail = createAsyncThunk(
   'products/fetchDetail',
   async (id: string, thunkAPI) => {
     try {
-      return await productService.getProductDetail(id);
+      const res = await productService.getProductDetail(id);
+      return res; // trả về { product, relatedProducts }
     } catch (err: any) {
-      return thunkAPI.rejectWithValue(err.response?.data?.message || 'Lỗi');
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || 'Lỗi khi lấy chi tiết sản phẩm',
+      );
     }
   },
 );
