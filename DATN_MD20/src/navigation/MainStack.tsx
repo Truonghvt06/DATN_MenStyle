@@ -26,6 +26,8 @@ import LanguageScreen from '../screens/Main/Profile/Others/LanguageScreen';
 import InformationScreen from '../screens/Main/Profile/Account/Information/InformationScreen';
 import UpdateInfor from '../screens/Main/Profile/Account/Information/UpdateInfor';
 import WelcomeScreen from '../screens/Main/WelcomeScreen';
+import ReviewScreen from '../screens/Main/Product/ReviewScreen';
+import RelatedProductDetail from '../screens/Main/Product/RelatedProductDetail';
 import SearchResultScreen from '../screens/Main/SearchResultScreen';
 
 const Stack = createStackNavigator();
@@ -88,6 +90,11 @@ const MainStack = () => {
         component={InformationScreen}
       />
       <Stack.Screen name={ScreenName.Main.UpdateInfo} component={UpdateInfor} />
+      <Stack.Screen name={ScreenName.Main.Review} component={ReviewScreen} />
+      <Stack.Screen
+        name={ScreenName.Main.RelatedProductDetail}
+        component={RelatedProductDetail}
+      />
     </Stack.Navigator>
   );
 };

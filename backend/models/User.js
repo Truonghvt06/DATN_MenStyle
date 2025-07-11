@@ -23,7 +23,7 @@ const favoriteItemSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { _id: false }
+  { _id: false, timestamps: true }
 );
 
 const userSchema = new mongoose.Schema(
@@ -52,9 +52,9 @@ const userSchema = new mongoose.Schema(
     otpVerified: { type: Boolean, require: false, default: false },
 
     // Giỏ hàng
-    cart: [cartItemSchema],
-    // ✅ Danh sách yêu thích (đã sửa)
-    favorites: [favoriteItemSchema],
+    cart: { type: [cartItemSchema], default: [] },
+    // Danh sách yêu thích (đã sửa)
+    favorites: { type: [favoriteItemSchema], default: [] },
   },
   {
     timestamps: true,
