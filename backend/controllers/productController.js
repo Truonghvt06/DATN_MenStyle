@@ -27,8 +27,97 @@ exports.createProduct = async (req, res) => {
       .json({ message: "Lỗi khi tạo sản phẩm.", error: error.message });
   }
 };
+//get Pro
+router.get("/", async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
 
-// GET products?page=1&limit=10
+    const page_ = parseInt(page);
+    const limit_ = parseInt(limit);
+
+    const total = await Product.countDocuments();
+    const products = await Product.find()
+      .populate("type")
+      .skip((page_ - 1) * limit_)
+      .limit(limit_)
+      .lean();
+    res.json({
+      total,
+      page: page_,
+      limit: limit_,
+      data: products,
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res
+      .status(500)
+      .json({ message: "Lỗi khi lấy sản phẩm", error: error.message });
+  }
+});
+
+// GET products?random=true&limit=10: Có random
+// exports.getAllProducts = async (req, res) => {
+//   try {
+//     const { page = 1, limit = 10, random } = req.query;
+
+//     const page_ = parseInt(page);
+//     const limit_ = parseInt(limit);
+
+//     let products = [];
+//     const total = await Product.countDocuments();
+
+//     if (random === "true") {
+//       // Random không phân trang
+//       products = await Product.aggregate([
+//         { $sample: { size: limit_ } },
+//         {
+//           $lookup: {
+//             from: "producttypes",
+//             localField: "type",
+//             foreignField: "_id",
+//             as: "producttype",
+//           },
+//         },
+//         {
+//           $unwind: {
+//             path: "$producttype",
+//           },
+//         },
+//       ]);
+//     } else {
+//       // Phân trang chuẩn
+//       products = await Product.aggregate([
+//         { $sort: { createdAt: -1 } },
+//         { $skip: (page_ - 1) * limit_ },
+//         { $limit: limit_ },
+//         {
+//           $lookup: {
+//             from: "producttypes",
+//             localField: "type",
+//             foreignField: "_id",
+//             as: "producttype",
+//           },
+//         },
+//         {
+//           $unwind: {
+//             path: "$producttype",
+//           },
+//         },
+//       ]);
+//     }
+
+//     res.json({
+//       total,
+//       page: page_,
+//       limit: limit_,
+//       data: products,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: "Lỗi server khi lấy sản phẩm" });
+//   }
+// };
+
+// GET products?page=1&limit=10: K random
 exports.getAllProducts = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
@@ -38,37 +127,10 @@ exports.getAllProducts = async (req, res) => {
 
     const total = await Product.countDocuments();
 
-    // const products = await Product.aggregate([
-    //   { $sample: { size: limit_ } }, // random sản phẩm
-    //   {
-    //     $lookup: {
-    //       from: "categories",
-    //       localField: "category",
-    //       foreignField: "_id",
-    //       as: "category",
-    //     },
-    //   },
-    //   { $unwind: "$category" },
-    // ]);
-    const products = await Product.aggregate([
-      { $sample: { size: total } }, // random sản phẩm
-      { $skip: (page_ - 1) * limit_ },
-      { $limit: limit_ },
-      {
-        $lookup: {
-          from: "producttypes",
-          localField: "type",
-          foreignField: "_id",
-          as: "producttype",
-        },
-      },
-      {
-        $unwind: {
-          path: "$producttype",
-          // preserveNullAndEmptyArrays: true   // ✅ giữ lại product không có category
-        },
-      },
-    ]);
+    const products = await Product.find()
+      .skip((page_ - 1) * limit_)
+      .limit(limit_)
+      .populate("type"); // nếu dùng mongoose schema reference
 
     res.json({
       total,

@@ -27,7 +27,7 @@ interface Props {
   title?: string;
   columNumber?: number;
   horizontal?: boolean;
-  onPress?: () => void;
+  onPress?: (id: string) => void;
   onPressSee?: () => void;
 }
 
@@ -53,26 +53,29 @@ const ListProduct = (props: Props) => {
       <FlatList
         {...props}
         data={data}
-        keyExtractor={(_, index) => index.toString()}
+        keyExtractor={(item, index) => `${item._id}-${index}`}
         renderItem={({item}) => {
           return (
             <TouchableOpacity
               activeOpacity={1}
               // style={[containerStyle]}
-              onPress={onPress}>
+              onPress={() => onPress && onPress(item._id)}>
               <Block containerStyle={[styles.shadowWrap, containerStyle]}>
                 <Block style={styles.btn}>
-                  <Image style={styles.image} source={item.image} />
+                  <Image
+                    style={styles.image}
+                    source={{uri: item.variants?.[0]?.image || ''}}
+                  />
                   <Block mar={5}>
-                    <TextSmall medium numberOfLines={2} ellipsizeMode="tail">
+                    <TextSmall medium numberOfLines={1} ellipsizeMode="tail">
                       {item.name}
                     </TextSmall>
                     <Block row alignCT>
                       <Image style={styles.star} source={IconSRC.icon_star} />
-                      <TextSmall>{item.star}</TextSmall>
+                      <TextSmall>{item.rating_avg}</TextSmall>
                     </Block>
                     <TextHeight color={colors.red} bold>
-                      {item.price}đ
+                      {item.price.toLocaleString('vi-VN')} VND
                     </TextHeight>
                   </Block>
                 </Block>
@@ -80,12 +83,14 @@ const ListProduct = (props: Props) => {
             </TouchableOpacity>
           );
         }}
+        scrollEnabled={false}
         numColumns={isColums ? columNumber : 0}
         horizontal={horizontal}
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
           paddingBottom: 50,
+          paddingTop: 10,
         }}
       />
       {isSeemore && (
@@ -127,13 +132,13 @@ const styles = StyleSheet.create({
   },
   shadowWrap: {
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 5,
     borderRadius: 12,
     marginHorizontal: ITEM_MARGIN / 2,
     // marginBottom: 16,
-    paddingTop: 8,
+    marginBottom: 14,
   },
 });
