@@ -27,8 +27,10 @@ interface Props {
   title?: string;
   columNumber?: number;
   horizontal?: boolean;
+  favoriteId?: any;
   onPress?: (id: string) => void;
   onPressSee?: () => void;
+  onPressFavorite?: (id: string) => void;
 }
 
 const ITEM_MARGIN = 10;
@@ -45,8 +47,10 @@ const ListProduct = (props: Props) => {
     columNumber = 2,
     horizontal = false,
     containerStyle,
+    favoriteId,
     onPress,
     onPressSee,
+    onPressFavorite,
   } = props;
   return (
     <>
@@ -62,6 +66,21 @@ const ListProduct = (props: Props) => {
               onPress={() => onPress && onPress(item._id)}>
               <Block containerStyle={[styles.shadowWrap, containerStyle]}>
                 <Block style={styles.btn}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={styles.tim}
+                    onPress={() =>
+                      onPressFavorite && onPressFavorite(item._id)
+                    }>
+                    <Image
+                      source={
+                        favoriteId?.includes(item._id)
+                          ? IconSRC.icon_unfavorite
+                          : IconSRC.icon_favorite
+                      }
+                      style={{width: 20, height: 20}}
+                    />
+                  </TouchableOpacity>
                   <Image
                     style={styles.image}
                     source={{uri: item.variants?.[0]?.image || ''}}
@@ -107,10 +126,20 @@ const ListProduct = (props: Props) => {
 export default ListProduct;
 
 const styles = StyleSheet.create({
+  tim: {
+    backgroundColor: colors.while,
+    position: 'absolute',
+    zIndex: 12,
+    right: 7,
+    top: 7,
+    width: 35,
+    height: 35,
+    alignItems: 'center',
+    borderRadius: 20,
+    justifyContent: 'center',
+  },
   btn: {
     width: ITEM_WIDTH,
-    // marginHorizontal: ITEM_MARGIN / 2,
-    // marginBottom: 16,
     overflow: 'hidden',
     backgroundColor: colors.while,
     borderRadius: 12,

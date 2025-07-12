@@ -24,6 +24,8 @@ import {TextMedium} from '../../components/dataEntry/TextBase';
 import ButtonBase from '../../components/dataEntry/Button/ButtonBase';
 import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
+import Toast from 'react-native-toast-message';
+import configToast from '../../components/utils/configToast';
 
 const FavoriteScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -37,6 +39,7 @@ const FavoriteScreen = () => {
 
   const dispatch = useAppDispatch();
   const {listFavorite} = useAppSelector(state => state.favorite);
+  const {token} = useAppSelector(state => state.auth);
 
   console.log('listFavorite:', listFavorite);
 
@@ -59,12 +62,37 @@ const FavoriteScreen = () => {
           text: 'OK',
           onPress: () => {
             dispatch(clearFavorites());
-            setIsOpenDel(false);
+            Toast.show({
+              type: 'notification', // Có thể là 'success', 'error', 'info'
+              position: 'top',
+              text1: 'Thành công',
+              text2: 'Tất cả sản phẩm đã xoá khỏi yêu thích',
+              visibilityTime: 1000, // số giây hiển thị Toast
+              autoHide: true,
+              swipeable: true,
+            });
+            // setIsOpenDel(false);
           },
         },
       ],
       {cancelable: true},
     );
+  };
+
+  const handleDelFavorite = () => {
+    if (selectedProductId) {
+      dispatch(deleteFavorite(selectedProductId));
+      Toast.show({
+        type: 'notification', // Có thể là 'success', 'error', 'info'
+        position: 'top',
+        text1: 'Thành công',
+        text2: 'Đã xoá sản phẩm khỏi yêu thích',
+        visibilityTime: 1000, // số giây hiển thị Toast
+        autoHide: true,
+        swipeable: true,
+      });
+      setIsOpen(false);
+    }
   };
   return (
     <ContainerView>
@@ -85,7 +113,29 @@ const FavoriteScreen = () => {
           />
         }
       />
-      {listFavorite.length === 0 ? (
+      <Toast config={configToast} />
+      {!token ? (
+        <Block flex1 alignCT justifyCT>
+          <Image
+            source={IconSRC.icon_search_nolist}
+            style={styles.icon_nolist}
+          />
+          <TextMedium color={colors.gray3}>Hãy đăng nhập để sử dụng</TextMedium>
+          <ButtonBase
+            containerStyle={styles.btn_mua}
+            size={14}
+            title={'Đăng nhập'}
+            onPress={() => {
+              navigation.navigate(ScreenName.Auth.AuthStack, {
+                screen: ScreenName.Auth.Login,
+                params: {
+                  nameScreen: '',
+                },
+              });
+            }}
+          />
+        </Block>
+      ) : listFavorite.length === 0 ? (
         <Block flex1 alignCT justifyCT>
           <Image
             source={IconSRC.icon_search_nolist}
@@ -152,10 +202,7 @@ const FavoriteScreen = () => {
               containerStyle={{paddingVertical: 20}}
               name={getTranslation('xoa_yeu_thich')}
               onPress={() => {
-                if (selectedProductId) {
-                  dispatch(deleteFavorite(selectedProductId));
-                  setIsOpen(false);
-                }
+                handleDelFavorite();
               }}
             />
           </Block>

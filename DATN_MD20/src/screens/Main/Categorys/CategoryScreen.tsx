@@ -25,6 +25,9 @@ import {Product} from '../../../redux/reducers/product/type';
 import navigation from '../../../navigation/navigation';
 import {clearProCate} from '../../../redux/reducers/product';
 import ScreenName from '../../../navigation/ScreenName';
+import {fetchFavorites, toggleFavorite} from '../../../redux/actions/favorite';
+import Toast from 'react-native-toast-message';
+import configToast from '../../../components/utils/configToast';
 
 const CategoryScreen = () => {
   const route = useRoute();
@@ -39,7 +42,10 @@ const CategoryScreen = () => {
   const [isReady, setIsReady] = useState(false);
 
   const dispatch = useAppDispatch();
-  const {productCate, categories} = useAppSelector(state => state.product);
+  const {productCate} = useAppSelector(state => state.product);
+  const {listFavoriteIds} = useAppSelector(state => state.favorite);
+  const {token} = useAppSelector(state => state.auth);
+
   const tabs = [
     getTranslation('tat_ca'),
     getTranslation('moi_nhat'),
@@ -71,7 +77,37 @@ const CategoryScreen = () => {
   const handleProDetail = (id: string) => {
     navigation.navigate(ScreenName.Main.ProductDetail, {id: id});
   };
+  //Yêu thích
+  const handleFavorite = async (productId: string) => {
+    await dispatch(toggleFavorite(productId));
+    dispatch(fetchFavorites());
+  };
 
+  const handleLogin = () => {
+    Alert.alert(
+      getTranslation('thong_bao'),
+      'Hãy đăng nhập để sử dụng',
+      [
+        {
+          text: getTranslation('huy'),
+          onPress: () => console.log('Đã huỷ'),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            navigation.navigate(ScreenName.Auth.AuthStack, {
+              screen: ScreenName.Auth.Login,
+              params: {
+                nameScreen: '',
+              },
+            });
+          },
+        },
+      ],
+      {cancelable: true},
+    );
+  };
   // data lọc
   const filteredProducts = useMemo(() => {
     if (!dataProCate) return [];
@@ -124,9 +160,6 @@ const CategoryScreen = () => {
     <ContainerView>
       {!isReady ? (
         <View style={styles.loadingContainer}>
-          {/* <TextMedium style={{textAlign: 'center'}}>
-                    Đang tải sản phẩm...
-                  </TextMedium> */}
           <ActivityIndicator size={'large'} />
         </View>
       ) : (
@@ -141,6 +174,7 @@ const CategoryScreen = () => {
           />
           <View style={[styles.tab]}>{tabs.map(renderTab)}</View>
 
+          <Toast config={configToast} />
           <Block padH={8} flex1>
             {dataProCate.length === 0 ? (
               <Block flex1 alignCT justifyCT>
@@ -153,12 +187,13 @@ const CategoryScreen = () => {
                 data={filteredProducts}
                 isColums
                 columNumber={2}
+                favoriteId={listFavoriteIds}
                 onPress={id => {
                   handleProDetail(id);
-                  console.log('IDDDD: ', id);
-
-                  // Alert.alert('Aaa');
                 }}
+                onPressFavorite={id =>
+                  token ? handleFavorite(id) : handleLogin()
+                }
               />
             )}
           </Block>

@@ -6,6 +6,7 @@ import {
   toggleFavorite,
 } from '../../actions/favorite';
 import {Product} from '../product/type';
+import Toast from 'react-native-toast-message';
 
 interface FavoriteState {
   listFavorite: Product[];
@@ -45,6 +46,15 @@ const favoriteSlice = createSlice({
         const {productId, isFavorite} = action.payload;
         if (isFavorite) {
           state.listFavoriteIds.push(productId);
+          Toast.show({
+            type: 'notification', // Có thể là 'success', 'error', 'info'
+            position: 'top',
+            text1: 'Thành công',
+            text2: 'Đã thêm sản phẩm vào yêu thích',
+            visibilityTime: 1000, // số giây hiển thị Toast
+            autoHide: true,
+            swipeable: true,
+          });
         } else {
           state.listFavorite = state.listFavorite.filter(
             p => p._id !== productId,
@@ -52,6 +62,15 @@ const favoriteSlice = createSlice({
           state.listFavoriteIds = state.listFavoriteIds.filter(
             id => id !== productId,
           );
+          Toast.show({
+            type: 'notification', // Có thể là 'success', 'error', 'info'
+            position: 'top',
+            text1: 'Thành công',
+            text2: 'Đã xoá sản phẩm khỏi yêu thích',
+            visibilityTime: 1000, // số giây hiển thị Toast
+            autoHide: true,
+            swipeable: true,
+          });
         }
       })
       .addCase(deleteFavorite.fulfilled, (state, action) => {

@@ -2,6 +2,7 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 apply plugin: "com.google.gms.google-services"
+apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle")
 
 
 /**
@@ -120,3 +121,9 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+project.ext.vectoricons = [
+    iconFontNames: [ 'MaterialIcons.ttf', 'EvilIcons.ttf','AntDesign.ttf', 'Ionicons.ttf' ] // Specify font files
+]
+
+

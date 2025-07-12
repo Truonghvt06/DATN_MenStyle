@@ -119,14 +119,15 @@ const ProfileScreen = () => {
               containerStyle={{paddingBottom: -12, paddingTop: 5}}
               onPress={() => navigation.navigate(ScreenName.Main.Orders)}
             />
-            <ButtonOption
+            {/* <ButtonOption
               name={getTranslation('ua_thich')}
               content={getTranslation('sp_da_luu')}
               iconLeft={IconSRC.icon_favorite}
               sizeLeft={25}
               borderBottom={0}
               containerStyle={{paddingBottom: -12, paddingTop: 5}}
-            />
+              onPress={() => navigation.navigate(ScreenName.Main.Favorite)}
+            /> */}
             <ButtonOption
               name={getTranslation('dia_chi')}
               content={getTranslation('ql_dia_chi')}

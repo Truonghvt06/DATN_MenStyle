@@ -1,4 +1,5 @@
 import {
+  Button,
   FlatList,
   Image,
   Keyboard,
@@ -9,25 +10,28 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors } from '../../themes/colors';
+import React, {useEffect, useState} from 'react';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {colors} from '../../themes/colors';
 import navigation from '../../navigation/navigation';
-import { IconSRC } from '../../constants/icons';
+import {IconSRC} from '../../constants/icons';
 import InputBase from '../../components/dataEntry/Input/InputBase';
 import TouchIcon from '../../components/dataEntry/Button/TouchIcon';
 import metrics from '../../constants/metrics';
-import { products } from '../../services/products/products';
+import {products} from '../../services/products/products';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HISTORY_KEY = 'search_history';
 
 // ✅ Hàm loại bỏ dấu tiếng Việt
 const normalize = (str: string) =>
-  str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
 
 const SearchDetail = () => {
-  const { top } = useSafeAreaInsets();
+  const {top} = useSafeAreaInsets();
   const [keyword, setKeyword] = useState('');
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [defaultSuggestions, setDefaultSuggestions] = useState<any[]>([]);
@@ -50,10 +54,17 @@ const SearchDetail = () => {
 
   const loadDefaultSuggestions = async () => {
     try {
-      const res = await products.getRecommended?.() || await products.searchByName('');
-      setDefaultSuggestions(res.data);
+      const res =
+        (await products.getRecommended?.()) ||
+        (await products.searchByName(''));
+      if (Array.isArray(res?.data)) {
+        setDefaultSuggestions(res.data);
+      } else {
+        setDefaultSuggestions([]); // fallback an toàn
+      }
     } catch (err) {
       console.log('Default product error', err);
+      setDefaultSuggestions([]); // fallback khi lỗi
     }
   };
 
@@ -85,10 +96,10 @@ const SearchDetail = () => {
       const allProducts = res.data;
 
       const filtered = allProducts.filter((item: any) =>
-        normalize(item.name).includes(normalize(text))
+        normalize(item.name).includes(normalize(text)),
       );
-      const rest = allProducts.filter((item: any) =>
-        !normalize(item.name).includes(normalize(text))
+      const rest = allProducts.filter(
+        (item: any) => !normalize(item.name).includes(normalize(text)),
       );
       const finalList = [...filtered, ...rest];
 
@@ -100,7 +111,7 @@ const SearchDetail = () => {
 
   const handleSelectSuggestion = (item: any) => {
     addToSearchHistory(item.name);
-    navigation.navigate('ProductDetail', { product: item });
+    navigation.navigate('ProductDetail', {product: item});
   };
 
   const handleSubmitSearch = async () => {
@@ -111,10 +122,10 @@ const SearchDetail = () => {
       const allProducts = res.data;
 
       const filtered = allProducts.filter((item: any) =>
-        normalize(item.name).includes(normalize(keyword))
+        normalize(item.name).includes(normalize(keyword)),
       );
-      const rest = allProducts.filter((item: any) =>
-        !normalize(item.name).includes(normalize(keyword))
+      const rest = allProducts.filter(
+        (item: any) => !normalize(item.name).includes(normalize(keyword)),
       );
       const results = [...filtered, ...rest];
 
@@ -128,7 +139,7 @@ const SearchDetail = () => {
     }
   };
 
-  const renderProductCard = ({ item }: { item: any }) => {
+  const renderProductCard = ({item}: {item: any}) => {
     const imageUri =
       item.variants?.[0]?.image ||
       'https://n7media.coolmate.me/uploads/June2025/ao-polo-premium-aircool-1214-be_23.jpg?aio=w-1069';
@@ -136,10 +147,9 @@ const SearchDetail = () => {
     return (
       <TouchableOpacity
         style={styles.card}
-        onPress={() => handleSelectSuggestion(item)}
-      >
+        onPress={() => handleSelectSuggestion(item)}>
         <Image
-          source={{ uri: imageUri }}
+          source={{uri: imageUri}}
           style={styles.productImage}
           resizeMode="cover"
         />
@@ -151,11 +161,11 @@ const SearchDetail = () => {
   };
 
   const productList =
-    suggestions.length > 0 ? suggestions : defaultSuggestions;
+    (suggestions?.length ? suggestions : defaultSuggestions) ?? [];
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={[styles.container, { paddingTop: top }]}>
+      <View style={[styles.container, {paddingTop: top}]}>
         {/* 🔍 Thanh tìm kiếm */}
         <View style={styles.header}>
           <InputBase
@@ -165,7 +175,7 @@ const SearchDetail = () => {
             onChangeText={handleChangeKeyword}
             onSubmitEditing={handleSubmitSearch}
             inputStyle={styles.input}
-            containerStyle={{ flex: 1 }}
+            containerStyle={{flex: 1}}
             placeholder="Nhập sản phẩm cần tìm..."
             customLeft={
               <Image style={styles.icon_search} source={IconSRC.icon_search} />
@@ -189,8 +199,7 @@ const SearchDetail = () => {
                     onPress={() => {
                       setKeyword(item);
                       handleChangeKeyword(item);
-                    }}
-                  >
+                    }}>
                     <Text style={styles.suggestionText}>{item}</Text>
                   </TouchableOpacity>
                 ))
@@ -198,24 +207,25 @@ const SearchDetail = () => {
                   <TouchableOpacity
                     key={item._id}
                     style={styles.suggestionItem}
-                    onPress={() => handleSelectSuggestion(item)}
-                  >
+                    onPress={() => handleSelectSuggestion(item)}>
                     <Text style={styles.suggestionText}>{item.name}</Text>
                   </TouchableOpacity>
                 ))}
           </ScrollView>
         </View>
 
+        <Button
+          title="aa"
+          onPress={() => navigation.navigate('SearchResultScreen')}
+        />
         {/* 🖼️ Gợi ý sản phẩm luôn hiển thị */}
         <View style={styles.bottomPane}>
           <FlatList
-            data={
-              showAllResults ? productList : productList.slice(0, 6)
-            }
+            data={showAllResults ? productList : productList?.slice(0, 6)}
             keyExtractor={item => item._id}
             numColumns={2}
-            columnWrapperStyle={{ justifyContent: 'space-between' }}
-            contentContainerStyle={{ paddingBottom: 20, gap: 12 }}
+            columnWrapperStyle={{justifyContent: 'space-between'}}
+            contentContainerStyle={{paddingBottom: 20, gap: 12}}
             renderItem={renderProductCard}
             showsVerticalScrollIndicator={false}
           />
@@ -224,8 +234,7 @@ const SearchDetail = () => {
           {!showAllResults && productList.length > 6 && (
             <TouchableOpacity
               style={styles.seeMoreBtn}
-              onPress={() => setShowAllResults(true)}
-            >
+              onPress={() => setShowAllResults(true)}>
               <Text style={styles.seeMoreText}>Xem thêm</Text>
             </TouchableOpacity>
           )}
