@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -36,6 +37,8 @@ import {
 import {Product} from '../../redux/reducers/product/type';
 import {fetchFavorites, toggleFavorite} from '../../redux/actions/favorite';
 import {shuffleArray} from '../../components/utils/utils_ham/helper';
+import Toast from 'react-native-toast-message';
+import configToast from '../../components/utils/configToast';
 
 const ITEM_MARGIN = 10;
 const NUM_COLUMNS = 2;
@@ -55,6 +58,7 @@ const HomeScreen = () => {
     state => state.product,
   );
   const {listFavoriteIds} = useAppSelector(state => state.favorite);
+  const {token} = useAppSelector(state => state.auth);
 
   //Category
   useEffect(() => {
@@ -97,7 +101,14 @@ const HomeScreen = () => {
     navigation.navigate(ScreenName.Main.SearchDetail);
   };
   const handleNotification = () => {
-    navigation.navigate(ScreenName.Main.Notifications);
+    token
+      ? navigation.navigate(ScreenName.Main.Notifications)
+      : navigation.navigate(ScreenName.Auth.AuthStack, {
+          screen: ScreenName.Auth.Login,
+          params: {
+            nameScreen: '',
+          },
+        });
   };
   const handleProDetail = (id: string) => {
     navigation.navigate(ScreenName.Main.ProductDetail, {id: id});
@@ -114,6 +125,31 @@ const HomeScreen = () => {
     dispatch(fetchFavorites());
   };
 
+  const handleLogin = () => {
+    Alert.alert(
+      getTranslation('thong_bao'),
+      'Hãy đăng nhập để sử dụng',
+      [
+        {
+          text: getTranslation('huy'),
+          onPress: () => console.log('Đã huỷ'),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            navigation.navigate(ScreenName.Auth.AuthStack, {
+              screen: ScreenName.Auth.Login,
+              params: {
+                nameScreen: '',
+              },
+            });
+          },
+        },
+      ],
+      {cancelable: true},
+    );
+  };
   const renderHeader = () => (
     <>
       <Block marT={metrics.space * 2} />
@@ -155,6 +191,7 @@ const HomeScreen = () => {
     <ContainerView
       containerStyle={{paddingTop: top, paddingHorizontal: metrics.space}}>
       {/* Header */}
+
       <Block row justifyBW>
         <Block>
           <TextSmall style={{marginBottom: -5}}>
@@ -172,15 +209,20 @@ const HomeScreen = () => {
             imageStyle={{marginHorizontal: 7}}
             onPress={handleSearch}
           />
-          <Block>
-            <View style={styles.tb}>
-              <TextSizeCustom
-                style={{textAlign: 'center'}}
-                color="white"
-                size={13}>
-                99
-              </TextSizeCustom>
-            </View>
+          <TouchableOpacity activeOpacity={1}>
+            {token ? (
+              <TouchableOpacity
+                activeOpacity={1}
+                style={styles.tb}
+                onPress={handleNotification}>
+                <TextSizeCustom
+                  style={{textAlign: 'center'}}
+                  color="white"
+                  size={10}>
+                  99
+                </TextSizeCustom>
+              </TouchableOpacity>
+            ) : null}
             <TouchIcon
               color={colors.black}
               size={25}
@@ -188,9 +230,10 @@ const HomeScreen = () => {
               imageStyle={{marginHorizontal: 7}}
               onPress={handleNotification}
             />
-          </Block>
+          </TouchableOpacity>
         </Block>
       </Block>
+      <Toast config={configToast} />
 
       {/* Sản phẩm  */}
       <FlatList
@@ -216,7 +259,7 @@ const HomeScreen = () => {
                         activeOpacity={0.8}
                         style={styles.tim}
                         onPress={() => {
-                          handleFavorite(item._id);
+                          token ? handleFavorite(item._id) : handleLogin();
                         }}>
                         <Image
                           source={
@@ -328,13 +371,14 @@ const styles = StyleSheet.create({
   },
   tb: {
     backgroundColor: colors.red,
-    zIndex: 88,
-    height: 20,
-    width: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+    height: 18,
+    width: 20,
     borderRadius: 30,
     position: 'absolute',
     right: 0,
-    top: -15,
-    marginTop: 4,
+    top: -8,
   },
 });

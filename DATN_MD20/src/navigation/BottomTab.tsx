@@ -13,10 +13,13 @@ import Block from '../components/layout/Block';
 import {TextSizeCustom, TextSmall} from '../components/dataEntry/TextBase';
 import {dataProduct} from '../constants/data';
 import useLanguage from '../hooks/useLanguage';
+import {useAppSelector} from '../redux/store';
 
 const Tab = createBottomTabNavigator();
 const BottomTab = () => {
   const {getTranslation} = useLanguage();
+  const {token} = useAppSelector(state => state.auth);
+
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
@@ -81,14 +84,16 @@ const BottomTab = () => {
           tabBarIcon: ({focused}: any) => (
             <View style={{marginTop: 20, alignItems: 'center'}}>
               <Block>
-                <View style={styles.cart}>
-                  <TextSizeCustom
-                    color="white"
-                    size={13}
-                    style={{textAlign: 'center'}}>
-                    {dataProduct.length}
-                  </TextSizeCustom>
-                </View>
+                {token ? (
+                  <View style={styles.cart}>
+                    <TextSizeCustom
+                      color="white"
+                      size={11}
+                      style={{textAlign: 'center'}}>
+                      {dataProduct.length}
+                    </TextSizeCustom>
+                  </View>
+                ) : null}
                 <Image
                   source={IconBottomTab.icon_cart}
                   style={{
@@ -129,8 +134,9 @@ const styles = StyleSheet.create({
   cart: {
     zIndex: 12,
     backgroundColor: colors.red,
-    height: 20,
-    width: 22,
+    justifyContent: 'center',
+    height: 18,
+    width: 20,
     borderRadius: 30,
     position: 'absolute',
     right: -9,

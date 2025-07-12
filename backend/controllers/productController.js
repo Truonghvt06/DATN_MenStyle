@@ -28,7 +28,7 @@ exports.createProduct = async (req, res) => {
   }
 };
 //get Pro
-router.get("/", async (req, res) => {
+exports.getProduct = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
 
@@ -53,7 +53,7 @@ router.get("/", async (req, res) => {
       .status(500)
       .json({ message: "Lỗi khi lấy sản phẩm", error: error.message });
   }
-});
+};
 
 // GET products?random=true&limit=10: Có random
 // exports.getAllProducts = async (req, res) => {
