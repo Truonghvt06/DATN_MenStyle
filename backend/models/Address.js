@@ -5,7 +5,7 @@ const addressSchema = new mongoose.Schema(
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      reqiued: true,
+      required: true,
     },
     recipient_name: { type: String, reqiued: true },
     phone: { type: String, required: true },

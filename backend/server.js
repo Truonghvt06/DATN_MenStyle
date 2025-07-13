@@ -8,6 +8,7 @@ const productRouter = require("./routes/product");
 const accountRouter = require("./routes/account");
 const bannerRoute = require("./routes/banner");
 const settingRoute = require("./routes/setting");
+const addressRouter = require("./routes/address");
 
 const path = require("path");
 const cors = require("cors");
@@ -34,6 +35,7 @@ app.use("/products", productRouter);
 app.use("/accounts", accountRouter);
 app.use("/banner", bannerRoute);
 app.use("/setting", settingRoute);
+app.use("/address", addressRouter);
 
 // Kết nối MongoDB
 mongoose
@@ -45,7 +47,7 @@ mongoose
       try {
         const userCount = await User.countDocuments();
         const banners = await Banner.find().sort({ createdAt: -1 });
-        res.render("home", {  banners,userCount });
+        res.render("home", { banners, userCount });
       } catch (err) {
         res.status(500).send("Lỗi khi tải trang chính: " + err.message);
       }

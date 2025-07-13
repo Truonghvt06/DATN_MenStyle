@@ -30,7 +30,7 @@ const BannerSlider = () => {
   const dispatch = useAppDispatch();
   const {listBanner} = useAppSelector(state => state.banner);
 
-  console.log('BANNER: ', listBanner);
+  // console.log('BANNER: ', listBanner);
 
   const extendedData =
     listBanner.length > 0
