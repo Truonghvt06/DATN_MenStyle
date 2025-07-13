@@ -36,9 +36,9 @@ import {
 } from '../../redux/actions/product';
 import {Product} from '../../redux/reducers/product/type';
 import {fetchFavorites, toggleFavorite} from '../../redux/actions/favorite';
-import {shuffleArray} from '../../components/utils/utils_ham/helper';
 import Toast from 'react-native-toast-message';
 import configToast from '../../components/utils/configToast';
+import {shuffleArray} from '../../utils/helper';
 
 const ITEM_MARGIN = 10;
 const NUM_COLUMNS = 2;
