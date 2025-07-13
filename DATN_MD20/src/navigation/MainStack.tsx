@@ -25,6 +25,10 @@ import OrderDetailScreen from '../screens/Main/Profile/Account/Order/OrderDetail
 import LanguageScreen from '../screens/Main/Profile/Others/LanguageScreen';
 import InformationScreen from '../screens/Main/Profile/Account/Information/InformationScreen';
 import UpdateInfor from '../screens/Main/Profile/Account/Information/UpdateInfor';
+import WelcomeScreen from '../screens/Main/WelcomeScreen';
+import ReviewScreen from '../screens/Main/Product/ReviewScreen';
+import RelatedProductDetail from '../screens/Main/Product/RelatedProductDetail';
+import SearchResultScreen from '../screens/Main/SearchResultScreen';
 
 const Stack = createStackNavigator();
 
@@ -32,7 +36,8 @@ const MainStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{headerShown: false, gestureEnabled: false}}
-      initialRouteName={ScreenName.Main.BottonTab}>
+      initialRouteName={ScreenName.Auth.Welcome}>
+      <Stack.Screen name={ScreenName.Auth.Welcome} component={WelcomeScreen} />
       <Stack.Screen name={ScreenName.Main.BottonTab} component={BottomTab} />
       <Stack.Screen name={ScreenName.Main.Home} component={HomeScreen} />
       <Stack.Screen name={ScreenName.Main.Profile} component={ProfileScreen} />
@@ -42,6 +47,7 @@ const MainStack = () => {
       <Stack.Screen name="DieuKhoan" component={DieuKhoanVaDieuKien} />
       <Stack.Screen name="ChinhSach" component={ChinhSach} />
       <Stack.Screen name="ThongTinCaNhan" component={ThongTinCaNhan} />
+      <Stack.Screen name="SearchResultScreen" component={SearchResultScreen} />
 
       <Stack.Screen
         name={ScreenName.Main.Favorite}
@@ -84,6 +90,11 @@ const MainStack = () => {
         component={InformationScreen}
       />
       <Stack.Screen name={ScreenName.Main.UpdateInfo} component={UpdateInfor} />
+      <Stack.Screen name={ScreenName.Main.Review} component={ReviewScreen} />
+      <Stack.Screen
+        name={ScreenName.Main.RelatedProductDetail}
+        component={RelatedProductDetail}
+      />
     </Stack.Navigator>
   );
 };

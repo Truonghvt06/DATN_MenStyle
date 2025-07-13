@@ -36,17 +36,20 @@ const WelcomeScreen = () => {
       }),
     ]).start();
 
+    // setTimeout(() => {
+    //   navigation.navigate(ScreenName.Main.BottonTab);
+    // }, 3000);
     // Logic kiểm tra đăng nhập
     const init = async () => {
       const resultAction = await dispatch(loadUserFromStorage());
 
       if (loadUserFromStorage.fulfilled.match(resultAction)) {
         setTimeout(() => {
-          navigation.reset(ScreenName.Main.MainStack);
+          navigation.navigate(ScreenName.Main.BottonTab);
         }, 2000);
       } else {
         setTimeout(() => {
-          navigation.navigate(ScreenName.Auth.Login);
+          navigation.navigate(ScreenName.Main.BottonTab);
         }, 3000);
       }
     };

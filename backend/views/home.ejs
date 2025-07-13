@@ -91,8 +91,9 @@
     }
 
     main {
-      padding: 30px;
-    }
+  padding: 10px 30px 30px 30px; /* top: 10px, right: 30px, bottom: 30px, left: 30px */
+}
+
 
     .dashboard-title {
       font-size: 24px;
@@ -159,6 +160,7 @@
     <a href="/accounts/view"><i class="bi bi-people"></i> Tài khoản</a>
     <a href="/orders/view"><i class="bi bi-receipt-cutoff"></i> Đơn hàng</a>
     <a href="/stats/overview"><i class="bi bi-bar-chart-line"></i> Thống kê</a>
+    <a href="/setting/view"><i class="bi bi-gear"></i> Cài đặt</a>
   </nav>
 
   <!-- Content -->
@@ -167,7 +169,24 @@
       <button class="toggle-btn" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
       MenStyle - Trang chủ
     </header>
-
+    <!-- Slider Banner -->
+    <div id="bannerCarousel" class="carousel slide mb-4" data-bs-ride="carousel" style="width: 1100px; margin: 10px auto 0 auto;">
+      <div class="carousel-inner" style="height: 400px;">
+        <% banners.forEach((banner, index) => { %>
+          <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
+            <img src="<%= banner.image %>" class="d-block w-100" alt="Banner <%= index + 1 %>" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">
+          </div>
+        <% }) %>
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Trước</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Sau</span>
+      </button>
+    </div>
     <main>
       <div class="dashboard-title">Tổng quan hệ thống</div>
       <p class="text-muted">Chào mừng bạn đến với bảng điều khiển. Dưới đây là một số thống kê nhanh.</p>
@@ -228,5 +247,7 @@
       }
     }
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

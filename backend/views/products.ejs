@@ -47,7 +47,6 @@
       color: white;
     }
 
-
     .sidebar a {
       display: flex;
       align-items: center;
@@ -142,17 +141,32 @@
     .action-link:hover {
       text-decoration: underline;
     }
-    form select.form-select-sm {
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 14px;
-}
 
+    form select.form-select-sm,
+    form input.form-control-sm {
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 14px;
+    }
 
     .no-image {
       color: gray;
       font-style: italic;
       font-size: 13px;
+    }
+
+    .search-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .search-container i {
+    margin-right: 8px;
+    font-size: 1.1rem;
+  }
+
+    .search-container input {
+      padding-left: 35px;
     }
   </style>
 </head>
@@ -164,7 +178,8 @@
     <a href="/coupons/view"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
     <a href="/accounts/view"><i class="bi bi-people"></i><span> Tài khoản</span></a>
     <a href="/orders/view"><i class="bi bi-receipt-cutoff"></i><span> Đơn hàng</span></a>
-    <a href="/stats/overview"><i class="bi bi-bar-chart-line"></i><span> Thống kê</span></a>
+    <a href="/stats-overview"><i class="bi bi-bar-chart-line"></i><span> Thống kê</span></a>
+    <a href="/setting/view"><i class="bi bi-gear"></i> Cài đặt</a>
   </nav>
 
   <div class="content" id="content">
@@ -173,8 +188,15 @@
       MenStyle - Danh sách sản phẩm
     </header>
     <form method="GET" action="/products/view" class="d-flex align-items-center gap-3 mb-4">
+      <div class="search-container d-flex align-items-center gap-2">
+        <i class="bi bi-search"></i>
+        <input type="text" name="search" class="form-control form-control-sm" placeholder="Tìm kiếm sản phẩm..." 
+               value="<%= search || '' %>">
+      </div>
+      
       <span class="fw-semibold mb-0"><i class="bi bi-funnel"></i> Lọc theo loại:</span>
-      <select name="type" id="type" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+      <input type="hidden" name="page" value="1">
+      <select name="type" id="type" class="form-select w-auto" onchange="this.form.submit()">
         <option value="all" <%= selectedType === 'all' ? 'selected' : '' %>>Tất cả</option>
         <% types.forEach(type => { %>
           <option value="<%= type._id %>" <%= selectedType === String(type._id) ? 'selected' : '' %>>
@@ -183,8 +205,6 @@
         <% }) %>
       </select>
     </form>
-    
-    
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3 class="mb-0">Sản phẩm hiện có</h3>
       <a href="/products/add" class="btn btn-add"><i class="bi bi-plus-circle"></i> Thêm sản phẩm</a>
@@ -205,8 +225,8 @@
           </tr>
         </thead>
         <tbody>
-          <% if (products && products.length> 0) { %>
-            <% products.forEach(product=> {
+          <% if (products && products.length > 0) { %>
+            <% products.forEach(product => {
               const firstVariant = product.variants && product.variants[0] ? product.variants[0] : {};
               const totalQty = product.variants ? product.variants.reduce((sum, v) => sum + (v.quantity || 0), 0) : 0;
               %>
@@ -229,29 +249,26 @@
                 <td class="description-cell" title="<%= product.description %>">
                   <%= product.description || 'N/A' %>
                 </td>
-
                 <td>
-                  <%= product.price !=null ? Number(product.price).toLocaleString() : 'N/A' %> VNĐ
+                  <%= product.price != null ? Number(product.price).toLocaleString() : 'N/A' %> VNĐ
                 </td>
                 <td>
                   <div id="variant-short-<%= product._id %>">
-                    <% product.variants.slice(0, 3).forEach((v)=> { %>
+                    <% product.variants.slice(0, 3).forEach((v) => { %>
                       <div class="variant-item">Size: <%= v.size || '-' %>, Màu: <%= v.color || '-' %>, SL: <%=
                               v.quantity || 0 %>
                       </div>
                       <% }) %>
-
-                        <% if (product.variants.length> 3) { %>
+                        <% if (product.variants.length > 3) { %>
                           <button type="button" class="btn btn-sm btn-outline-primary mt-2"
                             onclick="toggleVariants('<%= product._id %>')">
                             <i class="bi bi-chevron-down"></i> Xem thêm
                           </button>
                           <% } %>
                   </div>
-
-                  <% if (product.variants.length> 3) { %>
+                  <% if (product.variants.length > 3) { %>
                     <div id="variant-full-<%= product._id %>" style="display: none;">
-                      <% product.variants.forEach((v)=> { %>
+                      <% product.variants.forEach((v) => { %>
                         <div class="variant-item">Size: <%= v.size || '-' %>, Màu: <%= v.color || '-' %>, SL: <%=
                                 v.quantity || 0 %>
                         </div>
@@ -263,8 +280,6 @@
                     </div>
                     <% } %>
                 </td>
-
-
                 <td class="text-center">
                   <%= totalQty %>
                 </td>
@@ -281,6 +296,17 @@
         </tbody>
       </table>
     </div>
+    <% if (totalPages > 1) { %>
+      <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center mt-4">
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+              <a class="page-link" href="/products/view?type=<%= selectedType %>&page=<%= i %><%= search ? '&search=' + encodeURIComponent(search) : '' %>"><%= i %></a>
+            </li>
+          <% } %>
+        </ul>
+      </nav>
+    <% } %>
   </div>
 
   <script>
@@ -291,6 +317,7 @@
     toggleBtn.addEventListener('click', () => {
       sidebar.classList.toggle('collapsed');
     });
+
     function toggleVariants(id, collapse = false) {
       const shortDiv = document.getElementById('variant-short-' + id);
       const fullDiv = document.getElementById('variant-full-' + id);
@@ -303,19 +330,28 @@
         fullDiv.style.display = 'block';
       }
     }
+
     function checkBeforeEdit(productId) {
-    fetch(`/products/check-edit/${productId}`)
-      .then(res => {
-        if (!res.ok) {
-          return res.text().then(msg => { throw new Error(msg); });
-        }
-        // Nếu OK thì chuyển đến trang sửa
-        window.location.href = `/products/edit/${productId}`;
-      })
-      .catch(err => {
-        alert(err.message); // Hiển thị lỗi trực tiếp trên trang
-      });
-  }
+      fetch(`/products/check-edit/${productId}`)
+        .then(res => {
+          if (!res.ok) {
+            return res.text().then(msg => { throw new Error(msg); });
+          }
+          window.location.href = `/products/edit/${productId}`;
+        })
+        .catch(err => {
+          alert(err.message);
+        });
+    }
+
+    const searchInput = document.querySelector('input[name="search"]');
+    let searchTimeout;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        searchInput.closest('form').submit();
+      }, 500);
+    });
   </script>
 </body>
 

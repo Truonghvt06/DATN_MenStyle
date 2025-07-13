@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>MenStyle - Sửa banner</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f8f9fa;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 240px;
+      min-height: 100vh;
+      background: #fff;
+      padding: 30px 20px;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.05);
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 15px;
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      transition: 0.3s;
+    }
+
+    .sidebar a:hover {
+      background: #111;
+      color: white;
+    }
+
+    .content {
+      flex: 1;
+      margin-left: 240px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background-color: #111;
+      color: white;
+      padding: 15px 20px;
+      font-size: 22px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    main {
+      padding: 30px;
+      flex-grow: 1;
+    }
+
+    .form-container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.06);
+      max-width: 600px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <a href="/"><i class="bi bi-house"></i> Trang chủ</a>
+    <a href="/products/view"><i class="bi bi-box"></i> Sản phẩm</a>
+    <a href="/coupons/view"><i class="bi bi-ticket"></i> Phiếu giảm giá</a>
+    <a href="/accounts/view"><i class="bi bi-people"></i> Tài khoản</a>
+    <a href="/orders/view"><i class="bi bi-receipt-cutoff"></i> Đơn hàng</a>
+    <a href="/stats/overview"><i class="bi bi-bar-chart-line"></i> Thống kê</a>
+    <a href="/setting/view"><i class="bi bi-gear"></i> Cài đặt</a>
+  </nav>
+
+  <!-- Nội dung -->
+  <div class="content">
+    <header><i class="bi bi-pencil"></i> MenStyle - Sửa banner</header>
+
+    <main class="d-flex justify-content-center align-items-start">
+        <div class="form-container mt-4">
+          <h3 class="mb-4">Chỉnh sửa banner</h3>
+      
+          <form action="/banner/edit/<%= banner._id %>" method="POST">
+            <div class="mb-3">
+              <label class="form-label">Tiêu đề</label>
+              <input type="text" name="title" class="form-control" value="<%= banner.title %>" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Link ảnh</label>
+              <input type="text" name="image" id="imageInput" value="<%= banner.image %>" class="form-control" required />
+            </div>
+            <div class="mb-4">
+              <label class="form-label">Xem trước</label><br>
+              <img src="<%= banner.image %>" id="previewImage" style="max-width: 100%; border-radius: 8px;" />
+            </div>          
+            <button type="submit" class="btn btn-success"><i class="bi bi-check-circle"></i> Cập nhật</button>
+            <a href="/banner/view/options" class="btn btn-secondary">Huỷ</a>
+          </form>
+        </div>
+      </main>      
+  </div>
+  <script>
+    const imageInput = document.getElementById("imageInput");
+    const previewImage = document.getElementById("previewImage");
+  
+    imageInput.addEventListener("input", () => {
+      const url = imageInput.value.trim();
+      if (url) {
+        previewImage.src = url;
+      }
+    });
+  </script>
+  
+</body>
+</html>

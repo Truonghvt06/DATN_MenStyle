@@ -15,7 +15,10 @@ import {colors} from '../../../../../themes/colors';
 import ContainerView from '../../../../../components/layout/ContainerView';
 import Header from '../../../../../components/dataDisplay/Header';
 import useLanguage from '../../../../../hooks/useLanguage';
-import {TextSizeCustom} from '../../../../../components/dataEntry/TextBase';
+import {
+  TextMedium,
+  TextSizeCustom,
+} from '../../../../../components/dataEntry/TextBase';
 import TouchIcon from '../../../../../components/dataEntry/Button/TouchIcon';
 import Block from '../../../../../components/layout/Block';
 import ButtonBase from '../../../../../components/dataEntry/Button/ButtonBase';
@@ -34,6 +37,8 @@ import {
 import ButtonLoading from '../../../../../components/dataEntry/Button/ButtonLoading';
 import navigation from '../../../../../navigation/navigation';
 import {launchImageLibrary, Asset} from 'react-native-image-picker';
+import Toast from 'react-native-toast-message';
+import configToast from '../../../../../components/utils/configToast';
 
 const InformationScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -55,7 +60,7 @@ const InformationScreen = () => {
   const genders = ['Nam', 'Nữ', 'Khác'];
 
   const dispatch = useAppDispatch();
-  const {user, loading} = useAppSelector(state => state.auth);
+  const {user, loading, token} = useAppSelector(state => state.auth);
 
   const isChanged = useMemo(() => {
     if (!user) return false;
@@ -104,7 +109,16 @@ const InformationScreen = () => {
         }
       }
 
-      Alert.alert(getTranslation('thong_bao'), 'Cập nhật thành công!');
+      // Alert.alert(getTranslation('thong_bao'), 'Cập nhật thành công!');
+      // Toast.show({
+      //   type: 'notification', // Có thể là 'success', 'error', 'info'
+      //   position: 'top',
+      //   text1: 'Thành công',
+      //   text2: 'Dữ liệu đã được lưu thành công 👋',
+      //   visibilityTime: 3000, // số giây hiển thị Toast
+      //   autoHide: true,
+      //   swipeable: true,
+      // });
       navigation.goBack();
     } catch (err) {
       Alert.alert('Lỗi', 'Đã xảy ra lỗi khi cập nhật');
@@ -141,34 +155,6 @@ const InformationScreen = () => {
       },
     );
   };
-  //   const handlePickAvatar = () => {
-  //     launchImageLibrary(
-  //       {
-  //         mediaType: 'photo',
-  //         maxWidth: 600,
-  //         maxHeight: 600,
-  //         quality: 0.8,
-  //       },
-  //       async res => {
-  //         if (res.didCancel) return;
-  //         if (res.errorCode) {
-  //           Alert.alert('Lỗi', res.errorMessage || 'Không thể chọn ảnh');
-  //           return;
-  //         }
-  //         const asset = res.assets?.[0];
-  //         if (!asset?.uri) return;
-
-  //         const formData = buildFormData(asset);
-  //         const result = await dispatch(updateUserAvatar(formData));
-
-  //         if (updateUserAvatar.fulfilled.match(result)) {
-  //           Alert.alert('Thành công', 'Ảnh đại diện đã được cập nhật!');
-  //         } else {
-  //           Alert.alert('Lỗi', result.payload as string);
-  //         }
-  //       },
-  //     );
-  //   };
 
   useEffect(() => {
     if (user) {
@@ -206,6 +192,8 @@ const InformationScreen = () => {
             }
           }}
         />
+        <Toast config={configToast} />
+        {/* {token ? ( */}
         <ScrollView>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -301,7 +289,15 @@ const InformationScreen = () => {
             </Block>
           </KeyboardAvoidingView>
         </ScrollView>
+        {/* // ) : (
+        //   <Block flex1 alignCT justifyCT>
+        //     <TextMedium color={colors.gray}>
+        //       Đăng nhập để lấy thông tin
+        //     </TextMedium>
+        //   </Block>
+        // )} */}
 
+        {/* {token && ( */}
         <Block containerStyle={styles.btn}>
           <ButtonLoading
             title={getTranslation('luu')}
@@ -310,6 +306,7 @@ const InformationScreen = () => {
             onPress={handleSave}
           />
         </Block>
+        {/* )} */}
         {/* Ngoài  */}
 
         {/* Ngày sinh  */}
