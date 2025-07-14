@@ -18,7 +18,7 @@ export type AppDispatch = typeof store.dispatch;
 const persistConfig = {
   key: 'men_style',
   storage: AsyncStorage,
-  whitelist: ['autn', 'application'],
+  whitelist: ['autn', 'application', 'theme'], // Chỉ lưu trữ auth và application trong AsyncStorage
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);

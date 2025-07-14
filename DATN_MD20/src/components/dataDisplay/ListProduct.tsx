@@ -27,8 +27,9 @@ interface Props {
   title?: string;
   columNumber?: number;
   horizontal?: boolean;
-  onPress?: () => void;
+  onPress?: (item: any) => void;
   onPressSee?: () => void;
+  renderItem?: ({ item }: { item: any }) => React.ReactNode;
 }
 
 const ITEM_MARGIN = 10;

@@ -5,10 +5,9 @@ import metrics from '../../constants/metrics';
 import {TextMedium, TextSmall} from '../dataEntry/TextBase';
 import ButtonBase from '../dataEntry/Button/ButtonBase';
 import {IconSRC} from '../../constants/icons';
-import {colors} from '../../themes/colors';
 import TouchIcon from '../dataEntry/Button/TouchIcon';
 import useLanguage from '../../hooks/useLanguage';
-
+import { useAppTheme } from '../../themes/ThemeContext';
 interface Props {
   name?: string;
   price?: number;
@@ -17,13 +16,16 @@ interface Props {
   onPressAdd?: () => void;
   onPressIcon?: () => void;
 }
+
 const FavoriteItem = (props: Props) => {
   const {getTranslation} = useLanguage();
+  const theme = useAppTheme(); 
   const {name, price, image, onPress, onPressIcon, onPressAdd} = props;
+
   return (
     <TouchableOpacity
       activeOpacity={1}
-      style={styles.container}
+      style={[styles.container, { borderColor: theme.text }]}
       onPress={onPress}>
       <Block row>
         <Image style={styles.image} source={image} />
@@ -31,12 +33,11 @@ const FavoriteItem = (props: Props) => {
           <TextMedium
             numberOfLines={2}
             ellipsizeMode="tail"
-            // style={{textAlign: 'justify'}}
-          >
+            style={{ color: theme.text }}>
             {name}
           </TextMedium>
-          <TextMedium color={colors.red} bold>
-            {price}đ
+          <TextMedium color="red" bold>
+            {price?.toLocaleString('vi-VN')}đ
           </TextMedium>
           <ButtonBase
             containerStyle={styles.btnAdd}
@@ -52,6 +53,7 @@ const FavoriteItem = (props: Props) => {
           containerStyle={styles.icon}
           size={20}
           onPress={onPressIcon}
+          color={theme.text}
         />
       </Block>
     </TouchableOpacity>
@@ -65,7 +67,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: metrics.space,
     paddingVertical: 20,
     borderBottomWidth: 0.5,
-    borderColor: colors.gray3,
   },
   image: {
     width: 90,

@@ -1,35 +1,31 @@
-import {Text, TextProps, TextStyle} from 'react-native';
+import {Text, TextProps, TextStyle, StyleProp} from 'react-native';
 import {colors} from '../../../themes/colors';
 
 interface Props extends TextProps {
   color?: string;
   medium?: boolean;
   bold?: boolean;
-  style?: TextStyle;
+  style?: StyleProp<TextStyle>;
 }
 
 interface PropsSizeCustom extends TextProps, Props {
   size: number;
-  style?: TextStyle | any;
+  style?: StyleProp<TextStyle>;
 }
+
 export const TextSmall = (props: Props) => {
   const {color = colors.black, medium = false, bold = false, style} = props;
   const renderBold = (): '500' | 'bold' | 'normal' => {
-    if (medium) {
-      return '500';
-    } else if (bold) {
-      return 'bold';
-    } else {
-      return 'normal';
-    }
+    if (medium) return '500';
+    if (bold) return 'bold';
+    return 'normal';
   };
   return (
     <Text
       {...props}
       style={[
         {
-          // textAlign: 'left',
-          color: color,
+          color,
           fontSize: 14,
           lineHeight: 14 * 1.5,
           fontWeight: renderBold(),
@@ -42,15 +38,10 @@ export const TextSmall = (props: Props) => {
 
 export const TextMedium = (props: Props) => {
   const {color = colors.black, medium = false, bold = false, style} = props;
-
   const renderBold = (): '500' | 'bold' | 'normal' => {
-    if (medium) {
-      return '500';
-    } else if (bold) {
-      return 'bold';
-    } else {
-      return 'normal';
-    }
+    if (medium) return '500';
+    if (bold) return 'bold';
+    return 'normal';
   };
   return (
     <Text
@@ -58,8 +49,7 @@ export const TextMedium = (props: Props) => {
       style={[
         style,
         {
-          // textAlign: 'left',
-          color: color,
+          color,
           fontSize: 16,
           lineHeight: 16 * 1.5,
           fontWeight: renderBold(),
@@ -68,17 +58,13 @@ export const TextMedium = (props: Props) => {
     />
   );
 };
+
 export const TextHeight = (props: Props) => {
   const {color = colors.black, medium = false, bold = false, style} = props;
-
   const renderBold = (): '500' | 'bold' | 'normal' => {
-    if (medium) {
-      return '500';
-    } else if (bold) {
-      return 'bold';
-    } else {
-      return 'normal';
-    }
+    if (medium) return '500';
+    if (bold) return 'bold';
+    return 'normal';
   };
   return (
     <Text
@@ -86,8 +72,7 @@ export const TextHeight = (props: Props) => {
       style={[
         style,
         {
-          //   textAlign: 'left',
-          color: color,
+          color,
           fontSize: 18,
           lineHeight: 18 * 1.5,
           fontWeight: renderBold(),
@@ -98,22 +83,11 @@ export const TextHeight = (props: Props) => {
 };
 
 export const TextSizeCustom = (props: PropsSizeCustom) => {
-  const {
-    color = colors.black,
-    medium = false,
-    bold = false,
-    size,
-    style,
-  } = props;
-
+  const {color = colors.black, medium = false, bold = false, size, style} = props;
   const renderBold = (): '500' | 'bold' | 'normal' => {
-    if (medium) {
-      return '500';
-    } else if (bold) {
-      return 'bold';
-    } else {
-      return 'normal';
-    }
+    if (medium) return '500';
+    if (bold) return 'bold';
+    return 'normal';
   };
   return (
     <Text
@@ -121,7 +95,7 @@ export const TextSizeCustom = (props: PropsSizeCustom) => {
       style={[
         style,
         {
-          color: color,
+          color,
           fontSize: size,
           lineHeight: size * 1.5,
           fontWeight: renderBold(),

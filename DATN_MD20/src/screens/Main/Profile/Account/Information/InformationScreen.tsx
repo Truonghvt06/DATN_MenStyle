@@ -10,8 +10,7 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import React, {useEffect, useMemo, useState} from 'react';
-import {IconSRC, ImgSRC} from '../../../../../constants/icons'; // Đảm bảo đường dẫn đúng
-import {colors} from '../../../../../themes/colors';
+import {IconSRC, ImgSRC} from '../../../../../constants/icons';
 import ContainerView from '../../../../../components/layout/ContainerView';
 import Header from '../../../../../components/dataDisplay/Header';
 import useLanguage from '../../../../../hooks/useLanguage';
@@ -34,10 +33,13 @@ import {
 import ButtonLoading from '../../../../../components/dataEntry/Button/ButtonLoading';
 import navigation from '../../../../../navigation/navigation';
 import {launchImageLibrary, Asset} from 'react-native-image-picker';
+import {useAppTheme} from '../../../../../themes/ThemeContext';
 
 const InformationScreen = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
+  const theme = useAppTheme();
+
   const [isOpen, setIsOpen] = useState(false);
   const [date, setDate] = useState(new Date());
   const [open, setOpen] = useState(false);
@@ -73,19 +75,15 @@ const InformationScreen = () => {
       gender: user.gender,
       date_of_birth: user.date_of_birth,
     };
-
     return JSON.stringify(current) !== JSON.stringify(original);
   }, [dataUser, user]);
 
-  // Disable lưu
   const hasNewAvatar = !!localAvatar;
   const canSave = isChanged || hasNewAvatar;
 
   const handleSave = async () => {
-    if (!isChanged && !localAvatar) return;
-
+    if (!canSave) return;
     try {
-      // Gửi thông tin profile nếu có thay đổi
       if (isChanged) {
         const resultAction = await dispatch(updateUserProfile(dataUser));
         if (!updateUserProfile.fulfilled.match(resultAction)) {
@@ -93,8 +91,6 @@ const InformationScreen = () => {
           return;
         }
       }
-
-      // Gửi avatar nếu có thay đổi
       if (localAvatar) {
         const formData = buildFormData(localAvatar);
         const result = await dispatch(updateUserAvatar(formData));
@@ -103,7 +99,6 @@ const InformationScreen = () => {
           return;
         }
       }
-
       Alert.alert(getTranslation('thong_bao'), 'Cập nhật thành công!');
       navigation.goBack();
     } catch (err) {
@@ -111,7 +106,6 @@ const InformationScreen = () => {
     }
   };
 
-  // form data
   const buildFormData = (asset: Asset) => {
     const data = new FormData();
     data.append('avatar', {
@@ -125,9 +119,7 @@ const InformationScreen = () => {
     return data;
   };
 
-  // chọn ảnh
-
-  const handlePickAvatar1 = () => {
+  const handlePickAvatar = () => {
     launchImageLibrary(
       {
         mediaType: 'photo',
@@ -137,38 +129,10 @@ const InformationScreen = () => {
       },
       res => {
         if (res.didCancel || res.errorCode || !res.assets?.[0]?.uri) return;
-        setLocalAvatar(res.assets[0]); // chỉ set vào state
+        setLocalAvatar(res.assets[0]);
       },
     );
   };
-  //   const handlePickAvatar = () => {
-  //     launchImageLibrary(
-  //       {
-  //         mediaType: 'photo',
-  //         maxWidth: 600,
-  //         maxHeight: 600,
-  //         quality: 0.8,
-  //       },
-  //       async res => {
-  //         if (res.didCancel) return;
-  //         if (res.errorCode) {
-  //           Alert.alert('Lỗi', res.errorMessage || 'Không thể chọn ảnh');
-  //           return;
-  //         }
-  //         const asset = res.assets?.[0];
-  //         if (!asset?.uri) return;
-
-  //         const formData = buildFormData(asset);
-  //         const result = await dispatch(updateUserAvatar(formData));
-
-  //         if (updateUserAvatar.fulfilled.match(result)) {
-  //           Alert.alert('Thành công', 'Ảnh đại diện đã được cập nhật!');
-  //         } else {
-  //           Alert.alert('Lỗi', result.payload as string);
-  //         }
-  //       },
-  //     );
-  //   };
 
   useEffect(() => {
     if (user) {
@@ -182,23 +146,23 @@ const InformationScreen = () => {
       setLocalAvatar(null);
     }
   }, [user]);
+
   return (
     <TouchableWithoutFeedback
       onPress={() => {
         Keyboard.dismiss();
         setIsFocused(false);
       }}>
-      <ContainerView>
+      <ContainerView containerStyle={{backgroundColor: theme.background, paddingTop: top}}>
         <Header
           label={getTranslation('thong_tin_ca_nhan')}
           paddingTop={top}
+          backgroundColor={theme.background}
+          textColor={theme.text}
           onPressLeft={() => {
             if (canSave) {
               Alert.alert('Thông báo!', 'Có chắc muốn thoát thay đổi?', [
-                {
-                  text: 'Huỷ',
-                  style: 'cancel',
-                },
+                {text: 'Huỷ', style: 'cancel'},
                 {text: 'OK', onPress: () => navigation.goBack()},
               ]);
             } else {
@@ -206,18 +170,15 @@ const InformationScreen = () => {
             }
           }}
         />
+
         <ScrollView>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{flex: 1}}>
-            <Block alignCT justifyCT h={200} backgroundColor={colors.sky_blue}>
-              <TouchableOpacity
-                activeOpacity={0.9}
-                onPress={() => {
-                  handlePickAvatar1();
-                }}>
+            <Block alignCT justifyCT h={200} backgroundColor={theme.card}>
+              <TouchableOpacity activeOpacity={0.9} onPress={handlePickAvatar}>
                 <Image
-                  style={styles.avatar}
+                  style={[styles.avatar, {backgroundColor: theme.card}]}
                   source={
                     localAvatar?.uri
                       ? {uri: localAvatar.uri}
@@ -230,19 +191,14 @@ const InformationScreen = () => {
                   containerStyle={styles.ic_edit}
                   icon={IconSRC.icon_edit}
                   size={28}
-                  color={colors.gray1}
-                  onPress={() => {
-                    handlePickAvatar1();
-                  }}
+                  color={theme.text}
+                  onPress={handlePickAvatar}
                 />
               </TouchableOpacity>
             </Block>
+
             <Block pad={metrics.space}>
-              <Block
-                backgroundColor={colors.while}
-                padH={8}
-                padV={12}
-                borderRadius={10}>
+              <Block backgroundColor={theme.card} padH={8} padV={12} borderRadius={10}>
                 <InputPlace
                   is_Focused={isFocused}
                   label={getTranslation('ho_va_ten')}
@@ -251,19 +207,14 @@ const InformationScreen = () => {
                     setDataUser({...dataUser, name: text})
                   }
                 />
-
                 <InputPlace
                   readOnly
                   is_Focused={isFocused}
                   label={getTranslation('gioi_tinh')}
                   value={dataUser.gender}
                   iconRight
-                  containerView={{
-                    flexDirection: 'row',
-                  }}
-                  onPress={() => {
-                    setIsOpen(true);
-                  }}
+                  containerView={{flexDirection: 'row'}}
+                  onPress={() => setIsOpen(true)}
                 />
                 <InputPlace
                   readOnly
@@ -271,13 +222,8 @@ const InformationScreen = () => {
                   label={getTranslation('ngay_sinh')}
                   value={dataUser.date_of_birth}
                   iconRight
-                  //   disabled={!address.province}
-                  containerView={{
-                    flexDirection: 'row',
-                  }}
-                  onPress={() => {
-                    setOpen(true);
-                  }}
+                  containerView={{flexDirection: 'row'}}
+                  onPress={() => setOpen(true)}
                 />
                 <InputPlace
                   is_Focused={isFocused}
@@ -287,7 +233,6 @@ const InformationScreen = () => {
                     setDataUser({...dataUser, phone: text})
                   }
                 />
-
                 <InputPlace
                   readOnly
                   is_Focused={isFocused}
@@ -310,22 +255,18 @@ const InformationScreen = () => {
             onPress={handleSave}
           />
         </Block>
-        {/* Ngoài  */}
 
-        {/* Ngày sinh  */}
         {Platform.OS === 'android' ? (
           open && (
             <DateTimePicker
               value={date}
               mode="date"
-              display="spinner" // hoặc 'default', 'compact' tùy bạn muốn
+              display="spinner"
               maximumDate={new Date()}
-              style={{borderRadius: 10}}
               onChange={(event, selectedDate) => {
                 setOpen(false);
                 if (event.type === 'set' && selectedDate) {
                   setDate(selectedDate);
-                  // setValueDate(moment(selectedDate).format('DD/MM/YYYY'));
                   setDataUser({
                     ...dataUser,
                     date_of_birth: moment(selectedDate).format('DD/MM/YYYY'),
@@ -341,9 +282,7 @@ const InformationScreen = () => {
             label={getTranslation('chon_ngay')}
             heightModal={400}
             onClose={() => setOpen(false)}
-            containerStyle={{
-              backgroundColor: colors.while,
-            }}
+            containerStyle={{backgroundColor: theme.card}}
             children={
               <>
                 <Block alignCT>
@@ -357,22 +296,14 @@ const InformationScreen = () => {
                         setDate(selectedDate);
                       }
                     }}
-                    style={{backgroundColor: 'white'}}
+                    style={{backgroundColor: theme.card}}
                   />
                 </Block>
-
-                <Block
-                  row
-                  justifyContent="flex-end"
-                  padH={16}
-                  padT={20}
-                  borderTopW={0.3}
-                  borderColor={colors.gray1}>
+                <Block row justifyContent="flex-end" padH={16} padT={20} borderTopW={0.3} borderColor={theme.border}>
                   <TouchIcon
                     title={getTranslation('xac_nhan')}
-                    titleStyle={styles.comfor}
+                    titleStyle={[styles.comfor, {color: theme.text}]}
                     onPress={() => {
-                      setDate(date);
                       setDataUser({
                         ...dataUser,
                         date_of_birth: moment(date).format('DD/MM/YYYY'),
@@ -386,7 +317,6 @@ const InformationScreen = () => {
           />
         )}
 
-        {/* Giới tính  */}
         <ModalBottom
           visible={isOpen}
           header
@@ -394,22 +324,22 @@ const InformationScreen = () => {
           heightModal={300}
           onClose={() => setIsOpen(false)}
           children={
-            <>
-              <ScrollView>
-                {genders.map(gender => (
-                  <TouchableOpacity
-                    activeOpacity={0.6}
-                    key={gender}
-                    style={styles.item}
-                    onPress={() => {
-                      setDataUser({...dataUser, gender: gender});
-                      setIsOpen(false);
-                    }}>
-                    <TextSizeCustom size={16}>{gender}</TextSizeCustom>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </>
+            <ScrollView>
+              {genders.map(gender => (
+                <TouchableOpacity
+                  activeOpacity={0.6}
+                  key={gender}
+                  style={[styles.item, {borderColor: theme.border}]}
+                  onPress={() => {
+                    setDataUser({...dataUser, gender});
+                    setIsOpen(false);
+                  }}>
+                  <TextSizeCustom size={16} style={{color: theme.text}}>
+                    {gender}
+                  </TextSizeCustom>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
           }
         />
       </ContainerView>
@@ -425,39 +355,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.black,
-  },
-  xong: {
-    alignItems: 'flex-end',
-    marginRight: 20,
   },
   ic_edit: {
-    flex: 1,
     position: 'absolute',
     bottom: 3,
     right: 3,
   },
-
   btn: {
-    // position: 'absolute',
-    // bottom: 35,
-    // left: 8,
     paddingHorizontal: 8,
     paddingBottom: 35,
   },
-
   avatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
     marginBottom: 5,
-    backgroundColor: '#eee',
   },
   item: {
     paddingVertical: 15,
     paddingHorizontal: 8,
     borderBottomWidth: 0.3,
-    borderColor: colors.gray1,
     alignItems: 'center',
   },
 });

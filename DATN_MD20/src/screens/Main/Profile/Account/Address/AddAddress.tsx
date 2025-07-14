@@ -1,38 +1,25 @@
 import {
   Alert,
-  Image,
   Keyboard,
-  Modal,
   Platform,
   ScrollView,
   StyleSheet,
   Switch,
-  Text,
-  TouchableOpacity,
   TouchableWithoutFeedback,
-  View,
 } from 'react-native';
-import React, {createRef, useRef, useState} from 'react';
+import React, {useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import ContainerView from '../../../../../components/layout/ContainerView';
 import Header from '../../../../../components/dataDisplay/Header';
 import Block from '../../../../../components/layout/Block';
 import metrics from '../../../../../constants/metrics';
-import {colors} from '../../../../../themes/colors';
 import InputPlace from '../../../../../components/dataEntry/Input/InputPlace';
 import {KeyboardAvoidingView} from 'react-native';
 import {TextMedium} from '../../../../../components/dataEntry/TextBase';
-import TouchIcon from '../../../../../components/dataEntry/Button/TouchIcon';
-import {IconSRC} from '../../../../../constants/icons';
 import {provinces, districts, wards} from 'vietnam-provinces';
-
-import {
-  getProvinces,
-  //   getDistrictsByProvinceCode,
-  //   getWardsByDistrictCode,
-} from 'vietnam-provinces';
 import SelectAddress from '../../../../../components/utils/SelectAddress';
 import useLanguage from '../../../../../hooks/useLanguage';
+import {useAppTheme} from '../../../../../themes/ThemeContext';
 
 interface IAddress {
   name: string;
@@ -42,9 +29,12 @@ interface IAddress {
   ward: string;
   addres_line: string;
 }
+
 const AddAddress = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
+  const theme = useAppTheme();
+
   const [isFocused, setIsFocused] = useState(false);
   const [isSwitch, setIsSwitch] = useState(false);
   const [address, setAddress] = useState<IAddress>({
@@ -55,13 +45,9 @@ const AddAddress = () => {
     ward: '',
     addres_line: '',
   });
-  //   const [provinces] = useState(getProvinces());
+
   const [districtss, setDistrictss] = useState<any[]>([]);
   const [wardss, setWardss] = useState<any[]>([]);
-
-  const [selectedProvince, setSelectedProvince] = useState('');
-  const [selectedDistrict, setSelectedDistrict] = useState('');
-  const [selectedWard, setSelectedWard] = useState('');
 
   const [isOpenProvince, setIsOpenProvince] = useState(false);
   const [isOpenDistrict, setIsOpenDistrict] = useState(false);
@@ -81,19 +67,32 @@ const AddAddress = () => {
         Keyboard.dismiss();
         setIsFocused(false);
       }}>
-      <ContainerView>
-        <Header label={getTranslation('dia_chi_moi')} paddingTop={top} />
+      <ContainerView
+        containerStyle={{
+          backgroundColor: theme.background,
+          paddingTop: top,
+        }}>
+        <Header
+          label={getTranslation('dia_chi_moi')}
+          paddingTop={top}
+          backgroundColor={theme.background}
+          textColor={theme.text}
+        />
         <ScrollView>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{flex: 1}}>
             <Block pad={metrics.space}>
               <Block
-                backgroundColor={colors.while}
+                backgroundColor={theme.card}
                 padH={8}
                 padV={12}
-                borderRadius={10}>
-                <TextMedium medium>{getTranslation('dia_chi')}</TextMedium>
+                borderRadius={10}
+                shadowColor={theme.shadowColor || theme.text}>
+                <TextMedium medium style={{color: theme.text}}>
+                  {getTranslation('dia_chi')}
+                </TextMedium>
+
                 <InputPlace
                   is_Focused={isFocused}
                   label={getTranslation('ho_va_ten')}
@@ -116,12 +115,8 @@ const AddAddress = () => {
                   label={getTranslation('chon_tinh')}
                   value={address.province}
                   iconRight
-                  containerView={{
-                    flexDirection: 'row',
-                  }}
-                  onPress={() => {
-                    setIsOpenProvince(true);
-                  }}
+                  containerView={{flexDirection: 'row'}}
+                  onPress={() => setIsOpenProvince(true)}
                 />
                 <InputPlace
                   readOnly
@@ -130,9 +125,7 @@ const AddAddress = () => {
                   value={address.district}
                   iconRight
                   disabled={!address.province}
-                  containerView={{
-                    flexDirection: 'row',
-                  }}
+                  containerView={{flexDirection: 'row'}}
                   onPress={() => {
                     if (!address.province) {
                       Alert.alert('Thông báo', 'Vui lòng chọn Tỉnh trước');
@@ -148,9 +141,7 @@ const AddAddress = () => {
                   value={address.ward}
                   iconRight
                   disabled={!address.district}
-                  containerView={{
-                    flexDirection: 'row',
-                  }}
+                  containerView={{flexDirection: 'row'}}
                   onPress={() => {
                     if (!address.province) {
                       Alert.alert('Thông báo', 'Vui lòng chọn Tỉnh trước');
@@ -162,7 +153,6 @@ const AddAddress = () => {
                     setIsOpenWard(true);
                   }}
                 />
-
                 <InputPlace
                   is_Focused={isFocused}
                   label={getTranslation('ten_duong')}
@@ -172,19 +162,28 @@ const AddAddress = () => {
                   }
                 />
               </Block>
+
               <Block
                 row
                 justifyBW
                 alignCT
-                backgroundColor={colors.while}
+                backgroundColor={theme.card}
                 padH={8}
                 padV={12}
                 marT={10}
-                borderRadius={10}>
-                <TextMedium medium>{getTranslation('dat_mac_dinh')}</TextMedium>
+                borderRadius={10}
+                borderBottomW={0.5}
+                borderColor={theme.border}>
+                <TextMedium medium style={{color: theme.text}}>
+                  {getTranslation('dat_mac_dinh')}
+                </TextMedium>
                 <Switch
                   value={isSwitch}
                   onValueChange={() => setIsSwitch(!isSwitch)}
+                  thumbColor={
+                    Platform.OS === 'android' ? theme.text : undefined
+                  }
+                  trackColor={{false: '#ccc', true: theme.text + '55'}}
                 />
               </Block>
             </Block>
@@ -196,15 +195,14 @@ const AddAddress = () => {
           visible={isOpenProvince}
           data={provinces}
           onClose={() => setIsOpenProvince(false)}
-          onSelect={(province: any) => {
+          onSelect={(province: { code: string; name: string }) => {
             setAddress({
               ...address,
               province: province.name,
               district: '',
               ward: '',
             });
-            const newDistricts = getDistrictsByProvinceCode(province.code);
-            setDistrictss(newDistricts);
+            setDistrictss(getDistrictsByProvinceCode(province.code));
             setWardss([]);
             setIsOpenProvince(false);
           }}
@@ -215,10 +213,9 @@ const AddAddress = () => {
           visible={isOpenDistrict}
           data={districtss}
           onClose={() => setIsOpenDistrict(false)}
-          onSelect={(district: any) => {
+          onSelect={(district: { code: string; name: string }) => {
             setAddress({...address, district: district.name, ward: ''});
-            const newWards = getWardsByDistrictCode(district.code);
-            setWardss(newWards);
+            setWardss(getWardsByDistrictCode(district.code));
             setIsOpenDistrict(false);
           }}
         />
@@ -228,8 +225,7 @@ const AddAddress = () => {
           visible={isOpenWard}
           data={wardss}
           onClose={() => setIsOpenWard(false)}
-          onSelect={(ward: any) => {
-            setAddress({...address, ward: ward});
+          onSelect={(ward: { name: string }) => {
             setAddress({...address, ward: ward.name});
             setIsOpenWard(false);
           }}
@@ -240,71 +236,3 @@ const AddAddress = () => {
 };
 
 export default AddAddress;
-
-const styles = StyleSheet.create({
-  tinh: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 8,
-    paddingBottom: 13,
-    borderBottomWidth: 0.3,
-    borderColor: colors.gray1,
-    marginBottom: 8,
-  },
-  text: {
-    fontWeight: '500',
-  },
-  item: {
-    paddingVertical: 12,
-    borderBottomWidth: 0.5,
-    borderColor: colors.gray1,
-  },
-});
-
-{
-  /* <TouchIcon
-                  title={address.province || 'Chọn Tỉnh/Thành phố'}
-                  containerStyle={styles.tinh}
-                  titleStyle={styles.text}
-                  colorTitle={address.province ? colors.black : colors.gray}
-                  sizeText={14}
-                  icon={isOpenProvince ? IconSRC.icon_up : IconSRC.icon_down}
-                  color={colors.gray}
-                  size={25}
-                  onPress={() => {
-                    setIsOpenProvince(true);
-                    // refProvince.current?.open();
-                  }}
-                />
-                <TouchIcon
-                  title={address.district || 'Chọn Quận/Huyện'}
-                  containerStyle={styles.tinh}
-                  titleStyle={styles.text}
-                  colorTitle={address.district ? colors.black : colors.gray}
-                  sizeText={14}
-                  icon={isOpenDistrict ? IconSRC.icon_up : IconSRC.icon_down}
-                  color={colors.gray}
-                  size={25}
-                  onPress={() => {
-                    // refDistrict.current?.open();
-                    setIsOpenDistrict(true);
-                  }}
-                  disabled={!address.province}
-                />
-                <TouchIcon
-                  title={address.ward || 'Chọn Phường/Xã'}
-                  containerStyle={styles.tinh}
-                  titleStyle={styles.text}
-                  colorTitle={address.ward ? colors.black : colors.gray}
-                  sizeText={14}
-                  icon={isOpenWard ? IconSRC.icon_down : IconSRC.icon_down}
-                  color={colors.gray}
-                  size={25}
-                  onPress={() => {
-                    // refWard.current?.open();
-                    setIsOpenWard(true);
-                  }}
-                  disabled={!address.district}
-                /> */
-}

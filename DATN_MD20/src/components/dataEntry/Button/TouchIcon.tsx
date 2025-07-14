@@ -6,28 +6,26 @@ import {
   TextStyle,
   TouchableOpacity,
   TouchableOpacityProps,
-  View,
   ViewStyle,
+  StyleProp, // ✅ THÊM DÒNG NÀY
 } from 'react-native';
 import React from 'react';
 import {IconSRC} from '../../../constants/icons';
-import {TextMedium, TextSizeCustom, TextSmall} from '../TextBase';
 import {colors} from '../../../themes/colors';
 
 interface Props extends TouchableOpacityProps {
-  title?: string | any;
+  title?: string;
   icon?: IconSRC | any;
   size?: number;
   sizeText?: number;
-
   color?: string;
   colorTitle?: string;
-
   onPress?: () => void;
-  containerStyle?: ViewStyle | any;
-  imageStyle?: ImageStyle;
-  titleStyle?: TextStyle;
+  containerStyle?: StyleProp<ViewStyle>;
+  imageStyle?: StyleProp<ImageStyle>;
+  titleStyle?: StyleProp<TextStyle>; // ✅ ĐÃ ĐÚNG
 }
+
 const TouchIcon = (props: Props) => {
   const {
     sizeText = 14,
@@ -35,8 +33,9 @@ const TouchIcon = (props: Props) => {
     color = colors.black,
     titleStyle,
     containerStyle,
-    colorTitle,
+    colorTitle = colors.black,
   } = props;
+
   return (
     <TouchableOpacity
       {...props}
@@ -67,6 +66,4 @@ const TouchIcon = (props: Props) => {
 
 export default TouchIcon;
 
-const styles = StyleSheet.create({
-  txt: {fontWeight: 'bold'},
-});
+const styles = StyleSheet.create({});

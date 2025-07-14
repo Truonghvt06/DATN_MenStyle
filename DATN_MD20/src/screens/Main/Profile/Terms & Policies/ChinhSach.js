@@ -4,33 +4,49 @@ import {useNavigation} from '@react-navigation/native';
 
 import Header from '../../../../components/dataDisplay/Header';
 import ContainerView from '../../../../components/layout/ContainerView';
-import ButtonOption from '../../../../components/dataEntry/Button/BottonOption';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useAppTheme} from '../../../../themes/ThemeContext';
+import useLanguage from '../../../../hooks/useLanguage';
 
 const ChinhSach = () => {
   const {top} = useSafeAreaInsets();
-  const navigation = useNavigation();
+  const theme = useAppTheme();
+  const {getTranslation} = useLanguage();
 
   return (
-    <ContainerView>
-      <Header label="Chính sách riêng tư" paddingTop={top} />
-      <ScrollView style={styles.container}>
-        <Text style={styles.title}>1. Thu thập thông tin</Text>
-        <Text style={styles.text}>
-          Chúng tôi thu thập các thông tin cá nhân của bạn như họ tên, địa chỉ,
-          số điện thoại, email khi bạn đăng ký tài khoản hoặc mua hàng...
+    <ContainerView
+      containerStyle={{
+        backgroundColor: theme.background,
+        paddingTop: top,
+      }}>
+      <Header
+        label={getTranslation('chinh_sach_rieng_tu')}
+        paddingTop={top}
+        backgroundColor={theme.background}
+        textColor={theme.text}
+      />
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={{paddingBottom: 40}}>
+        <Text style={[styles.title, {color: theme.text}]}>
+          1. {getTranslation('thu_thap_thong_tin')}
+        </Text>
+        <Text style={[styles.text, {color: theme.text}]}>
+          {getTranslation('noi_dung_thu_thap')}
         </Text>
 
-        <Text style={styles.title}>2. Sử dụng thông tin</Text>
-        <Text style={styles.text}>
-          Chúng tôi sử dụng thông tin cá nhân để xử lý đơn hàng, cải thiện dịch
-          vụ, gửi thông tin khuyến mãi và chăm sóc khách hàng...
+        <Text style={[styles.title, {color: theme.text}]}>
+          2. {getTranslation('su_dung_thong_tin')}
+        </Text>
+        <Text style={[styles.text, {color: theme.text}]}>
+          {getTranslation('noi_dung_su_dung')}
         </Text>
 
-        <Text style={styles.title}>3. Bảo mật</Text>
-        <Text style={styles.text}>
-          Chúng tôi cam kết bảo mật thông tin của bạn, không chia sẻ cho bên thứ
-          ba nếu không có sự cho phép...
+        <Text style={[styles.title, {color: theme.text}]}>
+          3. {getTranslation('bao_mat')}
+        </Text>
+        <Text style={[styles.text, {color: theme.text}]}>
+          {getTranslation('noi_dung_bao_mat')}
         </Text>
       </ScrollView>
     </ContainerView>
@@ -53,6 +69,5 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 14,
     lineHeight: 20,
-    color: '#333',
   },
 });

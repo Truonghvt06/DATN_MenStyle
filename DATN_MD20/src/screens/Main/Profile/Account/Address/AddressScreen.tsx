@@ -14,14 +14,13 @@ import Block from '../../../../../components/layout/Block';
 import metrics from '../../../../../constants/metrics';
 import AddressItem from '../../../../../components/dataDisplay/AddressItem';
 import {
-  TextMedium,
   TextSmall,
 } from '../../../../../components/dataEntry/TextBase';
-import {colors} from '../../../../../themes/colors';
 import {IconSRC} from '../../../../../constants/icons';
 import navigation from '../../../../../navigation/navigation';
 import ScreenName from '../../../../../navigation/ScreenName';
 import useLanguage from '../../../../../hooks/useLanguage';
+import {useAppTheme} from '../../../../../themes/ThemeContext';
 
 const DataAddress = [
   {
@@ -41,12 +40,24 @@ const DataAddress = [
     isDefault: false,
   },
 ];
+
 const AddressScreen = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
+  const theme = useAppTheme();
+
   return (
-    <ContainerView>
-      <Header label={getTranslation('dia_chi')} paddingTop={top} />
+    <ContainerView
+      containerStyle={{
+        paddingTop: top,
+        backgroundColor: theme.background,
+      }}>
+      <Header
+        label={getTranslation('dia_chi')}
+        paddingTop={top}
+        backgroundColor={theme.background}
+        textColor={theme.text}
+      />
       <FlatList
         data={DataAddress}
         keyExtractor={item => item.id}
@@ -59,9 +70,14 @@ const AddressScreen = () => {
             <Block row alignCT justifyCT padV={15}>
               <Image
                 source={IconSRC.icon_add}
-                style={{width: 20, height: 20, marginRight: 10}}
+                style={{
+                  width: 20,
+                  height: 20,
+                  marginRight: 10,
+                  tintColor: theme.text,
+                }}
               />
-              <TextSmall style={{textTransform: 'capitalize'}}>
+              <TextSmall style={{textTransform: 'capitalize', color: theme.text}}>
                 {getTranslation('them_dia_chi')}
               </TextSmall>
             </Block>
@@ -81,9 +97,8 @@ const AddressScreen = () => {
         )}
         contentContainerStyle={{
           paddingHorizontal: metrics.space,
-          // paddingBottom: 20,
           marginTop: 16,
-          backgroundColor: colors.while,
+          backgroundColor: theme.background,
         }}
       />
     </ContainerView>

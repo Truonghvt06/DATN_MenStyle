@@ -1,4 +1,3 @@
-import {CatchClause} from './../../../node_modules/@babel/types/lib/index-legacy.d';
 export default {
   Auth: {
     Welcome: 'WelcomeScreen',
@@ -31,5 +30,6 @@ export default {
     Language: 'LangguageScreen',
     Information: 'InformationScreen',
     UpdateInfo: 'UpdateInfo',
+    Theme: 'ThemeScreen',
   },
 };

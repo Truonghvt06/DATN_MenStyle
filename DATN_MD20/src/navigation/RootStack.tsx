@@ -19,7 +19,6 @@ const RootStack = () => {
         if (route.params?.transition === 'vertical') {
           return {
             headerShown: false,
-            ...TransitionEvent,
             cardStyle: {backgroundColor: colors.while},
           };
         }

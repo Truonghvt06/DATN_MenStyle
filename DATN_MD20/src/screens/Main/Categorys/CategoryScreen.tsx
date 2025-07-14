@@ -1,24 +1,25 @@
 import {useRoute} from '@react-navigation/native';
-import React, {useState, useMemo} from 'react';
+import React, {useState, useMemo,useEffect} from 'react';
 import {View, Text, TouchableOpacity, FlatList, StyleSheet} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import ContainerView from '../../../components/layout/ContainerView';
 import Header from '../../../components/dataDisplay/Header';
-import {colors} from '../../../themes/colors';
 import {TextMedium, TextSmall} from '../../../components/dataEntry/TextBase';
 import {allProducts} from '../../../constants/data';
 import ListProduct from '../../../components/dataDisplay/ListProduct';
 import Block from '../../../components/layout/Block';
 import metrics from '../../../constants/metrics';
 import useLanguage from '../../../hooks/useLanguage';
-
-// Dữ liệu giả
+import products from '../../../services/products';
+import {useAppTheme} from '../../../themes/ThemeContext';
 
 const CategoryScreen = () => {
   const route = useRoute();
   const {getTranslation} = useLanguage();
+  const theme = useAppTheme();
   const {top} = useSafeAreaInsets();
-  const {name, title} = route.params as {name: string; title: string}; //từ home
+  const {name, title} = route.params as {name: string; title: string};
+
   const [selectedTab, setSelectedTab] = useState(getTranslation('tat_ca'));
 
   const tabs = [
@@ -27,16 +28,26 @@ const CategoryScreen = () => {
     getTranslation('ban_chay'),
     getTranslation('gia'),
   ];
+    const [proData, setProData] = useState<any[]>([]);
+  
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await products.getProducts();
+        setProData(res.data); // res.data là mảng sản phẩm
+      } catch (error) {
+        console.error('Lỗi lấy sản phẩm:', error);
+      }
+    };
 
+    fetchProducts();
+  }, []);
   const handleTabPress = (tab: string) => {
     setSelectedTab(tab);
   };
 
   const filteredProducts = useMemo(() => {
-    // Lọc sản phẩm đúng loại áo trước
     const productsByCategory = allProducts.filter(p => p.category === name);
-
-    // Sau đó sắp xếp theo tab
     switch (selectedTab) {
       case getTranslation('moi_nhat'):
         return [...productsByCategory].sort(
@@ -63,17 +74,20 @@ const CategoryScreen = () => {
           styles.itemtab,
           {
             borderBottomColor:
-              selectedTab === tab ? colors.black : 'transparent',
+              selectedTab === tab ? theme.text : 'transparent',
+            backgroundColor: theme.background,
           },
         ]}>
         <TextSmall
-          style={{color: selectedTab === tab ? colors.black : colors.gray}}>
+          style={{
+            color: selectedTab === tab ? theme.text : theme.text + '88', // lighter if not selected
+          }}>
           {tab}
         </TextSmall>
       </TouchableOpacity>
       <Block
         borderW={0.5}
-        borderColor={colors.gray1}
+        borderColor={theme.text + '44'}
         h={'50%'}
         alignSelf="center"
       />
@@ -81,13 +95,24 @@ const CategoryScreen = () => {
   );
 
   return (
-    <ContainerView>
-      <Header label={title} paddingTop={top} />
-      <View style={[styles.tab]}>{tabs.map(renderTab)}</View>
+    <ContainerView
+      containerStyle={{
+        backgroundColor: theme.background,
+        paddingTop: top,
+      }}>
+      <Header
+        label={title}
+        paddingTop={top}
+        backgroundColor={theme.background}
+        textColor={theme.text}
+      />
+      <View style={[styles.tab, {backgroundColor: theme.background, borderBottomColor: theme.text + '33'}]}>
+        {tabs.map(renderTab)}
+      </View>
 
       <Block padH={8} flex1>
         <ListProduct
-          data={filteredProducts}
+          data={proData}
           isColums
           columNumber={2}
           onPress={() => {}}
@@ -105,13 +130,10 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderBottomWidth: 2,
     alignItems: 'center',
-    backgroundColor: colors.while,
   },
   tab: {
     width: '100%',
     flexDirection: 'row',
     borderBottomWidth: 0.3,
-    borderBottomColor: colors.gray1,
-    backgroundColor: colors.while,
   },
 });

@@ -1,4 +1,10 @@
-import {Alert, FlatList, StyleSheet, Text, View} from 'react-native';
+import {
+  Alert,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import React, {useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import ContainerView from '../../components/layout/ContainerView';
@@ -14,10 +20,12 @@ import ButtonOption from '../../components/dataEntry/Button/BottonOption';
 import Block from '../../components/layout/Block';
 import ModalCenter from '../../components/dataDisplay/Modal/ModalCenter';
 import useLanguage from '../../hooks/useLanguage';
+import {useAppTheme} from '../../themes/ThemeContext';
 
 const FavoriteScreen = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
+  const theme = useAppTheme();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenDel, setIsOpenDel] = useState(false);
@@ -40,12 +48,19 @@ const FavoriteScreen = () => {
       {cancelable: true},
     );
   };
+
   return (
-    <ContainerView>
+    <ContainerView
+      containerStyle={{
+        backgroundColor: theme.background,
+        paddingTop: top,
+      }}>
       <Header
         visibleLeft
         label={getTranslation('ua_thich')}
         paddingTop={top}
+        backgroundColor={theme.background}
+        textColor={theme.text}
         right={
           <TouchIcon
             size={25}
@@ -62,19 +77,19 @@ const FavoriteScreen = () => {
       <FlatList
         data={dataProduct}
         keyExtractor={item => item.id + 'acs'}
-        renderItem={({item}) => {
-          return (
-            <FavoriteItem
-              name={item.name}
-              price={item.price}
-              image={item.image}
-              onPress={() => {}}
-              onPressAdd={() => {}}
-              onPressIcon={() => setIsOpen(true)}
-            />
-          );
-        }}
+        renderItem={({item}) => (
+          <FavoriteItem
+            name={item.name}
+            price={item.price}
+            image={item.image}
+            onPress={() => {}}
+            onPressAdd={() => {}}
+            onPressIcon={() => setIsOpen(true)}
+            
+          />
+        )}
         contentContainerStyle={{paddingBottom: 20}}
+        style={{backgroundColor: theme.background}}
         showsVerticalScrollIndicator={false}
       />
       <ModalBottom
@@ -107,13 +122,6 @@ const FavoriteScreen = () => {
           </Block>
         }
       />
-      {/* <ModalCenter
-        visible={isOpenDel}
-        animationType="fade"
-        heightModal={metrics.diviceHeight * 0.3}
-        widthModal={metrics.diviceWidth * 0.8}
-        onClose={() => setIsOpenDel(false)}
-      /> */}
     </ContainerView>
   );
 };

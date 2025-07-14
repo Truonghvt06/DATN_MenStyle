@@ -153,5 +153,20 @@
   "xac_nhan": "Xác nhận",
   "xoa_toan_bo": "Bạn có chắc muốn xoá toàn bộ?",
   "thong_bao_dang_xuat": "Bạn có chắc muốn đăng xuất?",
-  "dong_y": "Đồng ý"
+  "dong_y": "Đồng ý",
+  "chinh_sach_rieng_tu": "Chính sách riêng tư",
+  "thu_thap_thong_tin": "Thu thập thông tin",
+  "su_dung_thong_tin": "Sử dụng thông tin",
+  "bao_mat": "Bảo mật",
+  "noi_dung_thu_thap": "Chúng tôi thu thập các thông tin cá nhân của bạn như họ tên, địa chỉ, số điện thoại, email khi bạn đăng ký tài khoản hoặc mua hàng...",
+  "noi_dung_su_dung": "Chúng tôi sử dụng thông tin cá nhân để xử lý đơn hàng, cải thiện dịch vụ, gửi thông tin khuyến mãi và chăm sóc khách hàng...",
+  "noi_dung_bao_mat": "Chúng tôi cam kết bảo mật thông tin của bạn, không chia sẻ cho bên thứ ba nếu không có sự cho phép...",
+  "dieu_khoan_va_dieu_kien": "Điều khoản & điều kiện",
+  "gioi_thieu": "Giới thiệu",
+  "trach_nhiem_nguoi_dung": "Trách nhiệm người dùng",
+  "sua_doi_dieu_khoan": "Sửa đổi điều khoản",
+  "noi_dung_gioi_thieu": "Bằng việc sử dụng ứng dụng này, bạn đồng ý với các điều khoản và điều kiện được quy định tại đây.",
+  "noi_dung_trach_nhiem": "Bạn có trách nhiệm cung cấp thông tin chính xác, không sử dụng ứng dụng vào mục đích gian lận, lừa đảo.",
+  "noi_dung_sua_doi": "Chúng tôi có thể cập nhật điều khoản bất kỳ lúc nào, và bạn có trách nhiệm theo dõi và tuân thủ."
+
 }

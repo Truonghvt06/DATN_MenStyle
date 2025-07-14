@@ -11,7 +11,7 @@ interface Props {
   visible: boolean;
   data: any;
   onClose: () => void;
-  onSelect: (text: string) => void;
+onSelect: (item: { code: string; name: string }) => void;
 }
 const SelectAddress = (props: Props) => {
   const {label, visible = false, data, onClose, onSelect} = props;

@@ -28,6 +28,7 @@ interface Props extends TouchableOpacityProps {
   iconColor?: string;
   containerStyle?: ViewStyle;
   sizeText?: number;
+  textColor?: string;
   onPress?: () => void;
 }
 const ButtonOption = (props: Props) => {
@@ -44,6 +45,7 @@ const ButtonOption = (props: Props) => {
     borderBottom = 0.5,
     borderColor = colors.gray3,
     containerStyle,
+    textColor,
     disabled = false,
     onPress,
   } = props;
@@ -73,7 +75,9 @@ const ButtonOption = (props: Props) => {
           <TextSizeCustom
             size={sizeText}
             // medium
-            style={{textTransform: 'capitalize'}}>
+            style={{textTransform: 'capitalize',
+              color: textColor,
+            }}>
             {name}
           </TextSizeCustom>
           {content && <TextSmall color={colors.gray}>{content}</TextSmall>}

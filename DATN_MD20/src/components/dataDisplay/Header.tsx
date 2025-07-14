@@ -26,6 +26,8 @@ interface Props {
   labelColor?: string;
   iconColor?: string;
   onPressLeft?: () => void;
+  backgroundColor?: string;
+  textColor?: string;
 }
 const Header = (props: Props) => {
   const {top} = useSafeAreaInsets();

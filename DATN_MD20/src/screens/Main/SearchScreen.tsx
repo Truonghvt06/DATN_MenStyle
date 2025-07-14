@@ -3,140 +3,163 @@ import {
   Keyboard,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import ContainerView from '../../components/layout/ContainerView';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {
-  TextHeight,
-  TextSizeCustom,
-  TextSmall,
-} from '../../components/dataEntry/TextBase';
-import Block from '../../components/layout/Block';
-import {IconSRC, ImgSRC} from '../../constants/icons';
-import {colors} from '../../themes/colors';
-import metrics from '../../constants/metrics';
-import InputBase from '../../components/dataEntry/Input/InputBase';
+import Header from '../../components/dataDisplay/Header';
 import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
-import Header from '../../components/dataDisplay/Header';
-import ButtonOption from '../../components/dataEntry/Button/BottonOption';
-import ListProduct from '../../components/dataDisplay/ListProduct';
-import {dataProduct} from '../../constants/data';
+import {IconSRC, ImgSRC} from '../../constants/icons';
+import metrics from '../../constants/metrics';
+import Block from '../../components/layout/Block';
+import {
+  TextHeight,
+  TextSmall,
+} from '../../components/dataEntry/TextBase';
+import {colors} from '../../themes/colors';
 import useLanguage from '../../hooks/useLanguage';
+import {useAppTheme} from '../../themes/ThemeContext';
+import products from '../../services/products';
 
 const SearchScreen = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
+  const theme = useAppTheme();
 
-  const [value, setValue] = useState('');
+  const [proData, setProData] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await products.getProducts();
+        setProData(res.data || []);
+      } catch (error) {
+        console.error('Lỗi lấy sản phẩm:', error);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const handleSearch = () => {
     navigation.navigate(ScreenName.Main.SearchDetail);
   };
-  const handleCategory = (name: string) => {
-    navigation.navigate(ScreenName.Main.Category, {name: name});
+
+  const handleProDetail = (item: any) => {
+    navigation.navigate(ScreenName.Main.ProductDetail, {product: item});
   };
+
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ContainerView
-      // containerStyle={{paddingTop: top, paddingHorizontal: metrics.space}}
-      >
+        containerStyle={{
+          paddingTop: top,
+          paddingHorizontal: metrics.space,
+          backgroundColor: theme.background,
+        }}>
         <Header
           visibleLeft
           label={getTranslation('tim_kiem')}
           paddingTop={top}
+          backgroundColor={theme.background}
+          textColor={theme.text}
         />
+
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingHorizontal: metrics.space,
-            marginTop: 10,
-            paddingBottom: 30,
-          }}>
+          contentContainerStyle={{paddingBottom: 30}}>
+
+          {/* Search Box */}
           <TouchableOpacity
-            style={styles.search}
+            style={[
+              styles.search,
+              {backgroundColor: theme.background, borderColor: theme.text},
+            ]}
             activeOpacity={0.7}
-            onPress={() => {
-              handleSearch();
-            }}>
-            <Image style={styles.icon} source={IconSRC.icon_search} />
-            <TextSmall color={colors.gray3}>
+            onPress={handleSearch}>
+            <Image
+              style={[styles.icon, {tintColor: theme.text}]}
+              source={IconSRC.icon_search}
+            />
+            <TextSmall style={{color: theme.text}}>
               {getTranslation('tim_sp')}
             </TextSmall>
           </TouchableOpacity>
 
+          {/* Banner */}
           <Image style={styles.banner} source={ImgSRC.img_banner} />
 
-          {/* <TextHeight bold>Danh Mục:</TextHeight> */}
-          {/* <ButtonOption
-            name="Áo Polo"
-            iconLeft={IconSRC.icon_polo}
-            onPress={() => {
-              handleCategory('Áo Polo');
-            }}
-          />
-          <ButtonOption
-            name="Áo Thun"
-            iconLeft={IconSRC.icon_t_shirt}
-            onPress={() => {
-              handleCategory('Áo Thun');
-            }}
-          />
-          <ButtonOption
-            name="Áo Sơ Mi"
-            iconLeft={IconSRC.icon_shirt}
-            onPress={() => {
-              handleCategory('Áo Sơ Mi');
-            }}
-          />
-          <ButtonOption
-            name="Áo Thể Thao"
-            iconLeft={IconSRC.icon_thethao}
-            onPress={() => {
-              handleCategory('Áo Thể Thao');
-            }}
-          />
-          <ButtonOption
-            name="Áo Khoác"
-            iconLeft={IconSRC.icon_khoac}
-            onPress={() => {
-              handleCategory('Áo Khoác');
-            }}
-          />
-          <ButtonOption
-            name="Áo Hoodie"
-            iconLeft={IconSRC.icon_hoodie}
-            onPress={() => {
-              handleCategory('Áo Hoodie');
-            }}
-          /> */}
-          <TextHeight style={styles.titel} bold>
+          {/* Sản phẩm mới */}
+          <TextHeight style={[styles.titel, {color: theme.text}]} bold>
             {getTranslation('san_pham_moi')}:
           </TextHeight>
-          <ListProduct
-            data={dataProduct}
-            horizontal={true}
-            isSeemore
-            onPress={() => {}}
-            onPressSee={() => {}}
-          />
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{gap: 12}}>
+            {proData.map((item, index) => (
+              <TouchableOpacity
+                key={`new-${index}`}
+                onPress={() => handleProDetail(item)}
+                activeOpacity={0.9}>
+                <Block style={[styles.card, {backgroundColor: theme.background}]}>
+                  <Image
+                    style={styles.image}
+                    source={{uri: item.variants?.[0]?.image || ''}}
+                  />
+                  <Block mar={5}>
+                    <TextSmall
+                      numberOfLines={2}
+                      style={{color: theme.text}}>
+                      {item.name}
+                    </TextSmall>
+                    <TextSmall color={colors.red} bold>
+                      {item.price.toLocaleString('vi-VN')}đ
+                    </TextSmall>
+                  </Block>
+                </Block>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
 
-          <TextHeight style={styles.titel} bold>
+          {/* Sản phẩm bán chạy */}
+          <TextHeight style={[styles.titel, {color: theme.text}]} bold>
             {getTranslation('san_pham_ban_chay')}:
           </TextHeight>
-          <ListProduct
-            data={dataProduct}
-            horizontal={true}
-            isSeemore
-            onPress={() => {}}
-            onPressSee={() => {}}
-          />
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{gap: 12}}>
+            {proData
+              .slice()
+              .sort((a, b) => b.sold_count - a.sold_count)
+              .map((item, index) => (
+                <TouchableOpacity
+                  key={`hot-${index}`}
+                  onPress={() => handleProDetail(item)}
+                  activeOpacity={0.9}>
+                  <Block style={[styles.card, {backgroundColor: theme.background}]}>
+                    <Image
+                      style={styles.image}
+                      source={{uri: item.variants?.[0]?.image || ''}}
+                    />
+                    <Block mar={5}>
+                      <TextSmall
+                        numberOfLines={2}
+                        style={{color: theme.text}}>
+                        {item.name}
+                      </TextSmall>
+                      <TextSmall color={colors.red} bold>
+                        {item.price.toLocaleString('vi-VN')}đ
+                      </TextSmall>
+                    </Block>
+                  </Block>
+                </TouchableOpacity>
+              ))}
+          </ScrollView>
         </ScrollView>
       </ContainerView>
     </TouchableWithoutFeedback>
@@ -150,18 +173,15 @@ const styles = StyleSheet.create({
     marginTop: 10,
     flexDirection: 'row',
     borderWidth: 1,
-    borderColor: colors.gray3,
     height: 40,
     alignItems: 'center',
     borderRadius: 10,
-    backgroundColor: colors.while,
+    paddingHorizontal: 10,
   },
   icon: {
-    // alignSelf: 'center',
-    marginHorizontal: 10,
+    marginRight: 10,
     width: 20,
     height: 20,
-    tintColor: colors.gray3,
   },
   banner: {
     marginTop: 20,
@@ -174,5 +194,20 @@ const styles = StyleSheet.create({
     textTransform: 'capitalize',
     marginTop: 20,
     marginBottom: 10,
+  },
+  card: {
+    width: 150,
+    borderRadius: 10,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  image: {
+    width: '100%',
+    height: 160,
+    resizeMode: 'cover',
   },
 });

@@ -152,5 +152,19 @@
   "xac_nhan": "Confirm",
   "xoa_toan_bo": "Are you sure to delete all?",
   "thong_bao_dang_xuat": "Are you sure to log out?",
-  "dong_y": "Agree"
+  "dong_y": "Agree",
+  "chinh_sach_rieng_tu": "Privacy Policy",
+  "thu_thap_thong_tin": "Information Collection",
+  "su_dung_thong_tin": "Information Usage",
+  "bao_mat": "Data Security",
+  "noi_dung_thu_thap": "We collect your personal information such as full name, address, phone number, and email when you register an account or make a purchase.",
+  "noi_dung_su_dung": "We use your personal information to process orders, improve services, send promotions, and provide customer support.",
+  "noi_dung_bao_mat": "We are committed to protecting your information and do not share it with third parties without your consent." ,
+  "dieu_khoan_va_dieu_kien": "Terms & Conditions",
+  "gioi_thieu": "Introduction",
+  "trach_nhiem_nguoi_dung": "User Responsibilities",
+  "sua_doi_dieu_khoan": "Terms Modification",
+  "noi_dung_gioi_thieu": "By using this application, you agree to the terms and conditions set forth herein.",
+  "noi_dung_trach_nhiem": "You are responsible for providing accurate information and must not use the app for fraudulent or deceptive purposes.",
+  "noi_dung_sua_doi": "We may update these terms at any time, and it is your responsibility to stay informed and comply."
 }

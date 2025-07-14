@@ -10,6 +10,7 @@ import CartScreen from '../screens/Main/CartScreen';
 import SearchScreen from '../screens/Main/SearchScreen';
 import NotificationScreen from '../screens/Main/NotificationScreen';
 import BottomTab from './BottomTab';
+import Theme from '../screens/Main/Theme';
 import FavoriteScreen from '../screens/Main/FavoriteScreen';
 import SearchDetail from '../screens/Main/SearchDetail';
 import ProductDetail from '../screens/Main/Product/ProductDetail';
@@ -78,6 +79,10 @@ const MainStack = () => {
       <Stack.Screen
         name={ScreenName.Main.Language}
         component={LanguageScreen}
+      />
+         <Stack.Screen
+        name={ScreenName.Main.Theme}
+        component={Theme}
       />
       <Stack.Screen
         name={ScreenName.Main.Information}

@@ -1,25 +1,25 @@
 import {
   Image,
   StyleSheet,
-  Text,
   TextInput,
   TextInputProps,
-  TextStyle,
   TouchableOpacity,
-  View,
   ViewStyle,
+  StyleProp,
+  TextStyle,
 } from 'react-native';
 import React from 'react';
 import {IconSRC} from '../../../constants/icons';
 import {colors} from '../../../themes/colors';
 import Block from '../../layout/Block';
 import metrics from '../../../constants/metrics';
+import { useAppTheme } from '../../../themes/ThemeContext'; // ✅
 
 interface Props extends TextInputProps {
   customRight?: React.ReactElement;
   customLeft?: React.ReactElement;
-  containerStyle?: ViewStyle;
-  inputStyle?: TextStyle | ViewStyle;
+  containerStyle?: StyleProp<ViewStyle>;
+  inputStyle?: StyleProp<TextStyle>;
   borderBottom?: boolean;
   border?: boolean;
   borderTop?: number;
@@ -40,9 +40,10 @@ interface Props extends TextInputProps {
 }
 
 const InputBase = (props: Props) => {
+  const theme = useAppTheme(); // ✅ dùng theme
   const {
     placeholder = 'Nhập ',
-    placeholderTextColor = colors.gray,
+    placeholderTextColor = theme.text, // ✅ tự động theo theme
     customLeft,
     customRight,
     containerStyle,
@@ -57,7 +58,7 @@ const InputBase = (props: Props) => {
     iconRight = false,
     iconName,
     iconSize = 20,
-    iconColor,
+    iconColor = theme.text, // ✅ icon theo theme
     radius = 10,
     isFocused,
     onPressRight,
@@ -68,19 +69,19 @@ const InputBase = (props: Props) => {
     <Block
       row
       borderWidth={isFocused ? 1.5 : 1}
-      borderColor={isFocused ? colors.while : colors.gray}
+      borderColor={isFocused ? theme.text : colors.gray}
       borderRadius={radius}
       pad={padding}
       padH={paddingHorizontal}
       padV={paddingVertical}
-      backgroundColor={'rgba(255,255,255,0.1)'}
+      backgroundColor={theme.background} // ✅ nền động
       containerStyle={containerStyle}>
       {customLeft && customLeft}
       <TextInput
         {...props}
         placeholder={placeholder}
         placeholderTextColor={placeholderTextColor}
-        style={[styles.input, inputStyle]}
+        style={[styles.input, { color: theme.text }, inputStyle]} // ✅ text theo theme
       />
       <Block row middle>
         {customRight
@@ -111,7 +112,5 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 42,
     paddingLeft: 10,
-    color: colors.black,
   },
-  icon: {},
 });

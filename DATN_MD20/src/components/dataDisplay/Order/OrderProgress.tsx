@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet,} from 'react-native';
 import {ProgressSteps, ProgressStep} from 'react-native-progress-steps';
 import {colors} from '../../../themes/colors'; // dùng theme của bạn
 
