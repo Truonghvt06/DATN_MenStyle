@@ -12,11 +12,6 @@ import {
 import {colors} from '../../../themes/colors';
 import {IconSRC} from '../../../constants/icons';
 
-// interface Props {
-//   label?: string;
-//   value?: string | undefined;
-//   onChangeText?: (text: string) => void;
-// }
 const InputPlace = props => {
   const {
     label,

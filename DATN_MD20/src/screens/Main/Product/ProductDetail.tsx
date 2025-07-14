@@ -1,4 +1,6 @@
 import {
+  ActivityIndicator,
+  Alert,
   FlatList,
   Image,
   Keyboard,
@@ -9,7 +11,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import ContainerView from '../../../components/layout/ContainerView';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Header from '../../../components/dataDisplay/Header';
@@ -31,152 +33,301 @@ import {useRoute} from '@react-navigation/native';
 import ButtonBase from '../../../components/dataEntry/Button/ButtonBase';
 import ModalBottom from '../../../components/dataDisplay/Modal/ModalBottom';
 import AddCart from './AddCart';
+import {useAppDispatch, useAppSelector} from '../../../redux/store';
+import {fetchProductDetail} from '../../../redux/actions/product';
+import {clearProductDetail} from '../../../redux/reducers/product';
+import ListProduct from '../../../components/dataDisplay/ListProduct';
+import {fetchFavorites, toggleFavorite} from '../../../redux/actions/favorite';
+import useLanguage from '../../../hooks/useLanguage';
 
-// const dataSize = [
-//   {id: 12, size: 'S'},
-//   {id: 13, size: 'M'},
-//   {id: 14, size: 'L'},
-//   {id: 15, size: 'XL'},
-// ];
 const ProductDetail = () => {
   const {top} = useSafeAreaInsets();
+  const {getTranslation} = useLanguage();
   const route = useRoute();
-  const {product} = route.params as {product: any};
+  // const {product} = route.params as {product: any};
+  const {id, idOld} = route.params as {id: string; idOld: string};
 
-  const [proData, setProData] = useState<any>(dataProduct);
+  const [proData, setProData] = useState<any>([]);
   const [showDescription, setShowDescription] = useState(false);
-  const [selectedSize, setSelectedSize] = useState(
-    product.variants[0]?.size || '',
-  );
-  const [selectedColor, setSelectedColor] = useState(
-    product.variants[0]?.color || '',
-  );
+  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState('1');
   const [openModal, setOpenModal] = useState(false);
 
-  //tạo mảng chứa
-  const sizes = [...new Set(product.variants.map((v: any) => v.size))];
-  const colorss = [...new Set(product.variants.map((v: any) => v.color))];
+  const [isReady, setIsReady] = useState(false); //Độ trễ lại trước khi hiển thị dữ liệu
 
-  const handleFavorite = () => {
-    setProData((prev: any) => ({...prev, favorite: !prev.favorite}));
+  //tạo mảng chứa
+  const sizes = [...new Set(proData?.variants?.map((v: any) => v.size) || [])];
+  const colorss = [
+    ...new Set(proData?.variants?.map((v: any) => v.color) || []),
+  ];
+
+  const dispatch = useAppDispatch();
+  const {detail, relatedProducts} = useAppSelector(state => state.product);
+  const {listFavoriteIds} = useAppSelector(state => state.favorite);
+  const {token} = useAppSelector(state => state.auth);
+
+  useEffect(() => {
+    dispatch(fetchProductDetail(id));
+  }, [id]);
+
+  useEffect(() => {
+    setProData(detail);
+
+    if (detail?.variants?.length && detail.variants.length > 0) {
+      setSelectedSize(detail.variants[0].size);
+      setSelectedColor(detail.variants[0].color);
+    }
+
+    const timeout = setTimeout(() => {
+      setIsReady(true);
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+  }, [detail]);
+
+  useEffect(() => {
+    dispatch(fetchFavorites());
+  }, []);
+  const handleFavorite = async (productId: string) => {
+    await dispatch(toggleFavorite(productId));
+    dispatch(fetchFavorites());
   };
+
+  //Nhấn item Pro gợi ý
+  const handleProDetail = (id: string, idOld: string) => {
+    dispatch(clearProductDetail());
+    navigation.navigate(ScreenName.Main.RelatedProductDetail, {
+      id: id,
+      idOld: idOld,
+    });
+  };
+
+  const handleLogin = () => {
+    Alert.alert(
+      getTranslation('thong_bao'),
+      'Hãy đăng nhập để sử dụng',
+      [
+        {
+          text: getTranslation('huy'),
+          onPress: () => console.log('Đã huỷ'),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            navigation.navigate(ScreenName.Auth.AuthStack, {
+              screen: ScreenName.Auth.Login,
+              params: {
+                nameScreen: '',
+              },
+            });
+          },
+        },
+      ],
+      {cancelable: true},
+    );
+  };
+
+  //Them gio hang
+  const handleAddCart = () => {};
+
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ContainerView>
-        <Header
-          label=" chi tiết Sản phẩm"
-          paddingTop={top}
-          onPressLeft={() => navigation.goBack()}
-        />
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{paddingBottom: 50}}>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            style={styles.tim}
-            onPress={() => {
-              handleFavorite();
-            }}>
-            <Image
-              source={
-                proData?.favorite
-                  ? IconSRC.icon_unfavorite
-                  : IconSRC.icon_favorite
-              }
-              style={{width: 25, height: 25}}
+        {!isReady ? (
+          <View style={styles.loadingContainer}>
+            {/* <TextMedium style={{textAlign: 'center'}}>
+              Đang tải sản phẩm...
+            </TextMedium> */}
+            <ActivityIndicator size={'large'} />
+          </View>
+        ) : (
+          <>
+            <Header
+              label=" chi tiết Sản phẩm"
+              paddingTop={top}
+              onPressLeft={() => {
+                dispatch(clearProductDetail());
+                if (idOld) {
+                  dispatch(fetchProductDetail(idOld));
+                }
+                navigation.goBack();
+              }}
             />
-          </TouchableOpacity>
-          <Image
-            style={styles.img}
-            source={{uri: product.variants?.[0]?.image || ''}}
-          />
-          <Block pad={metrics.space}>
-            <TextMedium medium numberOfLines={2} ellipsizeMode="tail">
-              {product.name}
-            </TextMedium>
-            <TextHeight bold color={colors.red}>
-              {product.price.toLocaleString('vi-VN')}đ
-            </TextHeight>
-            <Block row alignCT justifyBW marR={20} marT={10} marB={30}>
-              <Block row alignCT>
-                <Image
-                  style={{width: 16, height: 16}}
-                  source={IconSRC.icon_star}
-                />
-                <TextSmall style={{marginLeft: 5}}>
-                  {product.rating_avg} ({product.rating_count})
-                </TextSmall>
-              </Block>
-              <TextSmall style={{marginLeft: 5}}>
-                Đã bán {product.sold_count}
-              </TextSmall>
-            </Block>
 
-            <>
-              <TextMedium
-                bold
-                style={{
-                  borderTopWidth: 0.3,
-                  borderColor: colors.gray3,
-                  paddingVertical: 7,
+            <ScrollView
+              nestedScrollEnabled={true}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{paddingBottom: 50}}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={styles.tim}
+                onPress={() => {
+                  token ? handleFavorite(proData._id) : handleLogin();
                 }}>
-                Mô tả sản phẩm
-              </TextMedium>
-              <Block>
-                <TextSmall numberOfLines={showDescription ? undefined : 5}>
-                  {product.description}
-                </TextSmall>
+                <Image
+                  source={
+                    listFavoriteIds.includes(id)
+                      ? IconSRC.icon_unfavorite
+                      : IconSRC.icon_favorite
+                  }
+                  style={{width: 25, height: 25}}
+                />
+              </TouchableOpacity>
+              <Image
+                style={styles.img}
+                source={{uri: proData?.variants?.[0]?.image || ''}}
+              />
+              <Block pad={metrics.space}>
+                <TextMedium medium numberOfLines={2} ellipsizeMode="tail">
+                  {proData?.name}
+                </TextMedium>
+                <TextHeight bold color={colors.red}>
+                  {typeof proData?.price === 'number'
+                    ? `${proData?.price.toLocaleString('vi-VN')} VND`
+                    : null}
+                </TextHeight>
+                <Block row alignCT justifyBW marR={20} marT={10} marB={30}>
+                  <Block row alignCT>
+                    <Image
+                      style={{width: 16, height: 16}}
+                      source={IconSRC.icon_star}
+                    />
+                    <TextSmall style={{marginLeft: 5}}>
+                      {proData?.rating_avg} ({proData?.rating_count})
+                    </TextSmall>
+                  </Block>
+                  <TextSmall style={{marginLeft: 5}}>
+                    Đã bán {proData?.sold_count}
+                  </TextSmall>
+                </Block>
 
-                <TouchIcon
-                  title={showDescription ? 'Thu gọn' : 'Xem thêm'}
-                  icon={showDescription ? IconSRC.icon_up : IconSRC.icon_down}
-                  color={colors.black}
-                  size={20}
-                  onPress={() => setShowDescription(!showDescription)}
-                  containerStyle={styles.btnSee}
-                  sizeText={14}
-                />
-              </Block>
-            </>
-            <>
-              <Block
-                row
-                justifyBW
-                alignCT
-                padV={7}
-                borderTopWidth={0.5}
-                borderColor={colors.gray1}>
-                <TextMedium bold>Đánh giá(123)</TextMedium>
-                <TouchIcon
-                  title="Xem tất cả"
-                  icon={IconSRC.icon_back_right}
-                  containerStyle={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
+                <>
+                  <TextMedium
+                    bold
+                    style={{
+                      borderTopWidth: 0.3,
+                      borderColor: colors.gray3,
+                      paddingVertical: 7,
+                    }}>
+                    Mô tả sản phẩm
+                  </TextMedium>
+                  <Block>
+                    <TextSmall numberOfLines={showDescription ? undefined : 2}>
+                      {proData?.description}
+                    </TextSmall>
+
+                    <TouchIcon
+                      title={showDescription ? 'Thu gọn' : 'Xem thêm'}
+                      icon={
+                        showDescription ? IconSRC.icon_up : IconSRC.icon_down
+                      }
+                      color={colors.black}
+                      size={20}
+                      onPress={() => setShowDescription(!showDescription)}
+                      containerStyle={styles.btnSee}
+                      sizeText={14}
+                    />
+                  </Block>
+                </>
+                <>
+                  <Block
+                    row
+                    justifyBW
+                    alignCT
+                    padV={7}
+                    borderTopWidth={0.5}
+                    borderColor={colors.gray1}>
+                    <TextMedium bold>Đánh giá(123)</TextMedium>
+                    <TouchIcon
+                      title="Xem tất cả"
+                      icon={IconSRC.icon_back_right}
+                      containerStyle={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}
+                      onPress={() => {
+                        navigation.navigate(
+                          ScreenName.Main.Review,
+                          //   {
+                          //   reviews: proData?.reviews || [],
+                          // }
+                        );
+                      }}
+                    />
+                  </Block>
+                  {dataProduct.slice(0, 2).map((item, index) => {
+                    return (
+                      <ReviewItem
+                        key={`review-${index}`}
+                        star={item.star}
+                        name="Nguyen Van A"
+                        review="Sản phẩm chất lượng tốt, vải mềm mại và thoáng mát. Rất hài lòng với lần mua hàng này."
+                      />
+                    );
+                  })}
+                  {/* <>
+  <Block
+    row
+    justifyBW
+    alignCT
+    padV={7}
+    borderTopWidth={0.5}
+    borderColor={colors.gray1}>
+    <TextMedium bold>Đánh giá ({proData?.reviews?.length || 0})</TextMedium>
+    <TouchIcon
+      title="Xem tất cả"
+      icon={IconSRC.icon_back_right}
+      containerStyle={{
+        flexDirection: 'row',
+        alignItems: 'center',
+      }}
+      onPress={() => {
+        navigation.navigate(ScreenName.Main.Review, {
+          reviews: proData?.reviews || [],
+        });
+      }}
+    />
+  </Block>
+
+  {(proData?.reviews || []).slice(0, 2).map((item: any, index: number) => (
+    <ReviewItem
+      key={`review-${index}`}
+      star={item.star}
+      name={item.name}
+      review={item.review}
+    />
+  ))}
+</> */}
+                </>
+                <TextMedium bold style={{marginTop: 20}}>
+                  Sản phẩm liên quan
+                </TextMedium>
+                <ListProduct
+                  data={relatedProducts}
+                  isColums
+                  columNumber={2}
+                  favoriteId={listFavoriteIds}
+                  onPress={idnew => {
+                    handleProDetail(idnew, id);
                   }}
+                  onPressFavorite={id =>
+                    token ? handleFavorite(id) : handleLogin()
+                  }
                 />
               </Block>
-              {dataProduct.map((item, index) => {
-                return (
-                  <ReviewItem
-                    key={`review-${index}`}
-                    star={item.star}
-                    name="Nguyen Van A"
-                    review="Sản phẩm chất lượng tốt, vải mềm mại và thoáng mát. Rất hài lòng với lần mua hàng này."
-                  />
-                );
-              })}
-            </>
-          </Block>
-        </ScrollView>
-        <ButtonBase
-          title="Thêm vào giỏ hàng"
-          containerStyle={styles.btnCart}
-          onPress={() => {
-            setOpenModal(!openModal);
-          }}
-        />
+            </ScrollView>
+            <ButtonBase
+              title="Thêm vào giỏ hàng"
+              containerStyle={styles.btnCart}
+              onPress={() => {
+                token ? setOpenModal(!openModal) : handleLogin();
+              }}
+            />
+          </>
+        )}
+
         <ModalBottom
           // header
           // label="Thêm sản phẩm"
@@ -189,14 +340,18 @@ const ProductDetail = () => {
           children={
             <AddCart
               image={
-                product.variants.find(
+                proData?.variants?.find(
                   (v: any) =>
                     v.size === selectedSize && v.color === selectedColor,
                 )?.image || ''
               }
-              price={product.price.toLocaleString('vi-VN')}
+              price={
+                typeof proData?.price === 'number'
+                  ? proData?.price.toLocaleString('vi-VN')
+                  : '0'
+              }
               quantity_kho={
-                product.variants.find(
+                proData?.variants?.find(
                   (v: any) =>
                     v.size === selectedSize && v.color === selectedColor,
                 )?.quantity || 0
@@ -301,7 +456,7 @@ const styles = StyleSheet.create({
   },
   img: {
     width: metrics.diviceScreenWidth,
-    height: 300,
+    height: 380,
     resizeMode: 'cover',
   },
   tim: {
@@ -345,7 +500,7 @@ const styles = StyleSheet.create({
   },
   btnSee: {
     flexDirection: 'row',
-    paddingVertical: 4,
+    paddingVertical: 6,
     alignItems: 'center',
     justifyContent: 'flex-end',
   },
@@ -353,5 +508,11 @@ const styles = StyleSheet.create({
     borderTopWidth: 0.3,
     borderColor: colors.while,
     paddingVertical: 7,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
 });

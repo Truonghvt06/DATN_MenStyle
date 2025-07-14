@@ -30,6 +30,11 @@ export default {
     Language: 'LangguageScreen',
     Information: 'InformationScreen',
     UpdateInfo: 'UpdateInfo',
+
     Theme: 'ThemeScreen',
+
+    Review: 'ReviewScreen',
+    RelatedProductDetail: 'RelatedProductDetail',
+
   },
 };

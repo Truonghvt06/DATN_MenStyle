@@ -94,6 +94,7 @@ const SearchScreen = () => {
 
           {/* Sản phẩm mới */}
           <TextHeight style={[styles.titel, {color: theme.text}]} bold>
+          <TextHeight style={styles.titel} bold>
             {getTranslation('san_pham_moi')}:
           </TextHeight>
           <ScrollView

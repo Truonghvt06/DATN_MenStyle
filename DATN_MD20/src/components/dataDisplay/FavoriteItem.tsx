@@ -28,7 +28,7 @@ const FavoriteItem = (props: Props) => {
       style={[styles.container, { borderColor: theme.text }]}
       onPress={onPress}>
       <Block row>
-        <Image style={styles.image} source={image} />
+        <Image style={styles.image} source={{uri: image}} />
         <Block marL={12} flex1>
           <TextMedium
             numberOfLines={2}

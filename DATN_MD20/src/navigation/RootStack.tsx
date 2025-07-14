@@ -33,7 +33,7 @@ const RootStack = () => {
           cardStyle: {backgroundColor: colors.while},
         };
       }}
-      initialRouteName={ScreenName.Auth.AuthStack}>
+      initialRouteName={ScreenName.Main.MainStack}>
       <Stack.Screen name={ScreenName.Main.MainStack} component={MainStack} />
       <Stack.Screen name={ScreenName.Auth.AuthStack} component={AuthStack} />
     </Stack.Navigator>

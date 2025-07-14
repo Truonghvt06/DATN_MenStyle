@@ -41,7 +41,7 @@ const ButtonBase = (props: Props) => {
     colorIcon,
     backgroundColor = colors.green,
     onPress,
-    disabled, // THÊM disabled
+    disabled = false, // THÊM disabled
   } = props;
 
   const isDisabled = disabled ?? false;
@@ -67,6 +67,7 @@ const ButtonBase = (props: Props) => {
 
       <TouchableOpacity
         {...props}
+        activeOpacity={0.8}
         disabled={isDisabled}
         style={[styles.btn1, {opacity: isDisabled ? 0.6 : 1}]}
         onPress={onPress}>

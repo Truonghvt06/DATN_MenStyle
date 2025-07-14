@@ -1,0 +1,483 @@
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Keyboard,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import ContainerView from '../../../components/layout/ContainerView';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import Header from '../../../components/dataDisplay/Header';
+import navigation from '../../../navigation/navigation';
+import ScreenName from '../../../navigation/ScreenName';
+import {IconSRC, ImgSRC} from '../../../constants/icons';
+import metrics from '../../../constants/metrics';
+import Block from '../../../components/layout/Block';
+import {
+  TextHeight,
+  TextMedium,
+  TextSmall,
+} from '../../../components/dataEntry/TextBase';
+import {colors} from '../../../themes/colors';
+import {dataProduct} from '../../../constants/data';
+import TouchIcon from '../../../components/dataEntry/Button/TouchIcon';
+import ReviewItem from '../../../components/dataDisplay/ReviewItem';
+import {useRoute} from '@react-navigation/native';
+import ButtonBase from '../../../components/dataEntry/Button/ButtonBase';
+import ModalBottom from '../../../components/dataDisplay/Modal/ModalBottom';
+import AddCart from './AddCart';
+import {useAppDispatch, useAppSelector} from '../../../redux/store';
+import {fetchProductDetail} from '../../../redux/actions/product';
+import {clearProductDetail} from '../../../redux/reducers/product';
+import ListProduct from '../../../components/dataDisplay/ListProduct';
+import {fetchFavorites, toggleFavorite} from '../../../redux/actions/favorite';
+
+const ProductDetail = () => {
+  const {top} = useSafeAreaInsets();
+  const route = useRoute();
+  // const {product} = route.params as {product: any};
+  const {id, idOld} = route.params as {id: string; idOld: string};
+
+  const [proData, setProData] = useState<any>([]);
+  const [showDescription, setShowDescription] = useState(false);
+  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedColor, setSelectedColor] = useState('');
+  const [quantity, setQuantity] = useState('1');
+  const [openModal, setOpenModal] = useState(false);
+
+  const [isReady, setIsReady] = useState(false);
+
+  //tạo mảng chứa
+  const sizes = [...new Set(proData?.variants?.map((v: any) => v.size) || [])];
+  const colorss = [
+    ...new Set(proData?.variants?.map((v: any) => v.color) || []),
+  ];
+
+  const dispatch = useAppDispatch();
+  const {detail, relatedProducts} = useAppSelector(state => state.product);
+  const {listFavoriteIds} = useAppSelector(state => state.favorite);
+
+  useEffect(() => {
+    dispatch(fetchProductDetail(id));
+  }, [id]);
+
+  useEffect(() => {
+    setProData(detail);
+
+    if (detail?.variants?.length && detail.variants.length > 0) {
+      setSelectedSize(detail.variants[0].size);
+      setSelectedColor(detail.variants[0].color);
+    }
+
+    const timeout = setTimeout(() => {
+      setIsReady(true);
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+  }, [detail]);
+
+  useEffect(() => {
+    dispatch(fetchFavorites());
+  }, []);
+  const handleFavorite = (productId: string) => {
+    dispatch(toggleFavorite(productId));
+  };
+
+  //Nhấn item Pro
+  const handleProDetail = (id: string, idOld: string) => {
+    dispatch(clearProductDetail());
+    navigation.navigate(ScreenName.Main.RelatedProductDetail, {
+      id: id,
+      idOld: idOld,
+    });
+  };
+
+  return (
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <ContainerView>
+        {!isReady ? (
+          <View style={styles.loadingContainer}>
+            {/* <TextMedium style={{textAlign: 'center'}}>
+              Đang tải sản phẩm...
+            </TextMedium> */}
+            <ActivityIndicator size={'large'} />
+          </View>
+        ) : (
+          <>
+            <Header
+              label=" chi tiết Sản phẩm"
+              paddingTop={top}
+              onPressLeft={() => {
+                dispatch(clearProductDetail());
+                if (idOld) {
+                  dispatch(fetchProductDetail(idOld));
+                }
+                navigation.goBack();
+              }}
+            />
+
+            <ScrollView
+              nestedScrollEnabled={true}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{paddingBottom: 50}}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={styles.tim}
+                onPress={() => {
+                  handleFavorite(proData._id);
+                }}>
+                <Image
+                  source={
+                    listFavoriteIds.includes(id)
+                      ? IconSRC.icon_unfavorite
+                      : IconSRC.icon_favorite
+                  }
+                  style={{width: 25, height: 25}}
+                />
+              </TouchableOpacity>
+              <Image
+                style={styles.img}
+                source={{uri: proData?.variants?.[0]?.image || ''}}
+              />
+              <Block pad={metrics.space}>
+                <TextMedium medium numberOfLines={2} ellipsizeMode="tail">
+                  {proData?.name}
+                </TextMedium>
+                <TextHeight bold color={colors.red}>
+                  {typeof proData?.price === 'number'
+                    ? `${proData?.price.toLocaleString('vi-VN')} VND`
+                    : null}
+                </TextHeight>
+                <Block row alignCT justifyBW marR={20} marT={10} marB={30}>
+                  <Block row alignCT>
+                    <Image
+                      style={{width: 16, height: 16}}
+                      source={IconSRC.icon_star}
+                    />
+                    <TextSmall style={{marginLeft: 5}}>
+                      {proData?.rating_avg} ({proData?.rating_count})
+                    </TextSmall>
+                  </Block>
+                  <TextSmall style={{marginLeft: 5}}>
+                    Đã bán {proData?.sold_count}
+                  </TextSmall>
+                </Block>
+
+                <>
+                  <TextMedium
+                    bold
+                    style={{
+                      borderTopWidth: 0.3,
+                      borderColor: colors.gray3,
+                      paddingVertical: 7,
+                    }}>
+                    Mô tả sản phẩm
+                  </TextMedium>
+                  <Block>
+                    <TextSmall numberOfLines={showDescription ? undefined : 2}>
+                      {proData?.description}
+                    </TextSmall>
+
+                    <TouchIcon
+                      title={showDescription ? 'Thu gọn' : 'Xem thêm'}
+                      icon={
+                        showDescription ? IconSRC.icon_up : IconSRC.icon_down
+                      }
+                      color={colors.black}
+                      size={20}
+                      onPress={() => setShowDescription(!showDescription)}
+                      containerStyle={styles.btnSee}
+                      sizeText={14}
+                    />
+                  </Block>
+                </>
+                <>
+                  <Block
+                    row
+                    justifyBW
+                    alignCT
+                    padV={7}
+                    borderTopWidth={0.5}
+                    borderColor={colors.gray1}>
+                    <TextMedium bold>Đánh giá(123)</TextMedium>
+                    <TouchIcon
+                      title="Xem tất cả"
+                      icon={IconSRC.icon_back_right}
+                      containerStyle={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}
+                      onPress={() => {
+                        navigation.navigate(
+                          ScreenName.Main.Review,
+                          //   {
+                          //   reviews: proData?.reviews || [],
+                          // }
+                        );
+                      }}
+                    />
+                  </Block>
+                  {dataProduct.slice(0, 2).map((item, index) => {
+                    return (
+                      <ReviewItem
+                        key={`review-${index}`}
+                        star={item.star}
+                        name="Nguyen Van A"
+                        review="Sản phẩm chất lượng tốt, vải mềm mại và thoáng mát. Rất hài lòng với lần mua hàng này."
+                      />
+                    );
+                  })}
+                  {/* <>
+  <Block
+    row
+    justifyBW
+    alignCT
+    padV={7}
+    borderTopWidth={0.5}
+    borderColor={colors.gray1}>
+    <TextMedium bold>Đánh giá ({proData?.reviews?.length || 0})</TextMedium>
+    <TouchIcon
+      title="Xem tất cả"
+      icon={IconSRC.icon_back_right}
+      containerStyle={{
+        flexDirection: 'row',
+        alignItems: 'center',
+      }}
+      onPress={() => {
+        navigation.navigate(ScreenName.Main.Review, {
+          reviews: proData?.reviews || [],
+        });
+      }}
+    />
+  </Block>
+
+  {(proData?.reviews || []).slice(0, 2).map((item: any, index: number) => (
+    <ReviewItem
+      key={`review-${index}`}
+      star={item.star}
+      name={item.name}
+      review={item.review}
+    />
+  ))}
+</> */}
+                </>
+                <TextMedium bold style={{marginTop: 20}}>
+                  Sản phẩm liên quan
+                </TextMedium>
+                <ListProduct
+                  data={relatedProducts}
+                  isColums
+                  columNumber={2}
+                  onPress={idnew => {
+                    handleProDetail(idnew, id);
+                    console.log('IDDDD: ', id);
+
+                    // Alert.alert('Aaa');
+                  }}
+                />
+              </Block>
+            </ScrollView>
+            <ButtonBase
+              title="Thêm vào giỏ hàng"
+              containerStyle={styles.btnCart}
+              onPress={() => {
+                setOpenModal(!openModal);
+              }}
+            />
+          </>
+        )}
+
+        <ModalBottom
+          // header
+          // label="Thêm sản phẩm"
+          visible={openModal}
+          animationType="fade"
+          heightModal={metrics.diviceHeight * 0.6}
+          onClose={() => {
+            setOpenModal(false);
+          }}
+          children={
+            <AddCart
+              image={
+                proData?.variants?.find(
+                  (v: any) =>
+                    v.size === selectedSize && v.color === selectedColor,
+                )?.image || ''
+              }
+              price={
+                typeof proData?.price === 'number'
+                  ? proData?.price.toLocaleString('vi-VN')
+                  : '0'
+              }
+              quantity_kho={
+                proData?.variants?.find(
+                  (v: any) =>
+                    v.size === selectedSize && v.color === selectedColor,
+                )?.quantity || 0
+              }
+              onColse={() => setOpenModal(false)}
+              value={quantity}
+              onChangeText={text => setQuantity(text)}
+              onPress={() => {}}
+              size={
+                <>
+                  <TextSmall style={styles.boW}>Kích thước</TextSmall>
+                  <View style={{flexDirection: 'row'}}>
+                    {sizes.map((size: any, index): any => {
+                      return (
+                        <TouchIcon
+                          key={`size-${index}`}
+                          colorTitle={
+                            selectedSize === size ? colors.while : colors.black
+                          }
+                          title={size}
+                          containerStyle={[
+                            styles.size,
+                            {
+                              backgroundColor:
+                                selectedSize === size
+                                  ? colors.blue1
+                                  : colors.while,
+                            },
+                          ]}
+                          onPress={() => {
+                            setSelectedSize(size);
+                          }}
+                        />
+                      );
+                    })}
+                  </View>
+                </>
+              }
+              color={
+                <>
+                  <TextSmall style={{marginTop: 7}}>Màu sắc</TextSmall>
+                  <View style={{flexDirection: 'row'}}>
+                    {colorss.map((color: any, index) => {
+                      return (
+                        // <TouchableOpacity
+                        //   onPress={() => setSelectedColor(color)}
+                        //   key={`color-${index}`}
+                        //   style={[
+                        //     styles.color,
+                        //     {
+                        //       borderWidth: selectedColor === color ? 2.5 : 0,
+                        //       borderColor:
+                        //         selectedColor === color ? colors.blue1 : color,
+                        //     },
+                        //   ]}>
+                        //   <View
+                        //     style={[styles.colorView, {backgroundColor: color}]}
+                        //   />
+                        // </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => setSelectedColor(color)}
+                          key={`color-${index}`}
+                          style={[
+                            styles.color,
+                            {
+                              backgroundColor:
+                                selectedColor === color
+                                  ? colors.blue1
+                                  : colors.while,
+                            },
+                          ]}>
+                          <TextSmall
+                            color={
+                              selectedColor === color
+                                ? colors.while
+                                : colors.black
+                            }>
+                            {color}
+                          </TextSmall>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </>
+              }
+            />
+          }
+        />
+      </ContainerView>
+    </TouchableWithoutFeedback>
+  );
+};
+
+export default ProductDetail;
+
+const styles = StyleSheet.create({
+  container: {},
+  btnCart: {
+    marginBottom: 30,
+    marginTop: 7,
+    marginHorizontal: metrics.space * 2,
+  },
+  img: {
+    width: metrics.diviceScreenWidth,
+    height: 380,
+    resizeMode: 'cover',
+  },
+  tim: {
+    backgroundColor: colors.while,
+    position: 'absolute',
+    zIndex: 12,
+    right: 7,
+    top: 7,
+    width: 45,
+    height: 45,
+    alignItems: 'center',
+    borderRadius: 40,
+    justifyContent: 'center',
+  },
+  size: {
+    width: 50,
+    height: 35,
+    borderRadius: 7,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 7,
+    marginBottom: 15,
+  },
+  color: {
+    overflow: 'hidden',
+    borderRadius: 7,
+    height: 35,
+    backgroundColor: colors.while,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginRight: 8,
+    marginBottom: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  colorView: {
+    width: 35,
+    height: 35,
+    borderRadius: 30,
+    margin: 2,
+  },
+  btnSee: {
+    flexDirection: 'row',
+    paddingVertical: 6,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  boW: {
+    borderTopWidth: 0.3,
+    borderColor: colors.while,
+    paddingVertical: 7,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+});

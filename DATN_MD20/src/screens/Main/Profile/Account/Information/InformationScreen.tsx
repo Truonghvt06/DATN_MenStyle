@@ -14,7 +14,10 @@ import {IconSRC, ImgSRC} from '../../../../../constants/icons';
 import ContainerView from '../../../../../components/layout/ContainerView';
 import Header from '../../../../../components/dataDisplay/Header';
 import useLanguage from '../../../../../hooks/useLanguage';
-import {TextSizeCustom} from '../../../../../components/dataEntry/TextBase';
+import {
+  TextMedium,
+  TextSizeCustom,
+} from '../../../../../components/dataEntry/TextBase';
 import TouchIcon from '../../../../../components/dataEntry/Button/TouchIcon';
 import Block from '../../../../../components/layout/Block';
 import ButtonBase from '../../../../../components/dataEntry/Button/ButtonBase';
@@ -34,6 +37,9 @@ import ButtonLoading from '../../../../../components/dataEntry/Button/ButtonLoad
 import navigation from '../../../../../navigation/navigation';
 import {launchImageLibrary, Asset} from 'react-native-image-picker';
 import {useAppTheme} from '../../../../../themes/ThemeContext';
+
+import Toast from 'react-native-toast-message';
+import configToast from '../../../../../components/utils/configToast';
 
 const InformationScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -57,7 +63,7 @@ const InformationScreen = () => {
   const genders = ['Nam', 'Nữ', 'Khác'];
 
   const dispatch = useAppDispatch();
-  const {user, loading} = useAppSelector(state => state.auth);
+  const {user, loading, token} = useAppSelector(state => state.auth);
 
   const isChanged = useMemo(() => {
     if (!user) return false;
@@ -100,6 +106,18 @@ const InformationScreen = () => {
         }
       }
       Alert.alert(getTranslation('thong_bao'), 'Cập nhật thành công!');
+
+
+      // Alert.alert(getTranslation('thong_bao'), 'Cập nhật thành công!');
+      // Toast.show({
+      //   type: 'notification', // Có thể là 'success', 'error', 'info'
+      //   position: 'top',
+      //   text1: 'Thành công',
+      //   text2: 'Dữ liệu đã được lưu thành công 👋',
+      //   visibilityTime: 3000, // số giây hiển thị Toast
+      //   autoHide: true,
+      //   swipeable: true,
+      // });
       navigation.goBack();
     } catch (err) {
       Alert.alert('Lỗi', 'Đã xảy ra lỗi khi cập nhật');
@@ -171,6 +189,8 @@ const InformationScreen = () => {
           }}
         />
 
+        <Toast config={configToast} />
+        {/* {token ? ( */}
         <ScrollView>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -246,7 +266,15 @@ const InformationScreen = () => {
             </Block>
           </KeyboardAvoidingView>
         </ScrollView>
+        {/* // ) : (
+        //   <Block flex1 alignCT justifyCT>
+        //     <TextMedium color={colors.gray}>
+        //       Đăng nhập để lấy thông tin
+        //     </TextMedium>
+        //   </Block>
+        // )} */}
 
+        {/* {token && ( */}
         <Block containerStyle={styles.btn}>
           <ButtonLoading
             title={getTranslation('luu')}
@@ -255,6 +283,8 @@ const InformationScreen = () => {
             onPress={handleSave}
           />
         </Block>
+        {/* )} */}
+        {/* Ngoài  */}
 
         {Platform.OS === 'android' ? (
           open && (

@@ -1,4 +1,6 @@
 import {
+  ActivityIndicator,
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -23,12 +25,25 @@ import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
 import BannerSlider from './Banner/Banner';
 import Avatar from '../../components/dataDisplay/Avatar';
-import ListProduct from '../../components/dataDisplay/ListProduct';
-import {dataProduct} from '../../constants/data';
 import {FlatList} from 'react-native-gesture-handler';
-import products from '../../services/products';
+import products from '../../services/products/productService';
 import useLanguage from '../../hooks/useLanguage';
+
 import { useAppTheme } from '../../themes/ThemeContext';
+
+import {useAppDispatch, useAppSelector} from '../../redux/store';
+import {
+  fetchAllProducts,
+  fetchCategory,
+  fetchProducts,
+} from '../../redux/actions/product';
+import {Product} from '../../redux/reducers/product/type';
+import {fetchFavorites, toggleFavorite} from '../../redux/actions/favorite';
+import Toast from 'react-native-toast-message';
+import configToast from '../../components/utils/configToast';
+import {shuffleArray} from '../../utils/helper';
+
+
 const ITEM_MARGIN = 10;
 const NUM_COLUMNS = 2;
 const width = metrics.diviceScreenWidth;
@@ -37,42 +52,109 @@ const HomeScreen = () => {
   const theme = useAppTheme();
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
-  const [proData, setProData] = useState<any[]>([]);
+  const [proData, setProData] = useState<Product[]>([]);
+
+  const [page, setPage] = useState(1);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+
+  //action
+  const dispatch = useAppDispatch();
+  const {products, categories, total, loading} = useAppSelector(
+    state => state.product,
+  );
+  const {listFavoriteIds} = useAppSelector(state => state.favorite);
+  const {token} = useAppSelector(state => state.auth);
+
+  //Category
+  useEffect(() => {
+    dispatch(fetchCategory());
+    dispatch(fetchFavorites());
+  }, []);
+  // Product
+  useEffect(() => {
+    loading ? (
+      <ActivityIndicator size="large" />
+    ) : (
+      // setTimeout(() => {
+      dispatch(fetchAllProducts({page, limit: 10}))
+      //   }, 1000)
+    );
+  }, [page]);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await products.getProducts();
-        setProData(res.data); // res.data là mảng sản phẩm
-      } catch (error) {
-        console.error('Lỗi lấy sản phẩm:', error);
-      }
-    };
+    if (page === 1) {
+      setProData(shuffleArray(products)); // lần đầu random
+    } else {
+      setProData(prev => [...prev, ...shuffleArray(products)]); // random thêm
+    }
+    setIsFetchingMore(false);
+  }, [products]);
 
-    fetchProducts();
-  }, []);
+  // console.log('DATA----->:', proData);
+
+  //Loading data
+  const handleLoadMore = () => {
+    if (!isFetchingMore && proData?.length < total) {
+      setIsFetchingMore(true);
+      setTimeout(() => {
+        setPage(prev => prev + 1);
+      }, 2000); //  Delay 2 giây
+    }
+  };
 
   const handleSearch = () => {
     navigation.navigate(ScreenName.Main.SearchDetail);
   };
   const handleNotification = () => {
-    navigation.navigate(ScreenName.Main.Notifications);
+    token
+      ? navigation.navigate(ScreenName.Main.Notifications)
+      : navigation.navigate(ScreenName.Auth.AuthStack, {
+          screen: ScreenName.Auth.Login,
+          params: {
+            nameScreen: '',
+          },
+        });
   };
-  const handleProDetail = (item: any) => {
-    navigation.navigate(ScreenName.Main.ProductDetail, {product: item});
+  const handleProDetail = (id: string) => {
+    navigation.navigate(ScreenName.Main.ProductDetail, {id: id});
   };
-  const handleCategory = (name: string, title: string) => {
-    navigation.navigate(ScreenName.Main.Category, {name: name, title: title});
+  const handleCategory = (title: string, typetID: string) => {
+    navigation.navigate(ScreenName.Main.Category, {
+      title: title,
+      type: typetID,
+    });
   };
 
-  const handleFavorite = (id: number) => {
-    setProData((prev: any) =>
-      prev.map((item: any) =>
-        item.id === id ? {...item, favorite: !item.favorite} : item,
-      ),
+  const handleFavorite = async (productId: string) => {
+    await dispatch(toggleFavorite(productId));
+    dispatch(fetchFavorites());
+  };
+
+  const handleLogin = () => {
+    Alert.alert(
+      getTranslation('thong_bao'),
+      'Hãy đăng nhập để sử dụng',
+      [
+        {
+          text: getTranslation('huy'),
+          onPress: () => console.log('Đã huỷ'),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            navigation.navigate(ScreenName.Auth.AuthStack, {
+              screen: ScreenName.Auth.Login,
+              params: {
+                nameScreen: '',
+              },
+            });
+          },
+        },
+      ],
+      {cancelable: true},
     );
   };
-
   const renderHeader = () => (
     <>
       <Block marT={metrics.space * 2} />
@@ -87,46 +169,19 @@ const HomeScreen = () => {
         {getTranslation('danh_muc')}:
       </TextHeight>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <Avatar
-          title={getTranslation('ao_polo')}
-          icon={IconSRC.icon_polo}
-          containerStyle={{paddingHorizontal: 20}}
-          onPress={() => handleCategory('Áo polo', getTranslation('ao_polo'))}
-        />
-        <Avatar
-          title={getTranslation('ao_thun')}
-          icon={IconSRC.icon_t_shirt}
-          containerStyle={{paddingHorizontal: 20}}
-          onPress={() => handleCategory('Áo thun', getTranslation('ao_thun'))}
-        />
-        <Avatar
-          title={getTranslation('ao_so_mi')}
-          icon={IconSRC.icon_shirt}
-          containerStyle={{paddingHorizontal: 20}}
-          onPress={() => handleCategory('Áo sơ mi', getTranslation('ao_so_mi'))}
-        />
-        <Avatar
-          title={getTranslation('ao_the_thao')}
-          icon={IconSRC.icon_thethao}
-          containerStyle={{paddingHorizontal: 10}}
-          onPress={() =>
-            handleCategory('Áo thể thao', getTranslation('ao_the_thao'))
-          }
-        />
-        <Avatar
-          title={getTranslation('ao_khoac')}
-          icon={IconSRC.icon_khoac}
-          containerStyle={{paddingHorizontal: 20}}
-          onPress={() => handleCategory('Áo khoác', getTranslation('ao_khoac'))}
-        />
-        <Avatar
-          title={getTranslation('ao_hoodie')}
-          icon={IconSRC.icon_hoodie}
-          containerStyle={{paddingHorizontal: 20}}
-          onPress={() =>
-            handleCategory('Áo hoodie', getTranslation('ao_hoodie'))
-          }
-        />
+        {categories.map(category => {
+          // console.log('ID', category._id);
+
+          return (
+            <Avatar
+              key={category._id}
+              title={category.name}
+              icon={IconSRC.icon_polo} // hoặc từ `category.image` nếu có
+              containerStyle={{paddingHorizontal: 20}}
+              onPress={() => handleCategory(category.name, category._id)}
+            />
+          );
+        })}
       </ScrollView>
 
       <TextHeight
@@ -141,6 +196,7 @@ const HomeScreen = () => {
     <ContainerView
       containerStyle={{paddingTop: top, paddingHorizontal: metrics.space,backgroundColor: theme.background,}}>
       {/* Header */}
+
       <Block row justifyBW>
         <Block>
           <TextSmall style={{marginBottom: -5, color: theme.text}}>
@@ -158,15 +214,20 @@ const HomeScreen = () => {
             imageStyle={{marginHorizontal: 7}}
             onPress={handleSearch}
           />
-          <Block>
-            <View style={styles.tb}>
-              <TextSizeCustom
-                style={{textAlign: 'center'}}
-                color="white"
-                size={13}>
-                99
-              </TextSizeCustom>
-            </View>
+          <TouchableOpacity activeOpacity={1}>
+            {token ? (
+              <TouchableOpacity
+                activeOpacity={1}
+                style={styles.tb}
+                onPress={handleNotification}>
+                <TextSizeCustom
+                  style={{textAlign: 'center'}}
+                  color="white"
+                  size={10}>
+                  99
+                </TextSizeCustom>
+              </TouchableOpacity>
+            ) : null}
             <TouchIcon
               color={theme.text}
               size={25}
@@ -174,17 +235,19 @@ const HomeScreen = () => {
               imageStyle={{marginHorizontal: 7}}
               onPress={handleNotification}
             />
-          </Block>
+          </TouchableOpacity>
         </Block>
       </Block>
+      <Toast config={configToast} />
 
       {/* Sản phẩm  */}
       <FlatList
         data={proData}
-        keyExtractor={(item, index) => item._id}
+        keyExtractor={(item, index) => `${item._id}-${index}`}
         ListHeaderComponent={renderHeader}
         renderItem={({item}) => {
           return (
+
             <TouchableOpacity
               activeOpacity={0.9}
               onPress={() => {
@@ -218,14 +281,63 @@ const HomeScreen = () => {
                     <Block row alignCT>
                       <Image style={styles.star} source={IconSRC.icon_star} />
                       <TextSmall style={{ color: theme.text }}>{item.rating_avg}</TextSmall>
+
+            <>
+              {proData.length === 0 ? (
+                <Text style={{textAlign: 'center', marginTop: 20}}>
+                  Đang tải sản phẩm...
+                </Text>
+              ) : (
+                <TouchableOpacity
+                  activeOpacity={0.9}
+                  onPress={() => {
+                    handleProDetail(item._id);
+                  }}>
+                  <Block containerStyle={styles.shadowWrap}>
+                    <Block containerStyle={[styles.btn]}>
+                      <TouchableOpacity
+                        activeOpacity={0.8}
+                        style={styles.tim}
+                        onPress={() => {
+                          token ? handleFavorite(item._id) : handleLogin();
+                        }}>
+                        <Image
+                          source={
+                            listFavoriteIds.includes(item._id)
+                              ? IconSRC.icon_unfavorite
+                              : IconSRC.icon_favorite
+                          }
+                          style={{width: 20, height: 20}}
+                        />
+                      </TouchableOpacity>
+                      <Image
+                        style={styles.image}
+                        source={{uri: item.variants?.[0]?.image || ''}}
+                      />
+                      <Block mar={5}>
+                        <TextSmall
+                          medium
+                          numberOfLines={1}
+                          ellipsizeMode="tail">
+                          {item.name}
+                        </TextSmall>
+                        <Block row alignCT>
+                          <Image
+                            style={styles.star}
+                            source={IconSRC.icon_star}
+                          />
+                          <TextSmall>{item.rating_avg}</TextSmall>
+                        </Block>
+                        <TextHeight color={colors.red} bold>
+                          {item.price.toLocaleString('vi-VN')} VND
+                        </TextHeight>
+                      </Block>
+
                     </Block>
-                    <TextHeight color={colors.red} bold>
-                      {item.price.toLocaleString('vi-VN')}đ
-                    </TextHeight>
                   </Block>
-                </Block>
-              </Block>
-            </TouchableOpacity>
+                </TouchableOpacity>
+              )}
+            </>
           );
         }}
         numColumns={NUM_COLUMNS}
@@ -233,6 +345,17 @@ const HomeScreen = () => {
         contentContainerStyle={{
           paddingBottom: 50,
         }}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.3} // 30% cuối
+        ListFooterComponent={
+          isFetchingMore ? (
+            <ActivityIndicator
+              size="small"
+              color="gray"
+              style={{marginVertical: 10}}
+            />
+          ) : null
+        }
       />
     </ContainerView>
   );
@@ -289,13 +412,14 @@ const styles = StyleSheet.create({
   },
   tb: {
     backgroundColor: colors.red,
-    zIndex: 88,
-    height: 20,
-    width: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+    height: 18,
+    width: 20,
     borderRadius: 30,
     position: 'absolute',
     right: 0,
-    top: -15,
-    marginTop: 4,
+    top: -8,
   },
 });

@@ -5,10 +5,10 @@ import {logout} from '../redux/reducers/auth';
 
 export const axiosInstance = axios.create({
   baseURL: 'http://192.168.111.188:3000', // hoặc domain chính thức
-  timeout: 30000,
+  hoặc domain chính thức
+  // baseURL: 'https://datn-menstyle-4jp1.onrender.com',
 });
 
-// Gắn token vào request
 axiosInstance.interceptors.request.use(
   async config => {
     const token = await AsyncStorage.getItem('token');
@@ -20,12 +20,10 @@ axiosInstance.interceptors.request.use(
   error => Promise.reject(error),
 );
 
-//  Nếu token hết hạn sẽ logout
 axiosInstance.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 401) {
-      // Token hết hạn  dispatch logout
       store.dispatch(logout());
     }
     return Promise.reject(error);

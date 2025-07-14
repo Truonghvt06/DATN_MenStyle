@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Chi tiết đơn hàng</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body class="container my-4">
+  <h2>Chi tiết đơn hàng</h2>
+
+  <!-- 1. Danh sách sản phẩm -->
+  <h4>Sản phẩm</h4>
+  <ul class="list-group mb-3">
+    <% items.forEach(item => { %>
+      <li class="list-group-item d-flex justify-content-between">
+        <%= item.product_variant_id.name %> x <%= item.quantity %>
+        <span><%= (item.price * item.quantity).toLocaleString('vi-VN') %> ₫</span>
+      </li>
+    <% }) %>
+    <li class="list-group-item text-end fw-bold">
+      Tổng: <%= total.toLocaleString('vi-VN') %> ₫
+    </li>
+  </ul>
+
+  <!-- 2. Thông tin giao hàng -->
+  <h4>Địa chỉ giao hàng</h4>
+  <p>
+    <strong>Người nhận:</strong> <%= address.recipient_name %><br>
+    <strong>Địa chỉ:</strong>
+    <%= address.address_line %>, 
+    <%= address.ward %>, 
+    <%= address.district %>, 
+    <%= address.province %><br>
+    <strong>SĐT:</strong> <%= address.phone %>
+  </p>
+
+  <!-- 3. Phương thức thanh toán -->
+  <h4>Phương thức thanh toán</h4>
+  <p><%= payment.name %></p>
+
+  <% if (payment.code === 'BankTransfer') { %>
+    <h4>Mã QR chuyển khoản</h4>
+    <p>Quét mã dưới để thanh toán:</p>
+    <img src="<%= qrUrl %>" width="300" />
+    <p class="mt-2"><strong>Nội dung chuyển khoản:</strong> MenStyle<%= user._id %></p>
+  <% } %>
+
+  <!-- 4. Nút điều hướng -->
+  <div class="mt-4 d-flex gap-2">
+    <!-- Nút về trang cá nhân -->
+    <a class="btn btn-secondary" href="/accounts/<%= user._id %>">Về trang cá nhân</a>
+    
+    <!-- Nút post thực sự đơn hàng -->
+    <form method="POST" action="/accounts/<%= user._id %>/cart/checkout">
+      <input type="hidden" name="addressId" value="<%= address._id %>">
+      <input type="hidden" name="paymentMethodId" value="<%= payment._id %>">
+      <button type="submit" class="btn btn-success">Xong</button>
+    </form>
+  </div>
+</body>
+</html>

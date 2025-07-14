@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>MenStyle - Cài đặt</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 240px;
+      height: 100vh;
+      background: #fff;
+      padding: 30px 20px;
+      box-shadow: 2px 0 6px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .sidebar.collapsed {
+      transform: translateX(-100%);
+    }
+
+    .sidebar a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      padding: 10px 15px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: 0.3s;
+      border: 1px solid transparent;
+    }
+
+    .sidebar a:hover {
+      background: #111;
+      color: #fff;
+      border-color: #111;
+    }
+
+    .content {
+      flex: 1;
+      margin-left: 240px;
+      transition: margin-left 0.3s ease;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .content.collapsed {
+      margin-left: 0;
+    }
+
+    header {
+      background-color: #111;
+      color: #fff;
+      padding: 15px 20px;
+      font-size: 22px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    header .toggle-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    main {
+      padding: 30px;
+    }
+
+    .setting-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .card-box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.06);
+      text-align: center;
+      transition: 0.3s;
+    }
+
+    .card-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 20px rgba(0,0,0,0.1);
+    }
+
+    .icon-box {
+      width: 50px;
+      height: 50px;
+      margin: 0 auto 15px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #fff;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .content {
+        margin-left: 0;
+      }
+
+      .content.shifted {
+        margin-left: 240px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <a href="/"><i class="bi bi-house"></i><span>Trang chủ</span></a>
+    <a href="/products/view"><i class="bi bi-box"></i><span> Sản phẩm</span></a>
+    <a href="/coupons/view"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
+    <a href="/accounts/view"><i class="bi bi-people"></i><span> Tài khoản</span></a>
+    <a href="/accounts/admin/orders"><i class="bi bi-receipt-cutoff"></i><span> Đơn hàng</span></a>
+    <a href="/stats-overview"><i class="bi bi-bar-chart-line"></i><span> Thống kê</span></a>
+    <a href="/setting/view"><i class="bi bi-gear"></i> <span>Cài đặt</span></a>
+  </nav>
+  <!-- Content -->
+  <div class="content" id="main-content">
+    <header>
+      <button class="toggle-btn" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+      MenStyle - Cài đặt hệ thống
+    </header>
+
+    <main>
+      <div class="setting-title">Trang Cài Đặt</div>
+
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card-box">
+            <div class="icon-box bg-primary"><i class="bi bi-person-gear"></i></div>
+            <h6 class="mt-2">Thông tin cá nhân</h6>
+            <p class="text-muted">Cập nhật tên, email, số điện thoại,...</p>
+            <a href="/profile/edit" class="btn btn-outline-primary btn-sm">Cập nhật</a>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card-box">
+            <div class="icon-box bg-success"><i class="bi bi-shield-lock"></i></div>
+            <h6 class="mt-2">Đổi mật khẩu</h6>
+            <p class="text-muted">Thay đổi mật khẩu đăng nhập</p>
+            <a href="/change-password" class="btn btn-outline-success btn-sm">Đổi mật khẩu</a>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card-box">
+            <div class="icon-box bg-danger"><i class="bi bi-image"></i></div>
+            <h6 class="mt-2">Banner quảng cáo</h6>
+            <p class="text-muted">Thêm, sửa hoặc xoá các banner</p>
+            <a href="/banner/view/options" class="btn btn-outline-danger btn-sm">Quản lý banner</a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      const main = document.getElementById("main-content");
+
+      sidebar.classList.toggle("collapsed");
+      main.classList.toggle("collapsed");
+
+      if (window.innerWidth <= 768) {
+        sidebar.classList.toggle("active");
+        main.classList.toggle("shifted");
+      }
+    }
+  </script>
+</body>
+</html>

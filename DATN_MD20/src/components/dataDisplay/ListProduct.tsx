@@ -27,9 +27,16 @@ interface Props {
   title?: string;
   columNumber?: number;
   horizontal?: boolean;
+
   onPress?: (item: any) => void;
   onPressSee?: () => void;
   renderItem?: ({ item }: { item: any }) => React.ReactNode;
+
+  favoriteId?: any;
+  onPress?: (id: string) => void;
+  onPressSee?: () => void;
+  onPressFavorite?: (id: string) => void;
+
 }
 
 const ITEM_MARGIN = 10;
@@ -46,34 +53,54 @@ const ListProduct = (props: Props) => {
     columNumber = 2,
     horizontal = false,
     containerStyle,
+    favoriteId,
     onPress,
     onPressSee,
+    onPressFavorite,
   } = props;
   return (
     <>
       <FlatList
         {...props}
         data={data}
-        keyExtractor={(_, index) => index.toString()}
+        keyExtractor={(item, index) => `${item._id}-${index}`}
         renderItem={({item}) => {
           return (
             <TouchableOpacity
               activeOpacity={1}
               // style={[containerStyle]}
-              onPress={onPress}>
+              onPress={() => onPress && onPress(item._id)}>
               <Block containerStyle={[styles.shadowWrap, containerStyle]}>
                 <Block style={styles.btn}>
-                  <Image style={styles.image} source={item.image} />
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={styles.tim}
+                    onPress={() =>
+                      onPressFavorite && onPressFavorite(item._id)
+                    }>
+                    <Image
+                      source={
+                        favoriteId?.includes(item._id)
+                          ? IconSRC.icon_unfavorite
+                          : IconSRC.icon_favorite
+                      }
+                      style={{width: 20, height: 20}}
+                    />
+                  </TouchableOpacity>
+                  <Image
+                    style={styles.image}
+                    source={{uri: item.variants?.[0]?.image || ''}}
+                  />
                   <Block mar={5}>
-                    <TextSmall medium numberOfLines={2} ellipsizeMode="tail">
+                    <TextSmall medium numberOfLines={1} ellipsizeMode="tail">
                       {item.name}
                     </TextSmall>
                     <Block row alignCT>
                       <Image style={styles.star} source={IconSRC.icon_star} />
-                      <TextSmall>{item.star}</TextSmall>
+                      <TextSmall>{item.rating_avg}</TextSmall>
                     </Block>
                     <TextHeight color={colors.red} bold>
-                      {item.price}đ
+                      {item.price.toLocaleString('vi-VN')} VND
                     </TextHeight>
                   </Block>
                 </Block>
@@ -81,12 +108,14 @@ const ListProduct = (props: Props) => {
             </TouchableOpacity>
           );
         }}
+        scrollEnabled={false}
         numColumns={isColums ? columNumber : 0}
         horizontal={horizontal}
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
           paddingBottom: 50,
+          paddingTop: 10,
         }}
       />
       {isSeemore && (
@@ -103,10 +132,20 @@ const ListProduct = (props: Props) => {
 export default ListProduct;
 
 const styles = StyleSheet.create({
+  tim: {
+    backgroundColor: colors.while,
+    position: 'absolute',
+    zIndex: 12,
+    right: 7,
+    top: 7,
+    width: 35,
+    height: 35,
+    alignItems: 'center',
+    borderRadius: 20,
+    justifyContent: 'center',
+  },
   btn: {
     width: ITEM_WIDTH,
-    // marginHorizontal: ITEM_MARGIN / 2,
-    // marginBottom: 16,
     overflow: 'hidden',
     backgroundColor: colors.while,
     borderRadius: 12,
@@ -128,13 +167,13 @@ const styles = StyleSheet.create({
   },
   shadowWrap: {
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 5,
     borderRadius: 12,
     marginHorizontal: ITEM_MARGIN / 2,
     // marginBottom: 16,
-    paddingTop: 8,
+    marginBottom: 14,
   },
 });

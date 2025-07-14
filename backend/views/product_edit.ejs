@@ -1,96 +1,128 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
   <meta charset="UTF-8" />
-  <title>Sửa sản phẩm</title>
+  <title>MenStyle - Sửa sản phẩm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
   <style>
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 20px 40px;
-      background: #f9f9f9;
-      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f8f9fa;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 240px;
+      min-height: 100vh;
+      background: #fff;
+      padding: 30px 20px;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.05);
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 15px;
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      transition: 0.3s;
+    }
+
+    .sidebar a:hover {
+      background: #111;
+      color: white;
+    }
+
+    .content {
+      flex: 1;
+      margin-left: 240px;
+      display: flex;
+      flex-direction: column;
       min-height: 100vh;
     }
 
     header {
-      background-color: #333;
-      color: #fff;
-      padding: 15px 40px;
-      font-size: 24px;
+      background-color: #111;
+      color: white;
+      padding: 15px 20px;
+      font-size: 22px;
       font-weight: bold;
-      letter-spacing: 1.5px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 15px;
     }
 
-    h1 {
-      margin-top: 20px;
-      margin-bottom: 15px;
-      font-size: 26px;
+    main {
+      padding: 30px;
+      flex-grow: 1;
     }
 
-    form {
+    .form-container {
       background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.06);
     }
 
-    label {
-      display: inline-block;
-      width: 100px;
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      font-weight: 600;
       margin-bottom: 6px;
-      font-weight: bold;
-    }
-
-    input[type="text"],
-    input[type="number"] {
-      padding: 8px 10px;
-      width: calc(100% - 120px);
-      margin-bottom: 12px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
     }
 
     .variant-block {
-      border: 1px solid #ddd;
-      border-radius: 6px;
       padding: 15px;
-      margin-bottom: 15px;
-      background: #fafafa;
+      border-radius: 8px;
+      background: #f4f4f4;
+      margin-bottom: 20px;
+      position: relative;
     }
 
-    .variant-block h4 {
+    .variant-block h5 {
+      font-weight: 600;
       margin-bottom: 10px;
-      color: #007BFF;
+      color: #007bff;
     }
 
-    button {
-      background-color: #007BFF;
+    .btn-remove {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 14px;
+    }
+
+    .btn-variant {
+      background: #28a745;
       color: white;
       padding: 10px 18px;
       border: none;
-      border-radius: 5px;
-      font-size: 15px;
-      cursor: pointer;
+      border-radius: 6px;
       font-weight: 600;
-      transition: background-color 0.3s ease;
+      cursor: pointer;
     }
 
-    button:hover {
-      background-color: #0056b3;
+    .btn-variant:hover {
+      background: #218838;
     }
 
     .back-link {
-      display: inline-block;
       margin-top: 20px;
+      display: inline-block;
+      color: #007bff;
+      font-weight: 600;
       text-decoration: none;
-      font-weight: bold;
-      color: #007BFF;
     }
 
     .back-link:hover {
@@ -98,37 +130,145 @@
     }
   </style>
 </head>
-
 <body>
-  <header>MenStyle</header>
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <a href="/"><i class="bi bi-house"></i><span>Trang chủ</span></a>
+    <a href="/products/view"><i class="bi bi-box"></i><span> Sản phẩm</span></a>
+    <a href="/coupons/view"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
+    <a href="/accounts/view"><i class="bi bi-people"></i><span> Tài khoản</span></a>
+    <a href="/accounts/admin/orders"><i class="bi bi-receipt-cutoff"></i><span> Đơn hàng</span></a>
+    <a href="/stats-overview"><i class="bi bi-bar-chart-line"></i><span> Thống kê</span></a>
+    <a href="/setting/view"><i class="bi bi-gear"></i> <span>Cài đặt</span></a>
+  </nav>
+  <!-- Main Content -->
+  <div class="content">
+    <header>MenStyle - Sửa sản phẩm</header>
+    <main>
+      <div class="form-container">
+        <h2>Cập nhật thông tin sản phẩm</h2>
+        <form action="/products/edit/<%= product._id %>" method="POST">
+          <div class="form-group">
+            <label class="form-label">Tên sản phẩm:</label>
+            <input type="text" name="name" class="form-control" value="<%= product.name %>" required />
+          </div>
 
-  <h1>Sửa sản phẩm</h1>
+          <div class="form-group">
+            <label class="form-label">Loại:</label>
+            <select name="type" class="form-select" required>
+              <% types.forEach(type => { %>
+                <option value="<%= type._id %>" <%= (product.type.toString() === type._id.toString()) ? 'selected' : '' %>>
+                  <%= type.name %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
 
-  <form action="/products/edit/<%= product._id %>" method="POST">
-    <label>Tên sản phẩm:</label>
-    <input type="text" name="name" value="<%= product.name %>" required><br>
+          <div class="form-group">
+            <label class="form-label">Mô tả:</label>
+            <input type="text" name="description" class="form-control" value="<%= product.description %>" required />
+          </div>
 
-    <h3>Biến thể:</h3>
-    <% product.variants.forEach((v, index) => { %>
-      <div class="variant-block">
-        <h4>Biến thể <%= index + 1 %></h4>
-        <label>Size:</label>
-        <input type="text" name="variants[<%= index %>][size]" value="<%= v.size %>" required><br>
-        <label>Màu:</label>
-        <input type="text" name="variants[<%= index %>][color]" value="<%= v.color %>" required><br>
-        <label>Giá:</label>
-        <input type="number" name="variants[<%= index %>][price]" value="<%= v.price %>" required><br>
-        <label>Số lượng:</label>
-        <input type="number" name="variants[<%= index %>][quantity]" value="<%= v.quantity %>" required><br>
-        <label>Ảnh:</label>
-        <input type="text" name="variants[<%= index %>][image]" value="<%= v.image %>"><br>
+          <div class="form-group">
+            <label class="form-label">Giá:</label>
+            <input type="number" name="price" class="form-control" value="<%= product.price %>" required />
+          </div>
+
+          <h4 class="mt-4 mb-3">Biến thể sản phẩm</h4>
+          <div id="variants">
+            <% product.variants.forEach((v, index) => { %>
+              <div class="variant-block" data-index="<%= index %>">
+                <h5>Biến thể <%= index + 1 %></h5>
+                <button type="button" class="btn btn-sm btn-danger btn-remove" onclick="removeVariant(this)">
+                  <i class="bi bi-trash"></i> Xoá
+                </button>
+                <div class="form-group">
+                  <label class="form-label">Size:</label>
+                  <input type="text" name="variants[<%= index %>][size]" class="form-control" value="<%= v.size %>" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Màu:</label>
+                  <input type="text" name="variants[<%= index %>][color]" class="form-control" value="<%= v.color %>" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Số lượng:</label>
+                  <input type="number" name="variants[<%= index %>][quantity]" class="form-control" value="<%= v.quantity %>" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Ảnh:</label>
+                  <input type="text" name="variants[<%= index %>][image]" class="form-control" value="<%= v.image %>" />
+                </div>
+              </div>
+            <% }) %>
+          </div>
+
+          <button type="button" class="btn-variant mb-3" onclick="addVariant()">+ Thêm biến thể</button><br>
+          <button type="submit" class="btn btn-primary mt-3">Cập nhật</button>
+        </form>
+
+        <a class="back-link" href="/products/view">← Quay lại danh sách sản phẩm</a>
       </div>
-    <% }) %>
+    </main>
+  </div>
 
-    <button type="submit">Cập nhật</button>
-  </form>
+  <script>
+    let count = <%= product.variants.length %>;
+    function createVariantBlock(index) {
+      const div = document.createElement('div');
+      div.className = 'variant-block';
+      div.setAttribute('data-index', index);
+      div.innerHTML = `
+        <h5>Biến thể ${index + 1}</h5>
+        <button type="button" class="btn btn-sm btn-danger btn-remove" onclick="removeVariant(this)">
+          <i class="bi bi-trash"></i> Xoá
+        </button>
+        <div class="form-group">
+          <label class="form-label">Size:</label>
+          <input type="text" name="variants[${index}][size]" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Màu:</label>
+          <input type="text" name="variants[${index}][color]" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Số lượng:</label>
+          <input type="number" name="variants[${index}][quantity]" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ảnh:</label>
+          <input type="text" name="variants[${index}][image]" class="form-control" />
+        </div>
+      `;
+      return div;
+    }
 
-  <a class="back-link" href="/products/view">← Quay lại danh sách</a>
+    function addVariant() {
+      const container = document.getElementById('variants');
+      const block = createVariantBlock(count);
+      container.appendChild(block);
+      count++;
+    }
+
+    function removeVariant(btn) {
+      const block = btn.closest('.variant-block');
+      block.remove();
+      updateVariantIndexes();
+    }
+
+    function updateVariantIndexes() {
+      const container = document.getElementById('variants');
+      const blocks = container.querySelectorAll('.variant-block');
+      count = 0;
+      blocks.forEach((block, index) => {
+        block.setAttribute('data-index', index);
+        block.querySelector('h5').textContent = `Biến thể ${index + 1}`;
+        block.querySelectorAll('input').forEach(input => {
+          const field = input.name.split('][')[1].replace(']', '');
+          input.name = `variants[${index}][${field}]`;
+        });
+        count++;
+      });
+    }
+  </script>
 </body>
-
 </html>
