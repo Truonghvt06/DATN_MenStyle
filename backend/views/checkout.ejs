@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Xác nhận đơn hàng</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body class="container my-4">
+  <h2>Xác nhận đơn hàng</h2>
+
+  <!-- 1. Danh sách sản phẩm trong giỏ hàng -->
+  <h4>1. Sản phẩm trong giỏ hàng</h4>
+  <ul class="list-group mb-3">
+    <% user.cart.forEach(item => { %>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <%= item.productId.name %> x <%= item.quantity %>
+        <span><%= (item.productId.price * item.quantity).toLocaleString('vi-VN') %> ₫</span>
+      </li>
+    <% }) %>
+    <li class="list-group-item text-end fw-bold">
+      Tổng: <%= total.toLocaleString('vi-VN') %> ₫
+    </li>
+  </ul>
+
+  <!-- 2. Địa chỉ giao hàng -->
+  <form id="checkoutForm">
+    <h4>2. Địa chỉ giao hàng</h4>
+    <% if (addresses.length > 0) { %>
+      <% addresses.forEach(addr => { %>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="radio" name="addressId" value="<%= addr._id %>" required>
+          <label class="form-check-label">
+            <strong><%= addr.recipient_name %></strong> - <%= addr.phone %><br>
+            <small><%= addr.address_line %>, <%= addr.ward %>, <%= addr.district %>, <%= addr.province %></small>
+          </label>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="alert alert-warning">
+        <p>Chưa có địa chỉ giao hàng.</p>
+        <a href="/address/add?userId=<%= user._id %>&returnTo=/accounts/<%= user._id %>/cart/checkout"
+           class="btn btn-outline-primary btn-sm">
+          <i class="bi bi-plus-circle"></i> Thêm địa chỉ mới
+        </a>
+      </div>
+    <% } %>
+
+    <!-- 3. Phương thức thanh toán -->
+    <h4 class="mt-4">3. Phương thức thanh toán</h4>
+    <% if (paymentMethods.length > 0) { %>
+      <% paymentMethods.forEach(pm => { %>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="radio" name="paymentMethodId" value="<%= pm._id %>" required>
+          <label class="form-check-label"><%= pm.name %> - <%= pm.description %></label>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <p class="text-danger">Chưa có phương thức thanh toán.</p>
+    <% } %>
+
+    <!-- Nút điều hướng -->
+    <div class="mt-4">
+      <button type="button" class="btn btn-success" onclick="goToOrder()">
+        <i class="bi bi-arrow-right-circle"></i> Tiếp tục
+      </button>
+      <a href="/accounts/<%= user._id %>" class="btn btn-secondary">Quay lại</a>
+    </div>
+  </form>
+
+  <!-- JavaScript điều hướng sang /orders/review -->
+  <script>
+    function goToOrder() {
+      const form = document.getElementById('checkoutForm');
+      const address = form.querySelector('input[name="addressId"]:checked');
+      const payment = form.querySelector('input[name="paymentMethodId"]:checked');
+
+      if (!address || !payment) {
+        alert("Vui lòng chọn địa chỉ và phương thức thanh toán.");
+        return;
+      }
+
+      const userId = "<%= user._id %>";
+      const url = `/accounts/${userId}/orders?addressId=${address.value}&paymentMethodId=${payment.value}`;
+      window.location.href = url;
+    }
+  </script>
+</body>
+</html>

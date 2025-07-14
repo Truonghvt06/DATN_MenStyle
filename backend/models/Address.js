@@ -7,7 +7,7 @@ const addressSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    recipient_name: { type: String, reqiued: true },
+    recipient_name: { type: String, required: true }, 
     phone: { type: String, required: true },
     address_line: { type: String, required: true },
     province: { type: String, required: true },

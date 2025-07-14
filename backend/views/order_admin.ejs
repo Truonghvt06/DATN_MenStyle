@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>MenStyle - Đơn hàng</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 240px;
+      min-height: 100vh;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      padding: 20px 0;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar.collapsed {
+      width: 60px;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      color: #333;
+      text-decoration: none;
+      font-weight: 500;
+      transition: 0.3s;
+      white-space: nowrap;
+    }
+
+    .sidebar a:hover {
+      background: #111;
+      color: #fff;
+    }
+
+    .sidebar.collapsed a span {
+      display: none;
+    }
+
+    .sidebar a i {
+      font-size: 20px;
+    }
+
+    .content {
+      flex: 1;
+      padding: 30px;
+      transition: margin-left 0.3s ease;
+    }
+
+    header {
+      background-color: #111;
+      color: #fff;
+      padding: 15px 20px;
+      font-size: 24px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .table th {
+      background-color: #343a40;
+      color: white;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .table td {
+      vertical-align: middle;
+    }
+
+    .badge-status {
+      font-size: 0.85rem;
+      padding: 5px 10px;
+      border-radius: 0.5rem;
+    }
+
+    .badge-Pending { background-color: #ffc107; color: #212529; }
+    .badge-Completed { background-color: #198754; color: white; }
+    .badge-Cancelled { background-color: #dc3545; color: white; }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <a href="/"><i class="bi bi-house"></i><span>Trang chủ</span></a>
+    <a href="/products/view"><i class="bi bi-box"></i><span> Sản phẩm</span></a>
+    <a href="/coupons/view"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
+    <a href="/accounts/view"><i class="bi bi-people"></i><span> Tài khoản</span></a>
+    <a href="/accounts/admin/orders"><i class="bi bi-receipt-cutoff"></i><span> Đơn hàng</span></a>
+    <a href="/stats-overview"><i class="bi bi-bar-chart-line"></i><span> Thống kê</span></a>
+    <a href="/setting/view"><i class="bi bi-gear"></i> <span>Cài đặt</span></a>
+  </nav>
+
+  <!-- Content -->
+  <div class="content" id="content">
+    <header>
+      <button id="toggleBtn" class="btn btn-dark"><i class="bi bi-list"></i></button>
+      Danh sách đơn hàng
+    </header>
+
+    <main>
+      <h3 class="mb-4"><i class="bi bi-receipt-cutoff"></i> Đơn hàng khách hàng</h3>
+
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover text-center align-middle">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Khách hàng</th>
+              <th>Địa chỉ giao hàng</th>
+              <th>Thanh toán</th>
+              <th>Tổng tiền</th>
+              <th>Trạng thái</th>
+              <th>Ngày tạo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% orders.forEach((order, index) => { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td class="text-start">
+                  <strong><%= order.user_id.name %></strong><br>
+                  <small><%= order.user_id.email %></small>
+                </td>
+                <td class="text-start">
+                  <%= order.shipping_address_id.recipient_name %><br>
+                  <small>
+                    <%= order.shipping_address_id.address_line %>, 
+                    <%= order.shipping_address_id.ward %>, 
+                    <%= order.shipping_address_id.district %>, 
+                    <%= order.shipping_address_id.province %>
+                  </small>
+                </td>
+                <td><%= order.payment_method_id.code %></td>
+                <td><%= order.total_amount.toLocaleString('vi-VN') %> ₫</td>
+                <td>
+                    <form class="status-form" data-id="<%= order._id %>">
+                      <select class="form-select form-select-sm status-select" name="status">
+                        <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Chờ xử lý</option>
+                        <option value="paid" <%= order.status === 'paid' ? 'selected' : '' %>>Đã thanh toán</option>
+                        <option value="shipped" <%= order.status === 'shipped' ? 'selected' : '' %>>Đang giao hàng</option>
+                        <option value="delivered" <%= order.status === 'delivered' ? 'selected' : '' %>>Đã giao</option>
+                        <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Đã hủy</option>
+                      </select>
+                    </form>
+                  </td>                  
+                <td><%= new Date(order.createdAt).toLocaleDateString('vi-VN') %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const toggleBtn = document.getElementById('toggleBtn');
+    const sidebar = document.getElementById('sidebar');
+
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+    });
+   
+  document.querySelectorAll('.status-select').forEach(select => {
+    select.addEventListener('change', async function () {
+      const form = this.closest('.status-form');
+      const orderId = form.getAttribute('data-id');
+      const newStatus = this.value;
+
+      try {
+        const res = await fetch(`/orders/update-status/${orderId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status: newStatus }),
+        });
+
+        if (!res.ok) {
+          const msg = await res.text();
+          alert("Lỗi cập nhật: " + msg);
+        } else {
+          alert("Cập nhật trạng thái thành công!");
+        }
+      } catch (err) {
+        alert("Lỗi mạng hoặc máy chủ.");
+      }
+    });
+  });
+  </script>
+</body>
+</html>

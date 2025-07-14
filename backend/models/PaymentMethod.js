@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
-const CODE_ENUM = ["COD", "ZaloPay"];
+const CODE_ENUM = ["COD", "BankTransfer"];
 const paymentMethodSchema = new mongoose.Schema(
   {
-    code: { type: String, required: true, eum: CODE_ENUM },
+    code: { type: String, required: true, enum: CODE_ENUM }, 
     name: { type: String, required: true },
     description: { type: String, default: "" },
   },

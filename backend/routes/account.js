@@ -5,6 +5,7 @@ const Product = require("../models/Product");
 const authController = require("../controllers/authController");
 const authMiddleware = require("../middleware/authMiddleware");
 const favoriteController = require("../controllers/favoriteController");
+const accountController = require("../controllers/accountController");
 
 const upload = require("../utils/upload");
 
@@ -255,5 +256,9 @@ router.post("/:id/cart/remove-item", async (req, res) => {
     res.status(500).send("Lỗi server");
   }
 });
-
+router.get('/admin/orders', accountController.getAllOrders); 
+router.get('/:id/cart/checkout', accountController.showCheckoutPage);
+router.post('/:id/cart/checkout', accountController.processCheckout);
+router.get('/:id/orders', accountController.showOrderPage); 
+router.put('/update-status/:id', orderController.updateStatus);
 module.exports = router;
