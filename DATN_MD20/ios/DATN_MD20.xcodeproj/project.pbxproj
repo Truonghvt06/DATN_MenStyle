@@ -112,7 +112,7 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
 				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
-				36F57D932E02E5549F84EC0E /* [CP-User] [RNFB] Core Configuration */,
+				4CB379F41A6CE96C92F877A8 /* [CP-User] [RNFB] Core Configuration */,
 			);
 			buildRules = (
 			);
@@ -201,7 +201,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-DATN_MD20/Pods-DATN_MD20-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		36F57D932E02E5549F84EC0E /* [CP-User] [RNFB] Core Configuration */ = {
+		4CB379F41A6CE96C92F877A8 /* [CP-User] [RNFB] Core Configuration */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
