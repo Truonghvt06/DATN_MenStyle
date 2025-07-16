@@ -40,7 +40,8 @@ import ListProduct from '../../../components/dataDisplay/ListProduct';
 import {fetchFavorites, toggleFavorite} from '../../../redux/actions/favorite';
 import useLanguage from '../../../hooks/useLanguage';
 import {useAppTheme} from '../../../themes/ThemeContext';
-
+import Toast from 'react-native-toast-message';
+import configToast from '../../../components/utils/configToast';
 
 const ProductDetail = () => {
   const {top} = useSafeAreaInsets();
@@ -309,6 +310,7 @@ const ProductDetail = () => {
                 </TextMedium>
                 <ListProduct
                   data={relatedProducts}
+                  scrollEnabled={false}
                   isColums
                   columNumber={2}
                   favoriteId={listFavoriteIds}
@@ -443,6 +445,7 @@ const ProductDetail = () => {
             />
           }
         />
+        <Toast config={configToast} />
       </ContainerView>
     </TouchableWithoutFeedback>
   );

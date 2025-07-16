@@ -30,21 +30,9 @@ exports.createProduct = async (req, res) => {
 //get Pro
 exports.getProduct = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
+    const products = await Product.find();
 
-    const page_ = parseInt(page);
-    const limit_ = parseInt(limit);
-
-    const total = await Product.countDocuments();
-    const products = await Product.find()
-      .populate("type")
-      .skip((page_ - 1) * limit_)
-      .limit(limit_)
-      .lean();
     res.json({
-      total,
-      page: page_,
-      limit: limit_,
       data: products,
     });
   } catch (error) {
@@ -54,68 +42,6 @@ exports.getProduct = async (req, res) => {
       .json({ message: "Lỗi khi lấy sản phẩm", error: error.message });
   }
 };
-
-// GET products?random=true&limit=10: Có random
-// exports.getAllProducts = async (req, res) => {
-//   try {
-//     const { page = 1, limit = 10, random } = req.query;
-
-//     const page_ = parseInt(page);
-//     const limit_ = parseInt(limit);
-
-//     let products = [];
-//     const total = await Product.countDocuments();
-
-//     if (random === "true") {
-//       // Random không phân trang
-//       products = await Product.aggregate([
-//         { $sample: { size: limit_ } },
-//         {
-//           $lookup: {
-//             from: "producttypes",
-//             localField: "type",
-//             foreignField: "_id",
-//             as: "producttype",
-//           },
-//         },
-//         {
-//           $unwind: {
-//             path: "$producttype",
-//           },
-//         },
-//       ]);
-//     } else {
-//       // Phân trang chuẩn
-//       products = await Product.aggregate([
-//         { $sort: { createdAt: -1 } },
-//         { $skip: (page_ - 1) * limit_ },
-//         { $limit: limit_ },
-//         {
-//           $lookup: {
-//             from: "producttypes",
-//             localField: "type",
-//             foreignField: "_id",
-//             as: "producttype",
-//           },
-//         },
-//         {
-//           $unwind: {
-//             path: "$producttype",
-//           },
-//         },
-//       ]);
-//     }
-
-//     res.json({
-//       total,
-//       page: page_,
-//       limit: limit_,
-//       data: products,
-//     });
-//   } catch (error) {
-//     res.status(500).json({ message: "Lỗi server khi lấy sản phẩm" });
-//   }
-// };
 
 // GET products?page=1&limit=10: K random
 exports.getAllProducts = async (req, res) => {

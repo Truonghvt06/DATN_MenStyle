@@ -12,11 +12,9 @@ const productService = {
     }
   },
   //product k ramdom
-  getProducts: async (page = 1, limit = 10) => {
+  getProducts: async () => {
     try {
-      const res = await axiosInstance.get(
-        `/products?page=${page}&limit=${limit}`,
-      );
+      const res = await axiosInstance.get(`/products/sp`);
       // console.log('PRO---------->: ', res.data);
 
       return res.data;

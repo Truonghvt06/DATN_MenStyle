@@ -17,9 +17,9 @@ export const fetchCategory = createAsyncThunk(
 );
 export const fetchProducts = createAsyncThunk(
   'products/fetchProductsss',
-  async ({page = 1, limit = 10}: {page?: number; limit?: number}, thunkAPI) => {
+  async (_, thunkAPI) => {
     try {
-      const res = await productService.getProducts(page, limit);
+      const res = await productService.getProducts();
       //   console.log('PRO---------->: ', res);
 
       return res;

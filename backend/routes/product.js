@@ -16,6 +16,7 @@ router.get(
   "/product-category/:type",
   productController.getProductsByCategorySort
 ); // thể loại sắp sếp
+router.get("/sp", productController.getProduct);
 router.get("/best-seller", productController.getBestSellerProducts);
 router.get("/product-new", productController.getNewestProducts);
 router.get("/product-detail/:id", productController.getProductDetail); //chi tiêt
