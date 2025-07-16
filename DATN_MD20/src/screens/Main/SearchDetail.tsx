@@ -10,28 +10,27 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {colors} from '../../themes/colors';
+import React, { useEffect, useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { colors } from '../../themes/colors';
 import navigation from '../../navigation/navigation';
-import {IconSRC} from '../../constants/icons';
+import { IconSRC } from '../../constants/icons';
 import InputBase from '../../components/dataEntry/Input/InputBase';
 import TouchIcon from '../../components/dataEntry/Button/TouchIcon';
 import metrics from '../../constants/metrics';
-import {products} from '../../services/products/products';
+import { products } from '../../services/products/products';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAppTheme } from '../../themes/ThemeContext';
 
 const HISTORY_KEY = 'search_history';
 
-// ✅ Hàm loại bỏ dấu tiếng Việt
 const normalize = (str: string) =>
-  str
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
+  str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 const SearchDetail = () => {
-  const {top} = useSafeAreaInsets();
+  const { top } = useSafeAreaInsets();
+  const theme = useAppTheme();
+
   const [keyword, setKeyword] = useState('');
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [defaultSuggestions, setDefaultSuggestions] = useState<any[]>([]);
@@ -54,26 +53,17 @@ const SearchDetail = () => {
 
   const loadDefaultSuggestions = async () => {
     try {
-      const res =
-        (await products.getRecommended?.()) ||
-        (await products.searchByName(''));
-      if (Array.isArray(res?.data)) {
-        setDefaultSuggestions(res.data);
-      } else {
-        setDefaultSuggestions([]); // fallback an toàn
-      }
-    } catch (err) {
-      console.log('Default product error', err);
-      setDefaultSuggestions([]); // fallback khi lỗi
+      const res = (await products.getRecommended?.()) || (await products.searchByName(''));
+      setDefaultSuggestions(Array.isArray(res?.data) ? res.data : []);
+    } catch {
+      setDefaultSuggestions([]);
     }
   };
 
   const saveHistory = async (history: string[]) => {
     try {
       await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-    } catch (err) {
-      console.log('Save history error', err);
-    }
+    } catch {}
   };
 
   const addToSearchHistory = (text: string) => {
@@ -90,83 +80,48 @@ const SearchDetail = () => {
       setShowAllResults(false);
       return;
     }
-
     try {
       const res = await products.getProducts();
       const allProducts = res.data;
-
-      const filtered = allProducts.filter((item: any) =>
-        normalize(item.name).includes(normalize(text)),
-      );
-      const rest = allProducts.filter(
-        (item: any) => !normalize(item.name).includes(normalize(text)),
-      );
-      const finalList = [...filtered, ...rest];
-
-      setSuggestions(finalList);
-    } catch (err) {
-      console.log('Search error', err);
-    }
+      const filtered = allProducts.filter((item: any) => normalize(item.name).includes(normalize(text)));
+      const rest = allProducts.filter((item: any) => !normalize(item.name).includes(normalize(text)));
+      setSuggestions([...filtered, ...rest]);
+    } catch {}
   };
 
   const handleSelectSuggestion = (item: any) => {
     addToSearchHistory(item.name);
-    navigation.navigate('ProductDetail', {product: item});
+    navigation.navigate('ProductDetail', { product: item });
   };
 
   const handleSubmitSearch = async () => {
     if (!keyword.trim()) return;
-
     try {
       const res = await products.getProducts();
       const allProducts = res.data;
-
-      const filtered = allProducts.filter((item: any) =>
-        normalize(item.name).includes(normalize(keyword)),
-      );
-      const rest = allProducts.filter(
-        (item: any) => !normalize(item.name).includes(normalize(keyword)),
-      );
+      const filtered = allProducts.filter((item: any) => normalize(item.name).includes(normalize(keyword)));
+      const rest = allProducts.filter((item: any) => !normalize(item.name).includes(normalize(keyword)));
       const results = [...filtered, ...rest];
-
       addToSearchHistory(keyword);
-      navigation.navigate('SearchResultScreen', {
-        keyword,
-        results,
-      });
-    } catch (err) {
-      console.log('Search error', err);
-    }
+      navigation.navigate('SearchResultScreen', { keyword, results });
+    } catch {}
   };
 
-  const renderProductCard = ({item}: {item: any}) => {
-    const imageUri =
-      item.variants?.[0]?.image ||
-      'https://n7media.coolmate.me/uploads/June2025/ao-polo-premium-aircool-1214-be_23.jpg?aio=w-1069';
-
+  const renderProductCard = ({ item }: { item: any }) => {
+    const imageUri = item.variants?.[0]?.image || '';
     return (
-      <TouchableOpacity
-        style={styles.card}
-        onPress={() => handleSelectSuggestion(item)}>
-        <Image
-          source={{uri: imageUri}}
-          style={styles.productImage}
-          resizeMode="cover"
-        />
-        <Text numberOfLines={2} style={styles.productName}>
-          {item.name}
-        </Text>
+      <TouchableOpacity style={styles.card} onPress={() => handleSelectSuggestion(item)}>
+        <Image source={{ uri: imageUri }} style={styles.productImage} resizeMode="cover" />
+        <Text numberOfLines={2} style={[styles.productName, { color: theme.text }]}>{item.name}</Text>
       </TouchableOpacity>
     );
   };
 
-  const productList =
-    (suggestions?.length ? suggestions : defaultSuggestions) ?? [];
+  const productList = suggestions.length ? suggestions : defaultSuggestions;
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={[styles.container, {paddingTop: top}]}>
-        {/* 🔍 Thanh tìm kiếm */}
+      <View style={[styles.container, { paddingTop: top, backgroundColor: theme.background }]}>
         <View style={styles.header}>
           <InputBase
             autoFocus
@@ -175,20 +130,13 @@ const SearchDetail = () => {
             onChangeText={handleChangeKeyword}
             onSubmitEditing={handleSubmitSearch}
             inputStyle={styles.input}
-            containerStyle={{flex: 1}}
+            containerStyle={{ flex: 1 }}
             placeholder="Nhập sản phẩm cần tìm..."
-            customLeft={
-              <Image style={styles.icon_search} source={IconSRC.icon_search} />
-            }
+            customLeft={<Image style={styles.icon_search} source={IconSRC.icon_search} />}
           />
-          <TouchIcon
-            size={30}
-            title="Huỷ"
-            onPress={() => navigation.goBack()}
-          />
+          <TouchIcon size={30} title="Huỷ" onPress={() => navigation.goBack()} />
         </View>
 
-        {/* 🧭 Gợi ý chữ hoặc lịch sử tìm kiếm */}
         <View style={styles.topPane}>
           <ScrollView keyboardShouldPersistTaps="handled">
             {keyword.trim() === ''
@@ -200,7 +148,7 @@ const SearchDetail = () => {
                       setKeyword(item);
                       handleChangeKeyword(item);
                     }}>
-                    <Text style={styles.suggestionText}>{item}</Text>
+                    <Text style={[styles.suggestionText, { color: theme.text }]}>{item}</Text>
                   </TouchableOpacity>
                 ))
               : suggestions.slice(0, 6).map(item => (
@@ -208,34 +156,25 @@ const SearchDetail = () => {
                     key={item._id}
                     style={styles.suggestionItem}
                     onPress={() => handleSelectSuggestion(item)}>
-                    <Text style={styles.suggestionText}>{item.name}</Text>
+                    <Text style={[styles.suggestionText, { color: theme.text }]}>{item.name}</Text>
                   </TouchableOpacity>
                 ))}
           </ScrollView>
         </View>
 
-        <Button
-          title="aa"
-          onPress={() => navigation.navigate('SearchResultScreen')}
-        />
-        {/* 🖼️ Gợi ý sản phẩm luôn hiển thị */}
         <View style={styles.bottomPane}>
           <FlatList
-            data={showAllResults ? productList : productList?.slice(0, 6)}
+            data={showAllResults ? productList : productList.slice(0, 6)}
             keyExtractor={item => item._id}
             numColumns={2}
-            columnWrapperStyle={{justifyContent: 'space-between'}}
-            contentContainerStyle={{paddingBottom: 20, gap: 12}}
+            columnWrapperStyle={{ justifyContent: 'space-between' }}
+            contentContainerStyle={{ paddingBottom: 20, gap: 12 }}
             renderItem={renderProductCard}
             showsVerticalScrollIndicator={false}
           />
-
-          {/* Xem thêm */}
           {!showAllResults && productList.length > 6 && (
-            <TouchableOpacity
-              style={styles.seeMoreBtn}
-              onPress={() => setShowAllResults(true)}>
-              <Text style={styles.seeMoreText}>Xem thêm</Text>
+            <TouchableOpacity style={styles.seeMoreBtn} onPress={() => setShowAllResults(true)}>
+              <Text style={[styles.seeMoreText, { color: theme.text }]}>Xem thêm</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -250,7 +189,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: metrics.space * 2,
-    backgroundColor: '#fff',
   },
   header: {
     flexDirection: 'row',
@@ -289,7 +227,6 @@ const styles = StyleSheet.create({
   },
   suggestionText: {
     fontSize: 14,
-    color: colors.black,
   },
   card: {
     width: '48%',
@@ -307,7 +244,6 @@ const styles = StyleSheet.create({
   },
   productName: {
     fontSize: 13,
-    color: colors.black,
   },
   seeMoreBtn: {
     alignSelf: 'center',
@@ -319,7 +255,6 @@ const styles = StyleSheet.create({
   },
   seeMoreText: {
     fontSize: 14,
-    color: colors.black,
     fontWeight: '600',
   },
 });

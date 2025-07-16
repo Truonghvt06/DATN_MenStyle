@@ -1,35 +1,45 @@
 import React from 'react';
 import {ScrollView, StyleSheet, Text} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useNavigation} from '@react-navigation/native';
-
 import Header from '../../../../components/dataDisplay/Header';
 import ContainerView from '../../../../components/layout/ContainerView';
+import {useAppTheme} from '../../../../themes/ThemeContext';
+import useLanguage from '../../../../hooks/useLanguage';
 
 const DieuKhoanVaDieuKien = () => {
   const {top} = useSafeAreaInsets();
-  const navigation = useNavigation();
+  const theme = useAppTheme();
+  const {getTranslation} = useLanguage();
 
   return (
-    <ContainerView>
-      <Header label="Điều Khoản & điều kiện" paddingTop={top} />
-      <ScrollView style={styles.container}>
-        <Text style={styles.title}>1. Giới thiệu</Text>
-        <Text style={styles.text}>
-          Bằng việc sử dụng ứng dụng này, bạn đồng ý với các điều khoản và điều
-          kiện được quy định tại đây...
+    <ContainerView
+      containerStyle={{backgroundColor: theme.background, paddingTop: top}}>
+      <Header
+        label={getTranslation('dieu_khoan_va_dieu_kien')}
+        paddingTop={top}
+        backgroundColor={theme.background}
+        textColor={theme.text}
+      />
+      <ScrollView style={[styles.container]}>
+        <Text style={[styles.title, {color: theme.text}]}>
+          {getTranslation('gioi_thieu')}
+        </Text>
+        <Text style={[styles.text, {color: theme.text}]}>
+          {getTranslation('noi_dung_gioi_thieu')}
         </Text>
 
-        <Text style={styles.title}>2. Trách nhiệm người dùng</Text>
-        <Text style={styles.text}>
-          Bạn có trách nhiệm cung cấp thông tin chính xác, không sử dụng ứng
-          dụng vào mục đích gian lận, lừa đảo...
+        <Text style={[styles.title, {color: theme.text}]}>
+          {getTranslation('trach_nhiem_nguoi_dung')}
+        </Text>
+        <Text style={[styles.text, {color: theme.text}]}>
+          {getTranslation('noi_dung_trach_nhiem')}
         </Text>
 
-        <Text style={styles.title}>3. Sửa đổi điều khoản</Text>
-        <Text style={styles.text}>
-          Chúng tôi có thể cập nhật điều khoản bất kỳ lúc nào, và bạn có trách
-          nhiệm theo dõi và tuân thủ...
+        <Text style={[styles.title, {color: theme.text}]}>
+          {getTranslation('sua_doi_dieu_khoan')}
+        </Text>
+        <Text style={[styles.text, {color: theme.text}]}>
+          {getTranslation('noi_dung_sua_doi')}
         </Text>
       </ScrollView>
     </ContainerView>
@@ -52,6 +62,5 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 14,
     lineHeight: 20,
-    color: '#333',
   },
 });

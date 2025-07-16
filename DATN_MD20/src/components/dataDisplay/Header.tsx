@@ -7,13 +7,13 @@ import {
   ViewStyle,
 } from 'react-native';
 import React from 'react';
-import {colors} from '../../themes/colors';
+import { colors } from '../../themes/colors';
 import metrics from '../../constants/metrics';
 import Block from '../layout/Block';
-import {IconSRC} from '../../constants/icons';
-import {TextSizeCustom} from '../dataEntry/TextBase';
+import { IconSRC } from '../../constants/icons';
+import { TextSizeCustom } from '../dataEntry/TextBase';
 import navigation from '../../navigation/navigation';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface Props {
   label?: string;
@@ -23,12 +23,14 @@ interface Props {
   visibleLeft?: boolean;
   styleLeft?: ViewStyle;
   containerStyle?: ViewStyle;
-  labelColor?: string;
   iconColor?: string;
+  backgroundColor?: string;
+  labelColor?: string;  
   onPressLeft?: () => void;
 }
+
 const Header = (props: Props) => {
-  const {top} = useSafeAreaInsets();
+  const { top } = useSafeAreaInsets();
   const {
     label,
     left,
@@ -38,54 +40,53 @@ const Header = (props: Props) => {
     visibleLeft,
     styleLeft,
     containerStyle,
-    labelColor = colors.while,
+    labelColor = colors.black,
     iconColor = colors.black,
+    backgroundColor = colors.while,
   } = props;
 
   return (
     <View
       style={[
         {
-          backgroundColor: colors.while,
+          backgroundColor: backgroundColor,
           height: paddingTop + 35,
           width: metrics.diviceScreenWidth,
           paddingTop: paddingTop - 15,
           paddingHorizontal: metrics.space,
-          // paddingBottom: metrics.space * 2,
           ...containerStyle,
         },
         styles.shadow,
       ]}>
       <Block flex1 row justifyBW alignCT>
         {!visibleLeft ? (
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             <TouchableOpacity
               activeOpacity={0.9}
               style={[styles.btnLeft, styleLeft]}
               onPress={onPressLeft || navigation.goBack}>
               <Image
-                style={[styles.image, {tintColor: iconColor || colors.while}]}
+                style={[styles.image, { tintColor: iconColor }]}
                 source={IconSRC.icon_back_left}
               />
             </TouchableOpacity>
           </View>
         ) : (
-          <Text style={{flex: 1}}></Text>
+          <Text style={{ flex: 1 }}></Text>
         )}
         <TextSizeCustom
           bold
           size={22}
-          color={colors.black}
+          color={labelColor}
           style={{
             flex: 4,
             textTransform: 'capitalize',
-            color: labelColor,
             textAlign: 'center',
           }}>
           {label}
         </TextSizeCustom>
-        <View style={{flex: 1, alignItems: 'flex-end'}}>
-          {right ? right : <Text style={{flex: 1}}></Text>}
+        <View style={{ flex: 1, alignItems: 'flex-end' }}>
+          {right ? right : <Text style={{ flex: 1 }}></Text>}
         </View>
       </Block>
     </View>
@@ -97,7 +98,6 @@ export default Header;
 const styles = StyleSheet.create({
   shadow: {
     shadowColor: 'grey',
-    // borderRadius: 10,
     shadowOffset: {
       width: 0,
       height: 0,
@@ -116,6 +116,5 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    // backgroundColor: colors.green,
   },
 });

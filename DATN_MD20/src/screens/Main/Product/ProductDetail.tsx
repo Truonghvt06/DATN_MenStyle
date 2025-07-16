@@ -39,6 +39,8 @@ import {clearProductDetail} from '../../../redux/reducers/product';
 import ListProduct from '../../../components/dataDisplay/ListProduct';
 import {fetchFavorites, toggleFavorite} from '../../../redux/actions/favorite';
 import useLanguage from '../../../hooks/useLanguage';
+import {useAppTheme} from '../../../themes/ThemeContext';
+
 
 const ProductDetail = () => {
   const {top} = useSafeAreaInsets();
@@ -46,6 +48,7 @@ const ProductDetail = () => {
   const route = useRoute();
   // const {product} = route.params as {product: any};
   const {id, idOld} = route.params as {id: string; idOld: string};
+  const theme = useAppTheme();
 
   const [proData, setProData] = useState<any>([]);
   const [showDescription, setShowDescription] = useState(false);
@@ -134,7 +137,7 @@ const ProductDetail = () => {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <ContainerView>
+      <ContainerView containerStyle={{backgroundColor: theme.background}}>
         {!isReady ? (
           <View style={styles.loadingContainer}>
             {/* <TextMedium style={{textAlign: 'center'}}>

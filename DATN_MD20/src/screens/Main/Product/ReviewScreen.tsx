@@ -1,27 +1,31 @@
-// screens/ReviewScreen.tsx
 import React from 'react';
-import {FlatList, StyleSheet, Text, View} from 'react-native';
-
+import {FlatList, StyleSheet, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useRoute} from '@react-navigation/native';
+
 import ContainerView from '../../../components/layout/ContainerView';
 import Header from '../../../components/dataDisplay/Header';
 import ReviewItem from '../../../components/dataDisplay/ReviewItem';
 import {dataProduct} from '../../../constants/data';
+import {useAppTheme} from '../../../themes/ThemeContext';
 
 const ReviewScreen = () => {
   const {top} = useSafeAreaInsets();
   const route = useRoute();
-  //   const {reviews} = route.params as {reviews: any[]};
+  const theme = useAppTheme();
 
   return (
-    <ContainerView>
-      <Header label="Tất cả đánh giá" paddingTop={top} />
+    <ContainerView containerStyle={{backgroundColor: theme.background}}>
+      <Header
+        label="Tất cả đánh giá"
+        paddingTop={top}
+        backgroundColor={theme.background}
+        labelColor={theme.text}
+      />
       <FlatList
         data={dataProduct}
         keyExtractor={(item, index) => `review-full-${index}`}
         renderItem={({item}) => (
-          //   <ReviewItem star={item.star} name={item.name} review={item.review} />
           <ReviewItem
             star={item.star}
             name="Nguyen Van A"
@@ -39,3 +43,5 @@ const ReviewScreen = () => {
 };
 
 export default ReviewScreen;
+
+const styles = StyleSheet.create({});

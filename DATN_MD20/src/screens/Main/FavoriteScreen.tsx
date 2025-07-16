@@ -3,7 +3,6 @@ import React, {useEffect, useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import ContainerView from '../../components/layout/ContainerView';
 import Header from '../../components/dataDisplay/Header';
-import {dataProduct} from '../../constants/data';
 import FavoriteItem from '../../components/dataDisplay/FavoriteItem';
 import TouchIcon from '../../components/dataEntry/Button/TouchIcon';
 import {IconSRC} from '../../constants/icons';
@@ -12,7 +11,6 @@ import ModalBottom from '../../components/dataDisplay/Modal/ModalBottom';
 import metrics from '../../constants/metrics';
 import ButtonOption from '../../components/dataEntry/Button/BottonOption';
 import Block from '../../components/layout/Block';
-import ModalCenter from '../../components/dataDisplay/Modal/ModalCenter';
 import useLanguage from '../../hooks/useLanguage';
 import {useAppDispatch, useAppSelector} from '../../redux/store';
 import {
@@ -26,27 +24,23 @@ import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
 import Toast from 'react-native-toast-message';
 import configToast from '../../components/utils/configToast';
+import { useAppTheme } from '../../themes/ThemeContext';
 
 const FavoriteScreen = () => {
+  const theme = useAppTheme();
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [isOpenDel, setIsOpenDel] = useState(false);
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(
-    null,
-  );
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
   const dispatch = useAppDispatch();
   const {listFavorite} = useAppSelector(state => state.favorite);
   const {token} = useAppSelector(state => state.auth);
 
-  console.log('listFavorite:', listFavorite);
-
   useEffect(() => {
     dispatch(fetchFavorites());
   }, []);
-  // useEffect(() => {}, [listFavorite]);
 
   const showAlert = () => {
     Alert.alert(
@@ -55,7 +49,6 @@ const FavoriteScreen = () => {
       [
         {
           text: getTranslation('huy'),
-          onPress: () => console.log('Đã huỷ'),
           style: 'cancel',
         },
         {
@@ -63,15 +56,14 @@ const FavoriteScreen = () => {
           onPress: () => {
             dispatch(clearFavorites());
             Toast.show({
-              type: 'notification', // Có thể là 'success', 'error', 'info'
+              type: 'notification',
               position: 'top',
               text1: 'Thành công',
               text2: 'Tất cả sản phẩm đã xoá khỏi yêu thích',
-              visibilityTime: 1000, // số giây hiển thị Toast
+              visibilityTime: 1000,
               autoHide: true,
               swipeable: true,
             });
-            // setIsOpenDel(false);
           },
         },
       ],
@@ -83,19 +75,20 @@ const FavoriteScreen = () => {
     if (selectedProductId) {
       dispatch(deleteFavorite(selectedProductId));
       Toast.show({
-        type: 'notification', // Có thể là 'success', 'error', 'info'
+        type: 'notification',
         position: 'top',
         text1: 'Thành công',
         text2: 'Đã xoá sản phẩm khỏi yêu thích',
-        visibilityTime: 1000, // số giây hiển thị Toast
+        visibilityTime: 1000,
         autoHide: true,
         swipeable: true,
       });
       setIsOpen(false);
     }
   };
+
   return (
-    <ContainerView>
+    <ContainerView style={{ flex: 1, backgroundColor: theme.background }}>
       <Header
         visibleLeft
         label={getTranslation('ua_thich')}
@@ -106,21 +99,15 @@ const FavoriteScreen = () => {
             icon={IconSRC.icon_delete}
             color={colors.red}
             containerStyle={{marginRight: 8}}
-            onPress={() => {
-              setIsOpenDel(true);
-              showAlert();
-            }}
+            onPress={showAlert}
           />
         }
       />
       <Toast config={configToast} />
       {!token ? (
         <Block flex1 alignCT justifyCT>
-          <Image
-            source={IconSRC.icon_search_nolist}
-            style={styles.icon_nolist}
-          />
-          <TextMedium color={colors.gray3}>Hãy đăng nhập để sử dụng</TextMedium>
+          <Image source={IconSRC.icon_search_nolist} style={styles.icon_nolist} />
+          <TextMedium style={{ color: theme.text }}>Hãy đăng nhập để sử dụng</TextMedium>
           <ButtonBase
             containerStyle={styles.btn_mua}
             size={14}
@@ -128,20 +115,15 @@ const FavoriteScreen = () => {
             onPress={() => {
               navigation.navigate(ScreenName.Auth.AuthStack, {
                 screen: ScreenName.Auth.Login,
-                params: {
-                  nameScreen: '',
-                },
+                params: { nameScreen: '' },
               });
             }}
           />
         </Block>
       ) : listFavorite.length === 0 ? (
         <Block flex1 alignCT justifyCT>
-          <Image
-            source={IconSRC.icon_search_nolist}
-            style={styles.icon_nolist}
-          />
-          <TextMedium color={colors.gray3}>
+          <Image source={IconSRC.icon_search_nolist} style={styles.icon_nolist} />
+          <TextMedium style={{ color: theme.text }}>
             Bạn chưa có sản phẩm yêu thích nào
           </TextMedium>
           <ButtonBase
@@ -157,25 +139,24 @@ const FavoriteScreen = () => {
         <FlatList
           data={listFavorite}
           keyExtractor={item => item._id + 'acs'}
-          renderItem={({item}) => {
-            return (
-              <FavoriteItem
-                name={item.name}
-                price={item.price}
-                image={item.variants?.[0]?.image || ''}
-                onPress={() => {}}
-                onPressAdd={() => {}}
-                onPressIcon={() => {
-                  setSelectedProductId(item._id);
-                  setIsOpen(true);
-                }}
-              />
-            );
-          }}
-          contentContainerStyle={{paddingBottom: 20}}
+          renderItem={({item}) => (
+            <FavoriteItem
+              name={item.name}
+              price={item.price}
+              image={item.variants?.[0]?.image || ''}
+              onPress={() => {}}
+              onPressAdd={() => {}}
+              onPressIcon={() => {
+                setSelectedProductId(item._id);
+                setIsOpen(true);
+              }}
+            />
+          )}
+          contentContainerStyle={{paddingBottom: 20, backgroundColor: theme.background}}
           showsVerticalScrollIndicator={false}
         />
       )}
+
       <ModalBottom
         header
         label={getTranslation('tuy_chon')}
@@ -193,6 +174,7 @@ const FavoriteScreen = () => {
               containerStyle={{paddingVertical: 20}}
               name={getTranslation('them_vao_gio_hang')}
               onPress={() => {}}
+              textColor={theme.text}
             />
             <ButtonOption
               iconLeft={IconSRC.icon_delete}
@@ -201,20 +183,12 @@ const FavoriteScreen = () => {
               borderColor={colors.white30}
               containerStyle={{paddingVertical: 20}}
               name={getTranslation('xoa_yeu_thich')}
-              onPress={() => {
-                handleDelFavorite();
-              }}
+              onPress={handleDelFavorite}
+              textColor={theme.text}
             />
           </Block>
         }
       />
-      {/* <ModalCenter
-        visible={isOpenDel}
-        animationType="fade"
-        heightModal={metrics.diviceHeight * 0.3}
-        widthModal={metrics.diviceWidth * 0.8}
-        onClose={() => setIsOpenDel(false)}
-      /> */}
     </ContainerView>
   );
 };

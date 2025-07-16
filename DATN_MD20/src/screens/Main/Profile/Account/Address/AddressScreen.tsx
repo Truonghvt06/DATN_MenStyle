@@ -6,10 +6,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import ContainerView from '../../../../../components/layout/ContainerView';
 import Header from '../../../../../components/dataDisplay/Header';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Block from '../../../../../components/layout/Block';
 import metrics from '../../../../../constants/metrics';
 import AddressItem from '../../../../../components/dataDisplay/AddressItem';
@@ -17,22 +17,23 @@ import {
   TextMedium,
   TextSmall,
 } from '../../../../../components/dataEntry/TextBase';
-import {colors} from '../../../../../themes/colors';
-import {IconSRC} from '../../../../../constants/icons';
+import { colors } from '../../../../../themes/colors';
+import { IconSRC } from '../../../../../constants/icons';
 import navigation from '../../../../../navigation/navigation';
 import ScreenName from '../../../../../navigation/ScreenName';
 import useLanguage from '../../../../../hooks/useLanguage';
-import {useAppDispatch, useAppSelector} from '../../../../../redux/store';
-import {fetchAddresses} from '../../../../../redux/actions/address';
-import {formatPhoneNumber} from '../../../../../utils/formatPhone';
+import { useAppDispatch, useAppSelector } from '../../../../../redux/store';
+import { fetchAddresses } from '../../../../../redux/actions/address';
+import { formatPhoneNumber } from '../../../../../utils/formatPhone';
+import { useAppTheme } from '../../../../../themes/ThemeContext';
 
 const AddressScreen = () => {
-  const {top} = useSafeAreaInsets();
-  const {getTranslation} = useLanguage();
+  const { top } = useSafeAreaInsets();
+  const { getTranslation } = useLanguage();
+  const theme = useAppTheme();
 
   const dispatch = useAppDispatch();
-  const {listAddress} = useAppSelector(state => state.address);
-  // console.log('ADDRESS: ', listAddress);
+  const { listAddress } = useAppSelector(state => state.address);
 
   useEffect(() => {
     dispatch(fetchAddresses());
@@ -46,8 +47,14 @@ const AddressScreen = () => {
   };
 
   return (
-    <ContainerView>
-      <Header label={getTranslation('dia_chi')} paddingTop={top} />
+    <ContainerView style={{ backgroundColor: theme.background, flex: 1 }}>
+      <Header
+        label={getTranslation('dia_chi')}
+        paddingTop={top}
+        labelColor={theme.text}
+        iconColor={theme.text}
+        backgroundColor={theme.background}
+      />
       <FlatList
         data={listAddress}
         keyExtractor={(item, index) => `${item._id} + ${item.index}`}
@@ -63,15 +70,15 @@ const AddressScreen = () => {
             <Block row alignCT justifyCT padV={15}>
               <Image
                 source={IconSRC.icon_add}
-                style={{width: 20, height: 20, marginRight: 10}}
+                style={{ width: 20, height: 20, marginRight: 10, tintColor: theme.text }}
               />
-              <TextSmall style={{textTransform: 'capitalize'}}>
+              <TextSmall style={{ textTransform: 'capitalize', color: theme.text }}>
                 {getTranslation('them_dia_chi')}
               </TextSmall>
             </Block>
           </TouchableOpacity>
         )}
-        renderItem={({item}) => (
+        renderItem={({ item }) => (
           <AddressItem
             name={item.recipient_name}
             phone={formatPhoneNumber(item.phone)}
@@ -86,7 +93,7 @@ const AddressScreen = () => {
         contentContainerStyle={{
           paddingHorizontal: metrics.space,
           marginTop: 16,
-          backgroundColor: colors.while,
+          backgroundColor: theme.background,
         }}
       />
     </ContainerView>

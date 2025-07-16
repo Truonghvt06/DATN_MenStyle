@@ -27,6 +27,7 @@ import InformationScreen from '../screens/Main/Profile/Account/Information/Infor
 import UpdateInfor from '../screens/Main/Profile/Account/Information/UpdateInfor';
 import WelcomeScreen from '../screens/Main/WelcomeScreen';
 import ReviewScreen from '../screens/Main/Product/ReviewScreen';
+import Theme from '../screens/Main/Theme';
 import RelatedProductDetail from '../screens/Main/Product/RelatedProductDetail';
 import SearchResultScreen from '../screens/Main/SearchResultScreen';
 
@@ -84,6 +85,10 @@ const MainStack = () => {
       <Stack.Screen
         name={ScreenName.Main.Language}
         component={LanguageScreen}
+      />
+      <Stack.Screen
+        name={ScreenName.Main.Theme}
+        component={Theme}
       />
       <Stack.Screen
         name={ScreenName.Main.Information}
