@@ -33,5 +33,6 @@ export default {
     UpdateInfo: 'UpdateInfo',
     Review: 'ReviewScreen',
     RelatedProductDetail: 'RelatedProductDetail',
+    Theme: 'ThemeScreen',
   },
 };

@@ -1,28 +1,26 @@
-import React, {useEffect, useRef} from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
-  ActivityIndicator,
   Animated,
   Image,
+  ActivityIndicator,
 } from 'react-native';
-import {useAppDispatch} from '../../redux/store';
-import {loadUserFromStorage} from '../../redux/actions/auth';
+import { useAppDispatch } from '../../redux/store';
+import { loadUserFromStorage } from '../../redux/actions/auth';
 import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
-import {ImgSRC} from '../../constants/icons';
-import {colors} from '../../themes/colors';
+import { ImgSRC } from '../../constants/icons';
+import { useAppTheme } from '../../themes/ThemeContext';
 
 const WelcomeScreen = () => {
   const dispatch = useAppDispatch();
+  const theme = useAppTheme();
 
-  // Tạo animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(20)).current; // bắt đầu từ dưới 20px
+  const slideAnim = useRef(new Animated.Value(20)).current;
 
   useEffect(() => {
-    // Animation đồng thời fade + slide
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -36,13 +34,8 @@ const WelcomeScreen = () => {
       }),
     ]).start();
 
-    // setTimeout(() => {
-    //   navigation.navigate(ScreenName.Main.BottonTab);
-    // }, 3000);
-    // Logic kiểm tra đăng nhập
     const init = async () => {
       const resultAction = await dispatch(loadUserFromStorage());
-
       if (loadUserFromStorage.fulfilled.match(resultAction)) {
         setTimeout(() => {
           navigation.navigate(ScreenName.Main.BottonTab);
@@ -58,32 +51,22 @@ const WelcomeScreen = () => {
   }, [dispatch, fadeAnim, slideAnim]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <Animated.Image
         source={ImgSRC.img_logo}
         style={[
           styles.img,
           {
             opacity: fadeAnim,
-            transform: [{translateY: slideAnim}],
+            transform: [{ translateY: slideAnim }],
           },
         ]}
       />
-      {/* <Animated.Text
-        style={[
-          styles.title,
-          {
-            opacity: fadeAnim,
-            transform: [{translateY: slideAnim}],
-          },
-        ]}>
-        Welcome to MenStyle
-      </Animated.Text>
       <ActivityIndicator
         size="large"
-        color={colors.black}
+        color={theme.primary}
         style={styles.loading}
-      /> */}
+      />
     </View>
   );
 };
@@ -93,7 +76,6 @@ export default WelcomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.while,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -101,12 +83,6 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     resizeMode: 'contain',
-  },
-  title: {
-    color: colors.black,
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginTop: 12,
   },
   loading: {
     marginTop: 30,

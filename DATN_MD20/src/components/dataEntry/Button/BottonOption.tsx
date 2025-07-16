@@ -28,6 +28,7 @@ interface Props extends TouchableOpacityProps {
   iconColor?: string;
   containerStyle?: ViewStyle;
   sizeText?: number;
+  textColor?: string;
   onPress?: () => void;
 }
 const ButtonOption = (props: Props) => {

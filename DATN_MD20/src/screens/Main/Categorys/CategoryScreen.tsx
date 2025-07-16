@@ -12,9 +12,7 @@ import {
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import ContainerView from '../../../components/layout/ContainerView';
 import Header from '../../../components/dataDisplay/Header';
-import {colors} from '../../../themes/colors';
 import {TextMedium, TextSmall} from '../../../components/dataEntry/TextBase';
-import {allProducts} from '../../../constants/data';
 import ListProduct from '../../../components/dataDisplay/ListProduct';
 import Block from '../../../components/layout/Block';
 import metrics from '../../../constants/metrics';
@@ -28,15 +26,14 @@ import ScreenName from '../../../navigation/ScreenName';
 import {fetchFavorites, toggleFavorite} from '../../../redux/actions/favorite';
 import Toast from 'react-native-toast-message';
 import configToast from '../../../components/utils/configToast';
+import {useAppTheme} from '../../../themes/ThemeContext';
 
 const CategoryScreen = () => {
   const route = useRoute();
   const {getTranslation} = useLanguage();
   const {top} = useSafeAreaInsets();
-  const {title, type} = route.params as {
-    title: string;
-    type: string;
-  }; //từ home
+  const theme = useAppTheme(); // ✅ theme hook
+  const {title, type} = route.params as {title: string; type: string};
   const [dataProCate, setDataProCate] = useState<Product[]>([]);
   const [selectedTab, setSelectedTab] = useState(getTranslation('tat_ca'));
   const [isReady, setIsReady] = useState(false);
@@ -52,32 +49,25 @@ const CategoryScreen = () => {
     getTranslation('ban_chay'),
     getTranslation('gia'),
   ];
-  // console.log('ID----', type);
-
-  // console.log('AAAA----', dataProCate);
 
   useEffect(() => {
     if (type) dispatch(fetchProductsByCategory(type));
   }, [type]);
+
   useEffect(() => {
     setDataProCate(productCate);
     const timeout = setTimeout(() => {
       setIsReady(true);
     }, 500);
-
     return () => clearTimeout(timeout);
   }, [productCate]);
 
-  //Nhấn tab
-  const handleTabPress = (tab: string) => {
-    setSelectedTab(tab);
+  const handleTabPress = (tab: string) => setSelectedTab(tab);
+
+  const handleProDetail = (id: string) => {
+    navigation.navigate(ScreenName.Main.ProductDetail, {id});
   };
 
-  //Nhấn item Pro
-  const handleProDetail = (id: string) => {
-    navigation.navigate(ScreenName.Main.ProductDetail, {id: id});
-  };
-  //Yêu thích
   const handleFavorite = async (productId: string) => {
     await dispatch(toggleFavorite(productId));
     dispatch(fetchFavorites());
@@ -88,19 +78,13 @@ const CategoryScreen = () => {
       getTranslation('thong_bao'),
       'Hãy đăng nhập để sử dụng',
       [
-        {
-          text: getTranslation('huy'),
-          onPress: () => console.log('Đã huỷ'),
-          style: 'cancel',
-        },
+        {text: getTranslation('huy'), style: 'cancel'},
         {
           text: 'OK',
           onPress: () => {
             navigation.navigate(ScreenName.Auth.AuthStack, {
               screen: ScreenName.Auth.Login,
-              params: {
-                nameScreen: '',
-              },
+              params: {nameScreen: ''},
             });
           },
         },
@@ -108,10 +92,9 @@ const CategoryScreen = () => {
       {cancelable: true},
     );
   };
-  // data lọc
+
   const filteredProducts = useMemo(() => {
     if (!dataProCate) return [];
-
     switch (selectedTab) {
       case getTranslation('moi_nhat'):
         return [...dataProCate].sort(
@@ -131,25 +114,32 @@ const CategoryScreen = () => {
   const renderTab = (tab: string) => (
     <View
       key={tab}
-      style={[{width: '25%', flexDirection: 'row', justifyContent: 'center'}]}>
+      style={{
+        width: '25%',
+        flexDirection: 'row',
+        justifyContent: 'center',
+      }}>
       <TouchableOpacity
         activeOpacity={0.9}
         onPress={() => handleTabPress(tab)}
         style={[
           styles.itemtab,
           {
+            backgroundColor: theme.background,
             borderBottomColor:
-              selectedTab === tab ? colors.black : 'transparent',
+              selectedTab === tab ? theme.primary : 'transparent',
           },
         ]}>
         <TextSmall
-          style={{color: selectedTab === tab ? colors.black : colors.gray}}>
+          style={{
+            color: selectedTab === tab ? theme.primary : theme.text,
+          }}>
           {tab}
         </TextSmall>
       </TouchableOpacity>
       <Block
         borderW={0.5}
-        borderColor={colors.gray1}
+        borderColor={theme.border}
         h={'50%'}
         alignSelf="center"
       />
@@ -160,7 +150,7 @@ const CategoryScreen = () => {
     <ContainerView>
       {!isReady ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size={'large'} />
+          <ActivityIndicator size="large" />
         </View>
       ) : (
         <>
@@ -171,14 +161,17 @@ const CategoryScreen = () => {
               dispatch(clearProCate());
               navigation.goBack();
             }}
+            backgroundColor={theme.background}
+            labelColor={theme.text}
           />
-          <View style={[styles.tab]}>{tabs.map(renderTab)}</View>
-
+          <View style={[styles.tab, {backgroundColor: theme.background}]}>
+            {tabs.map(renderTab)}
+          </View>
           <Toast config={configToast} />
           <Block padH={8} flex1>
             {dataProCate.length === 0 ? (
               <Block flex1 alignCT justifyCT>
-                <TextMedium color={colors.gray}>
+                <TextMedium color={theme.text}>
                   Chưa có sản phẩm loại này!
                 </TextMedium>
               </Block>
@@ -188,9 +181,7 @@ const CategoryScreen = () => {
                 isColums
                 columNumber={2}
                 favoriteId={listFavoriteIds}
-                onPress={id => {
-                  handleProDetail(id);
-                }}
+                onPress={handleProDetail}
                 onPressFavorite={id =>
                   token ? handleFavorite(id) : handleLogin()
                 }
@@ -211,14 +202,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderBottomWidth: 2,
     alignItems: 'center',
-    backgroundColor: colors.while,
   },
   tab: {
     width: '100%',
     flexDirection: 'row',
     borderBottomWidth: 0.3,
-    borderBottomColor: colors.gray1,
-    backgroundColor: colors.while,
   },
   loadingContainer: {
     flex: 1,

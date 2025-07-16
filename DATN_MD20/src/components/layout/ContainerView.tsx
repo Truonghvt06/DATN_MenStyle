@@ -7,6 +7,7 @@ interface Props {
   containerStyle?: ViewStyle | any;
   children?: React.ReactNode;
   backgroundColor?: string;
+   style?: ViewStyle;
 }
 
 const ContainerView = (props: Props) => {

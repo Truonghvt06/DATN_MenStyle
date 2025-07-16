@@ -1,14 +1,16 @@
-import React, {useState} from 'react';
-import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import Header from '../../components/dataDisplay/Header';
 import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
-import {notifications as demoNotifications} from '../../constants/data';
+import { notifications as demoNotifications } from '../../constants/data';
 import ContainerView from '../../components/layout/ContainerView';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import metrics from '../../constants/metrics';
-import {colors} from '../../themes/colors';
+import { colors } from '../../themes/colors';
 import useLanguage from '../../hooks/useLanguage';
+import { useAppTheme } from '../../themes/ThemeContext';
+
 type NotificationItem = {
   id: string;
   title: string;
@@ -18,21 +20,24 @@ type NotificationItem = {
 };
 
 export default function NotificationScreen() {
-  const {top} = useSafeAreaInsets();
-  const {getTranslation} = useLanguage();
+  const { top } = useSafeAreaInsets();
+  const { getTranslation } = useLanguage();
+  const theme = useAppTheme();
   const [notifications, setNotifications] = useState(demoNotifications);
 
-  const renderItem = ({item}: {item: NotificationItem}) => (
-    <TouchableOpacity style={[styles.item, !item.read && styles.unread]}>
-      <Text style={styles.title}>{item.title}</Text>
-      <Text>{item.content}</Text>
-      <Text style={styles.time}>{item.time}</Text>
+  const renderItem = ({ item }: { item: NotificationItem }) => (
+    <TouchableOpacity
+      style={[styles.item, !item.read && styles.unread, { backgroundColor: theme.card }]}
+    >
+      <Text style={[styles.title, { color: theme.text }]}>{item.title}</Text>
+      <Text style={{ color: theme.text }}>{item.content}</Text>
+      <Text style={[styles.time, { color: theme.text }]}>{item.time}</Text>
       {!item.read && <View style={styles.dot} />}
     </TouchableOpacity>
   );
 
   return (
-    <ContainerView>
+    <ContainerView style={{ backgroundColor: theme.background, flex: 1 }}>
       <Header
         label={getTranslation('thong_bao')}
         paddingTop={top}
@@ -53,21 +58,28 @@ export default function NotificationScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, padding: 16, backgroundColor: '#fff'},
   item: {
     padding: 10,
-    backgroundColor: '#f9f9f9',
     marginBottom: 8,
     borderRadius: 8,
     shadowColor: colors.black,
-    shadowOffset: {width: 0, height: 1},
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 5,
   },
-  unread: {backgroundColor: colors.sky_blue},
-  title: {fontWeight: 'bold', fontSize: 16},
-  time: {fontSize: 12, color: '#888', marginTop: 4},
+  unread: {
+    backgroundColor: colors.sky_blue,
+  },
+  title: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  time: {
+    fontSize: 12,
+    marginTop: 4,
+  },
   dot: {
     position: 'absolute',
     top: 10,
