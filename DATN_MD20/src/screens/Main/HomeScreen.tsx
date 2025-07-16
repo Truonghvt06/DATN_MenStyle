@@ -29,10 +29,7 @@ import {FlatList} from 'react-native-gesture-handler';
 import products from '../../services/products/productService';
 import useLanguage from '../../hooks/useLanguage';
 import {useAppDispatch, useAppSelector} from '../../redux/store';
-import {
-  fetchAllProducts,
-  fetchCategory,
-} from '../../redux/actions/product';
+import {fetchAllProducts, fetchCategory} from '../../redux/actions/product';
 import {Product} from '../../redux/reducers/product/type';
 import {fetchFavorites, toggleFavorite} from '../../redux/actions/favorite';
 import Toast from 'react-native-toast-message';
@@ -230,8 +227,6 @@ const HomeScreen = () => {
         </Block>
       </Block>
 
-      <Toast config={configToast} />
-
       <FlatList
         data={proData}
         keyExtractor={(item, index) => `${item._id}-${index}`}
@@ -242,10 +237,7 @@ const HomeScreen = () => {
             onPress={() => handleProDetail(item._id)}>
             <Block containerStyle={styles.shadowWrap}>
               <Block
-                containerStyle={[
-                  styles.btn,
-                  {backgroundColor: theme.card},
-                ]}>
+                containerStyle={[styles.btn, {backgroundColor: theme.card}]}>
                 <TouchableOpacity
                   activeOpacity={0.8}
                   style={styles.tim}
@@ -302,6 +294,8 @@ const HomeScreen = () => {
           ) : null
         }
       />
+
+      <Toast config={configToast} />
     </ContainerView>
   );
 };

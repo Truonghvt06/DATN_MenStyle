@@ -28,6 +28,7 @@ interface Props {
   columNumber?: number;
   horizontal?: boolean;
   favoriteId?: any;
+  scrollEnabled?: boolean;
   onPress?: (id: string) => void;
   onPressSee?: () => void;
   onPressFavorite?: (id: string) => void;
@@ -48,6 +49,7 @@ const ListProduct = (props: Props) => {
     horizontal = false,
     containerStyle,
     favoriteId,
+    scrollEnabled = true,
     onPress,
     onPressSee,
     onPressFavorite,
@@ -102,7 +104,7 @@ const ListProduct = (props: Props) => {
             </TouchableOpacity>
           );
         }}
-        scrollEnabled={false}
+        scrollEnabled={scrollEnabled ? true : false}
         numColumns={isColums ? columNumber : 0}
         horizontal={horizontal}
         showsVerticalScrollIndicator={false}

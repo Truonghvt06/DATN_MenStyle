@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   Keyboard,
   ScrollView,
@@ -16,64 +17,102 @@ import ScreenName from '../../navigation/ScreenName';
 import {IconSRC, ImgSRC} from '../../constants/icons';
 import metrics from '../../constants/metrics';
 import Block from '../../components/layout/Block';
-import {
-  TextHeight,
-  TextSmall,
-} from '../../components/dataEntry/TextBase';
+import {TextHeight, TextSmall} from '../../components/dataEntry/TextBase';
 import {colors} from '../../themes/colors';
 import useLanguage from '../../hooks/useLanguage';
 import {useAppTheme} from '../../themes/ThemeContext';
 import products from '../../services/products';
+import {Product} from '../../redux/reducers/product/type';
+import {useAppDispatch, useAppSelector} from '../../redux/store';
+import {fetchAllProducts, fetchProducts} from '../../redux/actions/product';
+import ListProduct from '../../components/dataDisplay/ListProduct';
+import {fetchFavorites, toggleFavorite} from '../../redux/actions/favorite';
+import Toast from 'react-native-toast-message';
+import configToast from '../../components/utils/configToast';
 
 const SearchScreen = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
   const theme = useAppTheme();
 
-  const [proData, setProData] = useState<any[]>([]);
+  const [proData, setProData] = useState<Product[]>([]);
+  const dispatch = useAppDispatch();
+  const {products} = useAppSelector(state => state.product);
+  const {token} = useAppSelector(state => state.auth);
+  const {listFavoriteIds} = useAppSelector(state => state.favorite);
+
+  const productNew = [...proData]
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )
+    .slice(0, 5);
+
+  const productHot = [...proData]
+    .sort((a, b) => b.sold_count - a.sold_count)
+    .slice(0, 5);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await products.getProducts();
-        setProData(res.data || []);
-      } catch (error) {
-        console.error('Lỗi lấy sản phẩm:', error);
-      }
-    };
-    fetchProducts();
+    dispatch(fetchProducts());
   }, []);
 
+  useEffect(() => {
+    setProData(products);
+  }, [products]);
+
+  const handleFavorite = async (productId: string) => {
+    await dispatch(toggleFavorite(productId));
+    dispatch(fetchFavorites());
+  };
+
+  const handleLogin = () => {
+    Alert.alert(
+      getTranslation('thong_bao'),
+      'Hãy đăng nhập để sử dụng',
+      [
+        {text: getTranslation('huy'), style: 'cancel'},
+        {
+          text: 'OK',
+          onPress: () => {
+            navigation.navigate(ScreenName.Auth.AuthStack, {
+              screen: ScreenName.Auth.Login,
+              params: {nameScreen: ''},
+            });
+          },
+        },
+      ],
+      {cancelable: true},
+    );
+  };
   const handleSearch = () => {
     navigation.navigate(ScreenName.Main.SearchDetail);
   };
 
-  const handleProDetail = (item: any) => {
-    navigation.navigate(ScreenName.Main.ProductDetail, {product: item});
+  const handleProDetail = (id: string) => {
+    navigation.navigate(ScreenName.Main.ProductDetail, {id});
   };
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ContainerView
         containerStyle={{
-          paddingTop: top,
-          paddingHorizontal: metrics.space,
           backgroundColor: theme.background,
         }}>
- <Header
-  visibleLeft
-  label={getTranslation('tim_kiem')}
-  paddingTop={top}
-  backgroundColor={theme.background} // ✅ dùng được rồi
-  labelColor={theme.text}           // ✅ dùng được rồi
-  iconColor={theme.text}
-/>
-
+        <Header
+          visibleLeft
+          label={getTranslation('tim_kiem')}
+          paddingTop={top}
+          backgroundColor={theme.background} // ✅ dùng được rồi
+          labelColor={theme.text} // ✅ dùng được rồi
+          iconColor={theme.text}
+        />
 
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{paddingBottom: 30}}>
-
+          contentContainerStyle={{
+            paddingBottom: 30,
+            paddingHorizontal: metrics.space,
+          }}>
           {/* Search Box */}
           <TouchableOpacity
             style={[
@@ -95,82 +134,46 @@ const SearchScreen = () => {
           <Image style={styles.banner} source={ImgSRC.img_banner} />
 
           {/* Sản phẩm mới */}
-       <TextHeight style={{ ...styles.titel, color: theme.text }} bold>
-  {getTranslation('san_pham_moi')}:
-</TextHeight>
+          <TextHeight style={{...styles.titel, color: theme.text}} bold>
+            {getTranslation('san_pham_moi')}:
+          </TextHeight>
 
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{gap: 12}}>
-            {proData.map((item, index) => (
-              <TouchableOpacity
-                key={`new-${index}`}
-                onPress={() => handleProDetail(item)}
-                activeOpacity={0.9}>
-                <Block style={[styles.card, {backgroundColor: theme.background}]}>
-                  <Image
-                    style={styles.image}
-                    source={{uri: item.variants?.[0]?.image || ''}}
-                  />
-                  <Block mar={5}>
-                    <TextSmall
-                      numberOfLines={2}
-                      style={{color: theme.text}}>
-                      {item.name}
-                    </TextSmall>
-                    <TextSmall color={colors.red} bold>
-                      {item.price.toLocaleString('vi-VN')}đ
-                    </TextSmall>
-                  </Block>
-                </Block>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+          <ListProduct
+            data={productNew}
+            horizontal={true}
+            isSeemore
+            favoriteId={listFavoriteIds}
+            onPress={id => {
+              handleProDetail(id);
+            }}
+            onPressFavorite={id => (token ? handleFavorite(id) : handleLogin())}
+            onPressSee={() => {}}
+          />
 
           {/* Sản phẩm bán chạy */}
-<TextHeight
-  style={{
-    textTransform: 'capitalize',
-    marginTop: 20,
-    marginBottom: 10,
-    color: theme.text,
-  }}
-  bold>
-  {getTranslation('san_pham_ban_chay')}:
-</TextHeight>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{gap: 12}}>
-            {proData
-              .slice()
-              .sort((a, b) => b.sold_count - a.sold_count)
-              .map((item, index) => (
-                <TouchableOpacity
-                  key={`hot-${index}`}
-                  onPress={() => handleProDetail(item)}
-                  activeOpacity={0.9}>
-                  <Block style={[styles.card, {backgroundColor: theme.background}]}>
-                    <Image
-                      style={styles.image}
-                      source={{uri: item.variants?.[0]?.image || ''}}
-                    />
-                    <Block mar={5}>
-                      <TextSmall
-                        numberOfLines={2}
-                        style={{color: theme.text}}>
-                        {item.name}
-                      </TextSmall>
-                      <TextSmall color={colors.red} bold>
-                        {item.price.toLocaleString('vi-VN')}đ
-                      </TextSmall>
-                    </Block>
-                  </Block>
-                </TouchableOpacity>
-              ))}
-          </ScrollView>
+          <TextHeight
+            style={{
+              textTransform: 'capitalize',
+              marginTop: 20,
+              marginBottom: 10,
+              color: theme.text,
+            }}
+            bold>
+            {getTranslation('san_pham_ban_chay')}:
+          </TextHeight>
+          <ListProduct
+            data={productHot}
+            horizontal={true}
+            isSeemore
+            favoriteId={listFavoriteIds}
+            onPress={id => {
+              handleProDetail(id);
+            }}
+            onPressFavorite={id => (token ? handleFavorite(id) : handleLogin())}
+            onPressSee={() => {}}
+          />
         </ScrollView>
+        <Toast config={configToast} />
       </ContainerView>
     </TouchableWithoutFeedback>
   );
