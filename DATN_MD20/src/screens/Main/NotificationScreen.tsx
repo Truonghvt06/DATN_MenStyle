@@ -41,6 +41,9 @@ export default function NotificationScreen() {
       <Header
         label={getTranslation('thong_bao')}
         paddingTop={top}
+        backgroundColor={theme.background}
+          labelColor={theme.text}
+          iconColor={theme.text}
         onPressLeft={() => navigation.goBack()}
       />
       <FlatList

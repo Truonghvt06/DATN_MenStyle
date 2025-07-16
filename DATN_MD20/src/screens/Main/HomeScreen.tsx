@@ -1,6 +1,7 @@
 import {
   ActivityIndicator,
   Alert,
+  FlatList,
   Image,
   ScrollView,
   StyleSheet,
@@ -8,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import ContainerView from '../../components/layout/ContainerView';
 import Block from '../../components/layout/Block';
 import {
@@ -16,26 +17,25 @@ import {
   TextSizeCustom,
   TextSmall,
 } from '../../components/dataEntry/TextBase';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import metrics from '../../constants/metrics';
-import {IconSRC} from '../../constants/icons';
+import { IconSRC } from '../../constants/icons';
 import TouchIcon from '../../components/dataEntry/Button/TouchIcon';
-import {colors} from '../../themes/colors';
+import { colors } from '../../themes/colors';
 import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
 import BannerSlider from './Banner/Banner';
 import Avatar from '../../components/dataDisplay/Avatar';
-import {FlatList} from 'react-native-gesture-handler';
 import products from '../../services/products/productService';
 import useLanguage from '../../hooks/useLanguage';
-import {useAppDispatch, useAppSelector} from '../../redux/store';
-import {fetchAllProducts, fetchCategory} from '../../redux/actions/product';
-import {Product} from '../../redux/reducers/product/type';
-import {fetchFavorites, toggleFavorite} from '../../redux/actions/favorite';
+import { useAppDispatch, useAppSelector } from '../../redux/store';
+import { fetchAllProducts, fetchCategory } from '../../redux/actions/product';
+import { Product } from '../../redux/reducers/product/type';
+import { fetchFavorites, toggleFavorite } from '../../redux/actions/favorite';
 import Toast from 'react-native-toast-message';
 import configToast from '../../components/utils/configToast';
-import {shuffleArray} from '../../utils/helper';
-import {useAppTheme} from '../../themes/ThemeContext'; // ✅ Thêm theme
+import { shuffleArray } from '../../utils/helper';
+import { useAppTheme } from '../../themes/ThemeContext';
 
 const ITEM_MARGIN = 10;
 const NUM_COLUMNS = 2;
@@ -43,20 +43,20 @@ const width = metrics.diviceScreenWidth;
 const ITEM_WIDTH = (width - ITEM_MARGIN * (NUM_COLUMNS + 1.5)) / NUM_COLUMNS;
 
 const HomeScreen = () => {
-  const {top} = useSafeAreaInsets();
-  const {getTranslation} = useLanguage();
-  const theme = useAppTheme(); // ✅ Lấy theme
+  const { top } = useSafeAreaInsets();
+  const { getTranslation } = useLanguage();
+  const theme = useAppTheme();
 
   const [proData, setProData] = useState<Product[]>([]);
   const [page, setPage] = useState(1);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
 
   const dispatch = useAppDispatch();
-  const {products, categories, total, loading} = useAppSelector(
+  const { products, categories, total, loading } = useAppSelector(
     state => state.product,
   );
-  const {listFavoriteIds} = useAppSelector(state => state.favorite);
-  const {token} = useAppSelector(state => state.auth);
+  const { listFavoriteIds } = useAppSelector(state => state.favorite);
+  const { token } = useAppSelector(state => state.auth);
 
   useEffect(() => {
     dispatch(fetchCategory());
@@ -64,7 +64,7 @@ const HomeScreen = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(fetchAllProducts({page, limit: 10}));
+    dispatch(fetchAllProducts({ page, limit: 10 }));
   }, [page]);
 
   useEffect(() => {
@@ -94,21 +94,16 @@ const HomeScreen = () => {
       ? navigation.navigate(ScreenName.Main.Notifications)
       : navigation.navigate(ScreenName.Auth.AuthStack, {
           screen: ScreenName.Auth.Login,
-          params: {
-            nameScreen: '',
-          },
+          params: { nameScreen: '' },
         });
   };
 
   const handleProDetail = (id: string) => {
-    navigation.navigate(ScreenName.Main.ProductDetail, {id});
+    navigation.navigate(ScreenName.Main.ProductDetail, { id });
   };
 
   const handleCategory = (title: string, typetID: string) => {
-    navigation.navigate(ScreenName.Main.Category, {
-      title,
-      type: typetID,
-    });
+    navigation.navigate(ScreenName.Main.Category, { title, type: typetID });
   };
 
   const handleFavorite = async (productId: string) => {
@@ -117,29 +112,18 @@ const HomeScreen = () => {
   };
 
   const handleLogin = () => {
-    Alert.alert(
-      getTranslation('thong_bao'),
-      'Hãy đăng nhập để sử dụng',
-      [
-        {
-          text: getTranslation('huy'),
-          onPress: () => {},
-          style: 'cancel',
+    Alert.alert(getTranslation('thong_bao'), 'Hãy đăng nhập để sử dụng', [
+      { text: getTranslation('huy'), style: 'cancel' },
+      {
+        text: 'OK',
+        onPress: () => {
+          navigation.navigate(ScreenName.Auth.AuthStack, {
+            screen: ScreenName.Auth.Login,
+            params: { nameScreen: '' },
+          });
         },
-        {
-          text: 'OK',
-          onPress: () => {
-            navigation.navigate(ScreenName.Auth.AuthStack, {
-              screen: ScreenName.Auth.Login,
-              params: {
-                nameScreen: '',
-              },
-            });
-          },
-        },
-      ],
-      {cancelable: true},
-    );
+      },
+    ]);
   };
 
   const renderHeader = () => (
@@ -161,7 +145,7 @@ const HomeScreen = () => {
             key={category._id}
             title={category.name}
             icon={IconSRC.icon_polo}
-            containerStyle={{paddingHorizontal: 20}}
+            containerStyle={{ paddingHorizontal: 20 }}
             onPress={() => handleCategory(category.name, category._id)}
           />
         ))}
@@ -187,10 +171,10 @@ const HomeScreen = () => {
       }}>
       <Block row justifyBW>
         <Block>
-          <TextSmall style={{marginBottom: -5, color: theme.text}}>
+          <TextSmall style={{ marginBottom: -5, color: theme.text }}>
             {getTranslation('xin_chao')}
           </TextSmall>
-          <TextSizeCustom size={30} bold style={{color: theme.text}}>
+          <TextSizeCustom size={30} bold style={{ color: theme.text }}>
             MenStyle
           </TextSizeCustom>
         </Block>
@@ -199,7 +183,7 @@ const HomeScreen = () => {
             color={theme.text}
             size={25}
             icon={IconSRC.icon_search}
-            imageStyle={{marginHorizontal: 7}}
+            imageStyle={{ marginHorizontal: 7 }}
             onPress={handleSearch}
           />
           <TouchableOpacity activeOpacity={1}>
@@ -209,7 +193,7 @@ const HomeScreen = () => {
                 style={styles.tb}
                 onPress={handleNotification}>
                 <TextSizeCustom
-                  style={{textAlign: 'center'}}
+                  style={{ textAlign: 'center' }}
                   color="white"
                   size={10}>
                   99
@@ -220,7 +204,7 @@ const HomeScreen = () => {
               color={theme.text}
               size={25}
               icon={IconSRC.icon_notification}
-              imageStyle={{marginHorizontal: 7}}
+              imageStyle={{ marginHorizontal: 7 }}
               onPress={handleNotification}
             />
           </TouchableOpacity>
@@ -231,13 +215,20 @@ const HomeScreen = () => {
         data={proData}
         keyExtractor={(item, index) => `${item._id}-${index}`}
         ListHeaderComponent={renderHeader}
-        renderItem={({item}) => (
+        renderItem={({ item }) => (
           <TouchableOpacity
             activeOpacity={0.9}
             onPress={() => handleProDetail(item._id)}>
             <Block containerStyle={styles.shadowWrap}>
               <Block
-                containerStyle={[styles.btn, {backgroundColor: theme.card}]}>
+                containerStyle={[
+                  styles.btn,
+                  {
+                    backgroundColor: theme.card,
+                    borderWidth: theme.dark ? 1 : 0.3,
+                    borderColor: theme.dark ? '#444' : '#ddd',
+                  },
+                ]}>
                 <TouchableOpacity
                   activeOpacity={0.8}
                   style={styles.tim}
@@ -250,24 +241,24 @@ const HomeScreen = () => {
                         ? IconSRC.icon_unfavorite
                         : IconSRC.icon_favorite
                     }
-                    style={{width: 20, height: 20}}
+                    style={{ width: 20, height: 20 }}
                   />
                 </TouchableOpacity>
                 <Image
                   style={styles.image}
-                  source={{uri: item.variants?.[0]?.image || ''}}
+                  source={{ uri: item.variants?.[0]?.image || '' }}
                 />
                 <Block mar={5}>
                   <TextSmall
                     medium
                     numberOfLines={1}
                     ellipsizeMode="tail"
-                    style={{color: theme.text}}>
+                    style={{ color: theme.text }}>
                     {item.name}
                   </TextSmall>
                   <Block row alignCT>
                     <Image style={styles.star} source={IconSRC.icon_star} />
-                    <TextSmall style={{color: theme.text}}>
+                    <TextSmall style={{ color: theme.text }}>
                       {item.rating_avg}
                     </TextSmall>
                   </Block>
@@ -281,7 +272,7 @@ const HomeScreen = () => {
         )}
         numColumns={NUM_COLUMNS}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{paddingBottom: 50}}
+        contentContainerStyle={{ paddingBottom: 50 }}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.3}
         ListFooterComponent={
@@ -289,7 +280,7 @@ const HomeScreen = () => {
             <ActivityIndicator
               size="small"
               color={theme.text}
-              style={{marginVertical: 10}}
+              style={{ marginVertical: 10 }}
             />
           ) : null
         }
@@ -322,7 +313,7 @@ const styles = StyleSheet.create({
   },
   shadowWrap: {
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 5,

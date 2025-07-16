@@ -16,17 +16,20 @@ const ThemeScreen = () => {
 
   return (
     <ContainerView style={{ backgroundColor: theme.background }}>
-      <Header label="Chủ đề" paddingTop={top - 10} />
+      <Header label="Chủ đề" paddingTop={top - 10}
+      backgroundColor={theme.background}
+          labelColor={theme.text}
+          iconColor={theme.text} />
       <View style={[styles.content, { backgroundColor: theme.background, flex: 1 }]}>
         <Text style={[styles.title, { color: theme.text }]}>Chọn chế độ hiển thị:</Text>
         <TouchableOpacity
           style={[
             styles.button,
-            mode === 'light' && { backgroundColor: '#eee' },
+            mode === 'light' && { backgroundColor: '#8d1414ff' },
           ]}
           onPress={() => dispatch(setTheme('light'))}
         >
-          <Text style={[styles.buttonText, { color: theme.text }]}>Sáng</Text>
+          <Text style={[styles.buttonText,]}>Sáng</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -35,7 +38,7 @@ const ThemeScreen = () => {
           ]}
           onPress={() => dispatch(setTheme('dark'))}
         >
-          <Text style={[styles.buttonText, { color: '#fff' }]}>Tối</Text>
+          <Text style={[styles.buttonText,]}>Tối</Text>
         </TouchableOpacity>
       </View>
     </ContainerView>

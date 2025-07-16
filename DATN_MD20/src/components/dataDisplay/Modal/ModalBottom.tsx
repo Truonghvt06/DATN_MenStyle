@@ -13,9 +13,9 @@ import {colors} from '../../../themes/colors';
 import metrics from '../../../constants/metrics';
 import {TextSizeCustom} from '../../dataEntry/TextBase';
 import {IconSRC} from '../../../constants/icons';
+import {useAppTheme} from '../../../themes/ThemeContext';
 
 interface Props extends ModalProps {
-  // children?:
   onClose?: () => void;
   containerStyle?: ViewStyle | any;
   viewStyle?: ViewStyle | any;
@@ -24,6 +24,7 @@ interface Props extends ModalProps {
   header?: boolean;
   label?: string;
 }
+
 const ModalBottom = (props: Props) => {
   const {
     onClose,
@@ -34,40 +35,47 @@ const ModalBottom = (props: Props) => {
     widthModal = metrics.diviceWidth,
     heightModal = metrics.diviceHeight,
   } = props;
+
+  const theme = useAppTheme();
+
   return (
     <Modal transparent={true} {...props}>
       <View style={[styles.container, viewStyle]}>
         <TouchableOpacity
           activeOpacity={0.8}
           style={{height: '100%', width: '100%'}}
-          onPress={onClose}></TouchableOpacity>
-
+          onPress={onClose}
+        />
         <View
           style={[
             styles.modal,
             {
               width: widthModal,
               height: heightModal,
-              backgroundColor: colors.gray2,
+              backgroundColor: theme.card,
             },
             containerStyle,
           ]}>
           <View
             style={{
               height: 5,
-              backgroundColor: colors.black,
+              backgroundColor: theme.text,
               width: 80,
               alignSelf: 'center',
               marginVertical: metrics.space * 2,
               borderRadius: 10,
-              // ...props.styleModal,
-            }}></View>
+            }}
+          />
           {header && (
-            <View style={styles.header}>
+            <View
+              style={[
+                styles.header,
+                {borderBottomColor: theme.border},
+              ]}>
               <TextSizeCustom
                 bold
                 size={20}
-                // color="rgba(255, 255, 255, 1)"
+                color={theme.text}
                 style={{textTransform: 'capitalize'}}>
                 {label}
               </TextSizeCustom>
@@ -80,12 +88,14 @@ const ModalBottom = (props: Props) => {
                 }}>
                 <TouchableOpacity
                   activeOpacity={1}
-                  style={styles.close}
+                  style={[styles.close, {backgroundColor: theme.background}]}
                   onPress={props.onClose}>
-                  <Image style={styles.image} source={IconSRC.icon_close} />
+                  <Image
+                    style={[styles.image, {tintColor: theme.text}]}
+                    source={IconSRC.icon_close}
+                  />
                 </TouchableOpacity>
               </View>
-              {/* {rightHeader && rightHeader} */}
             </View>
           )}
           {props.children}
@@ -106,12 +116,9 @@ const styles = StyleSheet.create({
   image: {
     width: 10,
     height: 10,
-    tintColor: colors.black,
   },
   modal: {
     overflow: 'hidden',
-    backgroundColor: colors.while,
-    // alignSelf: 'center',
     maxWidth: '100%',
     maxHeight: '90%',
     borderTopLeftRadius: metrics.space * 2,
@@ -123,13 +130,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-    borderBottomColor: colors.gray1,
     borderBottomWidth: 0.3,
   },
   close: {
     height: 20,
     width: 20,
-    backgroundColor: 'rgba(235, 235, 245, 0.6)',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 20,

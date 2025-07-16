@@ -8,15 +8,17 @@ import SearchScreen from '../screens/Main/SearchScreen';
 import ProfileScreen from '../screens/Main/ProfileScreen';
 import {IconBottomTab} from '../constants/icons';
 import FavoriteScreen from '../screens/Main/FavoriteScreen';
-import {colors} from '../themes/colors';
 import Block from '../components/layout/Block';
-import {TextSizeCustom, TextSmall} from '../components/dataEntry/TextBase';
+import {TextSizeCustom} from '../components/dataEntry/TextBase';
 import {dataProduct} from '../constants/data';
 import useLanguage from '../hooks/useLanguage';
 import {useAppSelector} from '../redux/store';
+import {useAppTheme} from '../themes/ThemeContext';
 
 const Tab = createBottomTabNavigator();
+
 const BottomTab = () => {
+  const theme = useAppTheme();
   const {getTranslation} = useLanguage();
   const {token} = useAppSelector(state => state.auth);
 
@@ -24,8 +26,12 @@ const BottomTab = () => {
     <Tab.Navigator
       screenOptions={({route}) => ({
         headerShown: false,
-        tabBarShowLabel: false, // Không hiển thị label mặc định
-        tabBarStyle: styles.container,
+        tabBarShowLabel: false,
+        tabBarStyle: {
+          height: 80,
+          backgroundColor: theme.background,
+          borderTopColor: theme.border,
+        },
         tabBarIcon: ({focused}) => {
           let iconName;
           let label;
@@ -35,7 +41,6 @@ const BottomTab = () => {
               iconName = IconBottomTab.icon_home;
               label = getTranslation('trang_chu');
               break;
-
             case ScreenName.Main.Search:
               iconName = IconBottomTab.icon_search;
               label = getTranslation('tim_kiem');
@@ -55,25 +60,23 @@ const BottomTab = () => {
           }
 
           return (
-            <View
-              style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginTop: 20,
-              }}>
+            <View style={{alignItems: 'center', justifyContent: 'center', marginTop: 20}}>
               <Image
                 source={iconName}
                 style={{
                   width: 28,
                   height: 28,
-                  tintColor: focused ? 'black' : 'gray',
+                  tintColor: focused ? theme.primary : theme.text,
                 }}
               />
-              {focused && <Text style={styles.text}>{label}</Text>}
+              {focused && (
+                <Text style={[styles.text, {color: theme.text}]}>{label}</Text>
+              )}
             </View>
           );
         },
-      })}>
+      })}
+    >
       <Tab.Screen name={ScreenName.Main.Home} component={HomeScreen} />
       <Tab.Screen name={ScreenName.Main.Search} component={SearchScreen} />
       <Tab.Screen name={ScreenName.Main.Favorite} component={FavoriteScreen} />
@@ -97,14 +100,16 @@ const BottomTab = () => {
                 <Image
                   source={IconBottomTab.icon_cart}
                   style={{
-                    tintColor: focused ? colors.black : colors.gray,
+                    tintColor: focused ? theme.primary : theme.text,
                     width: 28,
                     height: 28,
                   }}
                 />
               </Block>
               {focused && (
-                <Text style={styles.text}>{getTranslation('gio_hang')}</Text>
+                <Text style={[styles.text, {color: theme.text}]}>
+                  {getTranslation('gio_hang')}
+                </Text>
               )}
             </View>
           ),
@@ -118,22 +123,15 @@ const BottomTab = () => {
 export default BottomTab;
 
 const styles = StyleSheet.create({
-  container: {
-    height: 80,
-    backgroundColor: 'white',
-    // backgroundColor: 'rgba(255, 255, 255, 0.8)', // Nền mờ (trong suốt)
-  },
   text: {
     fontSize: 12,
-    color: 'black',
     marginTop: 4,
     width: 100,
     textAlign: 'center',
-    // fontWeight: 'bold',
   },
   cart: {
     zIndex: 12,
-    backgroundColor: colors.red,
+    backgroundColor: 'red',
     justifyContent: 'center',
     height: 18,
     width: 20,
@@ -141,6 +139,5 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: -9,
     top: -5,
-    // marginTop: 4,
   },
 });

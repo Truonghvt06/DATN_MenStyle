@@ -151,6 +151,9 @@ const ProductDetail = () => {
             <Header
               label=" chi tiết Sản phẩm"
               paddingTop={top}
+              backgroundColor={theme.background}
+          labelColor={theme.text}
+          iconColor={theme.text}
               onPressLeft={() => {
                 dispatch(clearProductDetail());
                 if (idOld) {

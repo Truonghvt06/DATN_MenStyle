@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
-  ViewStyle,
 } from 'react-native';
 import React, {useState} from 'react';
 import ContainerView from '../../../components/layout/ContainerView';
@@ -20,25 +19,24 @@ import {
 } from '../../../components/dataEntry/TextBase';
 import Block from '../../../components/layout/Block';
 import InputBase from '../../../components/dataEntry/Input/InputBase';
-import {IconBottomTab, IconSRC} from '../../../constants/icons';
-import ButtonBase from '../../../components/dataEntry/Button/ButtonBase';
-import {colors} from '../../../themes/colors';
-import navigation from '../../../navigation/navigation';
-import ScreenName from '../../../navigation/ScreenName';
+import {IconSRC} from '../../../constants/icons';
 import useLanguage from '../../../hooks/useLanguage';
 import {useAppDispatch, useAppSelector} from '../../../redux/store';
 import {sendForgotOTP} from '../../../redux/actions/auth';
 import LinearGradient from 'react-native-linear-gradient';
 import {colorGradient} from '../../../themes/theme_gradient';
+import navigation from '../../../navigation/navigation';
+import ScreenName from '../../../navigation/ScreenName';
+import {useAppTheme} from '../../../themes/ThemeContext';
 
 const ForgotPassScreen = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
   const [email, setEmail] = useState<string>('');
   const [error, setError] = useState('');
-
   const dispatch = useAppDispatch();
   const loading = useAppSelector(state => state.auth.loading);
+  const theme = useAppTheme();
 
   const handleContuinue = async () => {
     if (!email) {
@@ -47,7 +45,7 @@ const ForgotPassScreen = () => {
     }
     const result = await dispatch(sendForgotOTP(email));
     if (sendForgotOTP.fulfilled.match(result)) {
-      navigation.navigate(ScreenName.Auth.OTPScreen, {email}); // truyền email sang
+      navigation.navigate(ScreenName.Auth.OTPScreen, {email});
       setEmail('');
     } else {
       setError(result.payload as string);
@@ -56,30 +54,46 @@ const ForgotPassScreen = () => {
 
   return (
     <ContainerView>
-      <Header label={getTranslation('quen_mk')} paddingTop={top} />
-      <TouchableWithoutFeedback
-        onPress={() => {
-          Keyboard.dismiss();
-        }}
-        style={{flexGrow: 1}}>
+      <Header label={getTranslation('quen_mk')} paddingTop={top}
+      backgroundColor={theme.background}
+          labelColor={theme.text}
+          iconColor={theme.text} />
+      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <Block flex1 pad={20} marT={30}>
           <TextSizeCustom
             size={20}
             bold
-            style={{textTransform: 'capitalize', textAlign: 'center'}}>
+            style={{
+              textTransform: 'capitalize',
+              textAlign: 'center',
+              color: theme.text,
+            }}>
             {getTranslation('nhap_email_dang_ky')}
           </TextSizeCustom>
+
           <TextSmall
-            style={{textAlign: 'center', marginTop: 10, paddingHorizontal: 40}}>
+            style={{
+              textAlign: 'center',
+              marginTop: 10,
+              paddingHorizontal: 40,
+              color: theme.text,
+            }}>
             {getTranslation('dien_email_dk')}
           </TextSmall>
-          <TextMedium bold style={{marginTop: 40, textTransform: 'capitalize'}}>
+
+          <TextMedium
+            bold
+            style={{
+              marginTop: 40,
+              textTransform: 'capitalize',
+              color: theme.text,
+            }}>
             {getTranslation('nhap_email')}:
           </TextMedium>
+
           <InputBase
             value={email}
             placeholder={getTranslation('nhap_email')}
-            // keyboardType="numeric"
             containerStyle={{marginTop: 5}}
             onChangeText={(text: string) => {
               setEmail(text);
@@ -89,30 +103,13 @@ const ForgotPassScreen = () => {
               <Image style={styles.icon_left} source={IconSRC.icon_email} />
             }
           />
+
           {error && (
-            <TextSizeCustom size={12} color={colors.red} style={{marginTop: 3}}>
+            <TextSizeCustom size={12} color="red" style={{marginTop: 3}}>
               {error}
             </TextSizeCustom>
           )}
-          {/* {loading ? (
-            <ActivityIndicator
-              size={'large'}
-              color={colors.green}
-              style={{marginTop: 40}}
-            />
-          ) : (
-            <ButtonBase
-              title={getTranslation('tiep_tuc')}
-              radius={10}
-              backgroundColor={colors.green}
-              size={16}
-              color={'white'}
-              containerStyle={{marginTop: 40}}
-              onPress={() => {
-                handleContuinue();
-              }}
-            />
-          )} */}
+
           <LinearGradient
             colors={colorGradient['theme-10']}
             start={{x: 0, y: 0}}
@@ -120,9 +117,9 @@ const ForgotPassScreen = () => {
             style={[styles.btn, {borderRadius: 10}]}>
             <TouchableOpacity style={styles.btn1} onPress={handleContuinue}>
               {loading ? (
-                <ActivityIndicator size={25} color={colors.while} />
+                <ActivityIndicator size={25} color={theme.white} />
               ) : (
-                <TextSizeCustom bold size={18} color={colors.while}>
+                <TextSizeCustom bold size={18} color={theme.white}>
                   {getTranslation('tiep_tuc')?.toLocaleUpperCase()}
                 </TextSizeCustom>
               )}

@@ -57,6 +57,9 @@ const CartScreen = () => {
           visibleLeft
           label={getTranslation('gio_hang')}
           paddingTop={top}
+          backgroundColor={theme.background}
+          labelColor={theme.text}
+          iconColor={theme.text}
         />
 
         <FlatList

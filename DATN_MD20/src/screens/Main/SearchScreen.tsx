@@ -102,8 +102,8 @@ const SearchScreen = () => {
           visibleLeft
           label={getTranslation('tim_kiem')}
           paddingTop={top}
-          backgroundColor={theme.background} // ✅ dùng được rồi
-          labelColor={theme.text} // ✅ dùng được rồi
+          backgroundColor={theme.background}
+          labelColor={theme.text} 
           iconColor={theme.text}
         />
 

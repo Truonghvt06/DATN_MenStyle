@@ -93,6 +93,9 @@ const FavoriteScreen = () => {
         visibleLeft
         label={getTranslation('ua_thich')}
         paddingTop={top}
+        backgroundColor={theme.background}
+          labelColor={theme.text}
+          iconColor={theme.text}
         right={
           <TouchIcon
             size={25}
