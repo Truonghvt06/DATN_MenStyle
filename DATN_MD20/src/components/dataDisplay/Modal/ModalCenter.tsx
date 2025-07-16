@@ -10,6 +10,8 @@ import {
 import React from 'react';
 import {colors} from '../../../themes/colors';
 import metrics from '../../../constants/metrics';
+import {useAppTheme} from '../../../themes/ThemeContext';
+import {TextMedium} from '../../dataEntry/TextBase';
 
 interface Props {
   widthModal?: number;
@@ -17,6 +19,7 @@ interface Props {
   containerStyle?: ViewStyle;
   onClose?: () => void;
 }
+
 const ModalCenter = (props: Props) => {
   const {
     widthModal = metrics.diviceWidth,
@@ -24,6 +27,9 @@ const ModalCenter = (props: Props) => {
     containerStyle,
     onClose,
   } = props;
+
+  const theme = useAppTheme();
+
   return (
     <Modal transparent={true} {...props}>
       <TouchableWithoutFeedback onPress={onClose}>
@@ -31,10 +37,14 @@ const ModalCenter = (props: Props) => {
           <View
             style={[
               styles.modal,
-              {width: widthModal, height: heightModal},
+              {
+                width: widthModal,
+                height: heightModal,
+                backgroundColor: theme.card,
+              },
               containerStyle,
             ]}>
-            <Text>ModalCenter</Text>
+            <TextMedium style={{color: theme.text}}>ModalCenter</TextMedium>
           </View>
         </View>
       </TouchableWithoutFeedback>
@@ -52,9 +62,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modal: {
-    // flex: 1,
     overflow: 'hidden',
-    backgroundColor: colors.while,
     alignItems: 'center',
     maxWidth: '100%',
     maxHeight: '90%',

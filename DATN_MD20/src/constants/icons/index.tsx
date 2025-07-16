@@ -73,4 +73,5 @@ export enum ImgSRC {
   img_avatar = require('../../assets/images/avatar.jpg'),
   img_pro = require('../../assets/images/img2.jpg'),
   img_logo = require('../../assets/images/logo_.png'),
+  img_logo_white = require('../../assets/images/logo_white.png'),
 }

@@ -9,7 +9,8 @@ import {
 import React from 'react';
 import {IconSRC} from '../../constants/icons';
 import Block from '../layout/Block';
-import {TextMedium, TextSmall} from '../dataEntry/TextBase';
+import {TextSmall} from '../dataEntry/TextBase';
+import {useAppTheme} from '../../themes/ThemeContext'; // ✅
 import {colors} from '../../themes/colors';
 
 interface Props {
@@ -22,6 +23,7 @@ interface Props {
   backgroundColor?: string;
   onPress?: () => void;
 }
+
 const Avatar = (props: Props) => {
   const {
     title,
@@ -30,9 +32,12 @@ const Avatar = (props: Props) => {
     sizeIcon = 35,
     sizeBtn = 55,
     containerStyle,
-    backgroundColor = colors.gray3,
+    backgroundColor,
     onPress,
   } = props;
+
+  const theme = useAppTheme(); // ✅ dùng theme
+
   return (
     <TouchableOpacity
       activeOpacity={0.9}
@@ -42,7 +47,7 @@ const Avatar = (props: Props) => {
         alignCT
         justifyCT
         borderRadius={30}
-        backgroundColor={backgroundColor}
+        backgroundColor={backgroundColor ?? theme.card} // ✅ fallback theo theme
         marB={3}
         w={sizeBtn}
         height={sizeBtn}>
@@ -51,7 +56,7 @@ const Avatar = (props: Props) => {
           source={icon}
         />
       </Block>
-      <TextSmall>{title}</TextSmall>
+      <TextSmall>{title}</TextSmall> {/* tự lấy theme.text từ TextSmall */}
     </TouchableOpacity>
   );
 };
@@ -60,8 +65,6 @@ export default Avatar;
 
 const styles = StyleSheet.create({
   btn: {
-    // borderRadius: 30,
-    // backgroundColor: colors.black,
     alignItems: 'center',
   },
   icon: {

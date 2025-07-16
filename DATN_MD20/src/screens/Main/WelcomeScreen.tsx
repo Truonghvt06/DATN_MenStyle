@@ -3,7 +3,6 @@ import {
   View,
   StyleSheet,
   Animated,
-  Image,
   ActivityIndicator,
 } from 'react-native';
 import { useAppDispatch } from '../../redux/store';
@@ -50,10 +49,13 @@ const WelcomeScreen = () => {
     init();
   }, [dispatch, fadeAnim, slideAnim]);
 
+  // 👇 chọn logo theo theme
+  const logoSource = theme.mode === 'dark' ? ImgSRC.img_logo_white : ImgSRC.img_logo;
+
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <Animated.Image
-        source={ImgSRC.img_logo}
+        source={logoSource}
         style={[
           styles.img,
           {

@@ -1,7 +1,6 @@
 import {
   FlatList,
   Image,
-  ImageProps,
   StyleSheet,
   TouchableOpacity,
   ViewStyle,
@@ -15,9 +14,10 @@ import {
   TextSizeCustom,
   TextSmall,
 } from '../dataEntry/TextBase';
-import {IconSRC, ImgSRC} from '../../constants/icons';
+import {IconSRC} from '../../constants/icons';
 import metrics from '../../constants/metrics';
 import useLanguage from '../../hooks/useLanguage';
+import {useAppTheme} from '../../themes/ThemeContext'; // ✅
 
 interface Props {
   data: any;
@@ -38,8 +38,10 @@ const ITEM_MARGIN = 10;
 const NUM_COLUMNS = 2;
 const width = metrics.diviceScreenWidth;
 const ITEM_WIDTH = (width - ITEM_MARGIN * (NUM_COLUMNS + 1.5)) / NUM_COLUMNS;
+
 const ListProduct = (props: Props) => {
   const {getTranslation} = useLanguage();
+  const theme = useAppTheme(); // ✅
   const {
     data,
     isSeemore,
@@ -54,57 +56,66 @@ const ListProduct = (props: Props) => {
     onPressSee,
     onPressFavorite,
   } = props;
+
   return (
     <>
       <FlatList
-        {...props}
         data={data}
         keyExtractor={(item, index) => `${item._id}-${index}`}
-        renderItem={({item}) => {
-          return (
-            <TouchableOpacity
-              activeOpacity={1}
-              // style={[containerStyle]}
-              onPress={() => onPress && onPress(item._id)}>
-              <Block containerStyle={[styles.shadowWrap, containerStyle]}>
-                <Block style={styles.btn}>
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    style={styles.tim}
-                    onPress={() =>
-                      onPressFavorite && onPressFavorite(item._id)
-                    }>
-                    <Image
-                      source={
-                        favoriteId?.includes(item._id)
-                          ? IconSRC.icon_unfavorite
-                          : IconSRC.icon_favorite
-                      }
-                      style={{width: 20, height: 20}}
-                    />
-                  </TouchableOpacity>
+        renderItem={({item}) => (
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => onPress && onPress(item._id)}>
+            <Block containerStyle={[styles.shadowWrap, containerStyle]}>
+              <Block
+                style={[
+                  styles.btn,
+                  {
+                    backgroundColor: theme.card,
+                    borderWidth: theme.dark ? 1 : 0.3,
+                    borderColor: theme.dark ? '#444' : '#ddd',
+                  },
+                ]}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.tim}
+                  onPress={() => onPressFavorite && onPressFavorite(item._id)}>
                   <Image
-                    style={styles.image}
-                    source={{uri: item.variants?.[0]?.image || ''}}
+                    source={
+                      favoriteId?.includes(item._id)
+                        ? IconSRC.icon_unfavorite
+                        : IconSRC.icon_favorite
+                    }
+                    style={{width: 20, height: 20}}
                   />
-                  <Block mar={5}>
-                    <TextSmall medium numberOfLines={1} ellipsizeMode="tail">
-                      {item.name}
+                </TouchableOpacity>
+                <Image
+                  style={styles.image}
+                  source={{uri: item.variants?.[0]?.image || ''}}
+                />
+                <Block mar={5}>
+                  <TextSmall
+                    medium
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    style={{color: theme.text}}>
+                    {item.name}
+                  </TextSmall>
+                  <Block row alignCT>
+                    <Image style={styles.star} source={IconSRC.icon_star} />
+                    <TextSmall style={{color: theme.text}}>
+                      {item.rating_avg}
                     </TextSmall>
-                    <Block row alignCT>
-                      <Image style={styles.star} source={IconSRC.icon_star} />
-                      <TextSmall>{item.rating_avg}</TextSmall>
-                    </Block>
-                    <TextHeight color={colors.red} bold>
-                      {item.price.toLocaleString('vi-VN')} VND
-                    </TextHeight>
                   </Block>
+                  <TextHeight color={colors.red} bold>
+                    {item.price.toLocaleString('vi-VN')} VND
+                  </TextHeight>
                 </Block>
               </Block>
-            </TouchableOpacity>
-          );
-        }}
-        scrollEnabled={scrollEnabled ? true : false}
+            </Block>
+          </TouchableOpacity>
+        )}
+        scrollEnabled={scrollEnabled}
         numColumns={isColums ? columNumber : 0}
         horizontal={horizontal}
         showsVerticalScrollIndicator={false}
@@ -143,7 +154,6 @@ const styles = StyleSheet.create({
   btn: {
     width: ITEM_WIDTH,
     overflow: 'hidden',
-    backgroundColor: colors.while,
     borderRadius: 12,
   },
   image: {
@@ -169,7 +179,6 @@ const styles = StyleSheet.create({
     elevation: 5,
     borderRadius: 12,
     marginHorizontal: ITEM_MARGIN / 2,
-    // marginBottom: 16,
     marginBottom: 14,
   },
 });

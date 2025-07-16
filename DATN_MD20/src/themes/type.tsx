@@ -1,17 +1,21 @@
 export type ThemeType = {
-  mode: 'light' | 'dark';
-  background: string;
-  text: string;
-  card: string;
-  // Bạn có thể thêm nhiều thuộc tính khác như:
-  primary: string;
-  border: string;
-  danger: string;
-  success: string;
+  mode: 'light' | 'dark';      // Chế độ sáng hoặc tối
+  dark: boolean;               // true nếu là dark mode
+
+  background: string;          // Màu nền chính
+  text: string;                // Màu chữ chính
+  card: string;                // Màu nền card (khác background)
+  border: string;              // Màu viền
+
+  primary: string;             // Màu chính
+  danger: string;              // Màu cảnh báo
+  success: string;             // Màu thành công
+
   blue1: string;
   blue2: string;
   orange: string;
-  gray: string;
-  shadow: string;
-  white: string;
+
+  gray: string;                // Màu chữ/viền phụ
+  shadow: string;              // Màu đổ bóng
+  white: string;               // Màu trắng (cố định)
 };

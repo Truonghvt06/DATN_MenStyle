@@ -31,6 +31,9 @@ const ProfileScreen = () => {
         visibleLeft
         label={getTranslation('tai_khoan')}
         paddingTop={top}
+        backgroundColor={theme.background}
+          labelColor={theme.text}
+          iconColor={theme.text}
       />
       <ScrollView
         style={{flex: 1, backgroundColor: theme.background}} // Thêm dòng này

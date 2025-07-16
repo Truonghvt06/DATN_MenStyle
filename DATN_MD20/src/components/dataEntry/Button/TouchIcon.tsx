@@ -6,59 +6,65 @@ import {
   TextStyle,
   TouchableOpacity,
   TouchableOpacityProps,
-  View,
   ViewStyle,
 } from 'react-native';
 import React from 'react';
 import {IconSRC} from '../../../constants/icons';
-import {TextMedium, TextSizeCustom, TextSmall} from '../TextBase';
 import {colors} from '../../../themes/colors';
+import {useAppTheme} from '../../../themes/ThemeContext'; // ✅ dùng theme
 
 interface Props extends TouchableOpacityProps {
-  title?: string | any;
-  icon?: IconSRC | any;
+  title?: string;
+  icon?: any;
   size?: number;
   sizeText?: number;
-
   color?: string;
   colorTitle?: string;
-
   onPress?: () => void;
   containerStyle?: ViewStyle | any;
   imageStyle?: ImageStyle;
   titleStyle?: TextStyle;
 }
+
 const TouchIcon = (props: Props) => {
   const {
     sizeText = 14,
     size = 20,
-    color = colors.black,
     titleStyle,
     containerStyle,
-    colorTitle,
+    icon,
+    title,
+    imageStyle,
+    onPress,
   } = props;
+
+  const theme = useAppTheme(); // ✅ lấy theme hiện tại
+
+  const iconColor = props.color ?? theme.text;
+  const titleColor = props.colorTitle ?? theme.text;
+
   return (
     <TouchableOpacity
       {...props}
       activeOpacity={0.9}
-      onPress={props.onPress}
+      onPress={onPress}
       style={containerStyle}>
-      {props.title && (
-        <Text style={[{fontSize: sizeText, color: colorTitle}, titleStyle]}>
-          {props.title}
+      {title && (
+        <Text style={[{fontSize: sizeText, color: titleColor}, titleStyle]}>
+          {title}
         </Text>
       )}
-      {props.icon && (
+      {icon && (
         <Image
           style={[
             {
               width: size,
               height: size,
-              tintColor: color,
+              tintColor: iconColor,
             },
-            props.imageStyle,
+            imageStyle,
           ]}
-          source={props.icon}
+          source={icon}
         />
       )}
     </TouchableOpacity>
@@ -66,7 +72,3 @@ const TouchIcon = (props: Props) => {
 };
 
 export default TouchIcon;
-
-const styles = StyleSheet.create({
-  txt: {fontWeight: 'bold'},
-});
