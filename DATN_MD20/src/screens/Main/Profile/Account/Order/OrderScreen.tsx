@@ -117,6 +117,7 @@ const OrderScreen = () => {
             data={dataItemOrder}
             onPress={() => {
               navigation.navigate(ScreenName.Main.OrderDetail, {
+                screen: 'order',
                 orders: item,
               });
             }}

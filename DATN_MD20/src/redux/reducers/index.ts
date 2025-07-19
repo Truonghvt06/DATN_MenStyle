@@ -6,6 +6,8 @@ import product from './product';
 import favorite from './favorite';
 import banner from './banner';
 import address from './address';
+import notification from './notification';
+
 export default combineReducers({
   auth,
   application,
@@ -14,4 +16,5 @@ export default combineReducers({
   favorite,
   banner,
   address,
+  notification,
 });

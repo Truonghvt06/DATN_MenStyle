@@ -11,6 +11,7 @@ import {
   updateUserAvatar,
 } from '../../actions/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {requestUserPermission} from '../../../utils/common/firebase/firebaseNotification';
 
 interface AuthState {
   user: any;
@@ -65,6 +66,9 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.token = action.payload.token;
         AsyncStorage.setItem('token', action.payload.token);
+
+        // Gọi request FCM khi login thành công
+        requestUserPermission(action.payload.user._id);
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;

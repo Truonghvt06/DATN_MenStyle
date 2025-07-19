@@ -8,22 +8,22 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, {useEffect, useState} from 'react';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import ContainerView from '../../../../../components/layout/ContainerView';
 import Header from '../../../../../components/dataDisplay/Header';
 import Block from '../../../../../components/layout/Block';
 import metrics from '../../../../../constants/metrics';
 import InputPlace from '../../../../../components/dataEntry/Input/InputPlace';
-import { KeyboardAvoidingView } from 'react-native';
+import {KeyboardAvoidingView} from 'react-native';
 import {
   TextMedium,
   TextSizeCustom,
 } from '../../../../../components/dataEntry/TextBase';
-import { provinces, districts, wards } from 'vietnam-provinces';
+import {provinces, districts, wards} from 'vietnam-provinces';
 import SelectAddress from '../../../../../components/utils/SelectAddress';
 import useLanguage from '../../../../../hooks/useLanguage';
-import { useAppDispatch, useAppSelector } from '../../../../../redux/store';
+import {useAppDispatch, useAppSelector} from '../../../../../redux/store';
 import ButtonBase from '../../../../../components/dataEntry/Button/ButtonBase';
 import {
   addAddress,
@@ -32,19 +32,20 @@ import {
   updateAddress,
 } from '../../../../../redux/actions/address';
 import navigation from '../../../../../navigation/navigation';
-import { useRoute } from '@react-navigation/native';
+import {useRoute} from '@react-navigation/native';
 import {
   formatPhoneNumber,
   normalizePhoneNumber,
 } from '../../../../../utils/formatPhone';
-import { useAppTheme } from '../../../../../themes/ThemeContext';
+import {useAppTheme} from '../../../../../themes/ThemeContext';
+import {colors} from '../../../../../themes/colors';
 
 const AddAddress = () => {
-  const { top } = useSafeAreaInsets();
-  const { getTranslation } = useLanguage();
+  const {top} = useSafeAreaInsets();
+  const {getTranslation} = useLanguage();
   const theme = useAppTheme();
   const route = useRoute();
-  const { title, items } = route.params as { title: string; items: any };
+  const {title, items} = route.params as {title: string; items: any};
 
   const [isFocused, setIsFocused] = useState(false);
   const [isSwitch, setIsSwitch] = useState(items?.is_default || false);
@@ -66,7 +67,7 @@ const AddAddress = () => {
   const [errorIp, setErrorIp] = useState<any>({});
 
   const dispatch = useAppDispatch();
-  const { listAddress } = useAppSelector(state => state.address);
+  const {listAddress} = useAppSelector(state => state.address);
 
   const getDistrictsByProvinceCode = (provinceCode: string) =>
     districts.filter(d => d.province_code === provinceCode);
@@ -108,7 +109,7 @@ const AddAddress = () => {
     };
     try {
       if (title === getTranslation('sua_dia_chi')) {
-        await dispatch(updateAddress({ id: items._id, data }));
+        await dispatch(updateAddress({id: items._id, data}));
       } else {
         await dispatch(addAddress(data)).unwrap();
       }
@@ -121,7 +122,7 @@ const AddAddress = () => {
 
   const handleDeleteAddress = async () => {
     Alert.alert(getTranslation('thong_bao'), getTranslation('xoa_dia_chi'), [
-      { text: getTranslation('huy'), style: 'cancel' },
+      {text: getTranslation('huy'), style: 'cancel'},
       {
         text: 'OK',
         onPress: async () => {
@@ -154,8 +155,12 @@ const AddAddress = () => {
   }, []);
 
   return (
-    <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss(); setIsFocused(false); }}>
-      <ContainerView containerStyle={{ backgroundColor: theme.background }}>
+    <TouchableWithoutFeedback
+      onPress={() => {
+        Keyboard.dismiss();
+        setIsFocused(false);
+      }}>
+      <ContainerView containerStyle={{backgroundColor: colors.gray2}}>
         <Header
           label={title}
           paddingTop={top}
@@ -165,34 +170,52 @@ const AddAddress = () => {
           iconColor={theme.text}
         />
         <ScrollView>
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
             <Block pad={metrics.space}>
-              <Block backgroundColor={theme.card} padH={8} padV={12} borderRadius={10}>
-                <TextMedium medium style={{ color: theme.text }}>
+              <Block
+                backgroundColor={colors.while}
+                padH={8}
+                padV={12}
+                borderRadius={10}>
+                <TextMedium medium style={{color: theme.text}}>
                   {getTranslation('dia_chi')}
                 </TextMedium>
                 <InputPlace
                   is_Focused={isFocused}
                   label={getTranslation('ho_va_ten')}
                   value={address.name}
-                  onChangeText={(text : string) => {
-                    setAddress({ ...address, name: text });
-                    setErrorIp({ ...errorIp, name: '' });
+                  onChangeText={(text: string) => {
+                    setAddress({...address, name: text});
+                    setErrorIp({...errorIp, name: ''});
                   }}
                 />
-                {errorIp.name && <TextSizeCustom size={11} color={theme.danger}>{errorIp.name}</TextSizeCustom>}
+                {errorIp.name && (
+                  <TextSizeCustom size={11} color={theme.danger}>
+                    {errorIp.name}
+                  </TextSizeCustom>
+                )}
 
                 <InputPlace
                   is_Focused={isFocused}
                   label={getTranslation('sdt')}
                   value={address.phone}
-                  onChangeText={(text : string)=> {
-                    setAddress({ ...address, phone: text });
-                    setErrorIp({ ...errorIp, phone: '' });
+                  onChangeText={(text: string) => {
+                    setAddress({...address, phone: text});
+                    setErrorIp({...errorIp, phone: ''});
                   }}
-                  onBlur={() => setAddress(prev => ({ ...prev, phone: formatPhoneNumber(prev.phone) }))}
+                  onBlur={() =>
+                    setAddress(prev => ({
+                      ...prev,
+                      phone: formatPhoneNumber(prev.phone),
+                    }))
+                  }
                 />
-                {errorIp.phone && <TextSizeCustom size={11} color={theme.danger}>{errorIp.phone}</TextSizeCustom>}
+                {errorIp.phone && (
+                  <TextSizeCustom size={11} color={theme.danger}>
+                    {errorIp.phone}
+                  </TextSizeCustom>
+                )}
 
                 <InputPlace
                   readOnly
@@ -200,13 +223,17 @@ const AddAddress = () => {
                   label={getTranslation('chon_tinh')}
                   value={address.province}
                   iconRight
-                  containerView={{ flexDirection: 'row' }}
+                  containerView={{flexDirection: 'row'}}
                   onPress={() => {
                     setIsOpenProvince(true);
-                    setErrorIp({ ...errorIp, province: '' });
+                    setErrorIp({...errorIp, province: ''});
                   }}
                 />
-                {errorIp.province && <TextSizeCustom size={11} color={theme.danger}>{errorIp.province}</TextSizeCustom>}
+                {errorIp.province && (
+                  <TextSizeCustom size={11} color={theme.danger}>
+                    {errorIp.province}
+                  </TextSizeCustom>
+                )}
 
                 <InputPlace
                   readOnly
@@ -215,14 +242,18 @@ const AddAddress = () => {
                   value={address.district}
                   iconRight
                   disabled={!address.province}
-                  containerView={{ flexDirection: 'row' }}
+                  containerView={{flexDirection: 'row'}}
                   onPress={() => {
                     if (!address.province) return;
                     setIsOpenDistrict(true);
-                    setErrorIp({ ...errorIp, district: '' });
+                    setErrorIp({...errorIp, district: ''});
                   }}
                 />
-                {errorIp.district && <TextSizeCustom size={11} color={theme.danger}>{errorIp.district}</TextSizeCustom>}
+                {errorIp.district && (
+                  <TextSizeCustom size={11} color={theme.danger}>
+                    {errorIp.district}
+                  </TextSizeCustom>
+                )}
 
                 <InputPlace
                   readOnly
@@ -231,35 +262,66 @@ const AddAddress = () => {
                   value={address.ward}
                   iconRight
                   disabled={!address.district}
-                  containerView={{ flexDirection: 'row' }}
+                  containerView={{flexDirection: 'row'}}
                   onPress={() => {
                     if (!address.province || !address.district) return;
                     setIsOpenWard(true);
-                    setErrorIp({ ...errorIp, ward: '' });
+                    setErrorIp({...errorIp, ward: ''});
                   }}
                 />
-                {errorIp.ward && <TextSizeCustom size={11} color={theme.danger}>{errorIp.ward}</TextSizeCustom>}
+                {errorIp.ward && (
+                  <TextSizeCustom size={11} color={theme.danger}>
+                    {errorIp.ward}
+                  </TextSizeCustom>
+                )}
 
                 <InputPlace
                   is_Focused={isFocused}
                   label={getTranslation('ten_duong')}
                   value={address.addres_line}
-                  onChangeText={(text : string) => {
-                    setAddress({ ...address, addres_line: text });
-                    setErrorIp({ ...errorIp, addres_line: '' });
+                  onChangeText={(text: string) => {
+                    setAddress({...address, addres_line: text});
+                    setErrorIp({...errorIp, addres_line: ''});
                   }}
                 />
-                {errorIp.addres_line && <TextSizeCustom size={11} color={theme.danger}>{errorIp.addres_line}</TextSizeCustom>}
+                {errorIp.addres_line && (
+                  <TextSizeCustom size={11} color={theme.danger}>
+                    {errorIp.addres_line}
+                  </TextSizeCustom>
+                )}
               </Block>
 
-              <TouchableOpacity activeOpacity={1} style={[styles.btnDefault, { backgroundColor: theme.card }]}>
-                <TextMedium medium style={{ color: theme.text }}>
-                  {getTranslation('dat_mac_dinh')}
-                </TextMedium>
+              <TouchableOpacity
+                activeOpacity={1}
+                style={[styles.btnDefault, {backgroundColor: colors.while}]}
+                onPress={() => {
+                  if (listAddress.length === 0) {
+                    Alert.alert(
+                      getTranslation('thong_bao'),
+                      'Địa chỉ đầu tiên sẽ được đặt làm mặc định',
+                    );
+                  } else if (items?.is_default === true) {
+                    Alert.alert(
+                      getTranslation('thong_bao'),
+                      'Không thể huỷ mặc định tại đây. Vui lòng chọn địa chỉ khác làm mặc định.',
+                    );
+                  }
+                }}>
+                <TextMedium medium>{getTranslation('dat_mac_dinh')}</TextMedium>
                 <Switch
                   value={listAddress.length === 0 ? true : isSwitch}
-                  disabled={listAddress.length === 0 || items?.is_default === true}
-                  onValueChange={() => setIsSwitch(!isSwitch)}
+                  disabled={
+                    listAddress.length === 0 || items?.is_default === true
+                      ? true
+                      : false
+                  }
+                  onValueChange={() => {
+                    if (listAddress.length === 0) {
+                      setIsSwitch(true);
+                    } else {
+                      setIsSwitch(!isSwitch);
+                    }
+                  }}
                 />
               </TouchableOpacity>
             </Block>
@@ -268,9 +330,11 @@ const AddAddress = () => {
 
         {items && (
           <TouchableOpacity
-            style={[styles.btnDel, { borderColor: theme.border, backgroundColor: theme.card }]}
-            onPress={handleDeleteAddress}
-          >
+            style={[
+              styles.btnDel,
+              {borderColor: theme.border, backgroundColor: theme.card},
+            ]}
+            onPress={handleDeleteAddress}>
             <TextSizeCustom bold size={18} color={theme.text}>
               {getTranslation('xoa_dia_chi')?.toUpperCase()}
             </TextSizeCustom>
@@ -308,7 +372,7 @@ const AddAddress = () => {
           data={districtss}
           onClose={() => setIsOpenDistrict(false)}
           onSelect={(district: any) => {
-            setAddress({ ...address, district: district.name, ward: '' });
+            setAddress({...address, district: district.name, ward: ''});
             const newWards = getWardsByDistrictCode(district.code);
             setWardss(newWards);
             setIsOpenDistrict(false);
@@ -321,7 +385,7 @@ const AddAddress = () => {
           data={wardss}
           onClose={() => setIsOpenWard(false)}
           onSelect={(ward: any) => {
-            setAddress({ ...address, ward: ward.name });
+            setAddress({...address, ward: ward.name});
             setIsOpenWard(false);
           }}
         />

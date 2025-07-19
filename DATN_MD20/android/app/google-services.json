@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "426523103203",
-    "project_id": "menstyleapp",
-    "storage_bucket": "menstyleapp.firebasestorage.app"
+    "project_number": "403613239899",
+    "project_id": "menstyle-e9abd",
+    "storage_bucket": "menstyle-e9abd.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:426523103203:android:b64be2523821adf98c1ad6",
+        "mobilesdk_app_id": "1:403613239899:android:77a65fe48ced7e8be38d7e",
         "android_client_info": {
           "package_name": "com.datn_md20"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAB8QyYph7DiBKPq8mqPgHKDwGADQMQCGU"
+          "current_key": "AIzaSyAm7DWt-cPAcskdPLGstrHDceEbdDKs2n8"
         }
       ],
       "services": {

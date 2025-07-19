@@ -9,6 +9,7 @@ const accountRouter = require("./routes/account");
 const bannerRoute = require("./routes/banner");
 const settingRoute = require("./routes/setting");
 const addressRouter = require("./routes/address");
+const notificationRouter = require("./routes/notification");
 
 const path = require("path");
 const cors = require("cors");
@@ -36,6 +37,7 @@ app.use("/accounts", accountRouter);
 app.use("/banner", bannerRoute);
 app.use("/setting", settingRoute);
 app.use("/address", addressRouter);
+app.use("/notification", notificationRouter);
 
 // Kết nối MongoDB
 mongoose

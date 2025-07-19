@@ -218,3 +218,24 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ message: "Lỗi đặt lại mật khẩu", error });
   }
 };
+
+// update token FCM
+exports.updateFcmToken = async (req, res) => {
+  try {
+    const { fcmToken } = req.body;
+    const userId = req.user.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.fcmToken = fcmToken;
+    await user.save();
+
+    res.json({ message: "FCM token updated successfully" });
+  } catch (error) {
+    console.error("Error updating FCM token:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

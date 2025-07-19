@@ -22,6 +22,9 @@ export const loginUser = createAsyncThunk(
   async ({email, password}: LoginState, thunkAPI) => {
     try {
       const data = await auth.login({email, password});
+      console.log('Login token:', data.token);
+      console.log('Login token:', data);
+
       return data; // { token, user }
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.message || 'Lỗi đăng nhập');

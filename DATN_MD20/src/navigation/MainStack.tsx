@@ -30,6 +30,7 @@ import ReviewScreen from '../screens/Main/Product/ReviewScreen';
 import Theme from '../screens/Main/Theme';
 import RelatedProductDetail from '../screens/Main/Product/RelatedProductDetail';
 import SearchResultScreen from '../screens/Main/SearchResultScreen';
+import VoucherScreen from '../screens/Main/Voucher/VoucherScreen';
 
 const Stack = createStackNavigator();
 
@@ -86,10 +87,7 @@ const MainStack = () => {
         name={ScreenName.Main.Language}
         component={LanguageScreen}
       />
-      <Stack.Screen
-        name={ScreenName.Main.Theme}
-        component={Theme}
-      />
+      <Stack.Screen name={ScreenName.Main.Theme} component={Theme} />
       <Stack.Screen
         name={ScreenName.Main.Information}
         component={InformationScreen}
@@ -100,6 +98,7 @@ const MainStack = () => {
         name={ScreenName.Main.RelatedProductDetail}
         component={RelatedProductDetail}
       />
+      <Stack.Screen name={ScreenName.Main.Voucher} component={VoucherScreen} />
     </Stack.Navigator>
   );
 };

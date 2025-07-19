@@ -34,5 +34,6 @@ export default {
     Review: 'ReviewScreen',
     RelatedProductDetail: 'RelatedProductDetail',
     Theme: 'ThemeScreen',
+    Voucher: 'VoucherScreen',
   },
 };
