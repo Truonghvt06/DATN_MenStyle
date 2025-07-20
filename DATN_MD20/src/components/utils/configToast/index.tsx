@@ -4,16 +4,19 @@ import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {TextMedium, TextSizeCustom, TextSmall} from '../../dataEntry/TextBase';
 import {IconSRC, ImgSRC} from '../../../constants/icons';
+import {useAppTheme} from '../../../themes/ThemeContext';
+import {colors} from '../../../themes/colors';
 
 //Tự tạo thông báo toast
-
 export default {
   notification: (internalState: any) => {
     const {top} = useSafeAreaInsets();
+    const theme = useAppTheme();
+
     return (
       <View
         style={{
-          backgroundColor: 'rgb(121, 248, 125)',
+          backgroundColor: 'rgb(0, 157, 5)',
           width: '95%',
           paddingHorizontal: 10,
           paddingVertical: 7,
@@ -40,8 +43,12 @@ export default {
             Toast.hide();
             internalState.onPress();
           }}>
-          <TextSmall bold>{internalState.text1}</TextSmall>
-          <TextSizeCustom size={13}>{internalState.text2}</TextSizeCustom>
+          <TextSmall bold color={colors.while}>
+            {internalState.text1}
+          </TextSmall>
+          <TextSizeCustom size={13} color={colors.while}>
+            {internalState.text2}
+          </TextSizeCustom>
         </TouchableOpacity>
         {/* <TouchableOpacity style={{padding: 10}} onPress={() => Toast.hide()}>
           <AntDesign name="close" style={{fontSize: 20, color: 'red'}} />

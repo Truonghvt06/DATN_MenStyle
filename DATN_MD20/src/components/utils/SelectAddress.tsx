@@ -5,6 +5,7 @@ import metrics from '../../constants/metrics';
 import {colors} from '../../themes/colors';
 import TouchIcon from '../dataEntry/Button/TouchIcon';
 import Block from '../layout/Block';
+import {useAppTheme} from '../../themes/ThemeContext';
 
 interface Props {
   label?: string;
@@ -14,6 +15,7 @@ interface Props {
   onSelect: (text: string) => void;
 }
 const SelectAddress = (props: Props) => {
+  const theme = useAppTheme();
   const {label, visible = false, data, onClose, onSelect} = props;
   return (
     <>
@@ -35,8 +37,7 @@ const SelectAddress = (props: Props) => {
                   onSelect(item);
                   onClose();
                 }}
-                containerStyle={styles.item}
-                colorTitle={colors.black}
+                containerStyle={[styles.item, {borderColor: theme.gray}]}
               />
             )}
             showsVerticalScrollIndicator={false}
@@ -55,6 +56,5 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     marginHorizontal: 10,
     borderBottomWidth: 0.3,
-    borderColor: colors.gray1,
   },
 });

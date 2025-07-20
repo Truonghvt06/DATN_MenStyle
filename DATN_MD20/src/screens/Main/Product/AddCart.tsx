@@ -1,21 +1,13 @@
 import React, {useRef} from 'react';
-import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import {Image, ScrollView, StyleSheet, TextInput, View} from 'react-native';
 import metrics from '../../../constants/metrics';
 import Block from '../../../components/layout/Block';
-import {
-  TextHeight,
-  TextSmall,
-} from '../../../components/dataEntry/TextBase';
+import {TextHeight, TextSmall} from '../../../components/dataEntry/TextBase';
 import {IconSRC} from '../../../constants/icons';
 import TouchIcon from '../../../components/dataEntry/Button/TouchIcon';
 import ButtonBase from '../../../components/dataEntry/Button/ButtonBase';
 import {useAppTheme} from '../../../themes/ThemeContext';
+import useLanguage from '../../../hooks/useLanguage';
 
 interface Props {
   image?: any;
@@ -30,6 +22,8 @@ interface Props {
 }
 
 const AddCart = (props: Props) => {
+  const theme = useAppTheme();
+  const {getTranslation} = useLanguage();
   const {
     image,
     price,
@@ -42,7 +36,6 @@ const AddCart = (props: Props) => {
     onColse,
   } = props;
   const inputRef = useRef<TextInput>(null);
-  const theme = useAppTheme();
 
   const handleTru = () => {
     const newValue = Math.max(1, parseInt(value || '1') - 1);
@@ -57,14 +50,18 @@ const AddCart = (props: Props) => {
   };
 
   return (
-    <View style={[styles.container, {backgroundColor: theme.card}]}>
-      <Block row containerStyle={[styles.boW, {borderColor: theme.border}]}>
+    <View style={[styles.container, {backgroundColor: theme.background_modal}]}>
+      <Block
+        row
+        containerStyle={[styles.boW, {borderColor: theme.border_color}]}>
         <Image style={styles.img} source={{uri: image}} />
         <Block flex1 marL={10} justifyContent="flex-end">
           <TextHeight bold color={theme.danger}>
             {price}đ
           </TextHeight>
-          <TextSmall color={theme.gray}>Kho: {quantity_kho}</TextSmall>
+          <TextSmall color={theme.text}>
+            {getTranslation('kho')}: {quantity_kho}
+          </TextSmall>
         </Block>
         <TouchIcon
           size={15}
@@ -81,8 +78,8 @@ const AddCart = (props: Props) => {
           row
           alignCT
           justifyBW
-          containerStyle={[styles.boW1, {borderColor: theme.border}]}>
-          <TextSmall color={theme.text}>Số lượng</TextSmall>
+          containerStyle={[styles.boW1, {borderColor: theme.border_color}]}>
+          <TextSmall color={theme.text}>{getTranslation('so_luong')}</TextSmall>
           <Block
             row
             borderWidth={0.5}
@@ -92,7 +89,7 @@ const AddCart = (props: Props) => {
             height={30}
             marT={5}
             alignCT
-            borderColor={theme.border}>
+            borderColor={theme.border_color}>
             <TouchIcon
               title="-"
               containerStyle={{flex: 1, alignItems: 'center'}}

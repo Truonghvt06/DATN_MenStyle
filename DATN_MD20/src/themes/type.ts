@@ -3,7 +3,7 @@ export type ThemeType = {
   background: string;
   text: string;
   card: string;
-  // Bạn có thể thêm nhiều thuộc tính khác như:
+
   primary: string;
   border: string;
   danger: string;

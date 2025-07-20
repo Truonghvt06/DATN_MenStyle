@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, {useEffect, useRef} from 'react';
 import {
   View,
   StyleSheet,
@@ -6,12 +6,13 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import { useAppDispatch } from '../../redux/store';
-import { loadUserFromStorage } from '../../redux/actions/auth';
+import {useAppDispatch} from '../../redux/store';
+import {loadUserFromStorage} from '../../redux/actions/auth';
 import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
-import { ImgSRC } from '../../constants/icons';
-import { useAppTheme } from '../../themes/ThemeContext';
+import {ImgSRC} from '../../constants/icons';
+import {useAppTheme} from '../../themes/ThemeContext';
+import {lightTheme} from '../../themes/appThemes';
 
 const WelcomeScreen = () => {
   const dispatch = useAppDispatch();
@@ -51,22 +52,22 @@ const WelcomeScreen = () => {
   }, [dispatch, fadeAnim, slideAnim]);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={[styles.container, {backgroundColor: theme.background}]}>
       <Animated.Image
-        source={ImgSRC.img_logo}
+        source={theme === lightTheme ? ImgSRC.img_logo : ImgSRC.img_logo_trang}
         style={[
           styles.img,
           {
             opacity: fadeAnim,
-            transform: [{ translateY: slideAnim }],
+            transform: [{translateY: slideAnim}],
           },
         ]}
       />
-      <ActivityIndicator
+      {/* <ActivityIndicator
         size="large"
         color={theme.primary}
         style={styles.loading}
-      />
+      /> */}
     </View>
   );
 };

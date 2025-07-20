@@ -59,6 +59,7 @@ const ProductDetail = () => {
   const [openModal, setOpenModal] = useState(false);
 
   const [isReady, setIsReady] = useState(false); //Độ trễ lại trước khi hiển thị dữ liệu
+  const lineNumber = 4;
 
   //tạo mảng chứa
   const sizes = [...new Set(proData?.variants?.map((v: any) => v.size) || [])];
@@ -138,7 +139,7 @@ const ProductDetail = () => {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <ContainerView containerStyle={{backgroundColor: theme.background}}>
+      <ContainerView>
         {!isReady ? (
           <View style={styles.loadingContainer}>
             {/* <TextMedium style={{textAlign: 'center'}}>
@@ -215,24 +216,31 @@ const ProductDetail = () => {
                       borderColor: colors.gray3,
                       paddingVertical: 7,
                     }}>
-                    Mô tả sản phẩm
+                    {getTranslation('mo_ta_sp')}
                   </TextMedium>
-                  <Block>
-                    <TextSmall numberOfLines={showDescription ? undefined : 2}>
+                  <Block marB={lineNumber <= 4 ? 25 : 0}>
+                    <TextSmall
+                      numberOfLines={showDescription ? undefined : lineNumber}>
                       {proData?.description}
                     </TextSmall>
 
-                    <TouchIcon
-                      title={showDescription ? 'Thu gọn' : 'Xem thêm'}
-                      icon={
-                        showDescription ? IconSRC.icon_up : IconSRC.icon_down
-                      }
-                      color={colors.black}
-                      size={20}
-                      onPress={() => setShowDescription(!showDescription)}
-                      containerStyle={styles.btnSee}
-                      sizeText={14}
-                    />
+                    {lineNumber > 4 && (
+                      <TouchIcon
+                        title={
+                          showDescription ? (
+                            <TextSmall>Thu gọn</TextSmall>
+                          ) : (
+                            <TextSmall> {getTranslation('xem_them')}</TextSmall>
+                          )
+                        }
+                        icon={
+                          showDescription ? IconSRC.icon_up : IconSRC.icon_down
+                        }
+                        size={20}
+                        onPress={() => setShowDescription(!showDescription)}
+                        containerStyle={styles.btnSee}
+                      />
+                    )}
                   </Block>
                 </>
                 <>
@@ -245,7 +253,7 @@ const ProductDetail = () => {
                     borderColor={colors.gray1}>
                     <TextMedium bold>Đánh giá(123)</TextMedium>
                     <TouchIcon
-                      title="Xem tất cả"
+                      title={getTranslation('xem_tat_ca')}
                       icon={IconSRC.icon_back_right}
                       containerStyle={{
                         flexDirection: 'row',
@@ -338,7 +346,7 @@ const ProductDetail = () => {
           // label="Thêm sản phẩm"
           visible={openModal}
           animationType="fade"
-          heightModal={metrics.diviceHeight * 0.6}
+          heightModal={530}
           onClose={() => {
             setOpenModal(false);
           }}
@@ -367,7 +375,9 @@ const ProductDetail = () => {
               onPress={() => {}}
               size={
                 <>
-                  <TextSmall style={styles.boW}>Kích thước</TextSmall>
+                  <TextSmall style={styles.boW}>
+                    {getTranslation('kich_thuoc')}
+                  </TextSmall>
                   <View style={{flexDirection: 'row'}}>
                     {sizes.map((size: any, index): any => {
                       return (
@@ -397,7 +407,9 @@ const ProductDetail = () => {
               }
               color={
                 <>
-                  <TextSmall style={{marginTop: 7}}>Màu sắc</TextSmall>
+                  <TextSmall style={{marginTop: 7}}>
+                    {getTranslation('mau_sac')}
+                  </TextSmall>
                   <View style={{flexDirection: 'row'}}>
                     {colorss.map((color: any, index) => {
                       return (

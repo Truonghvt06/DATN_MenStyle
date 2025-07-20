@@ -8,6 +8,7 @@ import {IconSRC} from '../../constants/icons';
 import {colors} from '../../themes/colors';
 import TouchIcon from '../dataEntry/Button/TouchIcon';
 import useLanguage from '../../hooks/useLanguage';
+import {useAppTheme} from '../../themes/ThemeContext';
 
 interface Props {
   name?: string;
@@ -19,6 +20,7 @@ interface Props {
 }
 const FavoriteItem = (props: Props) => {
   const {getTranslation} = useLanguage();
+  const theme = useAppTheme();
   const {name, price, image, onPress, onPressIcon, onPressAdd} = props;
   return (
     <TouchableOpacity
@@ -49,7 +51,7 @@ const FavoriteItem = (props: Props) => {
         </Block>
         <TouchIcon
           icon={IconSRC.icon_menu}
-          containerStyle={styles.icon}
+          containerStyle={[styles.icon, {tintColor: theme.icon}]}
           size={20}
           onPress={onPressIcon}
         />

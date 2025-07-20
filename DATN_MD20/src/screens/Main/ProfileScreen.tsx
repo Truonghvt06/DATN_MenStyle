@@ -12,10 +12,10 @@ import ButtonBase from '../../components/dataEntry/Button/ButtonBase';
 import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
 import {useRoute} from '@react-navigation/native';
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+import {useAppDispatch, useAppSelector} from '../../redux/hooks';
 import useLanguage from '../../hooks/useLanguage';
 import {logout} from '../../redux/reducers/auth';
-import { useAppTheme } from '../../themes/ThemeContext';
+import {useAppTheme} from '../../themes/ThemeContext';
 
 const ProfileScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -26,17 +26,16 @@ const ProfileScreen = () => {
   const {user, token} = useAppSelector(state => state.auth);
 
   return (
-    <ContainerView style={{flex: 1, backgroundColor: theme.background}}>
+    <ContainerView>
       <Header
         visibleLeft
         label={getTranslation('tai_khoan')}
         paddingTop={top}
       />
       <ScrollView
-        style={{flex: 1, backgroundColor: theme.background}} // Thêm dòng này
+        // Thêm dòng này
         contentContainerStyle={{paddingHorizontal: 8, paddingBottom: 20}}
-        showsVerticalScrollIndicator={false}
-      >
+        showsVerticalScrollIndicator={false}>
         {token ? (
           <Block alignCT marT={16} marB={50}>
             <Image
@@ -82,7 +81,9 @@ const ProfileScreen = () => {
         )}
         {token && (
           <>
-            <TextHeight bold style={{color: theme.text}}>{getTranslation('tai_khoan1')}</TextHeight>
+            <TextHeight bold style={{color: theme.text}}>
+              {getTranslation('tai_khoan1')}
+            </TextHeight>
             <Block w100 borderWidth={0.5} borderColor={colors.gray3} marV={5} />
             <ButtonOption
               name={getTranslation('thong_tin_ca_nhan')}
@@ -117,7 +118,9 @@ const ProfileScreen = () => {
           </>
         )}
 
-        <TextHeight bold style={{color: theme.text}}>{getTranslation('khac')}</TextHeight>
+        <TextHeight bold style={{color: theme.text}}>
+          {getTranslation('khac')}
+        </TextHeight>
         <Block w100 borderWidth={0.5} borderColor={colors.gray3} marV={5} />
         <ButtonOption
           name={getTranslation('ma_giam_gia')}
@@ -136,11 +139,11 @@ const ProfileScreen = () => {
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
           onPress={() => navigation.navigate(ScreenName.Main.Language)}
-          textColor={theme.text}        
+          textColor={theme.text}
         />
         <ButtonOption
-          name="Chủ đề"
-          content="Thay đổi màu sắc"
+          name={getTranslation('chu_de')}
+          content={getTranslation('thay_doi_chu_de')}
           iconLeft={IconSRC.icon_theme}
           sizeLeft={25}
           borderBottom={0}
@@ -149,7 +152,9 @@ const ProfileScreen = () => {
           textColor={theme.text}
         />
 
-        <TextHeight bold style={{color: theme.text}}>{getTranslation('chinh_sach_dieu_khoan')}</TextHeight>
+        <TextHeight bold style={{color: theme.text}}>
+          {getTranslation('chinh_sach_dieu_khoan')}
+        </TextHeight>
         <Block w100 borderWidth={0.5} borderColor={colors.gray3} marV={5} />
         <ButtonOption
           name={getTranslation('dieu_khoan_dieu_kien')}
@@ -171,7 +176,9 @@ const ProfileScreen = () => {
           onPress={() => navigation.navigate('ChinhSach')}
           textColor={theme.text}
         />
-        <TextHeight bold style={{color: theme.text}}>{getTranslation('ho_tro')}</TextHeight>
+        <TextHeight bold style={{color: theme.text}}>
+          {getTranslation('ho_tro')}
+        </TextHeight>
         <Block w100 borderWidth={0.5} borderColor={colors.gray3} marV={5} />
         <ButtonOption
           name={getTranslation('lien_he')}

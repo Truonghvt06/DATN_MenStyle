@@ -72,7 +72,9 @@ export default function NotificationScreen() {
       style={[
         styles.item,
         !item.is_read && styles.unread,
-        {backgroundColor: !item.is_read ? colors.sky_blue : theme.card},
+        {
+          backgroundColor: !item.is_read ? theme.sky_blue : theme.gray,
+        },
       ]}>
       <Text style={[styles.title, {color: theme.text}]}>
         {`${getTypeIcon(item.type)} ${item.title}`}

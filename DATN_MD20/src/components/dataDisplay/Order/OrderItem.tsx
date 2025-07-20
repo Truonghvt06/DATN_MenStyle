@@ -17,6 +17,7 @@ import {
 } from '../../dataEntry/TextBase';
 import {colors} from '../../../themes/colors';
 import useLanguage from '../../../hooks/useLanguage';
+import {useAppTheme} from '../../../themes/ThemeContext';
 
 interface Propos {
   data: any;
@@ -30,6 +31,7 @@ interface Propos {
 }
 const OrderItem = (props: Propos) => {
   const {getTranslation} = useLanguage();
+  const theme = useAppTheme();
   const {
     data,
     code_order,
@@ -64,7 +66,14 @@ const OrderItem = (props: Propos) => {
     <TouchableOpacity
       {...props}
       activeOpacity={1}
-      style={styles.container}
+      style={[
+        styles.container,
+        {
+          backgroundColor: theme.background_item,
+          shadowColor: theme.shadow_color,
+        },
+        containerStyle,
+      ]}
       onPress={onPress}>
       <Block padV={12} padH={10} overflow="hidden" flex1>
         <Block row justifyBW padB={10}>
@@ -140,14 +149,11 @@ export default OrderItem;
 
 const styles = StyleSheet.create({
   container: {
-    shadowColor: colors.black,
     shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 5,
-    backgroundColor: colors.while,
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
     marginBottom: 20,
-
     borderRadius: 10,
     // overflow: 'hidden',
   },

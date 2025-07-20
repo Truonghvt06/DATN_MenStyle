@@ -5,6 +5,7 @@ import Header from '../../../../components/dataDisplay/Header';
 import ContainerView from '../../../../components/layout/ContainerView';
 import {useAppTheme} from '../../../../themes/ThemeContext';
 import useLanguage from '../../../../hooks/useLanguage';
+import {TextMedium, TextSmall} from '../../../../components/dataEntry/TextBase';
 
 const DieuKhoanVaDieuKien = () => {
   const {top} = useSafeAreaInsets();
@@ -12,35 +13,32 @@ const DieuKhoanVaDieuKien = () => {
   const {getTranslation} = useLanguage();
 
   return (
-    <ContainerView
-      containerStyle={{backgroundColor: theme.background, paddingTop: top}}>
+    <ContainerView>
       <Header
         label={getTranslation('dieu_khoan_va_dieu_kien')}
         paddingTop={top}
-        backgroundColor={theme.background}
-        textColor={theme.text}
       />
       <ScrollView style={[styles.container]}>
-        <Text style={[styles.title, {color: theme.text}]}>
-          {getTranslation('gioi_thieu')}
-        </Text>
-        <Text style={[styles.text, {color: theme.text}]}>
+        <TextMedium bold style={[styles.title]}>
+          1. {getTranslation('gioi_thieu')}:
+        </TextMedium>
+        <TextSmall style={[styles.text]}>
           {getTranslation('noi_dung_gioi_thieu')}
-        </Text>
+        </TextSmall>
 
-        <Text style={[styles.title, {color: theme.text}]}>
-          {getTranslation('trach_nhiem_nguoi_dung')}
-        </Text>
-        <Text style={[styles.text, {color: theme.text}]}>
+        <TextMedium bold style={[styles.title]}>
+          2. {getTranslation('trach_nhiem_nguoi_dung')}:
+        </TextMedium>
+        <TextSmall style={[styles.text]}>
           {getTranslation('noi_dung_trach_nhiem')}
-        </Text>
+        </TextSmall>
 
-        <Text style={[styles.title, {color: theme.text}]}>
-          {getTranslation('sua_doi_dieu_khoan')}
-        </Text>
-        <Text style={[styles.text, {color: theme.text}]}>
+        <TextMedium bold style={[styles.title]}>
+          3. {getTranslation('sua_doi_dieu_khoan')}:
+        </TextMedium>
+        <TextSmall style={[styles.text]}>
           {getTranslation('noi_dung_sua_doi')}
-        </Text>
+        </TextSmall>
       </ScrollView>
     </ContainerView>
   );
@@ -50,17 +48,14 @@ export default DieuKhoanVaDieuKien;
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
-    paddingTop: 10,
+    paddingHorizontal: 8,
+    paddingTop: 8,
   },
   title: {
-    fontSize: 16,
-    fontWeight: 'bold',
     marginTop: 16,
     marginBottom: 6,
   },
   text: {
-    fontSize: 14,
     lineHeight: 20,
   },
 });

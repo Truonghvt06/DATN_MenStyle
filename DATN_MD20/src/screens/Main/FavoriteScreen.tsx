@@ -24,7 +24,7 @@ import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
 import Toast from 'react-native-toast-message';
 import configToast from '../../components/utils/configToast';
-import { useAppTheme } from '../../themes/ThemeContext';
+import {useAppTheme} from '../../themes/ThemeContext';
 
 const FavoriteScreen = () => {
   const theme = useAppTheme();
@@ -32,7 +32,9 @@ const FavoriteScreen = () => {
   const {getTranslation} = useLanguage();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    null,
+  );
 
   const dispatch = useAppDispatch();
   const {listFavorite} = useAppSelector(state => state.favorite);
@@ -88,7 +90,7 @@ const FavoriteScreen = () => {
   };
 
   return (
-    <ContainerView style={{ flex: 1, backgroundColor: theme.background }}>
+    <ContainerView>
       <Header
         visibleLeft
         label={getTranslation('ua_thich')}
@@ -103,11 +105,15 @@ const FavoriteScreen = () => {
           />
         }
       />
-      <Toast config={configToast} />
       {!token ? (
         <Block flex1 alignCT justifyCT>
-          <Image source={IconSRC.icon_search_nolist} style={styles.icon_nolist} />
-          <TextMedium style={{ color: theme.text }}>Hãy đăng nhập để sử dụng</TextMedium>
+          <Image
+            source={IconSRC.icon_search_nolist}
+            style={styles.icon_nolist}
+          />
+          <TextMedium style={{color: theme.text}}>
+            Hãy đăng nhập để sử dụng
+          </TextMedium>
           <ButtonBase
             containerStyle={styles.btn_mua}
             size={14}
@@ -115,15 +121,18 @@ const FavoriteScreen = () => {
             onPress={() => {
               navigation.navigate(ScreenName.Auth.AuthStack, {
                 screen: ScreenName.Auth.Login,
-                params: { nameScreen: '' },
+                params: {nameScreen: ''},
               });
             }}
           />
         </Block>
       ) : listFavorite.length === 0 ? (
         <Block flex1 alignCT justifyCT>
-          <Image source={IconSRC.icon_search_nolist} style={styles.icon_nolist} />
-          <TextMedium style={{ color: theme.text }}>
+          <Image
+            source={IconSRC.icon_search_nolist}
+            style={styles.icon_nolist}
+          />
+          <TextMedium style={{color: theme.text}}>
             Bạn chưa có sản phẩm yêu thích nào
           </TextMedium>
           <ButtonBase
@@ -152,7 +161,11 @@ const FavoriteScreen = () => {
               }}
             />
           )}
-          contentContainerStyle={{paddingBottom: 20, backgroundColor: theme.background}}
+          contentContainerStyle={{
+            paddingBottom: 20,
+            marginTop: 10,
+            backgroundColor: theme.background,
+          }}
           showsVerticalScrollIndicator={false}
         />
       )}
@@ -163,32 +176,30 @@ const FavoriteScreen = () => {
         visible={isOpen}
         animationType="fade"
         onClose={() => setIsOpen(false)}
-        heightModal={metrics.diviceHeight * 0.35}
+        heightModal={320}
         children={
           <Block padH={metrics.space}>
             <ButtonOption
               iconLeft={IconSRC.icon_cart1}
               iconRight={null}
               sizeLeft={20}
-              borderColor={colors.white30}
-              containerStyle={{paddingVertical: 20}}
+              containerStyle={{paddingVertical: 25}}
               name={getTranslation('them_vao_gio_hang')}
               onPress={() => {}}
-              textColor={theme.text}
             />
             <ButtonOption
               iconLeft={IconSRC.icon_delete}
               iconRight={null}
               sizeLeft={20}
-              borderColor={colors.white30}
-              containerStyle={{paddingVertical: 20}}
+              containerStyle={{paddingVertical: 25}}
               name={getTranslation('xoa_yeu_thich')}
               onPress={handleDelFavorite}
-              textColor={theme.text}
             />
           </Block>
         }
       />
+
+      <Toast config={configToast} />
     </ContainerView>
   );
 };

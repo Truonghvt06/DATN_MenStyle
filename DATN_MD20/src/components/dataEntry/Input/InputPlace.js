@@ -11,8 +11,10 @@ import {
 } from 'react-native';
 import {colors} from '../../../themes/colors';
 import {IconSRC} from '../../../constants/icons';
+import {useAppTheme} from '../../../themes/ThemeContext';
 
 const InputPlace = props => {
+  const theme = useAppTheme();
   const {
     label,
     value,
@@ -59,7 +61,7 @@ const InputPlace = props => {
         containerView,
         {
           opacity: disabled ? 0.5 : 1,
-          paddingTop: Platform.OS === 'android' ? 13 : 5,
+          paddingTop: Platform.OS === 'android' ? 8 : 5,
         },
       ]}
       onPress={() => {
@@ -71,7 +73,10 @@ const InputPlace = props => {
       <TextInput
         value={value}
         onChangeText={onChangeText}
-        style={[styles.input, {marginLeft: Platform.OS === 'android' ? -3 : 0}]}
+        style={[
+          styles.input,
+          {marginLeft: Platform.OS === 'android' ? -3 : 0, color: theme.text},
+        ]}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         {...props}
@@ -87,6 +92,7 @@ const styles = StyleSheet.create({
     color: colors.black,
     borderBottomWidth: 0.3,
     borderBottomColor: colors.gray1,
+    alignItems: 'center',
   },
   input: {
     width: '100%',

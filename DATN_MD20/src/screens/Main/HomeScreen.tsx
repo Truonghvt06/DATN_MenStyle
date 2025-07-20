@@ -46,7 +46,7 @@ const ITEM_WIDTH = (width - ITEM_MARGIN * (NUM_COLUMNS + 1.5)) / NUM_COLUMNS;
 const HomeScreen = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
-  const theme = useAppTheme(); // ✅ Lấy theme
+  const theme = useAppTheme();
 
   const [proData, setProData] = useState<Product[]>([]);
 
@@ -154,7 +154,6 @@ const HomeScreen = () => {
         style={{
           textTransform: 'capitalize',
           marginVertical: 10,
-          color: theme.text,
         }}
         bold>
         {getTranslation('danh_muc')}:
@@ -174,7 +173,6 @@ const HomeScreen = () => {
         style={{
           textTransform: 'capitalize',
           marginVertical: 15,
-          color: theme.text,
         }}
         bold>
         {getTranslation('san_pham_noi_bat')}:
@@ -187,20 +185,18 @@ const HomeScreen = () => {
       containerStyle={{
         paddingTop: top,
         paddingHorizontal: metrics.space,
-        backgroundColor: theme.background,
       }}>
       <Block row justifyBW>
         <Block>
-          <TextSmall style={{marginBottom: -5, color: theme.text}}>
+          <TextSmall style={{marginBottom: -5}}>
             {getTranslation('xin_chao')}
           </TextSmall>
-          <TextSizeCustom size={30} bold style={{color: theme.text}}>
+          <TextSizeCustom size={30} bold>
             MenStyle
           </TextSizeCustom>
         </Block>
         <Block row alignItems="flex-end" marB={5} marR={5}>
           <TouchIcon
-            color={theme.text}
             size={25}
             icon={IconSRC.icon_search}
             imageStyle={{marginHorizontal: 7}}
@@ -222,7 +218,6 @@ const HomeScreen = () => {
                 </TouchableOpacity>
               ) : null)}
             <TouchIcon
-              color={theme.text}
               size={25}
               icon={IconSRC.icon_notification}
               imageStyle={{marginHorizontal: 7}}
@@ -240,9 +235,16 @@ const HomeScreen = () => {
           <TouchableOpacity
             activeOpacity={0.9}
             onPress={() => handleProDetail(item._id)}>
-            <Block containerStyle={styles.shadowWrap}>
+            <Block
+              containerStyle={[
+                styles.shadowWrap,
+                {shadowColor: theme.shadow_color},
+              ]}>
               <Block
-                containerStyle={[styles.btn, {backgroundColor: theme.card}]}>
+                containerStyle={[
+                  styles.btn,
+                  {backgroundColor: theme.background_pro},
+                ]}>
                 <TouchableOpacity
                   activeOpacity={0.8}
                   style={styles.tim}
@@ -263,18 +265,12 @@ const HomeScreen = () => {
                   source={{uri: item.variants?.[0]?.image || ''}}
                 />
                 <Block mar={5}>
-                  <TextSmall
-                    medium
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                    style={{color: theme.text}}>
+                  <TextSmall medium numberOfLines={1} ellipsizeMode="tail">
                     {item.name}
                   </TextSmall>
                   <Block row alignCT>
                     <Image style={styles.star} source={IconSRC.icon_star} />
-                    <TextSmall style={{color: theme.text}}>
-                      {item.rating_avg}
-                    </TextSmall>
+                    <TextSmall>{item.rating_avg}</TextSmall>
                   </Block>
                   <TextHeight color={colors.red} bold>
                     {item.price.toLocaleString('vi-VN')} VND
@@ -326,11 +322,10 @@ const styles = StyleSheet.create({
     marginHorizontal: metrics.space,
   },
   shadowWrap: {
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 5,
+    shadowRadius: 3,
+    elevation: 3,
     borderRadius: 12,
     marginHorizontal: ITEM_MARGIN / 2,
     marginBottom: 16,

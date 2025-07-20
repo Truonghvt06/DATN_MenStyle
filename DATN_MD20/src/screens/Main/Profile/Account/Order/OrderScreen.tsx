@@ -68,14 +68,13 @@ const OrderScreen = () => {
         styles.itemtab,
         {
           borderBottomColor:
-            selectedTab === item.name ? theme.text : 'transparent',
-          backgroundColor: theme.card,
+            selectedTab === item.name ? theme.primary : 'transparent',
         },
       ]}>
       <TextSmall
         medium
         style={{
-          color: selectedTab === item.name ? theme.text : theme.gray,
+          color: selectedTab === item.name ? theme.primary : theme.text,
         }}>
         {item.name}
       </TextSmall>
@@ -83,23 +82,16 @@ const OrderScreen = () => {
   );
 
   return (
-    <ContainerView containerStyle={{backgroundColor: theme.background}}>
-      <Header
-        label={getTranslation('don_hang')}
-        paddingTop={top}
-        backgroundColor={theme.background}
-        labelColor={theme.text}
-      />
-      <View
-        style={{
-          backgroundColor: theme.card,
-          paddingHorizontal: 5,
-        }}>
+    <ContainerView>
+      <Header label={getTranslation('don_hang')} paddingTop={top} />
+      <View>
         <ScrollView
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={[
             styles.tab,
-            {borderBottomColor: theme.border, backgroundColor: theme.card},
+            {
+              borderBottomColor: theme.border_color,
+            },
           ]}
           horizontal>
           {dataOrder.map(renderTab)}
@@ -138,8 +130,9 @@ export default OrderScreen;
 
 const styles = StyleSheet.create({
   itemtab: {
-    paddingVertical: 8,
-    paddingHorizontal: 10,
+    width: 115,
+    paddingVertical: 10,
+    // paddingHorizontal: 10,
     borderBottomWidth: 2,
     alignItems: 'center',
   },

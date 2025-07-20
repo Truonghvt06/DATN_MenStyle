@@ -39,6 +39,8 @@ import {
 } from '../../../../../utils/formatPhone';
 import {useAppTheme} from '../../../../../themes/ThemeContext';
 import {colors} from '../../../../../themes/colors';
+import Toast from 'react-native-toast-message';
+import configToast from '../../../../../components/utils/configToast';
 
 const AddAddress = () => {
   const {top} = useSafeAreaInsets();
@@ -75,6 +77,7 @@ const AddAddress = () => {
   const getWardsByDistrictCode = (districtCode: string) =>
     wards.filter(w => w.district_code === districtCode);
 
+  // Validate địa chỉ
   const validateAddress = () => {
     const newError: any = {};
     if (!address.name.trim()) newError.name = 'Vui lòng nhập họ và tên';
@@ -96,6 +99,7 @@ const AddAddress = () => {
     return Object.keys(newError).length === 0;
   };
 
+  // Save address
   const handleSave = async () => {
     if (!validateAddress()) return;
     const data = {
@@ -120,6 +124,7 @@ const AddAddress = () => {
     }
   };
 
+  //Delete address
   const handleDeleteAddress = async () => {
     Alert.alert(getTranslation('thong_bao'), getTranslation('xoa_dia_chi'), [
       {text: getTranslation('huy'), style: 'cancel'},
@@ -133,7 +138,87 @@ const AddAddress = () => {
       },
     ]);
   };
+  // Kiểm tra trường dữ liệu có thây đổi
+  const isAddressChanged = () => {
+    return (
+      address.name !== (items?.recipient_name || '') ||
+      address.phone !== (items?.phone || '') ||
+      address.province !== (items?.province || '') ||
+      address.district !== (items?.district || '') ||
+      address.ward !== (items?.ward || '') ||
+      address.addres_line !== (items?.address_line || '') ||
+      isSwitch !== (items?.is_default || false)
+    );
+  };
 
+  // BACK
+  const handleBack = () => {
+    if (isAddressChanged()) {
+      Alert.alert(
+        getTranslation('thong_bao'),
+        'Bạn có chắc muốn thoát thay đổi?',
+        [
+          {text: getTranslation('huy'), style: 'cancel'},
+          {
+            text: 'OK',
+            onPress: () => {
+              navigation.goBack();
+            },
+          },
+        ],
+      );
+    } else {
+      navigation.goBack();
+    }
+  };
+
+  //chọn huyện
+  const handleDistrict = () => {
+    if (!address.province) {
+      Toast.show({
+        type: 'notification', // Có thể là 'success', 'error', 'info'
+        position: 'top',
+        text1: 'Thông báo',
+        text2: 'Vui lòng chọn Tỉnh trước',
+        visibilityTime: 1000, // số giây hiển thị Toast
+        autoHide: true,
+        swipeable: true,
+      });
+      return;
+    }
+    setIsOpenDistrict(true);
+    setErrorIp({...errorIp, district: ''});
+  };
+  //chọn phường xã
+  const handleWard = () => {
+    if (!address.province) {
+      Toast.show({
+        type: 'notification', // Có thể là 'success', 'error', 'info'
+        position: 'top',
+        text1: 'Thông báo',
+        text2: 'Vui lòng chọn Tỉnh trước',
+        visibilityTime: 1000, // số giây hiển thị Toast
+        autoHide: true,
+        swipeable: true,
+      });
+      return;
+    } else if (!address.district) {
+      Toast.show({
+        type: 'notification', // Có thể là 'success', 'error', 'info'
+        position: 'top',
+        text1: 'Thông báo',
+        text2: 'Vui lòng chọn Huyện trước',
+        visibilityTime: 1000, // số giây hiển thị Toast
+        autoHide: true,
+        swipeable: true,
+      });
+      return;
+    }
+    setIsOpenWard(true);
+    setErrorIp({...errorIp, ward: ''});
+  };
+
+  //Khi có items truyền sang load name lấy code
   useEffect(() => {
     if (items?.province) {
       const selectedProvince = provinces.find(p => p.name === items.province);
@@ -160,27 +245,22 @@ const AddAddress = () => {
         Keyboard.dismiss();
         setIsFocused(false);
       }}>
-      <ContainerView containerStyle={{backgroundColor: colors.gray2}}>
+      <ContainerView>
         <Header
           label={title}
           paddingTop={top}
-          onPressLeft={() => navigation.goBack()}
-          backgroundColor={theme.background}
-          labelColor={theme.text} // ✅ FIXED from textColor → labelColor
-          iconColor={theme.text}
+          onPressLeft={() => handleBack()}
         />
         <ScrollView>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
             <Block pad={metrics.space}>
               <Block
-                backgroundColor={colors.while}
+                backgroundColor={theme.background_item}
                 padH={8}
                 padV={12}
                 borderRadius={10}>
-                <TextMedium medium style={{color: theme.text}}>
-                  {getTranslation('dia_chi')}
-                </TextMedium>
+                <TextMedium medium>{getTranslation('dia_chi')}</TextMedium>
                 <InputPlace
                   is_Focused={isFocused}
                   label={getTranslation('ho_va_ten')}
@@ -244,9 +324,7 @@ const AddAddress = () => {
                   disabled={!address.province}
                   containerView={{flexDirection: 'row'}}
                   onPress={() => {
-                    if (!address.province) return;
-                    setIsOpenDistrict(true);
-                    setErrorIp({...errorIp, district: ''});
+                    handleDistrict();
                   }}
                 />
                 {errorIp.district && (
@@ -264,9 +342,7 @@ const AddAddress = () => {
                   disabled={!address.district}
                   containerView={{flexDirection: 'row'}}
                   onPress={() => {
-                    if (!address.province || !address.district) return;
-                    setIsOpenWard(true);
-                    setErrorIp({...errorIp, ward: ''});
+                    handleWard();
                   }}
                 />
                 {errorIp.ward && (
@@ -293,7 +369,10 @@ const AddAddress = () => {
 
               <TouchableOpacity
                 activeOpacity={1}
-                style={[styles.btnDefault, {backgroundColor: colors.while}]}
+                style={[
+                  styles.btnDefault,
+                  {backgroundColor: theme.background_item},
+                ]}
                 onPress={() => {
                   if (listAddress.length === 0) {
                     Alert.alert(
@@ -322,6 +401,9 @@ const AddAddress = () => {
                       setIsSwitch(!isSwitch);
                     }
                   }}
+                  trackColor={{false: '#CCCCCC', true: '#33CC00'}}
+                  thumbColor={isSwitch ? '#fff' : '#fff'}
+                  ios_backgroundColor="#CCCCCC"
                 />
               </TouchableOpacity>
             </Block>
@@ -330,10 +412,7 @@ const AddAddress = () => {
 
         {items && (
           <TouchableOpacity
-            style={[
-              styles.btnDel,
-              {borderColor: theme.border, backgroundColor: theme.card},
-            ]}
+            style={[styles.btnDel, {borderColor: theme.border_color}]}
             onPress={handleDeleteAddress}>
             <TextSizeCustom bold size={18} color={theme.text}>
               {getTranslation('xoa_dia_chi')?.toUpperCase()}
@@ -389,6 +468,7 @@ const AddAddress = () => {
             setIsOpenWard(false);
           }}
         />
+        <Toast config={configToast} />
       </ContainerView>
     </TouchableWithoutFeedback>
   );

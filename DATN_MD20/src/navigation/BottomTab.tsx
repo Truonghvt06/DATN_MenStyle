@@ -14,9 +14,11 @@ import {TextSizeCustom, TextSmall} from '../components/dataEntry/TextBase';
 import {dataProduct} from '../constants/data';
 import useLanguage from '../hooks/useLanguage';
 import {useAppSelector} from '../redux/store';
+import {useAppTheme} from '../themes/ThemeContext';
 
 const Tab = createBottomTabNavigator();
 const BottomTab = () => {
+  const theme = useAppTheme();
   const {getTranslation} = useLanguage();
   const {token} = useAppSelector(state => state.auth);
   // const {} = useAppSelector(state => state.cart);
@@ -26,7 +28,7 @@ const BottomTab = () => {
       screenOptions={({route}) => ({
         headerShown: false,
         tabBarShowLabel: false, // Không hiển thị label mặc định
-        tabBarStyle: styles.container,
+        tabBarStyle: [styles.container, {backgroundColor: theme.background}],
         tabBarIcon: ({focused}) => {
           let iconName;
           let label;
@@ -60,17 +62,21 @@ const BottomTab = () => {
               style={{
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginTop: 20,
+                marginTop: 25,
               }}>
               <Image
                 source={iconName}
                 style={{
-                  width: 28,
-                  height: 28,
-                  tintColor: focused ? 'black' : 'gray',
+                  width: 30,
+                  height: 30,
+                  tintColor: focused ? theme.primary : 'gray',
                 }}
               />
-              {focused && <Text style={styles.text}>{label}</Text>}
+              {focused && (
+                <Text style={[styles.text, {color: theme.primary}]}>
+                  {label}
+                </Text>
+              )}
             </View>
           );
         },
@@ -83,7 +89,12 @@ const BottomTab = () => {
         component={CartScreen}
         options={{
           tabBarIcon: ({focused}: any) => (
-            <View style={{marginTop: 20, alignItems: 'center'}}>
+            <View
+              style={{
+                flex: 1,
+                paddingTop: focused ? 5 : 13,
+                alignItems: 'center',
+              }}>
               <Block>
                 {token ? (
                   <View style={styles.cart}>
@@ -98,14 +109,16 @@ const BottomTab = () => {
                 <Image
                   source={IconBottomTab.icon_cart}
                   style={{
-                    tintColor: focused ? colors.black : colors.gray,
-                    width: 28,
-                    height: 28,
+                    tintColor: focused ? theme.primary : colors.gray,
+                    width: 30,
+                    height: 30,
                   }}
                 />
               </Block>
               {focused && (
-                <Text style={styles.text}>{getTranslation('gio_hang')}</Text>
+                <Text style={[styles.text, {color: theme.primary}]}>
+                  {getTranslation('gio_hang')}
+                </Text>
               )}
             </View>
           ),
@@ -120,8 +133,8 @@ export default BottomTab;
 
 const styles = StyleSheet.create({
   container: {
-    height: 80,
-    backgroundColor: 'white',
+    height: 85,
+    // backgroundColor: 'white',
     // backgroundColor: 'rgba(255, 255, 255, 0.8)', // Nền mờ (trong suốt)
   },
   text: {
