@@ -30,6 +30,7 @@ import {registerUser} from '../../redux/actions/auth';
 import TouchIcon from '../../components/dataEntry/Button/TouchIcon';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useRoute} from '@react-navigation/native';
+import {useAppTheme} from '../../themes/ThemeContext';
 console.log('auth', auth); // ✅ THÊM
 
 interface IEroror {
@@ -41,6 +42,7 @@ interface IEroror {
 
 const RegisterScreen = () => {
   const {getTranslation} = useLanguage();
+  const theme = useAppTheme();
   const {top} = useSafeAreaInsets();
   const route = useRoute();
   const {nameScreen} = route.params as {nameScreen: string};
@@ -116,8 +118,12 @@ const RegisterScreen = () => {
           <TouchIcon
             icon={IconSRC.icon_back_left}
             size={25}
-            color="white"
-            containerStyle={[styles.btn, {top: top}]}
+            color={theme.icon}
+            containerStyle={[
+              styles.btn,
+              {backgroundColor: theme.background_login},
+              {top: top},
+            ]}
             onPress={() =>
               nameScreen === 'NextRegister'
                 ? navigation.goBack()
@@ -128,18 +134,18 @@ const RegisterScreen = () => {
             borderRadius={20}
             width={'85%'}
             pad={metrics.space + 5}
-            backgroundColor={colors.black65}>
+            backgroundColor={theme.background_login}>
             <Block justifyCT padV={20}>
               <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}>
                 <TextSizeCustom
                   size={30}
                   bold
-                  color={'white'}
+                  color={theme.text}
                   style={{textAlign: 'center'}}>
                   {getTranslation('dang_ky')}
                 </TextSizeCustom>
-                <TextSmall color={colors.while} style={{textAlign: 'center'}}>
+                <TextSmall color={theme.text} style={{textAlign: 'center'}}>
                   {getTranslation('khau_hieu')}
                 </TextSmall>
 
@@ -225,7 +231,7 @@ const RegisterScreen = () => {
                   imageName={
                     !showPass ? IconSRC.icon_eye : IconSRC.icon_eye_off
                   }
-                  iconColor={colors.black65}
+                  iconColor={theme.icon}
                   onPressRight={() => setShowPass(!showPass)}
                   containerStyle={{marginTop: 10}}
                   inputStyle={{color: colors.while}}
@@ -248,14 +254,12 @@ const RegisterScreen = () => {
             </Block>
 
             <Block row middle>
-              <TextSmall color={colors.while}>
-                {getTranslation('da_co_tk')}{' '}
-              </TextSmall>
+              <TextSmall>{getTranslation('da_co_tk')} </TextSmall>
               <TouchableOpacity
                 onPress={() => {
                   handleLogin('NextLogin');
                 }}>
-                <TextSmall color={colors.green} bold>
+                <TextSmall color={theme.primary} bold>
                   {getTranslation('dang_nhap')}
                 </TextSmall>
               </TouchableOpacity>
@@ -275,7 +279,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     position: 'absolute',
     left: 20,
-    backgroundColor: colors.gray,
+
     height: 45,
     width: 45,
     borderRadius: 18,

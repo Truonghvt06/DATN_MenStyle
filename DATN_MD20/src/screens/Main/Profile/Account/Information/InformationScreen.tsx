@@ -151,16 +151,20 @@ const InformationScreen = () => {
   }, [user]);
 
   return (
-    <TouchableWithoutFeedback onPress={() => { Keyboard.dismiss(); setIsFocused(false); }}>
-      <ContainerView containerStyle={{ backgroundColor: theme.background }}>
+    <TouchableWithoutFeedback
+      onPress={() => {
+        Keyboard.dismiss();
+        setIsFocused(false);
+      }}>
+      <ContainerView>
         <Header
           label={getTranslation('thong_tin_ca_nhan')}
           paddingTop={top}
           onPressLeft={() => {
             if (canSave) {
               Alert.alert('Thông báo!', 'Có chắc muốn thoát thay đổi?', [
-                { text: 'Huỷ', style: 'cancel' },
-                { text: 'OK', onPress: () => navigation.goBack() },
+                {text: 'Huỷ', style: 'cancel'},
+                {text: 'OK', onPress: () => navigation.goBack()},
               ]);
             } else {
               navigation.goBack();
@@ -173,8 +177,10 @@ const InformationScreen = () => {
 
         <Toast config={configToast} />
         <ScrollView>
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1}}>
-            <Block alignCT justifyCT h={200} backgroundColor={theme.primary}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{flex: 1}}>
+            <Block alignCT justifyCT h={200} backgroundColor={'#0099FF'}>
               <TouchableOpacity activeOpacity={0.9} onPress={handlePickAvatar1}>
                 <Image
                   style={styles.avatar}
@@ -190,19 +196,20 @@ const InformationScreen = () => {
                   containerStyle={styles.ic_edit}
                   icon={IconSRC.icon_edit}
                   size={28}
-                  color={theme.text}
                   onPress={handlePickAvatar1}
                 />
               </TouchableOpacity>
             </Block>
 
             <Block pad={metrics.space}>
-              <Block backgroundColor={theme.card} padH={8} padV={12} borderRadius={10}>
+              <Block padH={8} padV={12} borderRadius={10}>
                 <InputPlace
                   is_Focused={isFocused}
                   label={getTranslation('ho_va_ten')}
                   value={dataUser.name}
-                  onChangeText={(text: string) => setDataUser({...dataUser, name: text})}
+                  onChangeText={(text: string) =>
+                    setDataUser({...dataUser, name: text})
+                  }
                 />
                 <InputPlace
                   readOnly
@@ -226,14 +233,18 @@ const InformationScreen = () => {
                   is_Focused={isFocused}
                   label={getTranslation('sdt')}
                   value={dataUser.phone}
-                  onChangeText={(text: string) => setDataUser({...dataUser, phone: text})}
+                  onChangeText={(text: string) =>
+                    setDataUser({...dataUser, phone: text})
+                  }
                 />
                 <InputPlace
                   readOnly
                   is_Focused={isFocused}
                   label={getTranslation('email')}
                   value={dataUser.email}
-                  onChangeText={(text: string) => setDataUser({...dataUser, email: text})}
+                  onChangeText={(text: string) =>
+                    setDataUser({...dataUser, email: text})
+                  }
                 />
               </Block>
             </Block>
@@ -260,7 +271,10 @@ const InformationScreen = () => {
                 setOpen(false);
                 if (event.type === 'set' && selectedDate) {
                   setDate(selectedDate);
-                  setDataUser({...dataUser, date_of_birth: moment(selectedDate).format('DD/MM/YYYY')});
+                  setDataUser({
+                    ...dataUser,
+                    date_of_birth: moment(selectedDate).format('DD/MM/YYYY'),
+                  });
                 }
               }}
             />
@@ -271,10 +285,10 @@ const InformationScreen = () => {
             header
             label={getTranslation('chon_ngay')}
             heightModal={400}
-            onClose={() => setOpen(false)}
-            containerStyle={{backgroundColor: theme.card}}>
+            onClose={() => setOpen(false)}>
             <Block alignCT>
               <DateTimePicker
+                textColor={theme.text}
                 value={date}
                 mode="date"
                 display="spinner"
@@ -284,12 +298,21 @@ const InformationScreen = () => {
                 }}
               />
             </Block>
-            <Block row justifyContent="flex-end" padH={16} padT={20} borderTopW={0.3} borderColor={theme.border}>
+            <Block
+              row
+              justifyContent="flex-end"
+              padH={16}
+              padT={20}
+              borderTopW={0.3}
+              borderColor={theme.border_color}>
               <TouchIcon
                 title={getTranslation('xac_nhan')}
                 titleStyle={styles.comfor}
                 onPress={() => {
-                  setDataUser({...dataUser, date_of_birth: moment(date).format('DD/MM/YYYY')});
+                  setDataUser({
+                    ...dataUser,
+                    date_of_birth: moment(date).format('DD/MM/YYYY'),
+                  });
                   setOpen(false);
                 }}
               />
@@ -313,7 +336,9 @@ const InformationScreen = () => {
                   setDataUser({...dataUser, gender});
                   setIsOpen(false);
                 }}>
-                <TextSizeCustom size={16} color={theme.text}>{gender}</TextSizeCustom>
+                <TextSizeCustom size={16} color={theme.text}>
+                  {gender}
+                </TextSizeCustom>
               </TouchableOpacity>
             ))}
           </ScrollView>

@@ -1,95 +1,107 @@
+import React, {useRef} from 'react';
 import {
-  DimensionValue,
-  Image,
+  Animated,
+  Dimensions,
   Modal,
   ModalProps,
+  PanResponder,
   StyleSheet,
   TouchableOpacity,
   View,
   ViewStyle,
+  Platform,
 } from 'react-native';
-import React from 'react';
 import {colors} from '../../../themes/colors';
-import metrics from '../../../constants/metrics';
 import {TextSizeCustom} from '../../dataEntry/TextBase';
 import {IconSRC} from '../../../constants/icons';
+import {Image} from 'react-native';
+import {useAppTheme} from '../../../themes/ThemeContext';
+import metrics from '../../../constants/metrics';
+
+const {height: SCREEN_HEIGHT, width: SCREEN_WIDTH} = Dimensions.get('window');
 
 interface Props extends ModalProps {
-  // children?:
   onClose?: () => void;
-  containerStyle?: ViewStyle | any;
-  viewStyle?: ViewStyle | any;
-  widthModal?: DimensionValue;
-  heightModal?: DimensionValue;
+  containerStyle?: ViewStyle;
+  viewStyle?: ViewStyle;
   header?: boolean;
   label?: string;
+  heightModal?: number;
 }
+
 const ModalBottom = (props: Props) => {
+  const theme = useAppTheme();
   const {
     onClose,
     header = false,
     label,
     containerStyle,
     viewStyle,
-    widthModal = metrics.diviceWidth,
-    heightModal = metrics.diviceHeight,
+    heightModal = metrics.diviceHeight * 0.6,
   } = props;
-  return (
-    <Modal transparent={true} {...props}>
-      <View style={[styles.container, viewStyle]}>
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={{height: '100%', width: '100%'}}
-          onPress={onClose}></TouchableOpacity>
 
-        <View
+  // Animated value for swipe down
+  const translateY = useRef(new Animated.Value(0)).current;
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return gestureState.dy > 5; // Chỉ khi swipe xuống
+      },
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dy > 0) {
+          translateY.setValue(gestureState.dy);
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 100) {
+          // Đóng modal nếu kéo xuống nhiều
+          onClose && onClose();
+        } else {
+          Animated.spring(translateY, {
+            toValue: 0,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    }),
+  ).current;
+
+  return (
+    <Modal animationType="fade" transparent statusBarTranslucent {...props}>
+      <View style={[styles.overlay, viewStyle]}>
+        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} />
+
+        <Animated.View
           style={[
             styles.modal,
             {
-              width: widthModal,
+              backgroundColor: theme.background_modal,
               height: heightModal,
-              backgroundColor: colors.gray2,
+              transform: [{translateY}],
             },
             containerStyle,
-          ]}>
-          <View
-            style={{
-              height: 5,
-              backgroundColor: colors.black,
-              width: 80,
-              alignSelf: 'center',
-              marginVertical: metrics.space * 2,
-              borderRadius: 10,
-              // ...props.styleModal,
-            }}></View>
+          ]}
+          {...panResponder.panHandlers}>
+          {/* Drag handle */}
+          <View style={[styles.dragHandle, {backgroundColor: theme.text}]} />
+
           {header && (
-            <View style={styles.header}>
+            <View style={[styles.header, {borderColor: theme.border_color}]}>
               <TextSizeCustom
                 bold
-                size={20}
-                // color="rgba(255, 255, 255, 1)"
+                size={18}
                 style={{textTransform: 'capitalize'}}>
                 {label}
               </TextSizeCustom>
-              <View
-                style={{
-                  position: 'absolute',
-                  top: 15,
-                  bottom: 15,
-                  right: metrics.space + 4,
-                }}>
-                <TouchableOpacity
-                  activeOpacity={1}
-                  style={styles.close}
-                  onPress={props.onClose}>
-                  <Image style={styles.image} source={IconSRC.icon_close} />
-                </TouchableOpacity>
-              </View>
-              {/* {rightHeader && rightHeader} */}
+              <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
+                <Image style={styles.image} source={IconSRC.icon_close} />
+              </TouchableOpacity>
             </View>
           )}
+
           {props.children}
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );
@@ -98,40 +110,46 @@ const ModalBottom = (props: Props) => {
 export default ModalBottom;
 
 const styles = StyleSheet.create({
-  container: {
-    width: '100%',
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
     justifyContent: 'flex-end',
   },
-  image: {
-    width: 10,
-    height: 10,
-    tintColor: colors.black,
-  },
   modal: {
+    width: SCREEN_WIDTH,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    maxHeight: SCREEN_HEIGHT * 0.9,
     overflow: 'hidden',
-    backgroundColor: colors.while,
-    // alignSelf: 'center',
-    maxWidth: '100%',
-    maxHeight: '90%',
-    borderTopLeftRadius: metrics.space * 2,
-    borderTopRightRadius: metrics.space * 2,
+  },
+  dragHandle: {
+    height: 5,
+    width: 100,
+    backgroundColor: colors.gray1,
+    borderRadius: 3,
+    alignSelf: 'center',
+    marginVertical: 10,
   },
   header: {
     height: 50,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '100%',
-    borderBottomColor: colors.gray1,
     borderBottomWidth: 0.3,
   },
-  close: {
-    height: 20,
-    width: 20,
-    backgroundColor: 'rgba(235, 235, 245, 0.6)',
+  closeBtn: {
+    position: 'absolute',
+    right: 15,
+    height: 25,
+    width: 25,
+    borderRadius: 20,
+    backgroundColor: 'rgba(235,235,245,0.7)',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
+  },
+  image: {
+    width: 10,
+    height: 10,
+    tintColor: colors.black,
   },
 });

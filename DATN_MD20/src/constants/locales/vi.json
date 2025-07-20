@@ -103,7 +103,7 @@
   "chinh_sach_dieu_khoan": "Chính sách & Điều khoản",
   "dieu_khoan_dieu_kien": "Điều khoản & Điều kiện",
   "dieu_khoan_dieu_kien_": "Điều khoản & điều kiện của MenStyle",
-  "chinh_sach_rieng_tu": "Chính sách quyền riêng tư",
+  "chinh_sach_rieng_tu": "Chính sách riêng tư",
   "chinh_sach_rieng_tu_": "Chính sách về quyền riêng tư",
   "ho_tro": "Hỗ trợ",
   "lien_he": "Liên hệ",
@@ -150,8 +150,6 @@
   "sua_dia_chi": "Sửa địa chỉ",
   "xoa_dia_chi": "Xoá địa chỉ",
 
-
-
   "xac_nhan": "Xác nhận",
   "xoa_toan_bo": "Bạn có chắc muốn xoá toàn bộ?",
   "thong_bao_dang_xuat": "Bạn có chắc muốn đăng xuất?",
@@ -170,5 +168,4 @@
   "noi_dung_gioi_thieu": "Bằng việc sử dụng ứng dụng này, bạn đồng ý với các điều khoản và điều kiện được quy định tại đây.",
   "noi_dung_trach_nhiem": "Bạn có trách nhiệm cung cấp thông tin chính xác, không sử dụng ứng dụng vào mục đích gian lận, lừa đảo.",
   "noi_dung_sua_doi": "Chúng tôi có thể cập nhật điều khoản bất kỳ lúc nào, và bạn có trách nhiệm theo dõi và tuân thủ."
-
 }

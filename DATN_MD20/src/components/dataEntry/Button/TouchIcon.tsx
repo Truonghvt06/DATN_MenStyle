@@ -13,6 +13,7 @@ import React from 'react';
 import {IconSRC} from '../../../constants/icons';
 import {TextMedium, TextSizeCustom, TextSmall} from '../TextBase';
 import {colors} from '../../../themes/colors';
+import {useAppTheme} from '../../../themes/ThemeContext';
 
 interface Props extends TouchableOpacityProps {
   title?: string | any;
@@ -29,13 +30,15 @@ interface Props extends TouchableOpacityProps {
   titleStyle?: TextStyle;
 }
 const TouchIcon = (props: Props) => {
+  const theme = useAppTheme();
   const {
     sizeText = 14,
     size = 20,
-    color = colors.black,
+    icon,
+    color = theme.icon,
     titleStyle,
     containerStyle,
-    colorTitle,
+    colorTitle = theme.text,
   } = props;
   return (
     <TouchableOpacity
@@ -48,7 +51,7 @@ const TouchIcon = (props: Props) => {
           {props.title}
         </Text>
       )}
-      {props.icon && (
+      {icon && (
         <Image
           style={[
             {

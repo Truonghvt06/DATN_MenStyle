@@ -18,6 +18,7 @@ import {
 import {IconSRC, ImgSRC} from '../../constants/icons';
 import metrics from '../../constants/metrics';
 import useLanguage from '../../hooks/useLanguage';
+import {useAppTheme} from '../../themes/ThemeContext';
 
 interface Props {
   data: any;
@@ -40,6 +41,7 @@ const width = metrics.diviceScreenWidth;
 const ITEM_WIDTH = (width - ITEM_MARGIN * (NUM_COLUMNS + 1.5)) / NUM_COLUMNS;
 const ListProduct = (props: Props) => {
   const {getTranslation} = useLanguage();
+  const theme = useAppTheme();
   const {
     data,
     isSeemore,
@@ -66,8 +68,14 @@ const ListProduct = (props: Props) => {
               activeOpacity={1}
               // style={[containerStyle]}
               onPress={() => onPress && onPress(item._id)}>
-              <Block containerStyle={[styles.shadowWrap, containerStyle]}>
-                <Block style={styles.btn}>
+              <Block
+                containerStyle={[
+                  styles.shadowWrap,
+                  {shadowColor: theme.shadow_color},
+                  containerStyle,
+                ]}>
+                <Block
+                  style={[styles.btn, {backgroundColor: theme.background_pro}]}>
                   <TouchableOpacity
                     activeOpacity={0.8}
                     style={styles.tim}
@@ -115,9 +123,9 @@ const ListProduct = (props: Props) => {
         }}
       />
       {isSeemore && (
-        <TouchableOpacity onPress={onPressSee}>
+        <TouchableOpacity activeOpacity={0.8} onPress={onPressSee}>
           <TextSizeCustom size={16} style={styles.see} medium>
-            {getTranslation('xem_them')}
+            {`${getTranslation('xem_them')}-->`}
           </TextSizeCustom>
         </TouchableOpacity>
       )}
@@ -158,15 +166,15 @@ const styles = StyleSheet.create({
   },
   see: {
     textAlign: 'right',
-    marginTop: -40,
+    marginTop: -50,
     textDecorationLine: 'underline',
+    fontStyle: 'italic',
   },
   shadowWrap: {
-    shadowColor: '#000',
     shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 5,
+    shadowRadius: 3,
+    elevation: 3,
     borderRadius: 12,
     marginHorizontal: ITEM_MARGIN / 2,
     // marginBottom: 16,

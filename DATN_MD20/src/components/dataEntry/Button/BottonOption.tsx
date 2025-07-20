@@ -14,6 +14,7 @@ import Block from '../../layout/Block';
 import {colors} from '../../../themes/colors';
 import {TextHeight, TextMedium, TextSizeCustom, TextSmall} from '../TextBase';
 import TouchIcon from './TouchIcon';
+import {useAppTheme} from '../../../themes/ThemeContext';
 
 interface Props extends TouchableOpacityProps {
   iconLeft?: IconSRC;
@@ -32,6 +33,7 @@ interface Props extends TouchableOpacityProps {
   onPress?: () => void;
 }
 const ButtonOption = (props: Props) => {
+  const theme = useAppTheme();
   const {
     name,
     content,
@@ -41,9 +43,9 @@ const ButtonOption = (props: Props) => {
     sizeText = 16,
     iconLeft,
     iconRight = IconSRC.icon_back_right,
-    iconColor = colors.black,
-    borderBottom = 0.5,
-    borderColor = colors.gray3,
+    iconColor = theme.icon,
+    borderBottom = 0.2,
+    borderColor = theme.border_color,
     containerStyle,
     disabled = false,
     onPress,

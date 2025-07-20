@@ -19,14 +19,13 @@ export const colors = {
   white65: 'rgba(255, 255, 255, 0.65)',
   sky_blue: '#E5F6FD',
   blue: '#F9FAFB',
-  blue1: '#2563EB',
+  blue1: '#007aff',
   blue2: '#FBBF24',
   orange: '#FF7F24',
   lightGray: '#D3D3D3',
   darkGray: '#A9A9A9',
   screenWidth: 360, // Example screen width, adjust as needed
   border: '#E5E7EB',
-
 
   text: '#111827',
   text1: '#6B7280',

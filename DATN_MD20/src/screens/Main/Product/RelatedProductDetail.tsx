@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Image,
   Keyboard,
@@ -37,12 +38,18 @@ import {fetchProductDetail} from '../../../redux/actions/product';
 import {clearProductDetail} from '../../../redux/reducers/product';
 import ListProduct from '../../../components/dataDisplay/ListProduct';
 import {fetchFavorites, toggleFavorite} from '../../../redux/actions/favorite';
+import useLanguage from '../../../hooks/useLanguage';
+import {useAppTheme} from '../../../themes/ThemeContext';
+import Toast from 'react-native-toast-message';
+import configToast from '../../../components/utils/configToast';
 
 const ProductDetail = () => {
   const {top} = useSafeAreaInsets();
+  const {getTranslation} = useLanguage();
   const route = useRoute();
   // const {product} = route.params as {product: any};
   const {id, idOld} = route.params as {id: string; idOld: string};
+  const theme = useAppTheme();
 
   const [proData, setProData] = useState<any>([]);
   const [showDescription, setShowDescription] = useState(false);
@@ -51,7 +58,8 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState('1');
   const [openModal, setOpenModal] = useState(false);
 
-  const [isReady, setIsReady] = useState(false);
+  const [isReady, setIsReady] = useState(false); //Độ trễ lại trước khi hiển thị dữ liệu
+  const lineNumber = 4;
 
   //tạo mảng chứa
   const sizes = [...new Set(proData?.variants?.map((v: any) => v.size) || [])];
@@ -62,6 +70,7 @@ const ProductDetail = () => {
   const dispatch = useAppDispatch();
   const {detail, relatedProducts} = useAppSelector(state => state.product);
   const {listFavoriteIds} = useAppSelector(state => state.favorite);
+  const {token} = useAppSelector(state => state.auth);
 
   useEffect(() => {
     dispatch(fetchProductDetail(id));
@@ -85,11 +94,12 @@ const ProductDetail = () => {
   useEffect(() => {
     dispatch(fetchFavorites());
   }, []);
-  const handleFavorite = (productId: string) => {
-    dispatch(toggleFavorite(productId));
+  const handleFavorite = async (productId: string) => {
+    await dispatch(toggleFavorite(productId));
+    dispatch(fetchFavorites());
   };
 
-  //Nhấn item Pro
+  //Nhấn item Pro gợi ý
   const handleProDetail = (id: string, idOld: string) => {
     dispatch(clearProductDetail());
     navigation.navigate(ScreenName.Main.RelatedProductDetail, {
@@ -97,6 +107,35 @@ const ProductDetail = () => {
       idOld: idOld,
     });
   };
+
+  const handleLogin = () => {
+    Alert.alert(
+      getTranslation('thong_bao'),
+      'Hãy đăng nhập để sử dụng',
+      [
+        {
+          text: getTranslation('huy'),
+          onPress: () => console.log('Đã huỷ'),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            navigation.navigate(ScreenName.Auth.AuthStack, {
+              screen: ScreenName.Auth.Login,
+              params: {
+                nameScreen: '',
+              },
+            });
+          },
+        },
+      ],
+      {cancelable: true},
+    );
+  };
+
+  //Them gio hang
+  const handleAddCart = () => {};
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -130,7 +169,7 @@ const ProductDetail = () => {
                 activeOpacity={0.8}
                 style={styles.tim}
                 onPress={() => {
-                  handleFavorite(proData._id);
+                  token ? handleFavorite(proData._id) : handleLogin();
                 }}>
                 <Image
                   source={
@@ -177,24 +216,31 @@ const ProductDetail = () => {
                       borderColor: colors.gray3,
                       paddingVertical: 7,
                     }}>
-                    Mô tả sản phẩm
+                    {getTranslation('mo_ta_sp')}
                   </TextMedium>
-                  <Block>
-                    <TextSmall numberOfLines={showDescription ? undefined : 2}>
+                  <Block marB={lineNumber <= 4 ? 25 : 0}>
+                    <TextSmall
+                      numberOfLines={showDescription ? undefined : lineNumber}>
                       {proData?.description}
                     </TextSmall>
 
-                    <TouchIcon
-                      title={showDescription ? 'Thu gọn' : 'Xem thêm'}
-                      icon={
-                        showDescription ? IconSRC.icon_up : IconSRC.icon_down
-                      }
-                      color={colors.black}
-                      size={20}
-                      onPress={() => setShowDescription(!showDescription)}
-                      containerStyle={styles.btnSee}
-                      sizeText={14}
-                    />
+                    {lineNumber > 4 && (
+                      <TouchIcon
+                        title={
+                          showDescription ? (
+                            <TextSmall>Thu gọn</TextSmall>
+                          ) : (
+                            <TextSmall> {getTranslation('xem_them')}</TextSmall>
+                          )
+                        }
+                        icon={
+                          showDescription ? IconSRC.icon_up : IconSRC.icon_down
+                        }
+                        size={20}
+                        onPress={() => setShowDescription(!showDescription)}
+                        containerStyle={styles.btnSee}
+                      />
+                    )}
                   </Block>
                 </>
                 <>
@@ -207,7 +253,7 @@ const ProductDetail = () => {
                     borderColor={colors.gray1}>
                     <TextMedium bold>Đánh giá(123)</TextMedium>
                     <TouchIcon
-                      title="Xem tất cả"
+                      title={getTranslation('xem_tat_ca')}
                       icon={IconSRC.icon_back_right}
                       containerStyle={{
                         flexDirection: 'row',
@@ -272,14 +318,16 @@ const ProductDetail = () => {
                 </TextMedium>
                 <ListProduct
                   data={relatedProducts}
+                  scrollEnabled={false} // tránh lỗi khi cuộn
                   isColums
                   columNumber={2}
+                  favoriteId={listFavoriteIds}
                   onPress={idnew => {
                     handleProDetail(idnew, id);
-                    console.log('IDDDD: ', id);
-
-                    // Alert.alert('Aaa');
                   }}
+                  onPressFavorite={id =>
+                    token ? handleFavorite(id) : handleLogin()
+                  }
                 />
               </Block>
             </ScrollView>
@@ -287,7 +335,7 @@ const ProductDetail = () => {
               title="Thêm vào giỏ hàng"
               containerStyle={styles.btnCart}
               onPress={() => {
-                setOpenModal(!openModal);
+                token ? setOpenModal(!openModal) : handleLogin();
               }}
             />
           </>
@@ -405,6 +453,7 @@ const ProductDetail = () => {
             />
           }
         />
+        <Toast config={configToast} />
       </ContainerView>
     </TouchableWithoutFeedback>
   );

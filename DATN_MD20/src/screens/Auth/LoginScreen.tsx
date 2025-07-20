@@ -36,10 +36,13 @@ import {loginUser} from '../../redux/actions/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import TouchIcon from '../../components/dataEntry/Button/TouchIcon';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useAppTheme} from '../../themes/ThemeContext';
+import InputPlace from '../../components/dataEntry/Input/InputPlace';
 
 const LoginScreen = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
+  const theme = useAppTheme();
   const route = useRoute();
   const {nameScreen} = route.params as {nameScreen: string};
 
@@ -112,8 +115,12 @@ const LoginScreen = () => {
           <TouchIcon
             icon={IconSRC.icon_back_left}
             size={25}
-            color="white"
-            containerStyle={[styles.btn, {top: top}]}
+            color={theme.icon}
+            containerStyle={[
+              styles.btn,
+              {backgroundColor: theme.background_login},
+              {top: top},
+            ]}
             onPress={() =>
               nameScreen === 'NextLogin'
                 ? navigation.goBack()
@@ -125,23 +132,27 @@ const LoginScreen = () => {
             width={'85%'}
             height={500}
             pad={metrics.space + 5}
-            backgroundColor={colors.black65}>
+            backgroundColor={theme.background_login}>
             <Block flex1 justifyCT>
               <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{flex: 1, justifyContent: 'center'}}>
-                <TextSizeCustom
-                  bold
-                  size={30}
-                  color={colors.while}
-                  style={{textAlign: 'center'}}>
+                <TextSizeCustom bold size={30} style={{textAlign: 'center'}}>
                   {getTranslation('chao_mung')}
                 </TextSizeCustom>
-                <TextHeight
-                  color={colors.while}
-                  style={{textAlign: 'center', marginBottom: 30}}>
+                <TextHeight style={{textAlign: 'center', marginBottom: 30}}>
                   {getTranslation('dang_nhap_tk')}
                 </TextHeight>
+
+                {/* <InputPlace
+                  // is_Focused={isFocused}
+                  label={getTranslation('email')}
+                  value={email}
+                  onChangeText={(text: string) => {
+                    setEmail(text);
+                    setErrorInp('');
+                  }}
+                /> */}
 
                 <InputBase
                   value={email}
@@ -153,7 +164,7 @@ const LoginScreen = () => {
                     setEmail(text);
                     setErrorInp('');
                   }}
-                  inputStyle={{color: colors.while}}
+                  inputStyle={{color: theme.text}}
                 />
                 <InputBase
                   value={password}
@@ -165,13 +176,13 @@ const LoginScreen = () => {
                   containerStyle={{marginTop: 10}}
                   iconRight
                   imageName={showPass ? IconSRC.icon_eye_off : IconSRC.icon_eye}
-                  iconColor={colors.black65}
+                  iconColor={theme.icon}
                   onChangeText={(text: string) => {
                     setPassword(text);
                     setErrorInp('');
                   }}
                   onPressRight={() => setShowPass(!showPass)}
-                  inputStyle={{color: colors.while}}
+                  inputStyle={{color: theme.text}}
                 />
                 {errorInp ? (
                   <TextSizeCustom
@@ -184,7 +195,7 @@ const LoginScreen = () => {
 
                 <Block row centerBW marT={15} marB={40}>
                   <Block row alignCT>
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                       onPress={() => setIsCheckBox(!isCheckBox)}>
                       <Image
                         style={{width: 16, height: 16}}
@@ -198,27 +209,16 @@ const LoginScreen = () => {
                       color={colors.while}
                       style={{marginLeft: 5}}>
                       {getTranslation('nho_tk')}
-                    </TextSizeCustom>
+                    </TextSizeCustom> */}
                   </Block>
 
-                  <MaskedView
-                    maskElement={
-                      <TouchableOpacity
-                        activeOpacity={0.5}
-                        onPress={handleForgotPassword}>
-                        <TextSizeCustom size={13} color={colors.green}>
-                          {getTranslation('quen_mk')}
-                        </TextSizeCustom>
-                      </TouchableOpacity>
-                    }>
-                    <TouchableOpacity
-                      activeOpacity={0.5}
-                      onPress={handleForgotPassword}>
-                      <TextSizeCustom size={13} color={colors.green}>
-                        {getTranslation('quen_mk')}
-                      </TextSizeCustom>
-                    </TouchableOpacity>
-                  </MaskedView>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={handleForgotPassword}>
+                    <TextSizeCustom size={13} color={theme.text}>
+                      {getTranslation('quen_mk')}
+                    </TextSizeCustom>
+                  </TouchableOpacity>
                 </Block>
 
                 <ButtonBase
@@ -231,14 +231,12 @@ const LoginScreen = () => {
               </KeyboardAvoidingView>
             </Block>
             <Block row middle>
-              <TextSmall color={colors.while}>
-                {getTranslation('khong_co_tk')}{' '}
-              </TextSmall>
+              <TextSmall>{getTranslation('khong_co_tk')} </TextSmall>
               <TouchableOpacity
                 onPress={() => {
                   handleRegister('NextRegister');
                 }}>
-                <TextSmall color={colors.green} bold>
+                <TextSmall bold color={theme.primary}>
                   {getTranslation('tao_tk')}
                 </TextSmall>
               </TouchableOpacity>
@@ -258,7 +256,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     position: 'absolute',
     left: 20,
-    backgroundColor: colors.gray,
+
     height: 45,
     width: 45,
     borderRadius: 18,

@@ -137,12 +137,12 @@ const CategoryScreen = () => {
           {tab}
         </TextSmall>
       </TouchableOpacity>
-      <Block
-        borderW={0.5}
-        borderColor={theme.border}
+      {/* <Block
+        w={1}
+        backgroundColor={theme.border_color}
         h={'50%'}
         alignSelf="center"
-      />
+      /> */}
     </View>
   );
 
@@ -150,7 +150,7 @@ const CategoryScreen = () => {
     <ContainerView>
       {!isReady ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" />
+          <ActivityIndicator size="large" color={theme.icon} />
         </View>
       ) : (
         <>
@@ -164,7 +164,7 @@ const CategoryScreen = () => {
             backgroundColor={theme.background}
             labelColor={theme.text}
           />
-          <View style={[styles.tab, {backgroundColor: theme.background}]}>
+          <View style={[styles.tab, {borderColor: theme.border_color}]}>
             {tabs.map(renderTab)}
           </View>
           <Toast config={configToast} />
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
   tab: {
     width: '100%',
     flexDirection: 'row',
-    borderBottomWidth: 0.3,
+    borderBottomWidth: 0.2,
   },
   loadingContainer: {
     flex: 1,

@@ -14,6 +14,7 @@ import {IconSRC} from '../../../constants/icons';
 import {colors} from '../../../themes/colors';
 import Block from '../../layout/Block';
 import metrics from '../../../constants/metrics';
+import {useAppTheme} from '../../../themes/ThemeContext';
 
 interface Props extends TextInputProps {
   customRight?: React.ReactElement;
@@ -40,9 +41,10 @@ interface Props extends TextInputProps {
 }
 
 const InputBase = (props: Props) => {
+  const theme = useAppTheme();
   const {
     placeholder = 'Nhập ',
-    placeholderTextColor = colors.gray,
+    placeholderTextColor = theme.placeholderTextColor,
     customLeft,
     customRight,
     containerStyle,
@@ -67,13 +69,13 @@ const InputBase = (props: Props) => {
   return (
     <Block
       row
-      borderWidth={isFocused ? 1.5 : 1}
-      borderColor={isFocused ? colors.while : colors.gray}
+      borderWidth={isFocused ? 1.5 : 0.7}
+      borderColor={isFocused ? colors.blue1 : theme.border_color}
       borderRadius={radius}
       pad={padding}
       padH={paddingHorizontal}
       padV={paddingVertical}
-      backgroundColor={'rgba(255,255,255,0.1)'}
+      backgroundColor={theme.background_input}
       containerStyle={containerStyle}>
       {customLeft && customLeft}
       <TextInput

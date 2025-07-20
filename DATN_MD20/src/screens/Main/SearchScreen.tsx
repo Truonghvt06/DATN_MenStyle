@@ -16,19 +16,22 @@ import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
 import {IconSRC, ImgSRC} from '../../constants/icons';
 import metrics from '../../constants/metrics';
-import Block from '../../components/layout/Block';
-import {TextHeight, TextSmall} from '../../components/dataEntry/TextBase';
-import {colors} from '../../themes/colors';
+import {
+  TextHeight,
+  TextSizeCustom,
+  TextSmall,
+} from '../../components/dataEntry/TextBase';
 import useLanguage from '../../hooks/useLanguage';
 import {useAppTheme} from '../../themes/ThemeContext';
 import products from '../../services/products';
 import {Product} from '../../redux/reducers/product/type';
 import {useAppDispatch, useAppSelector} from '../../redux/store';
-import {fetchAllProducts, fetchProducts} from '../../redux/actions/product';
+import {fetchProducts} from '../../redux/actions/product';
 import ListProduct from '../../components/dataDisplay/ListProduct';
 import {fetchFavorites, toggleFavorite} from '../../redux/actions/favorite';
 import Toast from 'react-native-toast-message';
 import configToast from '../../components/utils/configToast';
+import Block from '../../components/layout/Block';
 
 const SearchScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -94,17 +97,11 @@ const SearchScreen = () => {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <ContainerView
-        containerStyle={{
-          backgroundColor: theme.background,
-        }}>
+      <ContainerView>
         <Header
           visibleLeft
           label={getTranslation('tim_kiem')}
           paddingTop={top}
-          backgroundColor={theme.background} // ✅ dùng được rồi
-          labelColor={theme.text} // ✅ dùng được rồi
-          iconColor={theme.text}
         />
 
         <ScrollView
@@ -112,65 +109,80 @@ const SearchScreen = () => {
           contentContainerStyle={{
             paddingBottom: 30,
             paddingHorizontal: metrics.space,
+            marginTop: 10,
           }}>
           {/* Search Box */}
           <TouchableOpacity
-            style={[
-              styles.search,
-              {backgroundColor: theme.background, borderColor: theme.text},
-            ]}
+            style={[styles.search, {borderColor: theme.border_color}]}
             activeOpacity={0.7}
             onPress={handleSearch}>
             <Image
-              style={[styles.icon, {tintColor: theme.text}]}
+              style={[styles.icon, {tintColor: theme.icon}]}
               source={IconSRC.icon_search}
             />
-            <TextSmall style={{color: theme.text}}>
-              {getTranslation('tim_sp')}
-            </TextSmall>
+            <TextSmall>{getTranslation('tim_sp')}</TextSmall>
           </TouchableOpacity>
 
           {/* Banner */}
           <Image style={styles.banner} source={ImgSRC.img_banner} />
 
           {/* Sản phẩm mới */}
-          <TextHeight style={{...styles.titel, color: theme.text}} bold>
-            {getTranslation('san_pham_moi')}:
-          </TextHeight>
+          <Block row alignCT justifyBW marT={20} marB={10}>
+            <TextHeight
+              style={{
+                textTransform: 'capitalize',
+              }}
+              bold>
+              {getTranslation('san_pham_moi')}
+            </TextHeight>
+            <TouchableOpacity activeOpacity={0.8} onPress={() => {}}>
+              <TextSizeCustom
+                size={14}
+                style={{textDecorationLine: 'underline', fontStyle: 'italic'}}>
+                {`${getTranslation('xem_tat_ca')}  `}
+              </TextSizeCustom>
+            </TouchableOpacity>
+          </Block>
 
           <ListProduct
             data={productNew}
             horizontal={true}
-            isSeemore
+            // isSeemore
             favoriteId={listFavoriteIds}
             onPress={id => {
               handleProDetail(id);
             }}
             onPressFavorite={id => (token ? handleFavorite(id) : handleLogin())}
-            onPressSee={() => {}}
+            // onPressSee={() => {}}
           />
 
           {/* Sản phẩm bán chạy */}
-          <TextHeight
-            style={{
-              textTransform: 'capitalize',
-              marginTop: 20,
-              marginBottom: 10,
-              color: theme.text,
-            }}
-            bold>
-            {getTranslation('san_pham_ban_chay')}:
-          </TextHeight>
+          <Block row alignCT justifyBW marT={20} marB={10}>
+            <TextHeight
+              style={{
+                textTransform: 'capitalize',
+              }}
+              bold>
+              {getTranslation('san_pham_ban_chay')}
+            </TextHeight>
+            <TouchableOpacity activeOpacity={0.8} onPress={() => {}}>
+              <TextSizeCustom
+                size={14}
+                style={{textDecorationLine: 'underline', fontStyle: 'italic'}}>
+                {`${getTranslation('xem_tat_ca')}  `}
+              </TextSizeCustom>
+            </TouchableOpacity>
+          </Block>
           <ListProduct
             data={productHot}
             horizontal={true}
-            isSeemore
+            // isSeemore
             favoriteId={listFavoriteIds}
             onPress={id => {
               handleProDetail(id);
             }}
             onPressFavorite={id => (token ? handleFavorite(id) : handleLogin())}
-            onPressSee={() => {}}
+            // onPressSee={() => {}}
           />
         </ScrollView>
         <Toast config={configToast} />

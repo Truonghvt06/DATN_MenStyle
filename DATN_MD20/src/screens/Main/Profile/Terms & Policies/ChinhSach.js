@@ -7,6 +7,7 @@ import ContainerView from '../../../../components/layout/ContainerView';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useAppTheme} from '../../../../themes/ThemeContext';
 import useLanguage from '../../../../hooks/useLanguage';
+import {TextMedium, TextSmall} from '../../../../components/dataEntry/TextBase';
 
 const ChinhSach = () => {
   const {top} = useSafeAreaInsets();
@@ -14,40 +15,31 @@ const ChinhSach = () => {
   const {getTranslation} = useLanguage();
 
   return (
-    <ContainerView
-      containerStyle={{
-        backgroundColor: theme.background,
-        paddingTop: top,
-      }}>
-      <Header
-        label={getTranslation('chinh_sach_rieng_tu')}
-        paddingTop={top}
-        backgroundColor={theme.background}
-        textColor={theme.text}
-      />
+    <ContainerView>
+      <Header label={getTranslation('chinh_sach_rieng_tu')} paddingTop={top} />
       <ScrollView
         style={styles.container}
         contentContainerStyle={{paddingBottom: 40}}>
-        <Text style={[styles.title, {color: theme.text}]}>
-          1. {getTranslation('thu_thap_thong_tin')}
-        </Text>
-        <Text style={[styles.text, {color: theme.text}]}>
+        <TextMedium bold style={[styles.title]}>
+          1. {getTranslation('thu_thap_thong_tin')}:
+        </TextMedium>
+        <TextSmall style={[styles.text, {color: theme.text}]}>
           {getTranslation('noi_dung_thu_thap')}
-        </Text>
+        </TextSmall>
 
-        <Text style={[styles.title, {color: theme.text}]}>
-          2. {getTranslation('su_dung_thong_tin')}
-        </Text>
-        <Text style={[styles.text, {color: theme.text}]}>
+        <TextMedium bold style={[styles.title]}>
+          2. {getTranslation('su_dung_thong_tin')}:
+        </TextMedium>
+        <TextSmall style={[styles.text, {color: theme.text}]}>
           {getTranslation('noi_dung_su_dung')}
-        </Text>
+        </TextSmall>
 
-        <Text style={[styles.title, {color: theme.text}]}>
-          3. {getTranslation('bao_mat')}
-        </Text>
-        <Text style={[styles.text, {color: theme.text}]}>
+        <TextMedium bold style={[styles.title]}>
+          3. {getTranslation('bao_mat')}:
+        </TextMedium>
+        <TextSmall style={[styles.text, {color: theme.text}]}>
           {getTranslation('noi_dung_bao_mat')}
-        </Text>
+        </TextSmall>
       </ScrollView>
     </ContainerView>
   );
@@ -57,17 +49,14 @@ export default ChinhSach;
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
-    paddingTop: 10,
+    paddingHorizontal: 8,
+    paddingTop: 8,
   },
   title: {
-    fontSize: 16,
-    fontWeight: 'bold',
     marginTop: 16,
     marginBottom: 6,
   },
   text: {
-    fontSize: 14,
     lineHeight: 20,
   },
 });

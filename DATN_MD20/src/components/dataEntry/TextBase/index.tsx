@@ -1,5 +1,6 @@
 import {Text, TextProps, TextStyle} from 'react-native';
 import {colors} from '../../../themes/colors';
+import {useAppTheme} from '../../../themes/ThemeContext';
 
 interface Props extends TextProps {
   color?: string;
@@ -13,7 +14,8 @@ interface PropsSizeCustom extends TextProps, Props {
   style?: TextStyle | any;
 }
 export const TextSmall = (props: Props) => {
-  const {color = colors.black, medium = false, bold = false, style} = props;
+  const theme = useAppTheme();
+  const {color = theme.text, medium = false, bold = false, style} = props;
   const renderBold = (): '500' | 'bold' | 'normal' => {
     if (medium) {
       return '500';
@@ -41,7 +43,9 @@ export const TextSmall = (props: Props) => {
 };
 
 export const TextMedium = (props: Props) => {
-  const {color = colors.black, medium = false, bold = false, style} = props;
+  const theme = useAppTheme();
+
+  const {color = theme.text, medium = false, bold = false, style} = props;
 
   const renderBold = (): '500' | 'bold' | 'normal' => {
     if (medium) {
@@ -69,7 +73,9 @@ export const TextMedium = (props: Props) => {
   );
 };
 export const TextHeight = (props: Props) => {
-  const {color = colors.black, medium = false, bold = false, style} = props;
+  const theme = useAppTheme();
+
+  const {color = theme.text, medium = false, bold = false, style} = props;
 
   const renderBold = (): '500' | 'bold' | 'normal' => {
     if (medium) {
@@ -98,13 +104,9 @@ export const TextHeight = (props: Props) => {
 };
 
 export const TextSizeCustom = (props: PropsSizeCustom) => {
-  const {
-    color = colors.black,
-    medium = false,
-    bold = false,
-    size,
-    style,
-  } = props;
+  const theme = useAppTheme();
+
+  const {color = theme.text, medium = false, bold = false, size, style} = props;
 
   const renderBold = (): '500' | 'bold' | 'normal' => {
     if (medium) {

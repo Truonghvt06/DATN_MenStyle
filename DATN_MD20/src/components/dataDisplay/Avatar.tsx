@@ -11,6 +11,7 @@ import {IconSRC} from '../../constants/icons';
 import Block from '../layout/Block';
 import {TextMedium, TextSmall} from '../dataEntry/TextBase';
 import {colors} from '../../themes/colors';
+import {useAppTheme} from '../../themes/ThemeContext';
 
 interface Props {
   title?: string;
@@ -23,6 +24,7 @@ interface Props {
   onPress?: () => void;
 }
 const Avatar = (props: Props) => {
+  const theme = useAppTheme();
   const {
     title,
     icon,
@@ -30,7 +32,7 @@ const Avatar = (props: Props) => {
     sizeIcon = 35,
     sizeBtn = 55,
     containerStyle,
-    backgroundColor = colors.gray3,
+    backgroundColor = theme.background_cate,
     onPress,
   } = props;
   return (

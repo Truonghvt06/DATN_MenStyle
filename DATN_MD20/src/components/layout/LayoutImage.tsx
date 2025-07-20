@@ -9,6 +9,7 @@ import {
 import React from 'react';
 import metrics from '../../constants/metrics';
 import {ImgSRC} from '../../constants/icons';
+import {useAppTheme} from '../../themes/ThemeContext';
 
 interface Props {
   containerStyle?: ViewStyle;
@@ -17,6 +18,7 @@ interface Props {
 }
 
 const LayoutImage = (props: Props) => {
+  const theme = useAppTheme();
   return (
     <ImageBackground
       source={props.imagaeUri ?? ImgSRC.img_login}
@@ -30,7 +32,7 @@ const LayoutImage = (props: Props) => {
         style={{
           flex: 1,
           width: metrics.diviceScreenWidth,
-          //   backgroundColor: 'rgba(0, 0, 0, 0.15)',
+          backgroundColor: theme.background_img,
         }}>
         {props.children}
       </View>

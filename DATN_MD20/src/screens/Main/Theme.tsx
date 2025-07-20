@@ -1,43 +1,49 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, TouchableOpacity, StyleSheet, Switch} from 'react-native';
 import ContainerView from '../../components/layout/ContainerView';
 import Header from '../../components/dataDisplay/Header';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../redux/store';
-import { setTheme } from '../../redux/slice/ThemeSlice';
-import { useAppTheme } from '../../themes/ThemeContext';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useSelector, useDispatch} from 'react-redux';
+import {RootState} from '../../redux/store';
+import {setTheme} from '../../redux/slice/ThemeSlice';
+import {useAppTheme} from '../../themes/ThemeContext';
+import useLanguage from '../../hooks/useLanguage';
+import Block from '../../components/layout/Block';
+import {TextMedium} from '../../components/dataEntry/TextBase';
 
 const ThemeScreen = () => {
   const theme = useAppTheme();
-  const { top } = useSafeAreaInsets();
+  const {getTranslation} = useLanguage();
+  const {top} = useSafeAreaInsets();
+
+  const [isSwitch, setIsSwitch] = useState(false);
+
   const mode = useSelector((state: RootState) => state.theme.mode);
   const dispatch = useDispatch();
 
   return (
-    <ContainerView style={{ backgroundColor: theme.background }}>
-      <Header label="Chủ đề" paddingTop={top - 10} />
-      <View style={[styles.content, { backgroundColor: theme.background, flex: 1 }]}>
-        <Text style={[styles.title, { color: theme.text }]}>Chọn chế độ hiển thị:</Text>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            mode === 'light' && { backgroundColor: '#eee' },
-          ]}
-          onPress={() => dispatch(setTheme('light'))}
-        >
-          <Text style={[styles.buttonText, { color: theme.text }]}>Sáng</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            mode === 'dark' && { backgroundColor: '#8d1414ff' },
-          ]}
-          onPress={() => dispatch(setTheme('dark'))}
-        >
-          <Text style={[styles.buttonText, { color: '#fff' }]}>Tối</Text>
-        </TouchableOpacity>
-      </View>
+    <ContainerView style={{backgroundColor: theme.background}}>
+      <Header label={getTranslation('chu_de')} paddingTop={top} />
+
+      <Block
+        row
+        alignCT
+        justifyBW
+        padH={8}
+        padV={16}
+        backgroundColor={theme.background_item}>
+        <TextMedium>Chuyển sang chủ đề tối</TextMedium>
+        <Switch
+          value={isSwitch}
+          onValueChange={value => {
+            setIsSwitch(value);
+            dispatch(setTheme(value ? 'dark' : 'light'));
+          }}
+          trackColor={{false: '#CCCCCC', true: '#33CC00'}}
+          thumbColor={isSwitch ? '#fff' : '##EEEEEE'}
+          ios_backgroundColor="#CCCCCC"
+        />
+      </Block>
     </ContainerView>
   );
 };

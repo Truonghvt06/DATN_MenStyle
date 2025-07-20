@@ -5,12 +5,14 @@ import AppNavigation from './src/navigation/AppNavigation';
 import {PersistGate} from 'redux-persist/integration/react';
 import {persistor, store, useAppSelector} from './src/redux/store';
 import Toast from 'react-native-toast-message';
-import {ThemeProvider} from './src/themes/ThemeContext'; // Thêm dòng này
+import {ThemeProvider, useAppTheme} from './src/themes/ThemeContext'; // Thêm dòng này
 import {requestUserPermission} from './src/utils/common/firebase/firebaseNotification';
 import {setupNotificationListeners} from './src/utils/common/firebase/fcmHelper';
 import {PermissionsAndroid} from 'react-native';
 
 const App = () => {
+  const theme = useAppTheme();
+
   if (Platform.OS === 'android') {
     PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
@@ -26,8 +28,8 @@ const App = () => {
         <ThemeProvider>
           <StatusBar
             backgroundColor={'transparent'}
-            translucent
-            barStyle="light-content"
+            translucent={true}
+            barStyle={'light-content'}
           />
           <AppNavigation />
           <Toast />
