@@ -36,6 +36,7 @@ import Toast from 'react-native-toast-message';
 import configToast from '../../components/utils/configToast';
 import {shuffleArray} from '../../utils/helper';
 import {useAppTheme} from '../../themes/ThemeContext'; // ✅ Thêm theme
+import {fetchNotifications} from '../../redux/actions/notification';
 
 const ITEM_MARGIN = 10;
 const NUM_COLUMNS = 2;
@@ -48,10 +49,12 @@ const HomeScreen = () => {
   const theme = useAppTheme(); // ✅ Lấy theme
 
   const [proData, setProData] = useState<Product[]>([]);
+
   const [page, setPage] = useState(1);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
 
   const dispatch = useAppDispatch();
+  const {listNotifications} = useAppSelector(state => state.notification);
   const {products, categories, total, loading} = useAppSelector(
     state => state.product,
   );
@@ -61,6 +64,7 @@ const HomeScreen = () => {
   useEffect(() => {
     dispatch(fetchCategory());
     dispatch(fetchFavorites());
+    dispatch(fetchNotifications());
   }, []);
 
   useEffect(() => {
@@ -203,19 +207,20 @@ const HomeScreen = () => {
             onPress={handleSearch}
           />
           <TouchableOpacity activeOpacity={1}>
-            {token && (
-              <TouchableOpacity
-                activeOpacity={1}
-                style={styles.tb}
-                onPress={handleNotification}>
-                <TextSizeCustom
-                  style={{textAlign: 'center'}}
-                  color="white"
-                  size={10}>
-                  99
-                </TextSizeCustom>
-              </TouchableOpacity>
-            )}
+            {token &&
+              (listNotifications.filter(item => !item.is_read).length > 0 ? (
+                <TouchableOpacity
+                  activeOpacity={1}
+                  style={styles.tb}
+                  onPress={handleNotification}>
+                  <TextSizeCustom
+                    style={{textAlign: 'center'}}
+                    color="white"
+                    size={10}>
+                    {listNotifications.filter(item => !item.is_read).length}
+                  </TextSizeCustom>
+                </TouchableOpacity>
+              ) : null)}
             <TouchIcon
               color={theme.text}
               size={25}
@@ -355,6 +360,6 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     position: 'absolute',
     right: 0,
-    top: -8,
+    top: -5,
   },
 });

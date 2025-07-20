@@ -19,6 +19,7 @@ const Tab = createBottomTabNavigator();
 const BottomTab = () => {
   const {getTranslation} = useLanguage();
   const {token} = useAppSelector(state => state.auth);
+  // const {} = useAppSelector(state => state.cart);
 
   return (
     <Tab.Navigator

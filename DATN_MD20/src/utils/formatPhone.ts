@@ -14,6 +14,8 @@
 //   return `(+84) ${cleaned}`;
 // };
 
+// Hàm forrmat SDT (+84)
+
 export const formatPhoneNumber = (input?: string): string => {
   if (!input || typeof input !== 'string') return '';
 

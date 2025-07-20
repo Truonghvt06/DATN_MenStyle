@@ -54,6 +54,8 @@ router.delete(
   favoriteController.removeFavorite
 );
 
+//update fcm token
+router.put("/update-fcm-token", authMiddleware, authController.updateFcmToken);
 //
 //
 router.get("/favorites", authMiddleware, async (req, res) => {

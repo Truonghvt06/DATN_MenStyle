@@ -132,6 +132,22 @@ const updateAvatar = async (formData: FormData) => {
   }
 };
 
+// update fcm token
+const updateFcmToken = async (fcmToken: string) => {
+  try {
+    const response = await axiosInstance.put('/accounts/update-fcm-token', {
+      fcmToken,
+    });
+    return response.data;
+  } catch (error: any) {
+    console.error(
+      'Lỗi cập nhật FCM token:',
+      error?.response?.data || error.message,
+    );
+    throw error?.response?.data || error;
+  }
+};
+
 export default {
   login,
   register,
@@ -141,4 +157,5 @@ export default {
   resetPassword,
   updateProfile,
   updateAvatar,
+  updateFcmToken,
 };

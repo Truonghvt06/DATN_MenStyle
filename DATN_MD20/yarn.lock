@@ -1799,6 +1799,11 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@notifee/react-native@^9.1.8":
+  version "9.1.8"
+  resolved "https://registry.yarnpkg.com/@notifee/react-native/-/react-native-9.1.8.tgz#3d55cb3fbcc21f9e35931e366afdf64b294da891"
+  integrity sha512-Az/dueoPerJsbbjRxu8a558wKY+gONUrfoy3Hs++5OqbeMsR0dYe6P+4oN6twrLFyzAhEA1tEoZRvQTFDRmvQg==
+
 "@os-team/i18next-react-native-language-detector@^1.1.6":
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/@os-team/i18next-react-native-language-detector/-/i18next-react-native-language-detector-1.1.6.tgz#b42247843a799c3c0b736b147907c2bde6ba73ba"
@@ -2041,6 +2046,11 @@
   integrity sha512-cmyTrh5i/XmQ5G+/7XQ8zLBCdSSLi4rLm1M1mBF5tuAd1CLyUy5SehXQX5/RJgRQ0B0vXd+TMNeNQKjD/nb+OA==
   dependencies:
     plist "^3.1.0"
+
+"@react-native-firebase/messaging@^22.4.0":
+  version "22.4.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/messaging/-/messaging-22.4.0.tgz#91e88deb8cba799c06e847577c0c61fdcfe381cf"
+  integrity sha512-iuTA8IJ102pQijFejhWZXxVIt4+JJ5n3JTN8Mb+OXZmIVswUZ4ryErk8Y0RhcFiIwEF5a99ziJfPybA1EheVLg==
 
 "@react-native-masked-view/masked-view@^0.3.2":
   version "0.3.2"

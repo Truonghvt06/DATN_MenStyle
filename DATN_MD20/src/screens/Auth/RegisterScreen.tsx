@@ -90,7 +90,9 @@ const RegisterScreen = () => {
       );
 
       if (registerUser.fulfilled.match(result)) {
-        navigation.navigate(ScreenName.Auth.Login);
+        navigation.navigate(ScreenName.Auth.Login, {
+          nameScreen: '',
+        });
       } else {
         setErrors({email: result.payload as string});
       }

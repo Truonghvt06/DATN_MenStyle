@@ -46,6 +46,7 @@ const userSchema = new mongoose.Schema(
     avatar: { type: String, required: false, default: "" },
     date_of_birth: { type: String, required: false, default: "" },
     password: { type: String, required: true },
+    fcmToken: { type: String, default: "" },
 
     resetOTP: { type: String, require: false, default: "" },
     resetOTPExpires: { type: Date, require: false, default: null },
