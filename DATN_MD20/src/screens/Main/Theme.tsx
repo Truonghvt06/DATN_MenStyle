@@ -16,15 +16,17 @@ const ThemeScreen = () => {
   const {getTranslation} = useLanguage();
   const {top} = useSafeAreaInsets();
 
-  const [isSwitch, setIsSwitch] = useState(false);
-
   const mode = useSelector((state: RootState) => state.theme.mode);
   const dispatch = useDispatch();
+
+  const [isSwitch, setIsSwitch] = useState(mode === 'dark');
+  React.useEffect(() => {
+    setIsSwitch(mode === 'dark');
+  }, [mode]);
 
   return (
     <ContainerView style={{backgroundColor: theme.background}}>
       <Header label={getTranslation('chu_de')} paddingTop={top} />
-
       <Block
         row
         alignCT
@@ -40,7 +42,7 @@ const ThemeScreen = () => {
             dispatch(setTheme(value ? 'dark' : 'light'));
           }}
           trackColor={{false: '#CCCCCC', true: '#33CC00'}}
-          thumbColor={isSwitch ? '#fff' : '##EEEEEE'}
+          thumbColor={isSwitch ? '#fff' : '#EEEEEE'}
           ios_backgroundColor="#CCCCCC"
         />
       </Block>
