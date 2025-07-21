@@ -536,13 +536,15 @@ export const allProducts = [
 
 export const voucherData = [
   {
+    title: 'Giảm 10% cho đơn hàng từ 200K',
     code: 'ORDER10',
-    description: 'Giảm 10% cho tổng giá trị đơn hàng',
-    voucher_scope: 'order', // Giảm giá trên đơn hàng
+    description: 'Giảm 10% trên tổng giá trị đơn hàng cho khách hàng mới',
+    image: '',
+    voucher_scope: 'order',
     discount_type: 'percentage',
     discount_value: 10, // 10%
-    max_discount_value: 50000, // Giảm tối đa 50,000 VND
-    min_order_amount: 200000, // Đơn từ 200,000 VND
+    max_discount_value: 50000, // tối đa giảm 50,000 VND
+    min_order_amount: 200000, // đơn hàng từ 200K
     quantity: 100,
     used_count: 0,
     usage_limit_per_user: 2,
@@ -552,11 +554,49 @@ export const voucherData = [
     is_active: true,
   },
   {
+    title: 'Giảm 10% cho đơn hàng từ 200K',
+    code: 'ORDER10',
+    description: 'Giảm 10% trên tổng giá trị đơn hàng cho khách hàng mới',
+    image: '',
+    voucher_scope: 'order',
+    discount_type: 'percentage',
+    discount_value: 10, // 10%
+    max_discount_value: 50000, // tối đa giảm 50,000 VND
+    min_order_amount: 200000, // đơn hàng từ 200K
+    quantity: 100,
+    used_count: 0,
+    usage_limit_per_user: 2,
+    is_public: true,
+    date_from: new Date('2025-07-01'),
+    date_to: new Date('2025-07-31'),
+    is_active: true,
+  },
+  {
+    title: 'Giảm 10% cho đơn hàng từ 200K',
+    code: 'ORDER10',
+    description: 'Giảm 10% trên tổng giá trị đơn hàng cho khách hàng mới',
+    image: '',
+    voucher_scope: 'order',
+    discount_type: 'percentage',
+    discount_value: 10, // 10%
+    max_discount_value: 50000, // tối đa giảm 50,000 VND
+    min_order_amount: 200000, // đơn hàng từ 200K
+    quantity: 100,
+    used_count: 0,
+    usage_limit_per_user: 2,
+    is_public: true,
+    date_from: new Date('2025-07-01'),
+    date_to: new Date('2025-07-31'),
+    is_active: true,
+  },
+  {
+    title: 'Giảm 30K phí vận chuyển',
     code: 'SHIP30K',
-    description: 'Giảm 30,000 VND phí vận chuyển',
-    voucher_scope: 'shipping', // Giảm phí vận chuyển
+    description: 'Voucher giảm trực tiếp 30,000 VND phí ship',
+    image: '',
+    voucher_scope: 'shipping',
     discount_type: 'fixed',
-    discount_value: 30000, // 30,000 VND
+    discount_value: 30000, // giảm 30,000 VND phí ship
     max_discount_value: null,
     min_order_amount: 0,
     quantity: 50,
@@ -568,12 +608,14 @@ export const voucherData = [
     is_active: true,
   },
   {
+    title: 'Giảm 20% cho khách mới',
     code: 'WELCOME20',
-    description: 'Giảm 20% cho khách hàng mới',
+    description: 'Ưu đãi 20% cho lần mua đầu tiên',
+    image: '',
     voucher_scope: 'order',
     discount_type: 'percentage',
     discount_value: 20,
-    max_discount_value: 100000, // Giảm tối đa 100,000 VND
+    max_discount_value: 100000, // giảm tối đa 100K
     min_order_amount: 0,
     quantity: 200,
     used_count: 0,
@@ -584,8 +626,10 @@ export const voucherData = [
     is_active: true,
   },
   {
+    title: 'Flash Sale giảm 50K',
     code: 'FLASH50',
-    description: 'Giảm ngay 50,000 VND cho đơn hàng từ 500,000 VND',
+    description: 'Giảm 50,000 VND cho đơn từ 500,000 VND',
+    image: '',
     voucher_scope: 'order',
     discount_type: 'fixed',
     discount_value: 50000,
@@ -600,8 +644,10 @@ export const voucherData = [
     is_active: true,
   },
   {
+    title: 'Giảm 50% phí ship tối đa 40K',
     code: 'FREESHIP50',
-    description: 'Giảm 50% phí ship, tối đa 40,000 VND',
+    description: 'Giảm 50% phí ship, tối đa 40,000 VND cho đơn từ 100,000 VND',
+    image: '',
     voucher_scope: 'shipping',
     discount_type: 'percentage',
     discount_value: 50,
