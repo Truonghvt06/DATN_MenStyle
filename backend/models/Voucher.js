@@ -31,6 +31,7 @@ const VOUCHER_SCOPE = ["order", "shipping"];
 const voucherSchema = new mongoose.Schema(
   {
     code: { type: String, required: true, unique: true }, // Mã voucher, bắt buộc, không được trùng lặp
+    image: { type: String, default: "" }, // Hình ảnh đại diện voucher, có thể để trống
     description: { type: String, default: "" }, // Mô tả voucher, có thể để trống
     voucher_scope: { type: String, enum: VOUCHER_SCOPE, default: "order" }, // Phạm vi áp dụng voucher: order (đơn hàng) hoặc shipping (vận chuyển)
     discount_type: { type: String, enum: VOUCHER_ENUM, required: true }, // Kiểu giảm giá, chỉ nhận 'percentage' hoặc 'fixed'
