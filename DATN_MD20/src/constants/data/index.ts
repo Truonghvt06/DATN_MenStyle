@@ -9,7 +9,6 @@ export const dataBanner = [
   {title: 'Slide 3', image: require('../../assets/images/Banno3.png')},
   {title: 'Slide 4', image: require('../../assets/images/Banno4.png')},
   {title: 'Slide 5', image: require('../../assets/images/Banno1.png')},
-
 ];
 export const dataOrder = [
   {
@@ -532,5 +531,78 @@ export const allProducts = [
     createdAt: '2024-06-07',
     sold: 6,
     price: 360000,
+  },
+];
+
+const voucherData = [
+  {
+    code: 'SALE10',
+    description: 'Giảm 10% cho tất cả sản phẩm',
+    discount_type: 'percentage',
+    discount_value: 10, // 10%
+    max_discount_value: 50000, // tối đa giảm 50k
+    min_order_amount: 200000, // đơn hàng từ 200k
+    quantity: 100,
+    used_count: 0,
+    usage_limit_per_user: 2,
+    date_from: new Date('2025-07-01'),
+    date_to: new Date('2025-07-31'),
+    is_active: true,
+  },
+  {
+    code: 'FREESHIP',
+    description: 'Giảm 30k phí ship cho đơn từ 300k',
+    discount_type: 'fixed',
+    discount_value: 30000, // giảm 30k
+    max_discount_value: null,
+    min_order_amount: 300000,
+    quantity: 50,
+    used_count: 0,
+    usage_limit_per_user: 1,
+    date_from: new Date('2025-07-01'),
+    date_to: new Date('2025-08-01'),
+    is_active: true,
+  },
+  {
+    code: 'WELCOME20',
+    description: 'Giảm 20% cho khách hàng mới',
+    discount_type: 'percentage',
+    discount_value: 20, // 20%
+    max_discount_value: 100000, // tối đa giảm 100k
+    min_order_amount: 0,
+    quantity: 200,
+    used_count: 0,
+    usage_limit_per_user: 1,
+    date_from: new Date('2025-07-01'),
+    date_to: new Date('2025-12-31'),
+    is_active: true,
+  },
+  {
+    code: 'FLASH50',
+    description: 'Giảm ngay 50k cho đơn từ 500k',
+    discount_type: 'fixed',
+    discount_value: 50000,
+    max_discount_value: null,
+    min_order_amount: 500000,
+    quantity: 30,
+    used_count: 5,
+    usage_limit_per_user: 1,
+    date_from: new Date('2025-07-20'),
+    date_to: new Date('2025-07-25'),
+    is_active: true,
+  },
+  {
+    code: 'OFF90',
+    description: 'Giảm 90% nhưng tối đa 200k',
+    discount_type: 'percentage',
+    discount_value: 90,
+    max_discount_value: 200000,
+    min_order_amount: 100000,
+    quantity: 10,
+    used_count: 2,
+    usage_limit_per_user: 1,
+    date_from: new Date('2025-07-21'),
+    date_to: new Date('2025-07-22'),
+    is_active: true,
   },
 ];
