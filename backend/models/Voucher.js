@@ -30,6 +30,7 @@ const VOUCHER_SCOPE = ["order", "shipping"];
 
 const voucherSchema = new mongoose.Schema(
   {
+    title: { type: String, required: true }, // Tiêu đề voucher, bắt buộc
     code: { type: String, required: true, unique: true }, // Mã voucher, bắt buộc, không được trùng lặp
     image: { type: String, default: "" }, // Hình ảnh đại diện voucher, có thể để trống
     description: { type: String, default: "" }, // Mô tả voucher, có thể để trống

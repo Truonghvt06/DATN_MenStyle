@@ -130,6 +130,7 @@ const ProfileScreen = () => {
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
           textColor={theme.text}
+          onPress={() => navigation.navigate(ScreenName.Main.Voucher)}
         />
         <ButtonOption
           name={getTranslation('ngon_ngu')}
