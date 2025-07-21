@@ -45,6 +45,9 @@ export enum IconSRC {
   icon_close = require('../../assets/images/close.png'),
   icon_search_nolist = require('../../assets/images/search_nolist.png'),
   icon_megaphone = require('../../assets/images/megaphone.png'),
+  icon_vc_order = require('../../assets/images/voucher_order.png'),
+  icon_vc_ship = require('../../assets/images/voucher_ship.png'),
+  icon_coppy = require('../../assets/images/coppy.png'),
 }
 
 export enum IconBottomTab {
