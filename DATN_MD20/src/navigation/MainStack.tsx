@@ -27,10 +27,10 @@ import InformationScreen from '../screens/Main/Profile/Account/Information/Infor
 import UpdateInfor from '../screens/Main/Profile/Account/Information/UpdateInfor';
 import WelcomeScreen from '../screens/Main/WelcomeScreen';
 import ReviewScreen from '../screens/Main/Product/ReviewScreen';
-import Theme from '../screens/Main/Theme';
 import RelatedProductDetail from '../screens/Main/Product/RelatedProductDetail';
 import SearchResultScreen from '../screens/Main/SearchResultScreen';
-import VoucherScreen from '../screens/Main/Voucher/VoucherScreen';
+import VoucherScreen from '../screens/Main/Profile/Others/Voucher/VoucherScreen';
+import ThemeScreen from '../screens/Main/Profile/Others/ThemeScreen';
 
 const Stack = createStackNavigator();
 
@@ -87,7 +87,7 @@ const MainStack = () => {
         name={ScreenName.Main.Language}
         component={LanguageScreen}
       />
-      <Stack.Screen name={ScreenName.Main.Theme} component={Theme} />
+      <Stack.Screen name={ScreenName.Main.Theme} component={ThemeScreen} />
       <Stack.Screen
         name={ScreenName.Main.Information}
         component={InformationScreen}

@@ -1,15 +1,16 @@
 import React, {useState} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet, Switch} from 'react-native';
-import ContainerView from '../../components/layout/ContainerView';
-import Header from '../../components/dataDisplay/Header';
+
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useSelector, useDispatch} from 'react-redux';
-import {RootState} from '../../redux/store';
-import {setTheme} from '../../redux/slice/ThemeSlice';
-import {useAppTheme} from '../../themes/ThemeContext';
-import useLanguage from '../../hooks/useLanguage';
-import Block from '../../components/layout/Block';
-import {TextMedium} from '../../components/dataEntry/TextBase';
+import {useAppTheme} from '../../../../themes/ThemeContext';
+import useLanguage from '../../../../hooks/useLanguage';
+import {RootState} from '../../../../redux/store';
+import ContainerView from '../../../../components/layout/ContainerView';
+import Header from '../../../../components/dataDisplay/Header';
+import Block from '../../../../components/layout/Block';
+import {TextMedium} from '../../../../components/dataEntry/TextBase';
+import {setTheme} from '../../../../redux/slice/ThemeSlice';
 
 const ThemeScreen = () => {
   const theme = useAppTheme();
