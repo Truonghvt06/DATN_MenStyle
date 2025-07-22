@@ -1,27 +1,3 @@
-// const mongoose = require("mongoose");
-
-// const VOUCHER_ENUM = ["percentage", "fixed"];
-
-// const voucherSchema = new mongoose.Schema(
-//   {
-//     code: { type: String, reqiured: true },
-//     description: { type: String, reqiured: false, default: "" },
-//     discount_type: { type: String, enum: VOUCHER_ENUM, reqiured: true },// loại giảm giá: percentage hoặc fixed
-//     discount_value: { type: Number, reqiured: true },//giá trị giảm giá: có thể là số hoặc phần trăm
-//     max_discount_value: { type: Number, required: false, default: null }, //giảm tối đa bao nhiêu: áp dụng cho loại percentage
-//     min_order_amount: { type: Number, reqiured: false, default: 0 },//giá trị đơn hàng tối thiểu để áp dụng voucher
-//     quantity: { type: Number, reqiured: true },// tổng số lượng voucher có sẵn
-//     used_count: { type: Number, default: 0 },// số lượng đã sử dụng
-//     usage_limit_per_user: { type: Number, default: 1 },// giới hạn sử dụng voucher cho mỗi người dùng
-//     date_from: { type: String, reqiured: true },
-//     date_to: { type: String, reqiured: true },
-//     is_status: { type: Boolean, default: false },// trạng thái hoạt động của voucher
-//   },
-//   { timestamps: true }
-// );
-
-// module.exports = mongoose.model("Voucher", voucherSchema);
-
 const mongoose = require("mongoose");
 
 const VOUCHER_ENUM = ["percentage", "fixed"];

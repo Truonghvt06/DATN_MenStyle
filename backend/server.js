@@ -30,6 +30,7 @@ app.use(express.urlencoded({ extended: true }));
 // app.use("/avatars", express.static(path.join(__dirname, "assets/avatars")));
 // app.use("/avatars", express.static(path.join(__dirname, "assets/avatars")));
 app.use("/avatars", express.static(path.join(__dirname, "assets", "avatars")));
+app.use("/banners", express.static(path.join(__dirname, "assets", "banners")));
 
 // Các router khác
 app.use("/products", productRouter);
@@ -57,6 +58,7 @@ mongoose
 
     app.listen(port, () => {
       console.log(`Server chạy ở http://localhost:${port}`);
+      console.log(`Server chạy ở http://192.168.55.106:${port}`);
     });
   })
   .catch((error) => {

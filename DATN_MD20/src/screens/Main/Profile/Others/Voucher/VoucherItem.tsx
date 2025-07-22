@@ -1,4 +1,12 @@
-import {Image, StyleSheet, Text, View} from 'react-native';
+import {
+  Alert,
+  Image,
+  Platform,
+  StyleSheet,
+  Text,
+  ToastAndroid,
+  View,
+} from 'react-native';
 import React from 'react';
 import {useAppTheme} from '../../../../../themes/ThemeContext';
 import {
@@ -11,6 +19,7 @@ import Block from '../../../../../components/layout/Block';
 import ButtonBase from '../../../../../components/dataEntry/Button/ButtonBase';
 import TouchIcon from '../../../../../components/dataEntry/Button/TouchIcon';
 import {formatDate, formatMoneyShort} from '../../../../../utils/formatDate';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 interface VoucherItemProps {
   title: string;
@@ -26,6 +35,7 @@ interface VoucherItemProps {
   date_from?: string;
   date_to?: Date | string;
   is_active?: true;
+  onPress?: () => void;
 }
 
 const VoucherItem = (props: VoucherItemProps) => {
@@ -44,6 +54,7 @@ const VoucherItem = (props: VoucherItemProps) => {
     date_from,
     date_to,
     is_active,
+    onPress,
   } = props;
 
   const getTitle = () => {
@@ -90,7 +101,7 @@ const VoucherItem = (props: VoucherItemProps) => {
           </TextSizeCustom>
         </Block>
 
-        <TouchIcon icon={IconSRC.icon_coppy} onPress={() => {}} />
+        <TouchIcon icon={IconSRC.icon_coppy} onPress={onPress} />
       </View>
     </View>
   );
