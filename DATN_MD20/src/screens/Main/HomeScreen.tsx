@@ -85,7 +85,7 @@ const HomeScreen = () => {
       setIsFetchingMore(true);
       setTimeout(() => {
         setPage(prev => prev + 1);
-      }, 2000);
+      }, 1000);
     }
   };
 

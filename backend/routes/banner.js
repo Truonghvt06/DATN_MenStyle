@@ -64,21 +64,30 @@ router.get("/add", (req, res) => {
 });
 
 // POST: Thêm banner
-router.post("/add", async (req, res) => {
+router.post("/add", upload.single("imageFile"), async (req, res) => {
   try {
-    const { title, image } = req.body;
+    const { title, imageLink } = req.body;
+    let imagePath = imageLink?.trim();
 
     if (!title || title.trim() === "") {
       return res.status(400).send("Tiêu đề không được để trống");
     }
 
-    if (!image || image.trim() === "") {
-      return res.status(400).send("Vui lòng nhập link ảnh");
+    // Nếu người dùng upload file, ưu tiên file
+    if (req.file) {
+      // imagePath = `/assets/banners/${req.file.filename}`;r
+      imagePath = `${req.protocol}://${req.get("host")}/banners/${
+        req.file.filename
+      }`;
+    }
+
+    if (!imagePath || imagePath === "") {
+      return res.status(400).send("Vui lòng nhập link ảnh hoặc chọn file");
     }
 
     const banner = new Banner({
       title: title.trim(),
-      image: image.trim(), // link ảnh được nhập
+      image: imagePath,
     });
 
     await banner.save();
@@ -101,14 +110,31 @@ router.get("/edit/:id", async (req, res) => {
   }
 });
 // POST: Cập nhật banner
-router.post("/edit/:id", async (req, res) => {
+router.post("/edit/:id", upload.single("imageFile"), async (req, res) => {
   try {
-    const { title, image } = req.body;
+    const { title, imageLink } = req.body;
     const banner = await Banner.findById(req.params.id);
     if (!banner) return res.status(404).send("Không tìm thấy banner");
 
+    if (!title || title.trim() === "") {
+      return res.status(400).send("Tiêu đề không được để trống");
+    }
+
+    let imagePath = imageLink?.trim();
+
+    // Nếu upload file thì dùng file
+    if (req.file) {
+      imagePath = `${req.protocol}://${req.get("host")}/banners/${
+        req.file.filename
+      }`;
+    }
+
+    if (!imagePath || imagePath === "") {
+      return res.status(400).send("Vui lòng nhập link ảnh hoặc chọn file");
+    }
+
     banner.title = title.trim();
-    banner.image = image.trim();
+    banner.image = imagePath;
 
     await banner.save();
     res.redirect("/banner/view/options");

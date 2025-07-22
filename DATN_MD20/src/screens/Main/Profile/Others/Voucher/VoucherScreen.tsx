@@ -8,6 +8,8 @@ import {useAppTheme} from '../../../../../themes/ThemeContext';
 import VoucherItem from './VoucherItem';
 import {voucherData} from '../../../../../constants/data';
 import {TextSmall} from '../../../../../components/dataEntry/TextBase';
+import {ToastAndroid, Platform, Alert} from 'react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 const VoucherScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -38,6 +40,18 @@ const VoucherScreen = () => {
         return voucherData;
     }
   }, [selectedTab, voucherData]);
+
+  const handleCoppy = (code: string) => {
+    if (code) {
+      Clipboard.setString(code);
+      // Hiển thị thông báo khi copy thành công
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('Đã sao chép mã: ' + code, ToastAndroid.SHORT);
+      } else {
+        Alert.alert('Đã sao chép', `Mã voucher ${code} đã được sao chép`);
+      }
+    }
+  };
 
   const renderTab = (tab: string) => (
     <View
@@ -87,6 +101,10 @@ const VoucherScreen = () => {
             max_discount_value={item.max_discount_value}
             discount_value={item.discount_value}
             min_order_amount={item.min_order_amount}
+            code={item.code}
+            onPress={() => {
+              handleCoppy(item.code);
+            }}
           />
         )}
         contentContainerStyle={{
