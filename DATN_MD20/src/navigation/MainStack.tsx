@@ -28,7 +28,7 @@ import UpdateInfor from '../screens/Main/Profile/Account/Information/UpdateInfor
 import WelcomeScreen from '../screens/Main/WelcomeScreen';
 import ReviewScreen from '../screens/Main/Product/ReviewScreen';
 import RelatedProductDetail from '../screens/Main/Product/RelatedProductDetail';
-import SearchResultScreen from '../screens/Main/SearchResultScreen';
+import SearchSplitScreen from '../screens/Main/SearchSplitScreen';
 import VoucherScreen from '../screens/Main/Profile/Others/Voucher/VoucherScreen';
 import ThemeScreen from '../screens/Main/Profile/Others/ThemeScreen';
 
@@ -49,7 +49,8 @@ const MainStack = () => {
       <Stack.Screen name="DieuKhoan" component={DieuKhoanVaDieuKien} />
       <Stack.Screen name="ChinhSach" component={ChinhSach} />
       <Stack.Screen name="ThongTinCaNhan" component={ThongTinCaNhan} />
-      <Stack.Screen name="SearchResultScreen" component={SearchResultScreen} />
+      <Stack.Screen name="SearchSplitScreen" component={SearchSplitScreen} />
+
 
       <Stack.Screen
         name={ScreenName.Main.Favorite}
