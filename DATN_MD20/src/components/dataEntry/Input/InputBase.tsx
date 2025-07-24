@@ -1,12 +1,10 @@
 import {
   Image,
   StyleSheet,
-  Text,
   TextInput,
   TextInputProps,
   TextStyle,
   TouchableOpacity,
-  View,
   ViewStyle,
 } from 'react-native';
 import React from 'react';
@@ -42,6 +40,7 @@ interface Props extends TextInputProps {
 
 const InputBase = (props: Props) => {
   const theme = useAppTheme();
+
   const {
     placeholder = 'Nhập ',
     placeholderTextColor = theme.placeholderTextColor,
@@ -64,6 +63,11 @@ const InputBase = (props: Props) => {
     isFocused,
     onPressRight,
     imageName,
+
+    // ✅ Tách rõ value và onChangeText để tránh lỗi
+    value,
+    onChangeText,
+    ...rest
   } = props;
 
   return (
@@ -79,10 +83,12 @@ const InputBase = (props: Props) => {
       containerStyle={containerStyle}>
       {customLeft && customLeft}
       <TextInput
-        {...props}
+        value={value}
+        onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor={placeholderTextColor}
         style={[styles.input, inputStyle]}
+        {...rest}
       />
       <Block row middle>
         {customRight
@@ -115,5 +121,4 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     color: colors.black,
   },
-  icon: {},
 });

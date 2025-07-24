@@ -1,5 +1,4 @@
 import {
-  Button,
   FlatList,
   Image,
   Keyboard,
@@ -9,6 +8,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
+  ActivityIndicator,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,16 +18,23 @@ import { IconSRC } from '../../constants/icons';
 import InputBase from '../../components/dataEntry/Input/InputBase';
 import TouchIcon from '../../components/dataEntry/Button/TouchIcon';
 import metrics from '../../constants/metrics';
-import { products } from '../../services/products/products';
+import productService from '../../services/products/productService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppTheme } from '../../themes/ThemeContext';
+import { useRoute } from '@react-navigation/native';
+
+const normalizeText = (text: string) =>
+  text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9\s]/g, '');
 
 const HISTORY_KEY = 'search_history';
 
-const normalize = (str: string) =>
-  str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-
 const SearchDetail = () => {
+
   const { top } = useSafeAreaInsets();
   const theme = useAppTheme();
 
@@ -36,6 +43,7 @@ const SearchDetail = () => {
   const [defaultSuggestions, setDefaultSuggestions] = useState<any[]>([]);
   const [showAllResults, setShowAllResults] = useState(false);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadHistory();
@@ -53,8 +61,9 @@ const SearchDetail = () => {
 
   const loadDefaultSuggestions = async () => {
     try {
-      const res = (await products.getRecommended?.()) || (await products.searchByName(''));
-      setDefaultSuggestions(Array.isArray(res?.data) ? res.data : []);
+      const res = await productService.getProducts();
+      const data = Array.isArray(res?.data) ? res.data : [];
+      setDefaultSuggestions(data);
     } catch {
       setDefaultSuggestions([]);
     }
@@ -63,7 +72,7 @@ const SearchDetail = () => {
   const saveHistory = async (history: string[]) => {
     try {
       await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-    } catch {}
+    } catch { }
   };
 
   const addToSearchHistory = (text: string) => {
@@ -75,49 +84,135 @@ const SearchDetail = () => {
 
   const handleChangeKeyword = async (text: string) => {
     setKeyword(text);
+
     if (!text.trim()) {
       setSuggestions([]);
       setShowAllResults(false);
       return;
     }
+
+    setLoading(true);
+
     try {
-      const res = await products.getProducts();
-      const allProducts = res.data;
-      const filtered = allProducts.filter((item: any) => normalize(item.name).includes(normalize(text)));
-      const rest = allProducts.filter((item: any) => !normalize(item.name).includes(normalize(text)));
-      setSuggestions([...filtered, ...rest]);
-    } catch {}
+      const res = await productService.searchProducts(text);
+      console.log('🔍 API search response:', res);
+
+      const data = Array.isArray(res?.products) ? res.products : [];
+      let results = [...data];
+
+      if (results.length < 3) {
+        const normKeyword = normalizeText(text);
+        const fallback = defaultSuggestions.filter(item =>
+          normalizeText(item.name).includes(normKeyword),
+        );
+        results = [
+          ...results,
+          ...fallback.filter(f => !results.some(r => r._id === f._id)),
+        ];
+      }
+
+      setSuggestions(results);
+    } catch (err) {
+      console.log('❌ Search error:', err);
+      setSuggestions([]);
+    }
+
+    setLoading(false);
   };
 
-  const handleSelectSuggestion = (item: any) => {
-    addToSearchHistory(item.name);
-    navigation.navigate('ProductDetail', { product: item });
+  const handleSelectSuggestion = async (item: any) => {
+    try {
+      const keyword = item.name;
+
+      addToSearchHistory(keyword);
+
+      const res = await productService.searchProducts(keyword);
+      const allResults: { name: string }[] = Array.isArray(res?.products) ? res.products : [];
+
+      const normalizeText = (text: string) =>
+        text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+      const normKeyword = normalizeText(keyword);
+
+      const exactMatches = allResults.filter(
+        (product) => product?.name && normalizeText(product.name).includes(normKeyword)
+      );
+
+      const others = allResults.filter(
+        (product) =>
+          product?.name && !normalizeText(product.name).includes(normKeyword)
+      );
+
+      const sortedResults = [...exactMatches, ...others];
+
+      navigation.navigate('SearchSplitScreen', {
+        keyword,
+        results: sortedResults,
+      });
+    } catch (err) {
+      console.log('Handle select error:', err);
+    }
   };
+
+
 
   const handleSubmitSearch = async () => {
     if (!keyword.trim()) return;
+
     try {
-      const res = await products.getProducts();
-      const allProducts = res.data;
-      const filtered = allProducts.filter((item: any) => normalize(item.name).includes(normalize(keyword)));
-      const rest = allProducts.filter((item: any) => !normalize(item.name).includes(normalize(keyword)));
-      const results = [...filtered, ...rest];
+      const res = await productService.searchProducts(keyword);
+      console.log('[🔍 Submit] API response:', res);
+
+      const allResults: { name: string }[] = Array.isArray(res?.products) ? res.products : [];
+
+      const normalizeText = (text: string) =>
+        text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+      const normKeyword = normalizeText(keyword);
+
+      const exactMatches = allResults.filter((product) =>
+        product?.name && normalizeText(product.name).includes(normKeyword)
+      );
+
+      const others = allResults.filter(
+        (product) =>
+          product?.name && !normalizeText(product.name).includes(normKeyword)
+      );
+
+      const sortedResults = [...exactMatches, ...others];
+
       addToSearchHistory(keyword);
-      navigation.navigate('SearchResultScreen', { keyword, results });
-    } catch {}
+
+      navigation.navigate('SearchSplitScreen', {
+        keyword,
+        results: sortedResults,
+      });
+    } catch (err) {
+      console.log('Search submit error:', err);
+    }
   };
+
+
 
   const renderProductCard = ({ item }: { item: any }) => {
     const imageUri = item.variants?.[0]?.image || '';
     return (
-      <TouchableOpacity style={styles.card} onPress={() => handleSelectSuggestion(item)}>
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => navigation.navigate('ProductDetail', { product: item })}>
+
         <Image source={{ uri: imageUri }} style={styles.productImage} resizeMode="cover" />
-        <Text numberOfLines={2} style={[styles.productName, { color: theme.text }]}>{item.name}</Text>
+        <Text numberOfLines={2} style={[styles.productName, { color: theme.text }]}>
+          {item.name}
+        </Text>
       </TouchableOpacity>
     );
   };
 
-  const productList = suggestions.length ? suggestions : defaultSuggestions;
+  const combinedProductList = [
+    ...suggestions,
+    ...defaultSuggestions.filter(d => !suggestions.some(s => s._id === d._id)),
+  ];
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -138,41 +233,54 @@ const SearchDetail = () => {
         </View>
 
         <View style={styles.topPane}>
-          <ScrollView keyboardShouldPersistTaps="handled">
-            {keyword.trim() === ''
-              ? searchHistory.map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.suggestionItem}
-                    onPress={() => {
-                      setKeyword(item);
-                      handleChangeKeyword(item);
-                    }}>
-                    <Text style={[styles.suggestionText, { color: theme.text }]}>{item}</Text>
-                  </TouchableOpacity>
-                ))
-              : suggestions.slice(0, 6).map(item => (
+          {keyword.trim() === '' ? (
+            <ScrollView keyboardShouldPersistTaps="handled">
+              {searchHistory.map((item, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.suggestionItem}
+                  onPress={() => {
+                    setKeyword(item);
+                    handleChangeKeyword(item);
+                  }}>
+                  <Text style={[styles.suggestionText, { color: theme.text }]}>{item}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          ) : loading ? (
+            <View style={{ paddingVertical: 20 }}>
+              <ActivityIndicator size="small" color={theme.text} />
+            </View>
+          ) : (
+            <ScrollView keyboardShouldPersistTaps="handled">
+              {suggestions.length === 0 ? (
+                <Text style={[styles.suggestionText, { color: theme.text, textAlign: 'center', marginTop: 10 }]}>Không tìm thấy kết quả.</Text>
+              ) : (
+                suggestions.map(item => (
                   <TouchableOpacity
                     key={item._id}
                     style={styles.suggestionItem}
                     onPress={() => handleSelectSuggestion(item)}>
                     <Text style={[styles.suggestionText, { color: theme.text }]}>{item.name}</Text>
                   </TouchableOpacity>
-                ))}
-          </ScrollView>
+                ))
+              )}
+            </ScrollView>
+          )}
         </View>
 
         <View style={styles.bottomPane}>
           <FlatList
-            data={showAllResults ? productList : productList.slice(0, 6)}
+            data={showAllResults ? combinedProductList : combinedProductList.slice(0, 6)}
             keyExtractor={item => item._id}
             numColumns={2}
             columnWrapperStyle={{ justifyContent: 'space-between' }}
             contentContainerStyle={{ paddingBottom: 20, gap: 12 }}
             renderItem={renderProductCard}
             showsVerticalScrollIndicator={false}
+            ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 20, color: theme.text }}>Không tìm thấy sản phẩm nào.</Text>}
           />
-          {!showAllResults && productList.length > 6 && (
+          {!showAllResults && combinedProductList.length > 6 && (
             <TouchableOpacity style={styles.seeMoreBtn} onPress={() => setShowAllResults(true)}>
               <Text style={[styles.seeMoreText, { color: theme.text }]}>Xem thêm</Text>
             </TouchableOpacity>
