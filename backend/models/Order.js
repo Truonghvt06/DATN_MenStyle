@@ -9,13 +9,15 @@ const ORDER_ENUM = [
   "Canceled",
 ];
 const orderItemSchema = new mongoose.Schema({
-  product_variant_id: {
+  product_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Product",
     required: true,
   },
+  product_variant_id: { type: String, required: true },
   price: { type: Number },
   quantity: { type: Number },
+  isExpired: { type: Boolean, default: false },
 });
 
 const orderSchema = new mongoose.Schema(
@@ -38,7 +40,8 @@ const orderSchema = new mongoose.Schema(
       ref: "PaymentMethod",
       required: true,
     },
-    items: [orderItemSchema],
+    items: { type: [orderItemSchema], default: [] },
+    deliveredAt: { type: Date },
   },
   { timestamps: true }
 );

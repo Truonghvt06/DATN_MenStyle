@@ -41,6 +41,7 @@ import {useAppTheme} from '../../../../../themes/ThemeContext';
 import {colors} from '../../../../../themes/colors';
 import Toast from 'react-native-toast-message';
 import configToast from '../../../../../components/utils/configToast';
+import ModalCenter from '../../../../../components/dataDisplay/Modal/ModalCenter';
 
 const AddAddress = () => {
   const {top} = useSafeAreaInsets();
@@ -48,6 +49,12 @@ const AddAddress = () => {
   const theme = useAppTheme();
   const route = useRoute();
   const {title, items} = route.params as {title: string; items: any};
+
+  const [isOpenBack, setIsOpenBack] = useState(false);
+  const [isOpenDefault, setIsOpenDefault] = useState(false);
+  const [isOpenFist, setIsOpenFist] = useState(false);
+  const [isOpenDel, setIsOpenDel] = useState(false);
+  const [isOpenDelDefault, setIsOpenDelDefault] = useState(false);
 
   const [isFocused, setIsFocused] = useState(false);
   const [isSwitch, setIsSwitch] = useState(items?.is_default || false);
@@ -114,8 +121,26 @@ const AddAddress = () => {
     try {
       if (title === getTranslation('sua_dia_chi')) {
         await dispatch(updateAddress({id: items._id, data}));
+        Toast.show({
+          type: 'notification', // Có thể là 'success', 'error', 'info'
+          position: 'top',
+          text1: 'Thành công',
+          text2: 'Sửa địa chỉ thành công',
+          visibilityTime: 2000, // số giây hiển thị Toast
+          autoHide: true,
+          swipeable: true,
+        });
       } else {
         await dispatch(addAddress(data)).unwrap();
+        Toast.show({
+          type: 'notification', // Có thể là 'success', 'error', 'info'
+          position: 'top',
+          text1: 'Thành công',
+          text2: 'Thêm địa chỉ thành công',
+          visibilityTime: 2000, // số giây hiển thị Toast
+          autoHide: true,
+          swipeable: true,
+        });
       }
       await dispatch(fetchAddresses());
       navigation.goBack();
@@ -126,17 +151,19 @@ const AddAddress = () => {
 
   //Delete address
   const handleDeleteAddress = async () => {
-    Alert.alert(getTranslation('thong_bao'), getTranslation('xoa_dia_chi'), [
-      {text: getTranslation('huy'), style: 'cancel'},
-      {
-        text: 'OK',
-        onPress: async () => {
-          await dispatch(deleteAddress(items._id));
-          dispatch(fetchAddresses());
-          navigation.goBack();
-        },
-      },
-    ]);
+    await dispatch(deleteAddress(items._id));
+    dispatch(fetchAddresses());
+    setIsOpenDel(false);
+    Toast.show({
+      type: 'notification', // Có thể là 'success', 'error', 'info'
+      position: 'top',
+      text1: 'Thành công',
+      text2: 'Xoá địa chỉ thành công',
+      visibilityTime: 2000, // số giây hiển thị Toast
+      autoHide: true,
+      swipeable: true,
+    });
+    navigation.goBack();
   };
   // Kiểm tra trường dữ liệu có thây đổi
   const isAddressChanged = () => {
@@ -154,19 +181,7 @@ const AddAddress = () => {
   // BACK
   const handleBack = () => {
     if (isAddressChanged()) {
-      Alert.alert(
-        getTranslation('thong_bao'),
-        'Bạn có chắc muốn thoát thay đổi?',
-        [
-          {text: getTranslation('huy'), style: 'cancel'},
-          {
-            text: 'OK',
-            onPress: () => {
-              navigation.goBack();
-            },
-          },
-        ],
-      );
+      setIsOpenBack(true);
     } else {
       navigation.goBack();
     }
@@ -250,6 +265,16 @@ const AddAddress = () => {
           label={title}
           paddingTop={top}
           onPressLeft={() => handleBack()}
+        />
+        {/* MODAL BACK  */}
+        <ModalCenter
+          visible={isOpenBack}
+          content={'Có chắc muốn thoát thay đổi?'}
+          onClose={() => setIsOpenBack(false)}
+          onPress={() => {
+            setIsOpenBack(false);
+            navigation.goBack();
+          }}
         />
         <ScrollView>
           <KeyboardAvoidingView
@@ -375,15 +400,9 @@ const AddAddress = () => {
                 ]}
                 onPress={() => {
                   if (listAddress.length === 0) {
-                    Alert.alert(
-                      getTranslation('thong_bao'),
-                      'Địa chỉ đầu tiên sẽ được đặt làm mặc định',
-                    );
+                    setIsOpenDefault(true);
                   } else if (items?.is_default === true) {
-                    Alert.alert(
-                      getTranslation('thong_bao'),
-                      'Không thể huỷ mặc định tại đây. Vui lòng chọn địa chỉ khác làm mặc định.',
-                    );
+                    setIsOpenFist(true);
                   }
                 }}>
                 <TextMedium medium>{getTranslation('dat_mac_dinh')}</TextMedium>
@@ -406,6 +425,20 @@ const AddAddress = () => {
                   ios_backgroundColor="#CCCCCC"
                 />
               </TouchableOpacity>
+              <ModalCenter
+                isCancle
+                visible={isOpenDefault}
+                content={'Địa chỉ đầu tiên sẽ được đặt làm mặc định'}
+                onClose={() => setIsOpenDefault(false)}
+              />
+              <ModalCenter
+                isCancle
+                visible={isOpenFist}
+                content={
+                  'Không thể huỷ mặc định tại đây. Vui lòng chọn địa chỉ khác làm mặc định.'
+                }
+                onClose={() => setIsOpenFist(false)}
+              />
             </Block>
           </KeyboardAvoidingView>
         </ScrollView>
@@ -413,12 +446,28 @@ const AddAddress = () => {
         {items && (
           <TouchableOpacity
             style={[styles.btnDel, {borderColor: theme.border_color}]}
-            onPress={handleDeleteAddress}>
+            onPress={() => {
+              if (items.is_default === true) setIsOpenDelDefault(true);
+              else setIsOpenDel(true);
+            }}>
             <TextSizeCustom bold size={18} color={theme.text}>
               {getTranslation('xoa_dia_chi')?.toUpperCase()}
             </TextSizeCustom>
           </TouchableOpacity>
         )}
+
+        <ModalCenter
+          visible={isOpenDel}
+          content={'Có chắc muốn xoá địa chỉ?'}
+          onClose={() => setIsOpenDel(false)}
+          onPress={() => handleDeleteAddress()}
+        />
+        <ModalCenter
+          isCancle
+          visible={isOpenDelDefault}
+          content={'Không thể xoá địa chỉ mặc định!'}
+          onClose={() => setIsOpenDelDefault(false)}
+        />
 
         <ButtonBase
           title={getTranslation('luu')}
@@ -468,7 +517,7 @@ const AddAddress = () => {
             setIsOpenWard(false);
           }}
         />
-        <Toast config={configToast} />
+        {/* <Toast config={configToast} /> */}
       </ContainerView>
     </TouchableWithoutFeedback>
   );

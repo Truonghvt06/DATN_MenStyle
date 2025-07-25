@@ -36,5 +36,9 @@ export default {
     RelatedProductDetail: 'RelatedProductDetail',
     Theme: 'ThemeScreen',
     Voucher: 'VoucherScreen',
+    ChangePassword: 'ChangePassword',
+    NewPassChange: 'NewPassChange',
+    ManageReviewScreen: 'ManageReviewScreen',
+    AddReview: 'AddReview',
   },
 };

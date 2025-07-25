@@ -31,6 +31,10 @@ import RelatedProductDetail from '../screens/Main/Product/RelatedProductDetail';
 import SearchSplitScreen from '../screens/Main/SearchSplitScreen';
 import VoucherScreen from '../screens/Main/Profile/Others/Voucher/VoucherScreen';
 import ThemeScreen from '../screens/Main/Profile/Others/ThemeScreen';
+import ChangePasswordScreen from '../screens/Auth/changePassword/ChangePasswordScreen';
+import NewPassChange from '../screens/Auth/changePassword/NewPass';
+import ManageReviewScreen from '../screens/Main/Profile/Account/Review/ManageReviewScreen';
+import AddReviewScreen from '../screens/Main/Profile/Account/Review/AddReviewScreen';
 
 const Stack = createStackNavigator();
 
@@ -46,6 +50,14 @@ const MainStack = () => {
       <Stack.Screen name={ScreenName.Main.Cart} component={CartScreen} />
       <Stack.Screen name={ScreenName.Main.Settings} component={HomeScreen} />
       <Stack.Screen name={ScreenName.Main.Search} component={SearchScreen} />
+      <Stack.Screen
+        name={ScreenName.Main.ChangePassword}
+        component={ChangePasswordScreen}
+      />
+      <Stack.Screen
+        name={ScreenName.Main.NewPassChange}
+        component={NewPassChange}
+      />
       <Stack.Screen name="DieuKhoan" component={DieuKhoanVaDieuKien} />
       <Stack.Screen name="ChinhSach" component={ChinhSach} />
       <Stack.Screen name="ThongTinCaNhan" component={ThongTinCaNhan} />
@@ -100,6 +112,14 @@ const MainStack = () => {
         component={RelatedProductDetail}
       />
       <Stack.Screen name={ScreenName.Main.Voucher} component={VoucherScreen} />
+      <Stack.Screen
+        name={ScreenName.Main.ManageReviewScreen}
+        component={ManageReviewScreen}
+      />
+      <Stack.Screen
+        name={ScreenName.Main.AddReview}
+        component={AddReviewScreen}
+      />
     </Stack.Navigator>
   );
 };

@@ -23,7 +23,7 @@ const ReviewItem = (props: Props) => {
         <Image
           key={i}
           source={i <= star ? IconSRC.icon_star : IconSRC.icon_unstar}
-          style={{width: 12, height: 12, marginRight: 2}}
+          style={{width: 12, height: 12, marginRight: 2.5}}
         />,
       );
     }

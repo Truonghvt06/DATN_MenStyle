@@ -10,6 +10,8 @@ const bannerRoute = require("./routes/banner");
 const settingRoute = require("./routes/setting");
 const addressRouter = require("./routes/address");
 const notificationRouter = require("./routes/notification");
+const reviewRouter = require("./routes/review");
+const orderRouter = require("./routes/order");
 
 const path = require("path");
 const cors = require("cors");
@@ -39,6 +41,17 @@ app.use("/banner", bannerRoute);
 app.use("/setting", settingRoute);
 app.use("/address", addressRouter);
 app.use("/notification", notificationRouter);
+app.use("/review", reviewRouter);
+app.use("/order", orderRouter);
+
+// Hàm tự động ẩn item order sau 7 ngày
+// const cron = require("node-cron");
+// const { hideExpiredNotReviewed } = require("./utils/cronJobs");
+
+// cron.schedule("0 0 * * *", async () => {
+//   console.log("📆 Đang chạy cron job ẩn sản phẩm quá hạn...");
+//   await hideExpiredNotReviewed();
+// });
 
 // Kết nối MongoDB
 mongoose

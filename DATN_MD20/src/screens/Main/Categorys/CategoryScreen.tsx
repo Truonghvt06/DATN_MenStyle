@@ -27,6 +27,7 @@ import {fetchFavorites, toggleFavorite} from '../../../redux/actions/favorite';
 import Toast from 'react-native-toast-message';
 import configToast from '../../../components/utils/configToast';
 import {useAppTheme} from '../../../themes/ThemeContext';
+import ModalCenter from '../../../components/dataDisplay/Modal/ModalCenter';
 
 const CategoryScreen = () => {
   const route = useRoute();
@@ -37,6 +38,7 @@ const CategoryScreen = () => {
   const [dataProCate, setDataProCate] = useState<Product[]>([]);
   const [selectedTab, setSelectedTab] = useState(getTranslation('tat_ca'));
   const [isReady, setIsReady] = useState(false);
+  const [isOpenCheck, setIsOpenCheck] = useState(false);
 
   const dispatch = useAppDispatch();
   const {productCate} = useAppSelector(state => state.product);
@@ -74,23 +76,13 @@ const CategoryScreen = () => {
   };
 
   const handleLogin = () => {
-    Alert.alert(
-      getTranslation('thong_bao'),
-      'Hãy đăng nhập để sử dụng',
-      [
-        {text: getTranslation('huy'), style: 'cancel'},
-        {
-          text: 'OK',
-          onPress: () => {
-            navigation.navigate(ScreenName.Auth.AuthStack, {
-              screen: ScreenName.Auth.Login,
-              params: {nameScreen: ''},
-            });
-          },
-        },
-      ],
-      {cancelable: true},
-    );
+    setIsOpenCheck(false);
+    navigation.navigate(ScreenName.Auth.AuthStack, {
+      screen: ScreenName.Auth.Login,
+      params: {
+        nameScreen: '',
+      },
+    });
   };
 
   const filteredProducts = useMemo(() => {
@@ -183,13 +175,22 @@ const CategoryScreen = () => {
                 favoriteId={listFavoriteIds}
                 onPress={handleProDetail}
                 onPressFavorite={id =>
-                  token ? handleFavorite(id) : handleLogin()
+                  token ? handleFavorite(id) : setIsOpenCheck(true)
                 }
               />
             )}
           </Block>
         </>
       )}
+
+      <ModalCenter
+        visible={isOpenCheck}
+        content={'Hãy đăng nhập để sử dụng'}
+        onClose={() => setIsOpenCheck(false)}
+        onPress={() => {
+          handleLogin();
+        }}
+      />
     </ContainerView>
   );
 };

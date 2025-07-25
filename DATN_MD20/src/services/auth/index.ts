@@ -5,6 +5,11 @@ export interface LoginState {
   password: string;
 }
 
+export interface ChangePassState {
+  oldPassword: string;
+  newPassword: string;
+}
+
 export interface RegisterState {
   name: string;
   email: string;
@@ -148,6 +153,41 @@ const updateFcmToken = async (fcmToken: string) => {
   }
 };
 
+// Đoi mat khau
+// const changePassword = async (data: ChangePassState) => {
+//   try {
+//     const response = await axiosInstance.put('/accounts/change-password', data);
+//     return response.data;
+//   } catch (error: any) {
+//     const message = error?.response?.data?.message || 'Đổi mật khẩu thất bại';
+//     throw new Error(message);
+//   }
+// };
+const verifyOldPassword = async (oldPassword: string) => {
+  try {
+    const res = await axiosInstance.post('/accounts/verify-password', {
+      oldPassword,
+    });
+    return res.data;
+  } catch (error: any) {
+    const message = error?.response?.data?.message || 'Mật khẩu cũ sai';
+    throw new Error(message);
+  }
+};
+
+const updatePassword = async (newPassword: string) => {
+  try {
+    const res = await axiosInstance.patch('/accounts/update-password', {
+      newPassword,
+    });
+    return res.data;
+  } catch (error: any) {
+    const message =
+      error?.response?.data?.message || 'Đổi mật khẩu mới thất bại';
+    throw new Error(message);
+  }
+};
+
 export default {
   login,
   register,
@@ -158,4 +198,6 @@ export default {
   updateProfile,
   updateAvatar,
   updateFcmToken,
+  verifyOldPassword,
+  updatePassword,
 };

@@ -38,6 +38,8 @@ import TouchIcon from '../../components/dataEntry/Button/TouchIcon';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useAppTheme} from '../../themes/ThemeContext';
 import InputPlace from '../../components/dataEntry/Input/InputPlace';
+import Toast from 'react-native-toast-message';
+import configToast from '../../components/utils/configToast';
 
 const LoginScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -73,6 +75,16 @@ const LoginScreen = () => {
       } else {
         await AsyncStorage.removeItem('autoLogin');
       }
+
+      Toast.show({
+        type: 'notification', // Có thể là 'success', 'error', 'info'
+        position: 'top',
+        text1: 'Thành công',
+        text2: 'Đăng nhập thành công',
+        visibilityTime: 2000, // số giây hiển thị Toast
+        autoHide: true,
+        swipeable: true,
+      });
       navigation.resetToStackWithScreen(
         ScreenName.Main.MainStack,
         ScreenName.Main.BottonTab,

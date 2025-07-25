@@ -37,6 +37,7 @@ import configToast from '../../components/utils/configToast';
 import {shuffleArray} from '../../utils/helper';
 import {useAppTheme} from '../../themes/ThemeContext'; // ✅ Thêm theme
 import {fetchNotifications} from '../../redux/actions/notification';
+import ModalCenter from '../../components/dataDisplay/Modal/ModalCenter';
 
 const ITEM_MARGIN = 10;
 const NUM_COLUMNS = 2;
@@ -52,6 +53,7 @@ const HomeScreen = () => {
 
   const [page, setPage] = useState(1);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [isOpenCheck, setIsOpenCheck] = useState(false);
 
   const dispatch = useAppDispatch();
   const {listNotifications} = useAppSelector(state => state.notification);
@@ -121,29 +123,14 @@ const HomeScreen = () => {
   };
 
   const handleLogin = () => {
-    Alert.alert(
-      getTranslation('thong_bao'),
-      'Hãy đăng nhập để sử dụng',
-      [
-        {
-          text: getTranslation('huy'),
-          onPress: () => {},
-          style: 'cancel',
-        },
-        {
-          text: 'OK',
-          onPress: () => {
-            navigation.navigate(ScreenName.Auth.AuthStack, {
-              screen: ScreenName.Auth.Login,
-              params: {
-                nameScreen: '',
-              },
-            });
-          },
-        },
-      ],
-      {cancelable: true},
-    );
+    setIsOpenCheck(false);
+
+    navigation.navigate(ScreenName.Auth.AuthStack, {
+      screen: ScreenName.Auth.Login,
+      params: {
+        nameScreen: '',
+      },
+    });
   };
 
   const renderHeader = () => (
@@ -249,7 +236,7 @@ const HomeScreen = () => {
                   activeOpacity={0.8}
                   style={styles.tim}
                   onPress={() =>
-                    token ? handleFavorite(item._id) : handleLogin()
+                    token ? handleFavorite(item._id) : setIsOpenCheck(true)
                   }>
                   <Image
                     source={
@@ -296,7 +283,16 @@ const HomeScreen = () => {
         }
       />
 
-      <Toast config={configToast} />
+      {/* <Toast config={configToast} /> */}
+
+      <ModalCenter
+        visible={isOpenCheck}
+        content={'Hãy đăng nhập để sử dụng'}
+        onClose={() => setIsOpenCheck(false)}
+        onPress={() => {
+          handleLogin();
+        }}
+      />
     </ContainerView>
   );
 };

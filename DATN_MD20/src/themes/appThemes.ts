@@ -12,6 +12,7 @@ export const lightTheme: ThemeType = {
   background_header: '#EEEEEE',
   background_login: 'rgba(238, 234, 234, 0.7)',
   background_img: 'rgba(0, 0, 0, 0.3)',
+  background_conten_modal: 'rgba(0, 0, 0, 0.7)',
   background_input: 'rgba(0, 0, 0, 0.1)',
 
   text: '#000000',
@@ -50,6 +51,7 @@ export const darkTheme: ThemeType = {
   background_header: '#1e1e1e',
   background_login: 'rgba(0, 0, 0, 0.7)',
   background_img: 'rgba(255, 255, 255, 0.1)',
+  background_conten_modal: 'rgba(255, 255, 255, 0.2)',
   background_input: 'rgba(255, 255, 255, 0.1)',
 
   text: '#fff',
