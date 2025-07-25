@@ -239,3 +239,85 @@ exports.updateFcmToken = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+// exports.changePassword = async (req, res) => {
+//   try {
+//     const userId = req.user.id;
+//     const { oldPassword, newPassword } = req.body;
+
+//     if (!oldPassword || !newPassword) {
+//       return res
+//         .status(400)
+//         .json({ message: "Vui lòng nhập đầy đủ mật khẩu cũ và mới" });
+//     }
+
+//     const user = await User.findById(userId);
+//     if (!user)
+//       return res.status(404).json({ message: "Người dùng không tồn tại" });
+
+//     // So sánh mật khẩu cũ
+//     const isMatch = await user.comparePassword(oldPassword);
+//     if (!isMatch) {
+//       return res.status(401).json({ message: "Mật khẩu cũ không chính xác" });
+//     }
+
+//     // Cập nhật mật khẩu mới (sẽ được hash trong schema)
+//     user.password = newPassword;
+//     await user.save();
+
+//     res.json({ message: "Thay đổi mật khẩu thành công", user });
+//   } catch (error) {
+//     console.error("Lỗi đổi mật khẩu:", error);
+//     res.status(500).json({ message: "Lỗi máy chủ" });
+//   }
+// };
+
+// POST /auth/verify-password
+exports.verifyPassword = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { oldPassword } = req.body;
+
+    if (!oldPassword) {
+      return res.status(400).json({ message: "Vui lòng nhập mật khẩu cũ" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user)
+      return res.status(404).json({ message: "Người dùng không tồn tại" });
+
+    const isMatch = await user.comparePassword(oldPassword);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Mật khẩu cũ không chính xác" });
+    }
+
+    res.json({ message: "Mật khẩu cũ chính xác" });
+  } catch (error) {
+    console.error("Lỗi xác thực mật khẩu cũ:", error);
+    res.status(500).json({ message: "Lỗi máy chủ" });
+  }
+};
+
+// PATCH /auth/update-password
+exports.updatePassword = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { newPassword } = req.body;
+
+    if (!newPassword) {
+      return res.status(400).json({ message: "Vui lòng nhập mật khẩu mới" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user)
+      return res.status(404).json({ message: "Người dùng không tồn tại" });
+
+    user.password = newPassword; // sẽ được hash trong schema
+    await user.save();
+
+    res.json({ message: "Cập nhật mật khẩu mới thành công" });
+  } catch (error) {
+    console.error("Lỗi cập nhật mật khẩu:", error);
+    res.status(500).json({ message: "Lỗi máy chủ" });
+  }
+};

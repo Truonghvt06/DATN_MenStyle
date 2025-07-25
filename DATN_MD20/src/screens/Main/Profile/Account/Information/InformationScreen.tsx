@@ -39,6 +39,7 @@ import {launchImageLibrary, Asset} from 'react-native-image-picker';
 import Toast from 'react-native-toast-message';
 import configToast from '../../../../../components/utils/configToast';
 import {useAppTheme} from '../../../../../themes/ThemeContext';
+import ModalCenter from '../../../../../components/dataDisplay/Modal/ModalCenter';
 
 const InformationScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -48,6 +49,7 @@ const InformationScreen = () => {
   const [date, setDate] = useState(new Date());
   const [open, setOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const [isOpenBack, setIsOpenBack] = useState(false);
   const [localAvatar, setLocalAvatar] = useState<Asset | null>(null);
 
   const [dataUser, setDataUser] = useState<ProfileState>({
@@ -103,6 +105,15 @@ const InformationScreen = () => {
           return;
         }
       }
+      Toast.show({
+        type: 'notification',
+        position: 'top',
+        text1: 'Thành công',
+        text2: 'Cập thật thông tin thành công',
+        visibilityTime: 1500,
+        autoHide: true,
+        swipeable: true,
+      });
       navigation.goBack();
     } catch (err) {
       Alert.alert('Lỗi', 'Đã xảy ra lỗi khi cập nhật');
@@ -162,10 +173,7 @@ const InformationScreen = () => {
           paddingTop={top}
           onPressLeft={() => {
             if (canSave) {
-              Alert.alert('Thông báo!', 'Có chắc muốn thoát thay đổi?', [
-                {text: 'Huỷ', style: 'cancel'},
-                {text: 'OK', onPress: () => navigation.goBack()},
-              ]);
+              setIsOpenBack(true);
             } else {
               navigation.goBack();
             }
@@ -174,8 +182,18 @@ const InformationScreen = () => {
           labelColor={theme.text}
           iconColor={theme.text}
         />
+        {/* MODAL BACK  */}
+        <ModalCenter
+          visible={isOpenBack}
+          content={'Có chắc muốn thoát thay đổi?'}
+          onClose={() => setIsOpenBack(false)}
+          onPress={() => {
+            setIsOpenBack(false);
+            navigation.goBack();
+          }}
+        />
 
-        <Toast config={configToast} />
+        {/* <Toast config={configToast} /> */}
         <ScrollView>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

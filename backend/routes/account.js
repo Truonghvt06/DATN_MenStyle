@@ -35,6 +35,9 @@ router.put(
 router.post("/forgot-password", authController.forgotPass);
 router.post("/verify-otp", authController.verifyOTP);
 router.post("/reset-password", authController.resetPassword);
+// router.put("/change-password", authMiddleware, authController.changePassword);
+router.post("/verify-password", authMiddleware, authController.verifyPassword);
+router.patch("/update-password", authMiddleware, authController.updatePassword);
 
 // Yêu thích
 router.post(

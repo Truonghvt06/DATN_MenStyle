@@ -150,11 +150,7 @@
                   value="<%= banner.image %>"
                   autocomplete="off"
                 />
-                <button
-                  type="button"
-                  class="btn btn-outline-secondary"
-                  id="btnPickFile"
-                >
+                <button type="button" class="btn btn-primary" id="btnPickFile">
                   <i class="bi bi-upload"></i> Chọn file
                 </button>
               </div>
@@ -207,13 +203,18 @@
       // Mở hộp chọn file
       pickBtn.addEventListener("click", () => fileInput.click());
 
+      if (!preview.src || preview.src.trim() === "") {
+        preview.style.display = "none";
+      }
+
       // Khi chọn file
       fileInput.addEventListener("change", () => {
         if (fileInput.files && fileInput.files[0]) {
           const file = fileInput.files[0];
-          unified.value = file.name; // hiển thị tên file
-          linkHidden.value = ""; // bỏ link
+          unified.value = file.name;
+          linkHidden.value = "";
           preview.src = URL.createObjectURL(file);
+          preview.style.display = "block"; // hiện ảnh khi chọn file
         }
       });
 
@@ -221,21 +222,21 @@
       unified.addEventListener("input", () => {
         const v = unified.value.trim();
 
-        // URL tuyệt đối http/https
         const isHttp =
           v.startsWith("http://") ||
           v.startsWith("https://") ||
           v.startsWith("//");
-        // Đường dẫn tương đối /banners/... hoặc /assets/banners/...
         const isRelative = v.startsWith("/");
 
         if (isHttp || isRelative) {
           linkHidden.value = v;
           fileInput.value = ""; // clear file
           preview.src = v;
+          preview.style.display = "block"; // hiện ảnh
         } else if (v === "") {
           linkHidden.value = "";
-          // không clear preview vì user có thể chỉ xoá tạm
+          preview.src = ""; // xóa src
+          preview.style.display = "none"; // ẩn ảnh
         }
       });
     </script>

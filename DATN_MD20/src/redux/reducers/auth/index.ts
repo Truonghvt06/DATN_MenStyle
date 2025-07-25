@@ -9,6 +9,8 @@ import {
   resetPassword,
   updateUserProfile,
   updateUserAvatar,
+  verifyOldPassword,
+  updatePassword,
 } from '../../actions/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {requestUserPermission} from '../../../utils/common/firebase/firebaseNotification';
@@ -170,6 +172,23 @@ const authSlice = createSlice({
         state.user = action.payload; // payload là user mới (có avatar mới)
       })
       .addCase(updateUserAvatar.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(verifyOldPassword.fulfilled, state => {
+        state.loading = false;
+      })
+      .addCase(verifyOldPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(updatePassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+      })
+      .addCase(updatePassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

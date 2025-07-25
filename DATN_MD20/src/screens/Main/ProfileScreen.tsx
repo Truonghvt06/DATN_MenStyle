@@ -1,5 +1,5 @@
 import {Alert, Image, ScrollView, StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import ContainerView from '../../components/layout/ContainerView';
 import Header from '../../components/dataDisplay/Header';
@@ -16,6 +16,7 @@ import {useAppDispatch, useAppSelector} from '../../redux/hooks';
 import useLanguage from '../../hooks/useLanguage';
 import {logout} from '../../redux/reducers/auth';
 import {useAppTheme} from '../../themes/ThemeContext';
+import ModalCenter from '../../components/dataDisplay/Modal/ModalCenter';
 
 const ProfileScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -24,6 +25,7 @@ const ProfileScreen = () => {
   const theme = useAppTheme();
   const dispatch = useAppDispatch();
   const {user, token} = useAppSelector(state => state.auth);
+  const [isOpenLogout, setisOpenLogout] = useState(false);
 
   return (
     <ContainerView>
@@ -111,8 +113,36 @@ const ProfileScreen = () => {
               iconLeft={IconSRC.icon_address}
               sizeLeft={25}
               borderBottom={0}
-              containerStyle={{paddingBottom: -12, marginBottom: 30}}
+              containerStyle={{paddingBottom: -12, paddingTop: 5}}
               onPress={() => navigation.navigate(ScreenName.Main.Address)}
+              textColor={theme.text}
+            />
+            <ButtonOption
+              name={'Đánh giá'}
+              content={'Quản lý đánh giá '}
+              iconLeft={IconSRC.icon_review}
+              sizeLeft={25}
+              borderBottom={0}
+              containerStyle={{paddingBottom: -12, paddingTop: 5}}
+              onPress={() =>
+                navigation.navigate(ScreenName.Main.ManageReviewScreen)
+              }
+              textColor={theme.text}
+            />
+            <ButtonOption
+              name={getTranslation('doi_mat_khau')}
+              content={getTranslation('thay_mat_khau')}
+              iconLeft={IconSRC.icon_change_pass}
+              sizeLeft={22}
+              borderBottom={0}
+              containerStyle={{
+                paddingBottom: -12,
+                marginBottom: 30,
+                paddingTop: 5,
+              }}
+              onPress={() =>
+                navigation.navigate(ScreenName.Main.ChangePassword)
+              }
               textColor={theme.text}
             />
           </>
@@ -207,25 +237,21 @@ const ProfileScreen = () => {
             icon={IconSRC.icon_logout}
             colorIcon={colors.while}
             onPress={() => {
-              Alert.alert(
-                getTranslation('thong_bao'),
-                getTranslation('thong_bao_dang_xuat'),
-                [
-                  {text: getTranslation('huy'), style: 'cancel'},
-                  {
-                    text: 'OK',
-                    onPress: () => {
-                      dispatch(logout());
-                      navigation.reset(ScreenName.Main.MainStack);
-                    },
-                  },
-                ],
-                {cancelable: true},
-              );
+              setisOpenLogout(true);
             }}
           />
         )}
       </ScrollView>
+      <ModalCenter
+        visible={isOpenLogout}
+        content={getTranslation('thong_bao_dang_xuat')}
+        onClose={() => setisOpenLogout(false)}
+        onPress={() => {
+          setisOpenLogout(false);
+          dispatch(logout());
+          navigation.reset(ScreenName.Main.MainStack);
+        }}
+      />
     </ContainerView>
   );
 };

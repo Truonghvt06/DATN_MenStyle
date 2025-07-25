@@ -1,4 +1,5 @@
 import {
+  Alert,
   Keyboard,
   StyleSheet,
   Text,
@@ -6,9 +7,14 @@ import {
   View,
 } from 'react-native';
 import React, {useState} from 'react';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import useLanguage from '../../../hooks/useLanguage';
+import {useAppDispatch} from '../../../redux/store';
+import {useRoute} from '@react-navigation/native';
+import navigation from '../../../navigation/navigation';
+import ScreenName from '../../../navigation/ScreenName';
 import ContainerView from '../../../components/layout/ContainerView';
 import Header from '../../../components/dataDisplay/Header';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Block from '../../../components/layout/Block';
 import {
   TextMedium,
@@ -16,23 +22,24 @@ import {
 } from '../../../components/dataEntry/TextBase';
 import InputBase from '../../../components/dataEntry/Input/InputBase';
 import {IconSRC} from '../../../constants/icons';
-import ButtonBase from '../../../components/dataEntry/Button/ButtonBase';
 import {colors} from '../../../themes/colors';
-import navigation from '../../../navigation/navigation';
-import ScreenName from '../../../navigation/ScreenName';
-import useLanguage from '../../../hooks/useLanguage';
-import {useAppDispatch} from '../../../redux/store';
-import {useRoute} from '@react-navigation/native';
-import {resetPassword} from '../../../redux/actions/auth';
+import ButtonBase from '../../../components/dataEntry/Button/ButtonBase';
 import {useAppTheme} from '../../../themes/ThemeContext';
+import Toast from 'react-native-toast-message';
+import configToast from '../../../components/utils/configToast';
+import {updatePassword} from '../../../redux/actions/auth';
 
 interface Error {
   passNew?: string;
   rePassNew?: string;
 }
-const NewPassScreen = () => {
+const NewPassChange = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
+
+  const route = useRoute();
+  const {passOld} = route.params as {passOld: string};
+
   const theme = useAppTheme();
   const [passNew, setPassNew] = useState('');
   const [rePassNew, setRePassNew] = useState('');
@@ -41,14 +48,16 @@ const NewPassScreen = () => {
   const [errorInp, setErrorInp] = useState<Error>({});
 
   const dispatch = useAppDispatch();
-  const route = useRoute<any>();
-  const email = route.params?.email;
-  const [errorGlobal, setErrorGlobal] = useState('');
 
   const validate = () => {
     const newError: Error = {};
+
     if (passNew.trim() === '') {
       newError.passNew = getTranslation('vui_long_mk_moi');
+    } else if (passNew.length < 6) {
+      newError.passNew = 'Mật khẩu phải có ít nhất 6 ký tự!';
+    } else if (passNew === passOld) {
+      newError.passNew = getTranslation('mk_moi_khong_duoc_giong_mk_cu');
     }
     if (rePassNew.trim() === '') {
       newError.rePassNew = getTranslation('vui_long_xnh_mk_moi');
@@ -59,21 +68,44 @@ const NewPassScreen = () => {
     return Object.keys(newError).length === 0;
   };
   const handleSave = async () => {
+    console.log('handleSave called');
     if (!validate()) return;
 
-    const result = await dispatch(resetPassword({email, newPassword: passNew}));
-    if (resetPassword.fulfilled.match(result)) {
-      navigation.navigate(ScreenName.Auth.Login);
-    } else {
-      setErrorGlobal(result.payload as string);
+    try {
+      const resultAction = await dispatch(updatePassword(passNew));
+
+      console.log('resultAction:', resultAction);
+
+      if (updatePassword.fulfilled.match(resultAction)) {
+        Toast.show({
+          type: 'notification', // Có thể là 'success', 'error', 'info'
+          position: 'top',
+          text1: 'Thành công',
+          text2: 'Thay đổi mật khẩu thành công',
+          visibilityTime: 2000, // số giây hiển thị Toast
+          autoHide: true,
+          swipeable: true,
+        });
+
+        // Alert.alert('AA');
+        // Option: Clear form
+        setPassNew('');
+        setRePassNew('');
+        navigation.navigate(ScreenName.Main.Profile);
+      }
+    } catch (error) {
+      console.log('Lỗi server');
     }
   };
   return (
     <ContainerView>
       <Header label={getTranslation('doi_mat_khau')} paddingTop={top} />
+
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <Block flex1 padH={8} padT={15}>
-          <TextMedium medium>{getTranslation('nhap_mk_moi')}:</TextMedium>
+          <TextMedium medium style={{marginTop: 10}}>
+            {getTranslation('mk_moi')}:
+          </TextMedium>
           <InputBase
             value={passNew}
             placeholder={getTranslation('nhap_mk_moi')}
@@ -118,11 +150,7 @@ const NewPassScreen = () => {
               {errorInp.rePassNew}
             </TextSizeCustom>
           )}
-          {errorGlobal && (
-            <TextSizeCustom size={12} color={colors.red} style={{marginTop: 3}}>
-              {errorGlobal}
-            </TextSizeCustom>
-          )}
+
           <ButtonBase
             title={getTranslation('luu')}
             containerStyle={{marginTop: 50}}
@@ -134,10 +162,10 @@ const NewPassScreen = () => {
   );
 };
 
-export default NewPassScreen;
+export default NewPassChange;
 
 const styles = StyleSheet.create({
   input: {
-    marginTop: 3,
+    marginTop: 4,
   },
 });

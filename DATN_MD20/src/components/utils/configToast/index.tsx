@@ -28,7 +28,8 @@ export default {
           elevation: 5,
           flexDirection: 'row',
           alignItems: 'center',
-          marginTop: Platform.OS === 'ios' ? 13 : 0,
+          // marginTop: Platform.OS === 'ios' ? 13 : 0,
+          marginTop: 15,
           zIndex: 999,
         }}>
         {/* <Icon name="notification" style={{fontSize: 20, color: '#3d3d3d'}} /> */}

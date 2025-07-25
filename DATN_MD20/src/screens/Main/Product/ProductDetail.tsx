@@ -42,13 +42,14 @@ import useLanguage from '../../../hooks/useLanguage';
 import {useAppTheme} from '../../../themes/ThemeContext';
 import Toast from 'react-native-toast-message';
 import configToast from '../../../components/utils/configToast';
+import ModalCenter from '../../../components/dataDisplay/Modal/ModalCenter';
 
 const ProductDetail = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
   const route = useRoute();
   // const {product} = route.params as {product: any};
-  const {id, idOld} = route.params as {id: string; idOld: string};
+  const {id} = route.params as {id: string; idOld?: string};
   const theme = useAppTheme();
 
   const [proData, setProData] = useState<any>([]);
@@ -57,6 +58,7 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState('1');
   const [openModal, setOpenModal] = useState(false);
+  const [isOpenCheck, setIsOpenCheck] = useState(false);
 
   const [isReady, setIsReady] = useState(false); //Độ trễ lại trước khi hiển thị dữ liệu
   const lineNumber = 4;
@@ -73,23 +75,26 @@ const ProductDetail = () => {
   const {token} = useAppSelector(state => state.auth);
 
   useEffect(() => {
-    dispatch(fetchProductDetail(id));
+    // fetch nếu thiếu
+    if (!detail || detail._id !== id) {
+      dispatch(fetchProductDetail(id));
+    }
   }, [id]);
 
   useEffect(() => {
-    setProData(detail);
+    if (detail && detail._id === id) {
+      setProData(detail);
+      if (detail.variants?.length) {
+        setSelectedSize(detail.variants[0].size);
+        setSelectedColor(detail.variants[0].color);
+      }
+      const timeout = setTimeout(() => {
+        setIsReady(true);
+      }, 1000);
 
-    if (detail?.variants?.length && detail.variants.length > 0) {
-      setSelectedSize(detail.variants[0].size);
-      setSelectedColor(detail.variants[0].color);
+      return () => clearTimeout(timeout);
     }
-
-    const timeout = setTimeout(() => {
-      setIsReady(true);
-    }, 1000);
-
-    return () => clearTimeout(timeout);
-  }, [detail]);
+  }, [detail, id]);
 
   useEffect(() => {
     dispatch(fetchFavorites());
@@ -100,38 +105,22 @@ const ProductDetail = () => {
   };
 
   //Nhấn item Pro gợi ý
-  const handleProDetail = (id: string, idOld: string) => {
+  const handleProDetail = (id: string) => {
     dispatch(clearProductDetail());
     navigation.navigate(ScreenName.Main.RelatedProductDetail, {
       id: id,
-      idOld: idOld,
+      // idOld: idOld,
     });
   };
 
   const handleLogin = () => {
-    Alert.alert(
-      getTranslation('thong_bao'),
-      'Hãy đăng nhập để sử dụng',
-      [
-        {
-          text: getTranslation('huy'),
-          onPress: () => console.log('Đã huỷ'),
-          style: 'cancel',
-        },
-        {
-          text: 'OK',
-          onPress: () => {
-            navigation.navigate(ScreenName.Auth.AuthStack, {
-              screen: ScreenName.Auth.Login,
-              params: {
-                nameScreen: '',
-              },
-            });
-          },
-        },
-      ],
-      {cancelable: true},
-    );
+    setIsOpenCheck(false);
+    navigation.navigate(ScreenName.Auth.AuthStack, {
+      screen: ScreenName.Auth.Login,
+      params: {
+        nameScreen: '',
+      },
+    });
   };
 
   //Them gio hang
@@ -153,10 +142,10 @@ const ProductDetail = () => {
               label=" chi tiết Sản phẩm"
               paddingTop={top}
               onPressLeft={() => {
-                dispatch(clearProductDetail());
-                if (idOld) {
-                  dispatch(fetchProductDetail(idOld));
-                }
+                // dispatch(clearProductDetail());
+                // if (idOld) {
+                //   dispatch(fetchProductDetail(idOld));
+                // }
                 navigation.goBack();
               }}
             />
@@ -169,7 +158,7 @@ const ProductDetail = () => {
                 activeOpacity={0.8}
                 style={styles.tim}
                 onPress={() => {
-                  token ? handleFavorite(proData._id) : handleLogin();
+                  token ? handleFavorite(proData._id) : setIsOpenCheck(true);
                 }}>
                 <Image
                   source={
@@ -323,10 +312,10 @@ const ProductDetail = () => {
                   columNumber={2}
                   favoriteId={listFavoriteIds}
                   onPress={idnew => {
-                    handleProDetail(idnew, id);
+                    handleProDetail(idnew);
                   }}
                   onPressFavorite={id =>
-                    token ? handleFavorite(id) : handleLogin()
+                    token ? handleFavorite(id) : setIsOpenCheck(true)
                   }
                 />
               </Block>
@@ -335,7 +324,7 @@ const ProductDetail = () => {
               title="Thêm vào giỏ hàng"
               containerStyle={styles.btnCart}
               onPress={() => {
-                token ? setOpenModal(!openModal) : handleLogin();
+                token ? setOpenModal(!openModal) : setIsOpenCheck(true);
               }}
             />
           </>
@@ -457,7 +446,16 @@ const ProductDetail = () => {
             />
           }
         />
-        <Toast config={configToast} />
+        {/* <Toast config={configToast} /> */}
+
+        <ModalCenter
+          visible={isOpenCheck}
+          content={'Hãy đăng nhập để sử dụng'}
+          onClose={() => setIsOpenCheck(false)}
+          onPress={() => {
+            handleLogin();
+          }}
+        />
       </ContainerView>
     </TouchableWithoutFeedback>
   );

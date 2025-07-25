@@ -1,6 +1,7 @@
 import {createAction, createAsyncThunk} from '@reduxjs/toolkit';
 import types from '../../types';
 import auth, {
+  ChangePassState,
   LoginState,
   ProfileState,
   RegisterState,
@@ -141,6 +142,48 @@ export const updateUserAvatar = createAsyncThunk(
       return res.user; // res.user
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.message || 'Lỗi cập nhật avatar');
+    }
+  },
+);
+
+// export const changePassword = createAsyncThunk(
+//   'user/changePassword',
+//   async (data: ChangePassState, thunkAPI) => {
+//     try {
+//       const result = await auth.changePassword(data);
+//       return result;
+//     } catch (error: any) {
+//       return thunkAPI.rejectWithValue(error.message);
+//     }
+//   },
+// );
+
+export const verifyOldPassword = createAsyncThunk(
+  'auth/verifyOldPassword',
+  async (oldPassword: string, thunkAPI) => {
+    try {
+      const result = await auth.verifyOldPassword(oldPassword);
+      return result;
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message ||
+        err.message ||
+        'Lỗi xác minh mật khẩu cũ';
+      return thunkAPI.rejectWithValue(message);
+    }
+  },
+);
+
+export const updatePassword = createAsyncThunk(
+  'auth/updatePassword',
+  async (newPassword: string, thunkAPI) => {
+    try {
+      const result = await auth.updatePassword(newPassword);
+      return result;
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message || err.message || 'Lỗi đổi mật khẩu';
+      return thunkAPI.rejectWithValue(message);
     }
   },
 );

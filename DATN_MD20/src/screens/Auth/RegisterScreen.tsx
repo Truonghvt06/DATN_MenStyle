@@ -31,6 +31,7 @@ import TouchIcon from '../../components/dataEntry/Button/TouchIcon';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useRoute} from '@react-navigation/native';
 import {useAppTheme} from '../../themes/ThemeContext';
+import Toast from 'react-native-toast-message';
 console.log('auth', auth); // ✅ THÊM
 
 interface IEroror {
@@ -92,6 +93,15 @@ const RegisterScreen = () => {
       );
 
       if (registerUser.fulfilled.match(result)) {
+        Toast.show({
+          type: 'notification',
+          position: 'top',
+          text1: 'Thành công',
+          text2: 'Đăng ký thành công',
+          visibilityTime: 2000,
+          autoHide: true,
+          swipeable: true,
+        });
         navigation.navigate(ScreenName.Auth.Login, {
           nameScreen: '',
         });

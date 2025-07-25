@@ -4,6 +4,8 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
 import RootStack from './RootStack';
 import {isReadyRef, navigationRef} from './navigation';
+import Toast from 'react-native-toast-message';
+import configToast from '../components/utils/configToast';
 
 const AppNavigation = () => {
   const routeNameRef = React.useRef<any>(null);
@@ -18,6 +20,8 @@ const AppNavigation = () => {
         }}>
         <RootStack />
       </NavigationContainer>
+      {/* <Toast /> */}
+      <Toast config={configToast} />
     </SafeAreaProvider>
   );
 };

@@ -23,9 +23,18 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   response => response,
   error => {
-    if (error.response?.status === 401) {
+    const originalRequest = error.config;
+
+    const is401 = error?.response?.status === 401;
+    const isChangePasswordAPI = originalRequest?.url?.includes(
+      '/accounts/verify-password',
+    );
+
+    // Nếu là 401 và không phải từ change-password thì logout
+    if (is401 && !isChangePasswordAPI) {
       store.dispatch(logout());
     }
+
     return Promise.reject(error);
   },
 );

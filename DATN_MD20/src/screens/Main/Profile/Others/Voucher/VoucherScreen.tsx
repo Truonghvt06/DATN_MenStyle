@@ -10,6 +10,8 @@ import {voucherData} from '../../../../../constants/data';
 import {TextSmall} from '../../../../../components/dataEntry/TextBase';
 import {ToastAndroid, Platform, Alert} from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
+import Toast from 'react-native-toast-message';
+import configToast from '../../../../../components/utils/configToast';
 
 const VoucherScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -45,11 +47,20 @@ const VoucherScreen = () => {
     if (code) {
       Clipboard.setString(code);
       // Hiển thị thông báo khi copy thành công
-      if (Platform.OS === 'android') {
-        ToastAndroid.show('Đã sao chép mã: ' + code, ToastAndroid.SHORT);
-      } else {
-        Alert.alert('Đã sao chép', `Mã voucher ${code} đã được sao chép`);
-      }
+      // if (Platform.OS === 'android') {
+      //   ToastAndroid.show('Đã sao chép mã: ' + code, ToastAndroid.SHORT);
+      // } else {
+      // Alert.alert('Đã sao chép', `Mã voucher ${code} đã được sao chép`);
+      Toast.show({
+        type: 'notification',
+        position: 'top',
+        text1: 'Thành công',
+        text2: 'Sao chép mã thành công',
+        visibilityTime: 1000,
+        autoHide: true,
+        swipeable: true,
+      });
+      // }
     }
   };
 
@@ -114,6 +125,7 @@ const VoucherScreen = () => {
         }}
         showsVerticalScrollIndicator={false}
       />
+      {/* <Toast config={configToast} /> */}
     </ContainerView>
   );
 };

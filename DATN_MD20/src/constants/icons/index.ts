@@ -48,6 +48,8 @@ export enum IconSRC {
   icon_vc_order = require('../../assets/images/voucher_order.png'),
   icon_vc_ship = require('../../assets/images/voucher_ship.png'),
   icon_coppy = require('../../assets/images/coppy.png'),
+  icon_change_pass = require('../../assets/images/changePass.png'),
+  icon_review = require('../../assets/images/review.png'),
 }
 
 export enum IconBottomTab {

@@ -185,7 +185,7 @@ const SearchScreen = () => {
             // onPressSee={() => {}}
           />
         </ScrollView>
-        <Toast config={configToast} />
+        {/* <Toast config={configToast} /> */}
       </ContainerView>
     </TouchableWithoutFeedback>
   );

@@ -9,6 +9,7 @@ import {ThemeProvider, useAppTheme} from './src/themes/ThemeContext'; // Thêm d
 import {requestUserPermission} from './src/utils/common/firebase/firebaseNotification';
 import {setupNotificationListeners} from './src/utils/common/firebase/fcmHelper';
 import {PermissionsAndroid} from 'react-native';
+import configToast from './src/components/utils/configToast';
 
 const App = () => {
   const theme = useAppTheme();
@@ -32,7 +33,7 @@ const App = () => {
             barStyle={'light-content'}
           />
           <AppNavigation />
-          <Toast />
+          {/* <Toast /> */}
         </ThemeProvider>
       </PersistGate>
     </Provider>
