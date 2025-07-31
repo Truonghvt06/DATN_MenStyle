@@ -136,24 +136,29 @@
                   <small><%= order.user_id.email %></small>
                 </td>
                 <td class="text-start">
-                  <%= order.shipping_address_id.recipient_name %><br>
-                  <small>
-                    <%= order.shipping_address_id.address_line %>, 
-                    <%= order.shipping_address_id.ward %>, 
-                    <%= order.shipping_address_id.district %>, 
-                    <%= order.shipping_address_id.province %>
-                  </small>
+                  <% if (order.shipping_address_id) { %>
+                    <%= order.shipping_address_id.recipient_name %><br>
+                    <small>
+                      <%= order.shipping_address_id.address_line %>, 
+                      <%= order.shipping_address_id.ward %>, 
+                      <%= order.shipping_address_id.district %>, 
+                      <%= order.shipping_address_id.province %>
+                    </small>
+                  <% } else { %>
+                    <em>Không có địa chỉ</em>
+                  <% } %>
                 </td>
+                
                 <td><%= order.payment_method_id.code %></td>
                 <td><%= order.total_amount.toLocaleString('vi-VN') %> ₫</td>
                 <td>
                     <form class="status-form" data-id="<%= order._id %>">
                       <select class="form-select form-select-sm status-select" name="status">
-                        <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Chờ xử lý</option>
-                        <option value="paid" <%= order.status === 'paid' ? 'selected' : '' %>>Đã thanh toán</option>
-                        <option value="shipped" <%= order.status === 'shipped' ? 'selected' : '' %>>Đang giao hàng</option>
-                        <option value="delivered" <%= order.status === 'delivered' ? 'selected' : '' %>>Đã giao</option>
-                        <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Đã hủy</option>
+                        <option value="pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Chờ xử lý</option>
+                        <option value="paid" <%= order.status === 'Paid' ? 'selected' : '' %>>Đã thanh toán</option>
+                        <option value="shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Đang giao hàng</option>
+                        <option value="delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Đã giao</option>
+                        <option value="cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Đã hủy</option>
                       </select>
                     </form>
                   </td>                  

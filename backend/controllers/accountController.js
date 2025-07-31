@@ -6,10 +6,10 @@ const Order = require('../models/Order');
 exports.getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find()
-      .populate("user_id", "name email") // lấy tên và email người dùng
+      .populate("user_id", "name email")
       .populate("shipping_address_id")
       .populate("payment_method_id")
-      .sort({ createdAt: -1 }); // sắp xếp mới nhất trước
+      .sort({ createdAt: -1 });
 
     res.render("order_admin", { orders });
   } catch (err) {
@@ -17,6 +17,7 @@ exports.getAllOrders = async (req, res) => {
     res.status(500).send("Không thể lấy danh sách đơn hàng.");
   }
 };
+
 
 exports.showOrderPage = async (req, res) => {
     const userId = req.params.id;
