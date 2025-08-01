@@ -8,6 +8,7 @@ import TouchIcon from '../../../components/dataEntry/Button/TouchIcon';
 import ButtonBase from '../../../components/dataEntry/Button/ButtonBase';
 import {useAppTheme} from '../../../themes/ThemeContext';
 import useLanguage from '../../../hooks/useLanguage';
+import {colors} from '../../../themes/colors';
 
 interface Props {
   image?: any;
@@ -56,7 +57,7 @@ const AddCart = (props: Props) => {
         containerStyle={[styles.boW, {borderColor: theme.border_color}]}>
         <Image style={styles.img} source={{uri: image}} />
         <Block flex1 marL={10} justifyContent="flex-end">
-          <TextHeight bold color={theme.danger}>
+          <TextHeight medium color={colors.primary}>
             {price}đ
           </TextHeight>
           <TextSmall color={theme.text}>

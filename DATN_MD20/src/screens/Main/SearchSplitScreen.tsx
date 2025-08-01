@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -12,17 +12,34 @@ import {
   Pressable,
   ScrollView,
 } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import {useRoute, useNavigation} from '@react-navigation/native';
 import productService from '../../services/products/productService';
-import { useAppTheme } from '../../themes/ThemeContext';
+import {useAppTheme} from '../../themes/ThemeContext';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import ListProduct from '../../components/dataDisplay/ListProduct';
+import {useAppDispatch, useAppSelector} from '../../redux/store';
+import ModalCenter from '../../components/dataDisplay/Modal/ModalCenter';
+import {fetchFavorites, toggleFavorite} from '../../redux/actions/favorite';
+import ScreenName from '../../navigation/ScreenName';
+import ContainerView from '../../components/layout/ContainerView';
+import metrics from '../../constants/metrics';
+import {IconSRC} from '../../constants/icons';
+import InputBase from '../../components/dataEntry/Input/InputBase';
+import {TextMedium, TextSmall} from '../../components/dataEntry/TextBase';
+import TouchIcon from '../../components/dataEntry/Button/TouchIcon';
+import useLanguage from '../../hooks/useLanguage';
+import Block from '../../components/layout/Block';
+import ModalBottom from '../../components/dataDisplay/Modal/ModalBottom';
+import {colors} from '../../themes/colors';
+import navigation from '../../navigation/navigation';
 
 const filters = ['Liên quan', 'Mới nhất', 'Bán chạy', 'Giá'];
 
 const priceRanges = [
-  { label: 'Dưới 100k', min: 0, max: 100000 },
-  { label: '100k - 300k', min: 100000, max: 300000 },
-  { label: '300k - 500k', min: 300000, max: 500000 },
-  { label: 'Trên 500k', min: 500000, max: Infinity },
+  {label: 'Dưới 100k', min: 0, max: 100000},
+  {label: '100k - 300k', min: 100000, max: 300000},
+  {label: '300k - 500k', min: 300000, max: 500000},
+  {label: 'Trên 500k', min: 500000, max: Infinity},
 ];
 
 const categories = [
@@ -34,32 +51,34 @@ const categories = [
   'Áo hoodie',
 ];
 
-const ProductCard = ({ item, onPress }: { item: any; onPress: () => void }) => {
-  const imageUri = item.variants?.[0]?.image || '';
-  return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
-      <Image source={{ uri: imageUri }} style={styles.productImage} />
-      <Text numberOfLines={2} style={styles.productName}>{item.name}</Text>
-      <Text style={styles.price}>{item.price?.toLocaleString('vi-VN')}₫</Text>
-    </TouchableOpacity>
-  );
-};
-
-// ... (giữ nguyên tất cả import, biến filters, priceRanges, categories và component ProductCard)
-
 const SearchSplitScreen = () => {
+  const {top} = useSafeAreaInsets();
   const route = useRoute<any>();
-  const navigation = useNavigation<any>();
+  const {getTranslation} = useLanguage();
   const theme = useAppTheme();
 
-  const { keyword } = route.params;
+  const {keyword} = route.params;
   const [allProducts, setAllProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('Liên quan');
   const [sortByPriceAsc, setSortByPriceAsc] = useState<boolean | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedPriceRange, setSelectedPriceRange] = useState<string | null>(null);
+  const [selectedPriceRange, setSelectedPriceRange] = useState<string | null>(
+    null,
+  );
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const [isOpenCheck, setIsOpenCheck] = useState(false);
+  const dispatch = useAppDispatch();
+  const {token} = useAppSelector(state => state.auth);
+  const {listFavoriteIds} = useAppSelector(state => state.favorite);
+
+  const tabs = [
+    'Liên quan',
+    getTranslation('moi_nhat'),
+    getTranslation('ban_chay'),
+    getTranslation('gia'),
+  ];
 
   const handleFilterPress = (filter: string) => {
     if (filter === 'Giá') {
@@ -81,18 +100,21 @@ const SearchSplitScreen = () => {
         const all = Array.isArray(res?.data) ? res.data : [];
 
         const normalizeText = (text: string) =>
-          text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          text
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
 
         const normKeyword = normalizeText(keyword);
 
         const exactMatches = all.filter(
           (product: any) =>
-            product?.name && normalizeText(product.name).includes(normKeyword)
+            product?.name && normalizeText(product.name).includes(normKeyword),
         );
 
         const others = all.filter(
           (product: any) =>
-            product?.name && !normalizeText(product.name).includes(normKeyword)
+            product?.name && !normalizeText(product.name).includes(normKeyword),
         );
 
         const merged = [...exactMatches, ...others];
@@ -113,118 +135,165 @@ const SearchSplitScreen = () => {
     if (selectedPriceRange) {
       const range = priceRanges.find(p => p.label === selectedPriceRange);
       if (range) {
-        filtered = filtered.filter(p =>
-          p.price >= range.min && p.price < range.max
+        filtered = filtered.filter(
+          p => p.price >= range.min && p.price < range.max,
         );
       }
     }
 
     if (selectedCategory) {
       filtered = filtered.filter(p =>
-        p.name?.toLowerCase()?.includes(selectedCategory.toLowerCase())
+        p.name?.toLowerCase()?.includes(selectedCategory.toLowerCase()),
       );
     }
 
     // 🧠 Sắp xếp theo bộ lọc
-    if (activeFilter === 'Giá' && sortByPriceAsc !== null) {
+    if (activeFilter === getTranslation('gia') && sortByPriceAsc !== null) {
       filtered.sort((a, b) =>
-        sortByPriceAsc ? a.price - b.price : b.price - a.price
+        sortByPriceAsc ? a.price - b.price : b.price - a.price,
       );
-    } else if (activeFilter === 'Mới nhất') {
-      filtered.sort((a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    } else if (activeFilter === getTranslation('moi_nhat')) {
+      filtered.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
-    } else if (activeFilter === 'Bán chạy') {
+    } else if (activeFilter === getTranslation('ban_chay')) {
       filtered.sort((a, b) => (b.sold || 0) - (a.sold || 0));
     }
 
     return filtered;
   };
 
-  const handleSelectProduct = (product: any) => {
-    navigation.navigate('ProductDetail', { id: product._id });
-  };
-
-  const renderProductList = (data: any[]) => (
-    <FlatList
-      data={applyFilters(data)}
-      numColumns={2}
-      columnWrapperStyle={{ justifyContent: 'space-between' }}
-      keyExtractor={item => item._id}
-      renderItem={({ item }) => (
-        <ProductCard item={item} onPress={() => handleSelectProduct(item)} />
-      )}
-      contentContainerStyle={{ paddingBottom: 40 }}
-    />
-  );
-
   if (loading) {
     return (
-      <View style={styles.center}>
+      <Block flex1 alignCT justifyCT>
         <ActivityIndicator size="large" color={theme.text} />
-      </View>
+      </Block>
     );
   }
 
+  ////////////////////
+  const handleFavorite = async (productId: string) => {
+    await dispatch(toggleFavorite(productId));
+    dispatch(fetchFavorites());
+  };
+
+  const handleLogin = () => {
+    setIsOpenCheck(false);
+
+    navigation.navigate(ScreenName.Auth.AuthStack, {
+      screen: ScreenName.Auth.Login,
+      params: {
+        nameScreen: '',
+      },
+    });
+  };
+
+  const handleProDetail = (id: string) => {
+    navigation.navigate(ScreenName.Main.ProductDetail, {id});
+  };
+  //////////////////////
+
   return (
-    <View style={styles.container}>
-      {/* 🔍 Search Header */}
+    <ContainerView
+      containerStyle={{
+        paddingTop: top,
+        paddingHorizontal: metrics.space,
+      }}>
+      {/*  Search Header */}
       <View style={styles.searchRow}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backText}>←</Text>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          style={[styles.btnLeft]}
+          onPress={() => navigation.goBack()}>
+          <Image
+            style={[styles.image, {tintColor: theme.icon}]}
+            source={IconSRC.icon_back_left}
+          />
         </TouchableOpacity>
-        <TextInput
-          style={styles.searchInput}
+        <InputBase
+          inputStyle={[styles.searchInput, {color: theme.text}]}
           value={keyword}
           placeholder="Tìm kiếm sản phẩm..."
-          placeholderTextColor="#999"
+          onFocus={() => navigation.goBack()}
+          containerStyle={{flex: 1, marginHorizontal: 10}}
         />
-        <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <Text style={styles.filterIcon}>⇅ Lọc</Text>
+        <TouchableOpacity
+          style={{flexDirection: 'row', alignItems: 'center'}}
+          onPress={() => setModalVisible(true)}>
+          <Image
+            source={IconSRC.icon_sort}
+            style={{width: 16, height: 16, tintColor: theme.icon}}
+          />
+          <TextSmall> Lọc</TextSmall>
         </TouchableOpacity>
       </View>
 
-      {/* 🔘 Filter Buttons */}
-      <View style={styles.filterRow}>
-        {filters.map(f => (
-          <TouchableOpacity
-            key={f}
-            style={[
-              styles.filterButton,
-              activeFilter === f && styles.activeFilterButton,
-            ]}
-            onPress={() => handleFilterPress(f)}
-          >
-            <Text
+      {/*  Filter Buttons */}
+      <Block row>
+        {tabs.map(tab => (
+          <View
+            key={tab}
+            style={{
+              width: '25%',
+              flexDirection: 'row',
+              justifyContent: 'center',
+            }}>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={() => handleFilterPress(tab)}
               style={[
-                styles.filterTextBtn,
-                activeFilter === f && styles.activeFilterText,
-              ]}
-            >
-              {f}
-              {f === 'Giá' && activeFilter === 'Giá' && (
-                sortByPriceAsc ? ' ↑' : ' ↓'
-              )}
-            </Text>
-          </TouchableOpacity>
+                styles.itemtab,
+                {
+                  backgroundColor: theme.background,
+                  borderBottomColor:
+                    activeFilter === tab ? theme.primary : 'transparent',
+                },
+              ]}>
+              <TextSmall
+                style={{
+                  color: activeFilter === tab ? theme.primary : theme.text,
+                }}>
+                {tab}
+                {tab === getTranslation('gia') &&
+                  activeFilter === getTranslation('gia') &&
+                  (sortByPriceAsc ? ' ↑' : ' ↓')}
+              </TextSmall>
+            </TouchableOpacity>
+          </View>
         ))}
-      </View>
+      </Block>
 
       {/* 📦 Unified Product List */}
-      {renderProductList(allProducts)}
+      {/* {renderProductList(allProducts)} */}
 
-      {/* 🧾 Filter Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
+      {/* SAN PHAM  */}
+      <ListProduct
+        data={applyFilters(allProducts)}
+        isColums
+        columNumber={2}
+        favoriteId={listFavoriteIds}
+        onPress={idnew => {
+          handleProDetail(idnew);
+        }}
+        onPressFavorite={id =>
+          token ? handleFavorite(id) : setIsOpenCheck(true)
+        }
+      />
+
+      {/* Modal Sort */}
+      <ModalBottom
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <ScrollView style={{ maxHeight: 400 }}>
-              <Text style={styles.modalTitle}>Khoảng Giá</Text>
-              <View style={styles.modalSection}>
+        header
+        label="Lọc sản phẩm"
+        heightModal={520}
+        onClose={() => setModalVisible(false)}
+        children={
+          <Block flex1 padH={10} padT={15}>
+            <ScrollView>
+              <TextMedium medium>Khoảng Giá</TextMedium>
+
+              <Block row marT={8} flexWrap="wrap" gap={10}>
                 {priceRanges.map(p => (
                   <TouchableOpacity
                     key={p.label}
@@ -234,24 +303,23 @@ const SearchSplitScreen = () => {
                     ]}
                     onPress={() =>
                       setSelectedPriceRange(
-                        selectedPriceRange === p.label ? null : p.label
+                        selectedPriceRange === p.label ? null : p.label,
                       )
-                    }
-                  >
-                    <Text
-                      style={[
-                        styles.optionText,
-                        selectedPriceRange === p.label && styles.optionTextActive,
-                      ]}
-                    >
+                    }>
+                    <TextSmall
+                      color={
+                        selectedPriceRange === p.label
+                          ? colors.while
+                          : colors.black
+                      }>
                       {p.label}
-                    </Text>
+                    </TextSmall>
                   </TouchableOpacity>
                 ))}
-              </View>
+              </Block>
 
-              <Text style={styles.modalTitle}>Loại Sản Phẩm</Text>
-              <View style={styles.modalSection}>
+              <TextMedium style={{marginTop: 20}}>Loại Sản Phẩm</TextMedium>
+              <Block row marT={8} flexWrap="wrap" gap={10}>
                 {categories.map(c => (
                   <TouchableOpacity
                     key={c}
@@ -261,200 +329,121 @@ const SearchSplitScreen = () => {
                     ]}
                     onPress={() =>
                       setSelectedCategory(selectedCategory === c ? null : c)
-                    }
-                  >
-                    <Text
-                      style={[
-                        styles.optionText,
-                        selectedCategory === c && styles.optionTextActive,
-                      ]}
-                    >
+                    }>
+                    <TextSmall
+                      color={
+                        selectedPriceRange === c ? colors.while : colors.black
+                      }>
                       {c}
-                    </Text>
+                    </TextSmall>
                   </TouchableOpacity>
                 ))}
-              </View>
+              </Block>
             </ScrollView>
 
-            <View style={styles.modalActions}>
-              <Pressable
+            <Block flex1 row containerStyle={styles.btnSort}>
+              <TouchableOpacity
+                activeOpacity={0.8}
                 style={styles.resetBtn}
                 onPress={() => {
                   setSelectedCategory(null);
                   setSelectedPriceRange(null);
-                }}
-              >
-                <Text style={{ color: '#FF3B30' }}>Thiết lập lại</Text>
-              </Pressable>
-              <Pressable
+                }}>
+                <TextMedium color={colors.primary}>Thiết lập lại</TextMedium>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.8}
                 style={styles.applyBtn}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={{ color: '#fff', fontWeight: '600' }}>Áp dụng</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
-    </View>
+                onPress={() => setModalVisible(false)}>
+                <TextMedium color="white">Áp dụng</TextMedium>
+              </TouchableOpacity>
+            </Block>
+          </Block>
+        }
+      />
+
+      <ModalCenter
+        visible={isOpenCheck}
+        content={'Hãy đăng nhập để sử dụng'}
+        onClose={() => setIsOpenCheck(false)}
+        onPress={() => {
+          handleLogin();
+        }}
+      />
+    </ContainerView>
   );
 };
 
 export default SearchSplitScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 12,
-    paddingTop: 16,
-    backgroundColor: '#fff',
-  },
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 12,
-    gap: 10,
   },
-  backBtn: {
-    padding: 6,
-    backgroundColor: '#ccc',
-    borderRadius: 20,
-  },
-  backText: {
-    fontSize: 16,
-  },
+
   searchInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 22,
-    paddingHorizontal: 14,
-    height: 36,
-    fontSize: 14,
-    backgroundColor: '#f9f9f9',
+    height: 35,
   },
-  filterIcon: {
-    color: '#007AFF',
-    fontSize: 14,
-  },
-  filterRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  filterButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#fff',
-  },
-  activeFilterButton: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
-  },
-  filterTextBtn: {
-    fontSize: 13,
-    color: '#333',
-  },
-  activeFilterText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  card: {
-    width: '48%',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 8,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: '#eee',
-  },
-  productImage: {
-    width: '100%',
-    height: 130,
-    borderRadius: 8,
-    marginBottom: 6,
-  },
-  productName: {
-    fontSize: 13,
-    color: '#333',
-    marginBottom: 4,
-  },
-  price: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#007AFF',
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: '#00000066',
-    justifyContent: 'flex-start',
-  },
-  modalContainer: {
-    marginTop: 60,
-    backgroundColor: '#fff',
-    padding: 16,
-    maxHeight: '80%',
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-  },
-  modalTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 10,
-  },
-  modalSection: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginBottom: 16,
-  },
+
   optionBtn: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#ccc',
+    width: 125,
+    paddingVertical: 6.5,
+    borderRadius: 10,
+    backgroundColor: colors.gray2,
+    alignItems: 'center',
+    gap: 10,
   },
   optionBtnActive: {
     backgroundColor: '#007AFF',
     borderColor: '#007AFF',
   },
-  optionText: {
-    fontSize: 13,
-    color: '#333',
-  },
-  optionTextActive: {
-    color: '#fff',
-    fontWeight: '500',
-  },
-  modalActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-    gap: 10,
-  },
+
   resetBtn: {
     flex: 1,
-    padding: 12,
+    padding: 10,
     backgroundColor: '#fff',
     borderRadius: 8,
-    borderColor: '#FF3B30',
-    borderWidth: 1,
+    borderColor: colors.primary,
+    borderWidth: 2,
     alignItems: 'center',
+    marginRight: 10,
   },
   applyBtn: {
     flex: 1,
-    padding: 12,
-    backgroundColor: '#FF3B30',
+    padding: 10,
+    backgroundColor: colors.primary,
     borderRadius: 8,
     alignItems: 'center',
+  },
+  btnSort: {
+    position: 'absolute',
+    bottom: 45,
+    alignSelf: 'center',
+  },
+
+  /////
+  image: {
+    width: 25,
+    height: 25,
+  },
+  btnLeft: {
+    height: 40,
+    width: 40,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  itemtab: {
+    width: '100%',
+    paddingVertical: 8,
+    borderBottomWidth: 2,
+    alignItems: 'center',
+  },
+  tab: {
+    width: '100%',
+    flexDirection: 'row',
+    borderBottomWidth: 0.2,
   },
 });

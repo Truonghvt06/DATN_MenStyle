@@ -1,4 +1,4 @@
-import { axiosInstance } from '..';
+import {axiosInstance} from '..';
 
 const productService = {
   getCategory: async () => {
@@ -88,17 +88,28 @@ const productService = {
   },
 
   searchProducts: async (name: string) => {
-  try {
-    const res = await axiosInstance.get(
-      `/products/search?name=${encodeURIComponent(name)}`
-    );
-    console.log('[📦 API] searchProducts response:', res.data); // res.data là array
-    return res.data;
-  } catch (error) {
-    throw error;
-  }
-},
+    try {
+      const res = await axiosInstance.get(
+        `/products/search?name=${encodeURIComponent(name)}`,
+      );
+      // console.log(' searchProducts response:', res.data);
+      return res.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  searchCategory: async (name: string) => {
+    try {
+      const res = await axiosInstance.get(
+        `/products/searchCategory?name=${encodeURIComponent(name)}`,
+      );
+      // console.log('CATE--', res.data);
 
+      return res.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default productService;

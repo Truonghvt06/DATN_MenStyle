@@ -25,6 +25,7 @@ import {useAppDispatch} from '../../../redux/store';
 import {useRoute} from '@react-navigation/native';
 import {resetPassword} from '../../../redux/actions/auth';
 import {useAppTheme} from '../../../themes/ThemeContext';
+import Toast from 'react-native-toast-message';
 
 interface Error {
   passNew?: string;
@@ -49,7 +50,10 @@ const NewPassScreen = () => {
     const newError: Error = {};
     if (passNew.trim() === '') {
       newError.passNew = getTranslation('vui_long_mk_moi');
+    } else if (passNew.length < 6) {
+      newError.passNew = 'Mật khẩu phải có ít nhất 6 ký tự!';
     }
+
     if (rePassNew.trim() === '') {
       newError.rePassNew = getTranslation('vui_long_xnh_mk_moi');
     } else if (rePassNew !== passNew) {
@@ -63,7 +67,18 @@ const NewPassScreen = () => {
 
     const result = await dispatch(resetPassword({email, newPassword: passNew}));
     if (resetPassword.fulfilled.match(result)) {
-      navigation.navigate(ScreenName.Auth.Login);
+      Toast.show({
+        type: 'notification',
+        position: 'top',
+        text1: 'Thành công',
+        text2: 'Đổi mật khẩu thành công',
+        visibilityTime: 2000,
+        autoHide: true,
+        swipeable: true,
+      });
+      navigation.replace(ScreenName.Auth.Login, {
+        nameScreen: '',
+      });
     } else {
       setErrorGlobal(result.payload as string);
     }

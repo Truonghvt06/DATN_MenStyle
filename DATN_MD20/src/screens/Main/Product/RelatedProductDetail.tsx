@@ -42,6 +42,7 @@ import useLanguage from '../../../hooks/useLanguage';
 import {useAppTheme} from '../../../themes/ThemeContext';
 import Toast from 'react-native-toast-message';
 import configToast from '../../../components/utils/configToast';
+import ModalCenter from '../../../components/dataDisplay/Modal/ModalCenter';
 
 const ProductDetail = () => {
   const {top} = useSafeAreaInsets();
@@ -57,6 +58,7 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState('1');
   const [openModal, setOpenModal] = useState(false);
+  const [isOpenCheck, setIsOpenCheck] = useState(false);
 
   const [isReady, setIsReady] = useState(false); //Độ trễ lại trước khi hiển thị dữ liệu
   const lineNumber = 4;
@@ -112,29 +114,14 @@ const ProductDetail = () => {
   };
 
   const handleLogin = () => {
-    Alert.alert(
-      getTranslation('thong_bao'),
-      'Hãy đăng nhập để sử dụng',
-      [
-        {
-          text: getTranslation('huy'),
-          onPress: () => console.log('Đã huỷ'),
-          style: 'cancel',
-        },
-        {
-          text: 'OK',
-          onPress: () => {
-            navigation.navigate(ScreenName.Auth.AuthStack, {
-              screen: ScreenName.Auth.Login,
-              params: {
-                nameScreen: '',
-              },
-            });
-          },
-        },
-      ],
-      {cancelable: true},
-    );
+    setIsOpenCheck(false);
+
+    navigation.navigate(ScreenName.Auth.AuthStack, {
+      screen: ScreenName.Auth.Login,
+      params: {
+        nameScreen: '',
+      },
+    });
   };
 
   //Them gio hang
@@ -169,7 +156,7 @@ const ProductDetail = () => {
                 activeOpacity={0.8}
                 style={styles.tim}
                 onPress={() => {
-                  token ? handleFavorite(proData._id) : handleLogin();
+                  token ? handleFavorite(proData._id) : setIsOpenCheck(true);
                 }}>
                 <Image
                   source={
@@ -326,7 +313,7 @@ const ProductDetail = () => {
                     handleProDetail(idnew);
                   }}
                   onPressFavorite={id =>
-                    token ? handleFavorite(id) : handleLogin()
+                    token ? handleFavorite(id) : setIsOpenCheck(true)
                   }
                 />
               </Block>
@@ -335,7 +322,7 @@ const ProductDetail = () => {
               title="Thêm vào giỏ hàng"
               containerStyle={styles.btnCart}
               onPress={() => {
-                token ? setOpenModal(!openModal) : handleLogin();
+                token ? setOpenModal(!openModal) : setIsOpenCheck(true);
               }}
             />
           </>
@@ -454,6 +441,14 @@ const ProductDetail = () => {
           }
         />
         {/* <Toast config={configToast} /> */}
+        <ModalCenter
+          visible={isOpenCheck}
+          content={'Hãy đăng nhập để sử dụng'}
+          onClose={() => setIsOpenCheck(false)}
+          onPress={() => {
+            handleLogin();
+          }}
+        />
       </ContainerView>
     </TouchableWithoutFeedback>
   );

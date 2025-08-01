@@ -32,11 +32,13 @@ import {fetchFavorites, toggleFavorite} from '../../redux/actions/favorite';
 import Toast from 'react-native-toast-message';
 import configToast from '../../components/utils/configToast';
 import Block from '../../components/layout/Block';
+import ModalCenter from '../../components/dataDisplay/Modal/ModalCenter';
 
 const SearchScreen = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
   const theme = useAppTheme();
+  const [isOpenCheck, setIsOpenCheck] = useState(false);
 
   const [proData, setProData] = useState<Product[]>([]);
   const dispatch = useAppDispatch();
@@ -69,26 +71,17 @@ const SearchScreen = () => {
   };
 
   const handleLogin = () => {
-    Alert.alert(
-      getTranslation('thong_bao'),
-      'Hãy đăng nhập để sử dụng',
-      [
-        {text: getTranslation('huy'), style: 'cancel'},
-        {
-          text: 'OK',
-          onPress: () => {
-            navigation.navigate(ScreenName.Auth.AuthStack, {
-              screen: ScreenName.Auth.Login,
-              params: {nameScreen: ''},
-            });
-          },
-        },
-      ],
-      {cancelable: true},
-    );
+    setIsOpenCheck(false);
+
+    navigation.navigate(ScreenName.Auth.AuthStack, {
+      screen: ScreenName.Auth.Login,
+      params: {
+        nameScreen: '',
+      },
+    });
   };
   const handleSearch = () => {
-    navigation.navigate(ScreenName.Main.SearchDetail);
+    navigation.navigate(ScreenName.Main.SearchDetailScreen);
   };
 
   const handleProDetail = (id: string) => {
@@ -147,13 +140,13 @@ const SearchScreen = () => {
           <ListProduct
             data={productNew}
             horizontal={true}
-            // isSeemore
             favoriteId={listFavoriteIds}
             onPress={id => {
               handleProDetail(id);
             }}
-            onPressFavorite={id => (token ? handleFavorite(id) : handleLogin())}
-            // onPressSee={() => {}}
+            onPressFavorite={id =>
+              token ? handleFavorite(id) : setIsOpenCheck(true)
+            }
           />
 
           {/* Sản phẩm bán chạy */}
@@ -181,11 +174,21 @@ const SearchScreen = () => {
             onPress={id => {
               handleProDetail(id);
             }}
-            onPressFavorite={id => (token ? handleFavorite(id) : handleLogin())}
+            onPressFavorite={id =>
+              token ? handleFavorite(id) : setIsOpenCheck(true)
+            }
             // onPressSee={() => {}}
           />
         </ScrollView>
         {/* <Toast config={configToast} /> */}
+        <ModalCenter
+          visible={isOpenCheck}
+          content={'Hãy đăng nhập để sử dụng'}
+          onClose={() => setIsOpenCheck(false)}
+          onPress={() => {
+            handleLogin();
+          }}
+        />
       </ContainerView>
     </TouchableWithoutFeedback>
   );

@@ -30,10 +30,13 @@ import {verifyOTP, sendForgotOTP} from '../../../redux/actions/auth';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {colorGradient} from '../../../themes/theme_gradient';
 import LinearGradient from 'react-native-linear-gradient';
+import {useAppTheme} from '../../../themes/ThemeContext';
 
 const OTPScreen = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
+  const theme = useAppTheme();
+
   const dispatch = useAppDispatch();
 
   const [otpCode, setOtpCode] = useState('');
@@ -109,8 +112,8 @@ const OTPScreen = () => {
               // value={otpCode}
               inputCount={6}
               keyboardType="numeric"
-              offTintColor={colors.black03}
-              tintColor={colors.black}
+              offTintColor={colors.gray}
+              tintColor={theme.text}
               autoFocus
               handleTextChange={text => {
                 setOtpCode(text);
@@ -127,11 +130,11 @@ const OTPScreen = () => {
             )}
 
             <Block row alignCT marT={30}>
-              <TextSmall>Gửi lại OTP sau {counter}s </TextSmall>
+              <TextSmall>Gửi lại OTP sau {counter}s. </TextSmall>
               <TouchableOpacity onPress={handleResend} disabled={counter > 0}>
                 <TextSmall
                   bold
-                  color={counter > 0 ? colors.gray : colors.green}
+                  color={counter > 0 ? colors.gray : colors.primary}
                   style={styles.text}>
                   {getTranslation('gui_lai_otp')}
                 </TextSmall>
@@ -139,16 +142,31 @@ const OTPScreen = () => {
             </Block>
           </Block>
 
-          <Block padH={20} padB={70}>
+          {/* <Block padH={20} padB={70}>
             {loading ? (
-              <ActivityIndicator size="large" color={colors.green} />
+              <ActivityIndicator size="large" color={colors.primary} />
             ) : (
               <ButtonBase
                 title={getTranslation('tiep_tuc')}
                 onPress={handleNext}
               />
             )}
-          </Block>
+          </Block> */}
+          <LinearGradient
+            colors={colorGradient['theme-10']}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 1}}
+            style={[styles.btn, {borderRadius: 10}]}>
+            <TouchableOpacity style={styles.btn1} onPress={handleNext}>
+              {loading ? (
+                <ActivityIndicator size={25} color={colors.while} />
+              ) : (
+                <TextSizeCustom bold size={18} color={colors.while}>
+                  {getTranslation('tiep_tuc')?.toLocaleUpperCase()}
+                </TextSizeCustom>
+              )}
+            </TouchableOpacity>
+          </LinearGradient>
         </Block>
       </TouchableWithoutFeedback>
     </ContainerView>
@@ -166,6 +184,8 @@ const styles = StyleSheet.create({
     height: 45,
     alignItems: 'center',
     justifyContent: 'center',
+    marginHorizontal: 10,
+    marginBottom: 70,
   },
   btn1: {
     width: '100%',

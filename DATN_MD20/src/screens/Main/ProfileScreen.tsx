@@ -17,6 +17,8 @@ import useLanguage from '../../hooks/useLanguage';
 import {logout} from '../../redux/reducers/auth';
 import {useAppTheme} from '../../themes/ThemeContext';
 import ModalCenter from '../../components/dataDisplay/Modal/ModalCenter';
+import {clearFavorites} from '../../redux/actions/favorite';
+import {clearFavorite} from '../../redux/reducers/favorite';
 
 const ProfileScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -118,8 +120,8 @@ const ProfileScreen = () => {
               textColor={theme.text}
             />
             <ButtonOption
-              name={'Đánh giá'}
-              content={'Quản lý đánh giá '}
+              name={getTranslation('danh_gia')}
+              content={getTranslation('ql_danh_gia')}
               iconLeft={IconSRC.icon_review}
               sizeLeft={25}
               borderBottom={0}
@@ -249,6 +251,7 @@ const ProfileScreen = () => {
         onPress={() => {
           setisOpenLogout(false);
           dispatch(logout());
+          dispatch(clearFavorite());
           navigation.reset(ScreenName.Main.MainStack);
         }}
       />

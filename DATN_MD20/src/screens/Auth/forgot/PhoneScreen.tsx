@@ -30,10 +30,12 @@ import {useAppDispatch, useAppSelector} from '../../../redux/store';
 import {sendForgotOTP} from '../../../redux/actions/auth';
 import LinearGradient from 'react-native-linear-gradient';
 import {colorGradient} from '../../../themes/theme_gradient';
+import {useAppTheme} from '../../../themes/ThemeContext';
 
 const ForgotPassScreen = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
+  const theme = useAppTheme();
   const [email, setEmail] = useState<string>('');
   const [error, setError] = useState('');
 
@@ -86,8 +88,12 @@ const ForgotPassScreen = () => {
               setError('');
             }}
             customLeft={
-              <Image style={styles.icon_left} source={IconSRC.icon_email} />
+              <Image
+                style={[styles.icon_left, {tintColor: theme.icon}]}
+                source={IconSRC.icon_email}
+              />
             }
+            inputStyle={{color: theme.text}}
           />
           {error && (
             <TextSizeCustom size={12} color={colors.red} style={{marginTop: 3}}>

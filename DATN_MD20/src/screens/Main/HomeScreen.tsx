@@ -13,6 +13,7 @@ import ContainerView from '../../components/layout/ContainerView';
 import Block from '../../components/layout/Block';
 import {
   TextHeight,
+  TextMedium,
   TextSizeCustom,
   TextSmall,
 } from '../../components/dataEntry/TextBase';
@@ -92,7 +93,7 @@ const HomeScreen = () => {
   };
 
   const handleSearch = () => {
-    navigation.navigate(ScreenName.Main.SearchDetail);
+    navigation.navigate(ScreenName.Main.SearchDetailScreen);
   };
 
   const handleNotification = () => {
@@ -252,16 +253,16 @@ const HomeScreen = () => {
                   source={{uri: item.variants?.[0]?.image || ''}}
                 />
                 <Block mar={5}>
-                  <TextSmall medium numberOfLines={1} ellipsizeMode="tail">
+                  <TextSmall numberOfLines={1} ellipsizeMode="tail">
                     {item.name}
                   </TextSmall>
                   <Block row alignCT>
                     <Image style={styles.star} source={IconSRC.icon_star} />
                     <TextSmall>{item.rating_avg}</TextSmall>
                   </Block>
-                  <TextHeight color={colors.red} bold>
-                    {item.price.toLocaleString('vi-VN')} VND
-                  </TextHeight>
+                  <TextMedium medium color={colors.primary}>
+                    {item.price.toLocaleString('vi-VN')}VND
+                  </TextMedium>
                 </Block>
               </Block>
             </Block>
@@ -337,8 +338,8 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   star: {
-    width: 16,
-    height: 16,
+    width: 14,
+    height: 14,
     marginRight: 5,
   },
   tb: {

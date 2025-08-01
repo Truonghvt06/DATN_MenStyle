@@ -25,7 +25,7 @@ const productService = {
     }
   },
 
-  //product có ramdom
+  //product có phân trang
   getAllProducts: async (page = 1, limit = 10) => {
     try {
       const res = await axiosInstance.get(
