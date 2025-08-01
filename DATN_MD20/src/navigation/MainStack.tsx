@@ -7,6 +7,7 @@ import ScreenName from './ScreenName';
 import HomeScreen from '../screens/Main/HomeScreen';
 import ProfileScreen from '../screens/Main/ProfileScreen';
 import CartScreen from '../screens/Main/CartScreen';
+import CheckoutScreen from '../screens/Main/CheckoutScreen';
 import SearchScreen from '../screens/Main/SearchScreen';
 import NotificationScreen from '../screens/Main/NotificationScreen';
 import BottomTab from './BottomTab';

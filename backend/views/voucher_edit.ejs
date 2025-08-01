@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Sửa voucher - MenStyle</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; margin: 0; display: flex; }
+    .sidebar { width: 240px; min-height: 100vh; background: #fff; padding: 30px 20px; box-shadow: 2px 0 6px rgba(0,0,0,0.05); position: fixed; top: 0; left: 0; }
+    .sidebar a { display: flex; align-items: center; gap: 10px; padding: 10px 15px; text-decoration: none; color: #333; font-weight: 500; border-radius: 6px; margin-bottom: 8px; transition: 0.3s; }
+    .sidebar a:hover { background: #111; color: white; }
+    .content { flex: 1; margin-left: 240px; display: flex; flex-direction: column; min-height: 100vh; }
+    header { background-color: #111; color: white; padding: 15px 20px; font-size: 22px; font-weight: bold; display: flex; align-items: center; gap: 15px; }
+    main { padding: 30px; flex-grow: 1; }
+    .form-label { font-weight: 500; }
+    .form-check-label { font-weight: 400; }
+    .btn { min-width: 120px; }
+  </style>
+</head>
+<body>
+  <nav class="sidebar" id="sidebar">
+    <a href="/"><i class="bi bi-house"></i><span>Trang chủ</span></a>
+    <a href="/products/view"><i class="bi bi-box"></i><span> Sản phẩm</span></a>
+    <a href="/coupons/view"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
+    <a href="/accounts/view"><i class="bi bi-people"></i><span> Tài khoản</span></a>
+    <a href="/accounts/admin/orders"><i class="bi bi-receipt-cutoff"></i><span> Đơn hàng</span></a>
+    <a href="/stats-overview"><i class="bi bi-bar-chart-line"></i><span> Thống kê</span></a>
+    <a href="/setting/view"><i class="bi bi-gear"></i> <span>Cài đặt</span></a>
+  </nav>
+  <div class="content">
+    <header><i class="bi bi-ticket"></i> Sửa voucher</header>
+    <main>
+      <div class="mb-3">
+        <% if (voucher.is_status) { %>
+          <span class="badge" style="background:#198754; color:#fff; font-size:1rem; padding:8px 18px;">
+            <i class="bi bi-check-circle-fill"></i> Kích hoạt
+          </span>
+        <% } else { %>
+          <span class="badge" style="background:#dc3545; color:#fff; font-size:1rem; padding:8px 18px;">
+            <i class="bi bi-x-circle-fill"></i> Ẩn
+          </span>
+        <% } %>
+      </div>
+      <form action="/coupons/edit/<%= voucher._id %>" method="POST" class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Mã voucher <span class="text-danger">*</span></label>
+          <input type="text" name="code" class="form-control" value="<%= voucher.code %>" required />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Mô tả</label>
+          <input type="text" name="description" class="form-control" value="<%= voucher.description %>" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Loại giảm giá <span class="text-danger">*</span></label>
+          <select name="discount_type" id="discount_type" class="form-select" required onchange="updateDiscountValueLabel()">
+            <option value="percentage" <%= voucher.discount_type === 'percentage' ? 'selected' : '' %>>Phần trăm</option>
+            <option value="fixed" <%= voucher.discount_type === 'fixed' ? 'selected' : '' %>>Cố định</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" id="discount_value_label">Giá trị giảm <span class="text-danger">*</span></label>
+          <input type="number" name="discount_value" id="discount_value" class="form-control" value="<%= voucher.discount_value %>" required min="1" />
+        </div>
+        <div class="col-md-6" id="max_discount_group" style="display:none">
+          <label class="form-label">Giá trị giảm tối đa <span class="text-danger">*</span></label>
+          <input type="number" name="max_discount" id="max_discount" class="form-control" min="1" value="<%= voucher.max_discount_value || '' %>" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Đơn tối thiểu</label>
+          <input type="number" name="min_order_amount" class="form-control" value="<%= voucher.min_order_amount %>" min="0" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Số lượng <span class="text-danger">*</span></label>
+          <input type="number" name="quantity" class="form-control" value="<%= voucher.quantity %>" required min="1" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Ngày bắt đầu <span class="text-danger">*</span></label>
+          <input type="date" name="date_from" class="form-control" value="<%= voucher.date_from ? new Date(voucher.date_from).toISOString().slice(0,10) : '' %>" required />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Ngày kết thúc <span class="text-danger">*</span></label>
+          <input type="date" name="date_to" class="form-control" value="<%= voucher.date_to ? new Date(voucher.date_to).toISOString().slice(0,10) : '' %>" required />
+        </div>
+        <div class="col-12">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="is_status" id="is_status" value="true" <%= voucher.is_status ? 'checked' : '' %> />
+            <label class="form-check-label" for="is_status">Kích hoạt voucher</label>
+          </div>
+        </div>
+        <div class="col-12 d-flex gap-2">
+          <button type="submit" class="btn btn-warning"><i class="bi bi-save"></i> Cập nhật voucher</button>
+          <a href="/coupons/view" class="btn btn-secondary">Quay lại</a>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script>
+    function updateDiscountValueLabel() {
+      const discountType = document.getElementById('discount_type').value;
+      const discountValueLabel = document.getElementById('discount_value_label');
+      const discountValueInput = document.getElementById('discount_value');
+      const maxDiscountGroup = document.getElementById('max_discount_group');
+      const maxDiscountInput = document.getElementById('max_discount');
+      
+      if (discountType === 'percentage') {
+        discountValueLabel.innerHTML = 'Giá trị giảm (%) <span class="text-danger">*</span>';
+        discountValueInput.placeholder = 'Ví dụ: 10 (giảm 10%)';
+        discountValueInput.max = '100';
+        maxDiscountGroup.style.display = '';
+        maxDiscountInput.required = true;
+      } else {
+        discountValueLabel.innerHTML = 'Giá trị giảm (VNĐ) <span class="text-danger">*</span>';
+        discountValueInput.placeholder = 'Ví dụ: 50000 (giảm 50,000 VNĐ)';
+        discountValueInput.removeAttribute('max');
+        maxDiscountGroup.style.display = 'none';
+        maxDiscountInput.required = false;
+        maxDiscountInput.value = '';
+      }
+    }
+    
+    // Khởi tạo label khi trang load
+    document.addEventListener('DOMContentLoaded', function() {
+      updateDiscountValueLabel();
+    });
+  </script>
+</body>
+</html> 

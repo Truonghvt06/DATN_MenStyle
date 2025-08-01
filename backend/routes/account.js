@@ -266,4 +266,20 @@ router.get("/:id/cart/checkout", accountController.showCheckoutPage);
 router.post("/:id/cart/checkout", accountController.processCheckout);
 router.get("/:id/orders", accountController.showOrderPage);
 // router.put('/update-status/:id', orderController.updateStatus);
+
+// API trả về giỏ hàng dạng JSON cho app mobile
+router.get('/api/cart/:userId', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId)
+      .populate('cart.productId')
+      .lean();
+    if (!user) return res.status(404).json({ message: 'Không tìm thấy user' });
+    res.json({ cart: user.cart || [] });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi server', error: err.message });
+  }
+});
+
+router.post('/api/orders', accountController.apiCreateOrder);
+
 module.exports = router;
