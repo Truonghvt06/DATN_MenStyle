@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import ContainerView from '../../../components/layout/ContainerView';
@@ -28,6 +29,7 @@ import Toast from 'react-native-toast-message';
 import configToast from '../../../components/utils/configToast';
 import {useAppTheme} from '../../../themes/ThemeContext';
 import ModalCenter from '../../../components/dataDisplay/Modal/ModalCenter';
+import {IconSRC} from '../../../constants/icons';
 
 const CategoryScreen = () => {
   const route = useRoute();
@@ -39,6 +41,7 @@ const CategoryScreen = () => {
   const [selectedTab, setSelectedTab] = useState(getTranslation('tat_ca'));
   const [isReady, setIsReady] = useState(false);
   const [isOpenCheck, setIsOpenCheck] = useState(false);
+  const [sortByPriceAsc, setSortByPriceAsc] = useState<boolean | null>(null);
 
   const dispatch = useAppDispatch();
   const {productCate} = useAppSelector(state => state.product);
@@ -96,47 +99,80 @@ const CategoryScreen = () => {
       case getTranslation('ban_chay'):
         return [...dataProCate].sort((a, b) => b.sold_count - a.sold_count);
       case getTranslation('gia'):
-        return [...dataProCate].sort((a, b) => a.price - b.price);
+        return [...dataProCate].sort((a, b) =>
+          sortByPriceAsc ? a.price - b.price : b.price - a.price,
+        );
+
       case getTranslation('tat_ca'):
       default:
         return dataProCate;
     }
-  }, [selectedTab, dataProCate]);
+  }, [selectedTab, dataProCate, sortByPriceAsc]);
 
-  const renderTab = (tab: string) => (
-    <View
-      key={tab}
-      style={{
-        width: '25%',
-        flexDirection: 'row',
-        justifyContent: 'center',
-      }}>
-      <TouchableOpacity
-        activeOpacity={0.9}
-        onPress={() => handleTabPress(tab)}
-        style={[
-          styles.itemtab,
-          {
-            backgroundColor: theme.background,
-            borderBottomColor:
-              selectedTab === tab ? theme.primary : 'transparent',
-          },
-        ]}>
-        <TextSmall
-          style={{
-            color: selectedTab === tab ? theme.primary : theme.text,
-          }}>
-          {tab}
-        </TextSmall>
-      </TouchableOpacity>
-      {/* <Block
-        w={1}
-        backgroundColor={theme.border_color}
-        h={'50%'}
-        alignSelf="center"
-      /> */}
-    </View>
-  );
+  //   CHON TAB
+  const handleSelectedTab = (tab: string) => {
+    const priceTabLabel = getTranslation('gia');
+
+    if (tab === priceTabLabel) {
+      if (selectedTab === priceTabLabel) {
+        setSortByPriceAsc(prev => (prev === null ? true : !prev));
+      } else {
+        setSortByPriceAsc(true);
+      }
+    } else {
+      setSortByPriceAsc(null);
+    }
+
+    setSelectedTab(tab);
+  };
+
+  const renderTab = (tab: string) => {
+    return (
+      <View
+        key={tab}
+        style={{
+          width: '25%',
+          flexDirection: 'row',
+          justifyContent: 'center',
+        }}>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={() => handleSelectedTab(tab)}
+          style={[
+            styles.itemtab,
+            {
+              backgroundColor: theme.background,
+              borderBottomColor:
+                selectedTab === tab ? theme.primary : 'transparent',
+            },
+          ]}>
+          <Block row>
+            <TextSmall
+              style={{
+                color: selectedTab === tab ? theme.primary : theme.text,
+              }}>
+              {tab}
+            </TextSmall>
+            {tab === getTranslation('gia') && (
+              <Image
+                source={
+                  selectedTab === getTranslation('gia')
+                    ? sortByPriceAsc
+                      ? IconSRC.up
+                      : IconSRC.down
+                    : IconSRC.up_down
+                }
+                style={[
+                  styles.iconPrice,
+                  {tintColor: selectedTab === tab ? theme.primary : theme.icon},
+                ]}
+              />
+            )}
+          </Block>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   return (
     <ContainerView>
@@ -214,5 +250,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+  },
+  iconPrice: {
+    width: 12,
+    height: 12,
+    alignSelf: 'center',
+    marginLeft: 3,
   },
 });

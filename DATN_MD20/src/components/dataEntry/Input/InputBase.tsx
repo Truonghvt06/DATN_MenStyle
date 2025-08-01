@@ -18,7 +18,7 @@ interface Props extends TextInputProps {
   customRight?: React.ReactElement;
   customLeft?: React.ReactElement;
   containerStyle?: ViewStyle;
-  inputStyle?: TextStyle | ViewStyle;
+  inputStyle?: TextStyle | ViewStyle | any;
   borderBottom?: boolean;
   border?: boolean;
   borderTop?: number;

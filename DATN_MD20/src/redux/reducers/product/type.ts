@@ -30,7 +30,9 @@ export interface Category {
 export interface ProductState {
   products: Product[];
   productCate: Product[];
+  productSearch: Product[];
   categories: Category[];
+  categorieSearch: Category[];
   total: number;
   page: number;
   limit: number;

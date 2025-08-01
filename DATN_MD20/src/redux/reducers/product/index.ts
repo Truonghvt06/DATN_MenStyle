@@ -9,13 +9,17 @@ import {
   fetchProductDetail,
   fetchProducts,
   fetchCategory,
+  fetchSearchProduct,
+  searchCategory,
 } from '../../actions/product';
 import {ProductState} from './type';
 
 const initialState: ProductState = {
   products: [], //list sản phẩm
   productCate: [], //list sản phẩn theo thể loại
+  productSearch: [],
   categories: [], //list thể loại
+  categorieSearch: [],
   total: 0,
   page: 1,
   limit: 10,
@@ -50,6 +54,10 @@ const productSlice = createSlice({
       .addCase(fetchCategory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message as string | null;
+      })
+      .addCase(searchCategory.fulfilled, (state, action) => {
+        state.categorieSearch = action.payload;
+        state.loading = false;
       })
       .addCase(fetchProducts.pending, state => {
         state.loading = true;
@@ -109,6 +117,10 @@ const productSlice = createSlice({
         state.loading = false;
         state.detail = action.payload.product;
         state.relatedProducts = action.payload.relatedProducts;
+      })
+      .addCase(fetchSearchProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        state.productSearch = action.payload;
       });
   },
 });

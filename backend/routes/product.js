@@ -6,9 +6,11 @@ const ProductType = require("../models/ProductType");
 const productController = require("../controllers/productController");
 const categoryController = require("../controllers/categoryController");
 const User = require("../models/User");
+const removeVietnameseTones = require("../utils/removeVietnameseTones");
 
 // API JSON
 router.get("/categories", categoryController.getAllCategories);
+router.get("/searchCategory", categoryController.searchCategory);
 router.post("/add-product", productController.createProduct);
 router.get("/product-all", productController.getAllProducts);
 router.get("/product-category/:type", productController.getProductsByCategory);
@@ -21,6 +23,9 @@ router.get("/best-seller", productController.getBestSellerProducts);
 router.get("/product-new", productController.getNewestProducts);
 router.get("/product-detail/:id", productController.getProductDetail); //chi tiêt
 // router.get("/products/search", productController.searchProducts); //search
+
+//Tìm kiếm
+router.get("/searchSort", productController.searchSort);
 
 // API: Lấy toàn bộ sản phẩm dạng JSON
 // API: Lấy toàn bộ sản phẩm dạng JSON
@@ -160,18 +165,47 @@ router.get("/api/:id", async (req, res) => {
 });
 
 // ✅ API tìm kiếm
-router.get("/search", async (req, res) => {
-  const { name } = req.query;
-  if (!name || typeof name !== "string") {
-    return res.status(400).json({ message: "Thiếu hoặc sai định dạng tên" });
-  }
+// router.get("/search", async (req, res) => {
+//   const { name } = req.query;
+//   if (!name || typeof name !== "string") {
+//     return res.status(400).json({ message: "Thiếu hoặc sai định dạng tên" });
+//   }
 
+//   try {
+//     const regex = new RegExp(name, "i");
+//     const products = await Product.find({ name: regex }).lean();
+//     res.json(products);
+//   } catch (err) {
+//     res.status(500).json({ message: "Lỗi tìm kiếm", error: err.message });
+//   }
+// });
+
+router.get("/search", async (req, res) => {
   try {
-    const regex = new RegExp(name, "i");
-    const products = await Product.find({ name: regex }).lean();
+    const { name } = req.query;
+
+    if (!name || typeof name !== "string") {
+      return res
+        .status(400)
+        .json({ message: "Thiếu hoặc sai định dạng tên sản phẩm" });
+    }
+
+    const normalized = removeVietnameseTones(name);
+    const keywords = normalized.split(" ").filter(Boolean); // tách từ khóa
+
+    const regexConditions = keywords.map((word) => ({
+      normalized_name: { $regex: word, $options: "i" },
+    }));
+
+    const products = await Product.find({
+      $and: regexConditions, // tất cả từ khóa phải xuất hiện
+    });
+
     res.json(products);
   } catch (err) {
-    res.status(500).json({ message: "Lỗi tìm kiếm", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Lỗi tìm kiếm sản phẩm", error: err.message });
   }
 });
 

@@ -50,6 +50,10 @@ export enum IconSRC {
   icon_coppy = require('../../assets/images/coppy.png'),
   icon_change_pass = require('../../assets/images/changePass.png'),
   icon_review = require('../../assets/images/review.png'),
+  icon_sort = require('../../assets/images/sort.png'),
+  up_down = require('../../assets/images/up_down.png'),
+  up = require('../../assets/images/up.png'),
+  down = require('../../assets/images/down.png'),
 }
 
 export enum IconBottomTab {

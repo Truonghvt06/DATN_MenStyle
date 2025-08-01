@@ -119,8 +119,8 @@ const OrderItem = (props: Propos) => {
                       SL: {item.quantity}
                     </TextSizeCustom>
                   </Block>
-                  <TextMedium medium color={colors.red}>
-                    {item.price.toLocaleString('vi-VN')}đ
+                  <TextMedium medium color={colors.primary}>
+                    {item.price.toLocaleString('vi-VN')}VND
                   </TextMedium>
                 </Block>
               </Block>

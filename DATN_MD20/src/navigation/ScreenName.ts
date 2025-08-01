@@ -40,5 +40,7 @@ export default {
     NewPassChange: 'NewPassChange',
     ManageReviewScreen: 'ManageReviewScreen',
     AddReview: 'AddReview',
+    ListSearchScreen: 'ListSearchScreen',
+    SearchDetailScreen: 'SearchScreennn',
   },
 };

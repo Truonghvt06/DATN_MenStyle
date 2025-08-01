@@ -27,7 +27,6 @@ import {colors} from '../../../themes/colors';
 import ButtonBase from '../../../components/dataEntry/Button/ButtonBase';
 import {useAppTheme} from '../../../themes/ThemeContext';
 import Toast from 'react-native-toast-message';
-import configToast from '../../../components/utils/configToast';
 import {verifyOldPassword} from '../../../redux/actions/auth';
 
 const ChangePasswordScreen = () => {
@@ -54,11 +53,11 @@ const ChangePasswordScreen = () => {
           text2: 'Xác minh mật khẩu cũ thành công',
           visibilityTime: 1000,
         });
-        setTimeout(() => {
-          navigation.navigate(ScreenName.Main.NewPassChange, {
-            passOld: passOld,
-          });
-        }, 1000);
+        // setTimeout(() => {
+        navigation.navigate(ScreenName.Main.NewPassChange, {
+          passOld: passOld,
+        });
+        // }, 1000);
         setPassOld('');
       } else {
         const errMsg = resultAction.payload as string;

@@ -35,6 +35,9 @@ import ChangePasswordScreen from '../screens/Auth/changePassword/ChangePasswordS
 import NewPassChange from '../screens/Auth/changePassword/NewPass';
 import ManageReviewScreen from '../screens/Main/Profile/Account/Review/ManageReviewScreen';
 import AddReviewScreen from '../screens/Main/Profile/Account/Review/AddReviewScreen';
+import SearchScreenn from '../screens/Main/Search/SearchDetailScreen';
+import ListSearchScreen from '../screens/Main/Search/ListSearchScreen';
+import SearchDetailScreen from '../screens/Main/Search/SearchDetailScreen';
 
 const Stack = createStackNavigator();
 
@@ -62,7 +65,6 @@ const MainStack = () => {
       <Stack.Screen name="ChinhSach" component={ChinhSach} />
       <Stack.Screen name="ThongTinCaNhan" component={ThongTinCaNhan} />
       <Stack.Screen name="SearchSplitScreen" component={SearchSplitScreen} />
-
 
       <Stack.Screen
         name={ScreenName.Main.Favorite}
@@ -119,6 +121,14 @@ const MainStack = () => {
       <Stack.Screen
         name={ScreenName.Main.AddReview}
         component={AddReviewScreen}
+      />
+      <Stack.Screen
+        name={ScreenName.Main.SearchDetailScreen}
+        component={SearchDetailScreen}
+      />
+      <Stack.Screen
+        name={ScreenName.Main.ListSearchScreen}
+        component={ListSearchScreen}
       />
     </Stack.Navigator>
   );

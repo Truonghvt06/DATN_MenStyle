@@ -96,16 +96,16 @@ const ListProduct = (props: Props) => {
                     source={{uri: item.variants?.[0]?.image || ''}}
                   />
                   <Block mar={5}>
-                    <TextSmall medium numberOfLines={1} ellipsizeMode="tail">
+                    <TextSmall numberOfLines={1} ellipsizeMode="tail">
                       {item.name}
                     </TextSmall>
                     <Block row alignCT>
                       <Image style={styles.star} source={IconSRC.icon_star} />
                       <TextSmall>{item.rating_avg}</TextSmall>
                     </Block>
-                    <TextHeight color={colors.red} bold>
-                      {item.price.toLocaleString('vi-VN')} VND
-                    </TextHeight>
+                    <TextMedium color={colors.primary} medium>
+                      {item.price.toLocaleString('vi-VN')}VND
+                    </TextMedium>
                   </Block>
                 </Block>
               </Block>
@@ -160,8 +160,8 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   star: {
-    width: 16,
-    height: 16,
+    width: 14,
+    height: 14,
     marginRight: 5,
   },
   see: {

@@ -15,6 +15,19 @@ export const fetchCategory = createAsyncThunk(
     }
   },
 );
+export const searchCategory = createAsyncThunk(
+  'products/searchCategory',
+  async (name: string, thunkAPI) => {
+    try {
+      const res = await productService.searchCategory(name);
+      console.log('CATE--', res);
+
+      return res;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(err.response?.data?.message || 'Lỗi');
+    }
+  },
+);
 export const fetchProducts = createAsyncThunk(
   'products/fetchProductsss',
   async (_, thunkAPI) => {
@@ -108,6 +121,20 @@ export const fetchProductDetail = createAsyncThunk(
     } catch (err: any) {
       return thunkAPI.rejectWithValue(
         err.response?.data?.message || 'Lỗi khi lấy chi tiết sản phẩm',
+      );
+    }
+  },
+);
+
+export const fetchSearchProduct = createAsyncThunk(
+  'products/fetchSearchProduct',
+  async (name: string, thunkAPI) => {
+    try {
+      const res = await productService.searchProducts(name);
+      return res;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || 'Lỗi tìm kiếm sản phẩm',
       );
     }
   },

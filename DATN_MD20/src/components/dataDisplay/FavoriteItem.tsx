@@ -37,8 +37,8 @@ const FavoriteItem = (props: Props) => {
           >
             {name}
           </TextMedium>
-          <TextMedium color={colors.red} bold>
-            {price}đ
+          <TextMedium color={colors.primary} medium>
+            {price?.toLocaleString('vi-vn')}VND
           </TextMedium>
           <ButtonBase
             containerStyle={styles.btnAdd}

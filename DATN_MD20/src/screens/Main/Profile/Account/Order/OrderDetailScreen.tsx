@@ -31,6 +31,7 @@ import navigation from '../../../../../navigation/navigation';
 import ScreenName from '../../../../../navigation/ScreenName';
 import {useAppDispatch} from '../../../../../redux/store';
 import {fetchNotifications} from '../../../../../redux/actions/notification';
+import {colors} from '../../../../../themes/colors';
 
 const OrderDetailScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -57,17 +58,17 @@ const OrderDetailScreen = () => {
   const getStatusColor = (status?: string) => {
     switch (status) {
       case 'Chờ xác nhận':
-        return theme.blue2;
+        return colors.blue2;
       case 'Đã xác nhận':
-        return theme.blue1;
+        return colors.blue1;
       case 'Chờ giao hàng':
-        return theme.orange;
+        return colors.orange;
       case 'Đã giao':
-        return theme.success;
+        return colors.green1;
       case 'Đã huỷ':
-        return theme.danger;
+        return colors.red;
       default:
-        return theme.gray;
+        return colors.gray;
     }
   };
 
@@ -102,7 +103,7 @@ const OrderDetailScreen = () => {
                 color={theme.text}>
                 ID: #ABCDEFD
               </TextHeight>
-              <TextSizeCustom size={12} color={theme.gray}>
+              <TextSizeCustom size={12} color={colors.gray}>
                 {getTranslation('ngay')}: 12/05/2025
               </TextSizeCustom>
             </Block>
@@ -111,7 +112,7 @@ const OrderDetailScreen = () => {
                 styles.status,
                 {backgroundColor: getStatusColor(orders?.status)},
               ]}>
-              <TextSmall color={theme.white}>{orders?.status}</TextSmall>
+              <TextSmall>{orders?.status}</TextSmall>
             </Block>
           </Block>
 
@@ -127,7 +128,7 @@ const OrderDetailScreen = () => {
           <Block marT={30}>
             <TextHeight medium color={theme.text}>
               {getTranslation('san_pham')}{' '}
-              <TextSmall color={theme.gray}>
+              <TextSmall color={colors.gray}>
                 ({dataItemOrder.length} {getTranslation('san_pham_')})
               </TextSmall>
             </TextHeight>
@@ -137,30 +138,29 @@ const OrderDetailScreen = () => {
                 row
                 padV={8}
                 borderBottomW={0.3}
-                borderColor={theme.border}>
+                borderColor={theme.border_color}>
                 <Image source={item.image} style={styles.image} />
                 <Block padH={10} flex5>
                   <TextSmall
                     numberOfLines={2}
                     ellipsizeMode="tail"
                     style={styles.text}
-                    medium
-                    color={theme.text}>
+                    medium>
                     {item.name}
                   </TextSmall>
                   <Block row>
-                    <TextSizeCustom size={12} color={theme.gray}>
+                    <TextSizeCustom size={12} color={colors.gray}>
                       Size: {item.size} |{' '}
                     </TextSizeCustom>
-                    <TextSizeCustom size={12} color={theme.gray}>
+                    <TextSizeCustom size={12} color={colors.gray}>
                       {getTranslation('mau')}: {item.color} |{' '}
                     </TextSizeCustom>
-                    <TextSizeCustom size={12} color={theme.gray}>
+                    <TextSizeCustom size={12} color={colors.gray}>
                       SL: {item.quantity}
                     </TextSizeCustom>
                   </Block>
-                  <TextMedium medium color={theme.danger}>
-                    {item.price.toLocaleString('vi-VN')}đ
+                  <TextMedium medium color={colors.primary}>
+                    {item.price.toLocaleString('vi-VN')}VND
                   </TextMedium>
                 </Block>
               </Block>
@@ -183,7 +183,10 @@ const OrderDetailScreen = () => {
               {getTranslation('thong_tin_giao_hang')}
             </TextHeight>
             <Block row marT={5} alignCT>
-              <Image source={IconSRC.icon_address} style={styles.icon_add} />
+              <Image
+                source={IconSRC.icon_address}
+                style={[styles.icon_add, {tintColor: theme.icon}]}
+              />
               <TextSmall color={theme.text}>
                 Phương Canh, Xuân Phương, Nam Từ Liêm, Hà Nội
               </TextSmall>

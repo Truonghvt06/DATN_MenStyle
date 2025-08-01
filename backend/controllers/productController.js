@@ -188,22 +188,42 @@ exports.getProductDetail = async (req, res) => {
     res.status(500).json({ message: "Lỗi khi lấy chi tiết sản phẩm." });
   }
 };
-exports.searchProducts = async (req, res) => {
+exports.searchSort = async (req, res) => {
   try {
-    const { q } = req.query;
+    const { name, minPrice, maxPrice, categoryId } = req.query;
 
-    if (!q || q.trim() === "")
-      return res
-        .status(400)
-        .json({ message: "Vui lòng nhập từ khóa tìm kiếm." });
+    const conditions = [];
 
-    const products = await Product.find({
-      name: { $regex: q, $options: "i" }, // không phân biệt hoa thường
-    }).populate("category_id");
+    // Tìm theo tên (có thể bỏ trống)
+    if (name) {
+      const normalized = removeVietnameseTones(name);
+      const keywords = normalized.split(" ").filter(Boolean);
+      const regexConditions = keywords.map((word) => ({
+        normalized_name: { $regex: word, $options: "i" },
+      }));
+      conditions.push({ $and: regexConditions });
+    }
+
+    // Lọc theo khoảng giá
+    if (minPrice && maxPrice) {
+      conditions.push({
+        price: { $gte: parseInt(minPrice), $lte: parseInt(maxPrice) },
+      });
+    }
+
+    // Lọc theo loại sản phẩm
+    if (categoryId) {
+      conditions.push({ type: categoryId });
+    }
+
+    const products = await Product.find(
+      conditions.length > 0 ? { $and: conditions } : {}
+    ).populate("type");
 
     res.json(products);
-  } catch (error) {
-    console.error("Lỗi searchProducts:", error);
-    res.status(500).json({ message: "Lỗi khi tìm kiếm sản phẩm." });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Lỗi tìm kiếm sản phẩm", error: err.message });
   }
 };
