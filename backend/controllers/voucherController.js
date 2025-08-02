@@ -106,9 +106,10 @@ exports.addVoucher = async (req, res) => {
     console.log("Voucher object to save:", voucher);
 
     await voucher.save();
-    console.log("Voucher saved successfully");
 
-    res.redirect("/coupons/view");
+    console.log('Voucher saved successfully');
+    
+    res.redirect('/voucher/view');
   } catch (error) {
     console.error("Error adding voucher:", error);
     res.status(500).send("Lỗi khi thêm voucher: " + error.message);
@@ -161,8 +162,9 @@ exports.editVoucher = async (req, res) => {
       return res.status(404).send("Không tìm thấy voucher để cập nhật");
     }
 
-    console.log("Voucher updated successfully");
-    res.redirect("/coupons/view");
+    
+    console.log('Voucher updated successfully');
+    res.redirect('/voucher/view');
   } catch (error) {
     console.error("Error updating voucher:", error);
     res.status(500).send("Lỗi khi cập nhật voucher: " + error.message);
@@ -180,8 +182,9 @@ exports.deleteVoucher = async (req, res) => {
       return res.status(404).send("Không tìm thấy voucher để xoá");
     }
 
-    console.log("Voucher deleted successfully");
-    res.redirect("/coupons/view");
+    
+    console.log('Voucher deleted successfully');
+    res.redirect('/voucher/view');
   } catch (error) {
     console.error("Error deleting voucher:", error);
     res.status(500).send("Lỗi khi xoá voucher: " + error.message);

@@ -12,7 +12,8 @@ const addressRouter = require("./routes/address");
 const notificationRouter = require("./routes/notification");
 const reviewRouter = require("./routes/review");
 const orderRouter = require("./routes/order");
-const voucherRouter = require("./routes/voucher");
+
+const voucherRouter=require("./routes/voucher")
 
 const path = require("path");
 const cors = require("cors");
@@ -44,7 +45,8 @@ app.use("/address", addressRouter);
 app.use("/notification", notificationRouter);
 app.use("/review", reviewRouter);
 app.use("/order", orderRouter);
-app.use("/voucher", voucherRouter);
+
+app.use("/voucher",voucherRouter);
 
 // Hàm tự động ẩn item order sau 7 ngày
 // const cron = require("node-cron");
