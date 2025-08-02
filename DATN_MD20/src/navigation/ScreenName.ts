@@ -16,6 +16,7 @@ export default {
     Profile: 'ProfileScreen',
     Settings: 'SettingsScreen',
     Cart: 'CartScreen',
+    Checkout: 'CheckoutScreen',
     Favorite: 'Favorite',
     SearchResult: 'SearchResultScreen',
     Search: 'SearchScreen',

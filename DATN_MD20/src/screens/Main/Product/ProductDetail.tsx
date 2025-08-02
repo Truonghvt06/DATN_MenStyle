@@ -42,6 +42,7 @@ import useLanguage from '../../../hooks/useLanguage';
 import {useAppTheme} from '../../../themes/ThemeContext';
 import Toast from 'react-native-toast-message';
 import configToast from '../../../components/utils/configToast';
+import { addToCart, fetchCart } from '../../../redux/reducers/cart';
 import ModalCenter from '../../../components/dataDisplay/Modal/ModalCenter';
 
 const ProductDetail = () => {
@@ -72,7 +73,7 @@ const ProductDetail = () => {
   const dispatch = useAppDispatch();
   const {detail, relatedProducts} = useAppSelector(state => state.product);
   const {listFavoriteIds} = useAppSelector(state => state.favorite);
-  const {token} = useAppSelector(state => state.auth);
+  const {token, user} = useAppSelector(state => state.auth);
 
   useEffect(() => {
     // fetch nếu thiếu
@@ -124,7 +125,23 @@ const ProductDetail = () => {
   };
 
   //Them gio hang
-  const handleAddCart = () => {};
+  const handleAddCart = async () => {
+    if (!user?._id) return handleLogin();
+    const variantIndex = proData?.variants?.findIndex(
+      (v: any) => v.size === selectedSize && v.color === selectedColor
+    );
+    if (variantIndex === -1) return;
+    await dispatch(
+      addToCart({ userId: user._id, productId: proData._id, variantIndex })
+    );
+    await dispatch(fetchCart(user._id));
+    setOpenModal(false);
+    Toast.show({
+      type: 'notification',
+      text1: 'Thành công',
+      text2: 'Đã thêm vào giỏ hàng!'
+    });
+  };
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -141,6 +158,9 @@ const ProductDetail = () => {
             <Header
               label=" chi tiết Sản phẩm"
               paddingTop={top}
+              backgroundColor={theme.background}
+          labelColor={theme.text}
+          iconColor={theme.text}
               onPressLeft={() => {
                 // dispatch(clearProductDetail());
                 // if (idOld) {
@@ -177,7 +197,7 @@ const ProductDetail = () => {
                 <TextMedium medium numberOfLines={2} ellipsizeMode="tail">
                   {proData?.name}
                 </TextMedium>
-                <TextHeight medium color={colors.primary}>
+                <TextHeight bold color={colors.red}>
                   {typeof proData?.price === 'number'
                     ? `${proData?.price.toLocaleString('vi-VN')} VND`
                     : null}
@@ -361,7 +381,7 @@ const ProductDetail = () => {
               onColse={() => setOpenModal(false)}
               value={quantity}
               onChangeText={text => setQuantity(text)}
-              onPress={() => {}}
+              onPress={handleAddCart}
               size={
                 <>
                   <TextSmall style={styles.boW}>
