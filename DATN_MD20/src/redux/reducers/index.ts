@@ -7,6 +7,7 @@ import favorite from './favorite';
 import banner from './banner';
 import address from './address';
 import notification from './notification';
+import review from './review';
 
 export default combineReducers({
   auth,
@@ -17,4 +18,5 @@ export default combineReducers({
   banner,
   address,
   notification,
+  review,
 });

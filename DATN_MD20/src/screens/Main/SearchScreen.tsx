@@ -30,7 +30,6 @@ import {fetchProducts} from '../../redux/actions/product';
 import ListProduct from '../../components/dataDisplay/ListProduct';
 import {fetchFavorites, toggleFavorite} from '../../redux/actions/favorite';
 import Toast from 'react-native-toast-message';
-import configToast from '../../components/utils/configToast';
 import Block from '../../components/layout/Block';
 import ModalCenter from '../../components/dataDisplay/Modal/ModalCenter';
 
