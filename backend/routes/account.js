@@ -280,6 +280,6 @@ router.get('/api/cart/:userId', async (req, res) => {
   }
 });
 
-router.post('/api/orders', accountController.apiCreateOrder);
+// router.post('/api/orders', accountController.apiCreateOrder);
 
 module.exports = router;
