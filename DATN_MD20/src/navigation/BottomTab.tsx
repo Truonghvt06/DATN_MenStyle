@@ -1,5 +1,5 @@
 import {Image, StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import ScreenName from './ScreenName';
 import HomeScreen from '../screens/Main/HomeScreen';
@@ -13,14 +13,23 @@ import Block from '../components/layout/Block';
 import {TextSizeCustom, TextSmall} from '../components/dataEntry/TextBase';
 import {dataProduct} from '../constants/data';
 import useLanguage from '../hooks/useLanguage';
-import {useAppSelector} from '../redux/store';
+import {useAppDispatch, useAppSelector} from '../redux/store';
 import {useAppTheme} from '../themes/ThemeContext';
+import {fetchCart} from '../redux/actions/cart';
 
 const Tab = createBottomTabNavigator();
 const BottomTab = () => {
   const theme = useAppTheme();
   const {getTranslation} = useLanguage();
-  const {token} = useAppSelector(state => state.auth);
+  const {token, user} = useAppSelector(state => state.auth);
+
+  const dispatch = useAppDispatch();
+  const {items} = useAppSelector(state => state.cart);
+
+  useEffect(() => {
+    dispatch(fetchCart(user?._id));
+  }, []);
+
   // const {} = useAppSelector(state => state.cart);
 
   return (
@@ -102,7 +111,7 @@ const BottomTab = () => {
                       color="white"
                       size={11}
                       style={{textAlign: 'center'}}>
-                      {dataProduct.length}
+                      {items.length}
                     </TextSizeCustom>
                   </View>
                 ) : null}

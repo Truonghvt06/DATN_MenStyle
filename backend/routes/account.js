@@ -130,39 +130,104 @@ router.get("/detail/:id", async (req, res) => {
     res.status(500).send("Lỗi server");
   }
 });
+// router.post("/:id/cart/add-variant", async (req, res) => {
+//   const userId = req.params.id;
+//   const { productId } = req.body;
+//   const variantIndex = Number(req.body.variantIndex);
+
+//   try {
+//     if (isNaN(variantIndex)) {
+//       return res.status(400).send("Biến thể không hợp lệ");
+//     }
+
+//     const user = await User.findById(userId);
+//     if (!user) return res.status(404).send("Không tìm thấy người dùng");
+
+//     const existing = user.cart.find(
+//       (item) =>
+//         item.productId.toString() === productId &&
+//         item.variantIndex === variantIndex
+//     );
+
+//     if (existing) {
+//       existing.quantity += 1;
+//     } else {
+//       user.cart.push({ productId, variantIndex, quantity: 1 });
+//     }
+
+//     await user.save();
+//     res.redirect(`/accounts/detail/${userId}`);
+//   } catch (err) {
+//     console.error("Lỗi thêm vào giỏ hàng:", err);
+//     res.status(500).send("Lỗi server");
+//   }
+// });
+
 router.post("/:id/cart/add-variant", async (req, res) => {
   const userId = req.params.id;
-  const { productId } = req.body;
-  const variantIndex = Number(req.body.variantIndex);
+  const { productId, variantIndex, quantity } = req.body;
+
+  // parse & validate
+  const variantIdx = Number(variantIndex);
+  const qty = Number(quantity) || 1; // nếu không truyền thì mặc định 1
+
+  if (isNaN(variantIdx) || variantIdx < 0) {
+    return res.status(400).json({ message: "VariantIndex không hợp lệ" });
+  }
+  if (isNaN(qty) || qty <= 0) {
+    return res.status(400).json({ message: "Số lượng phải lớn hơn 0" });
+  }
 
   try {
-    if (isNaN(variantIndex)) {
-      return res.status(400).send("Biến thể không hợp lệ");
+    const user = await User.findById(userId);
+    if (!user)
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+
+    // Tùy chọn: xác thực product và biến thể tồn tại, và kiểm tra tồn kho
+    const product = await Product.findById(productId).lean();
+    if (!product)
+      return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
+
+    if (
+      !Array.isArray(product.variants) ||
+      variantIdx >= product.variants.length
+    ) {
+      return res.status(400).json({ message: "Biến thể không tồn tại" });
     }
 
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).send("Không tìm thấy người dùng");
+    const variant = product.variants[variantIdx];
+    // Nếu muốn kiểm tra tồn kho:
+    if (variant.quantity < qty) {
+      return res.status(400).json({
+        message: "Không đủ số lượng trong kho",
+        available: variant.quantity,
+      });
+    }
 
+    // Tìm item đã có trong giỏ với cùng product và biến thể
     const existing = user.cart.find(
       (item) =>
         item.productId.toString() === productId &&
-        item.variantIndex === variantIndex
+        item.variantIndex === variantIdx
     );
 
     if (existing) {
-      existing.quantity += 1;
+      existing.quantity += qty;
     } else {
-      user.cart.push({ productId, variantIndex, quantity: 1 });
+      user.cart.push({ productId, variantIndex: variantIdx, quantity: qty });
     }
 
     await user.save();
-    res.redirect(`/accounts/detail/${userId}`);
+
+    return res.status(200).json({
+      message: "Thêm vào giỏ hàng thành công",
+      cart: user.cart,
+    });
   } catch (err) {
     console.error("Lỗi thêm vào giỏ hàng:", err);
-    res.status(500).send("Lỗi server");
+    return res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 });
-
 router.post("/:id/favorites/add", async (req, res) => {
   try {
     const { productId } = req.body;
@@ -196,7 +261,7 @@ router.post("/:id/favorites/add", async (req, res) => {
   }
 });
 router.post("/:id/cart/update-all", async (req, res) => {
-  console.log("Request body:", req.body);
+  // console.log("Request body:", req.body);
   const { action } = req.body;
   const userId = req.params.id;
 
@@ -268,18 +333,19 @@ router.get("/:id/orders", accountController.showOrderPage);
 // router.put('/update-status/:id', orderController.updateStatus);
 
 // API trả về giỏ hàng dạng JSON cho app mobile
-router.get('/api/cart/:userId', async (req, res) => {
+router.get("/api/cart/:userId", async (req, res) => {
   try {
     const user = await User.findById(req.params.userId)
-      .populate('cart.productId')
+      // .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .populate("cart.productId")
       .lean();
-    if (!user) return res.status(404).json({ message: 'Không tìm thấy user' });
+    if (!user) return res.status(404).json({ message: "Không tìm thấy user" });
     res.json({ cart: user.cart || [] });
   } catch (err) {
-    res.status(500).json({ message: 'Lỗi server', error: err.message });
+    res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 });
 
-router.post('/api/orders', accountController.apiCreateOrder);
+// router.post('/api/orders', accountController.apiCreateOrder);
 
 module.exports = router;

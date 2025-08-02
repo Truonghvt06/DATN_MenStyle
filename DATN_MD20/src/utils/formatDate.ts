@@ -1,7 +1,7 @@
 import moment from 'moment';
 import useLanguage from '../hooks/useLanguage';
 
-export const formatDate = (dateTo: string | Date) => {
+export const formatExpiryDate = (dateTo: string | Date) => {
   const {getTranslation} = useLanguage();
   const now = new Date();
   const targetDate = new Date(dateTo);
@@ -30,6 +30,36 @@ export const formatDate = (dateTo: string | Date) => {
     return `Còn ${diffHours} giờ`;
   } else {
     return `Hết hạn`;
+  }
+};
+
+export const formatStartDate = (dateFrom: string | Date) => {
+  const {getTranslation} = useLanguage();
+  const now = new Date();
+  const targetDate = new Date(dateFrom);
+
+  const diffMs = targetDate.getTime() - now.getTime(); // nếu <=0 thì đang hiệu lực
+  if (diffMs <= 0) {
+    return 'Đang hiệu lực';
+  }
+
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+  if (diffDays > 3) {
+    return `Hiệu lực sau ${diffDays} ${getTranslation('ngay')}`;
+  } else if (diffDays === 1) {
+    const remainingHours = Math.floor(
+      (diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+    );
+    return `Hiệu lực sau 1 ${getTranslation('ngay')}${
+      remainingHours > 0 ? ` ${remainingHours} giờ` : ''
+    }`;
+  } else if (diffHours > 0) {
+    return `Hiệu lực sau ${diffHours}giờ`;
+  } else {
+    // Trường hợp rất nhỏ dưới 1 giờ
+    return `Hiệu lực sau ${Math.ceil(diffMs / (1000 * 60))} phút`;
   }
 };
 

@@ -15,6 +15,7 @@ import {IconSRC} from '../../constants/icons';
 import TouchIcon from '../dataEntry/Button/TouchIcon';
 import {TextMedium, TextSizeCustom, TextSmall} from '../dataEntry/TextBase';
 import {colors} from '../../themes/colors';
+import {useAppTheme} from '../../themes/ThemeContext';
 
 interface Props {
   name?: string;
@@ -33,7 +34,7 @@ interface Props {
 }
 const CartItem = (props: Props) => {
   const inputRef = useRef<TextInput>(null);
-
+  const theme = useAppTheme();
   const {
     name,
     image,
@@ -91,6 +92,7 @@ const CartItem = (props: Props) => {
             row
             borderWidth={0.5}
             borderRadius={20}
+            borderColor={theme.border_color}
             justifyBW
             width={85}
             height={26}
@@ -108,7 +110,7 @@ const CartItem = (props: Props) => {
               style={{
                 flex: 1.5,
                 textAlign: 'center',
-                color: colors.black,
+                color: theme.text,
                 height: 50,
                 paddingVertical: 0,
               }}
@@ -132,7 +134,7 @@ const CartItem = (props: Props) => {
                 Xoá
               </TextSmall>
             </TouchableOpacity>
-            <TextMedium bold>{price}đ</TextMedium>
+            <TextMedium medium>{price?.toLocaleString('vi-VN')}VND</TextMedium>
           </Block>
         </Block>
       </TouchableOpacity>

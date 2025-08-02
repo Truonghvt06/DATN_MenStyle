@@ -18,7 +18,11 @@ import {IconSRC} from '../../../../../constants/icons';
 import Block from '../../../../../components/layout/Block';
 import ButtonBase from '../../../../../components/dataEntry/Button/ButtonBase';
 import TouchIcon from '../../../../../components/dataEntry/Button/TouchIcon';
-import {formatDate, formatMoneyShort} from '../../../../../utils/formatDate';
+import {
+  formatExpiryDate,
+  formatMoneyShort,
+  formatStartDate,
+} from '../../../../../utils/formatDate';
 import Clipboard from '@react-native-clipboard/clipboard';
 
 interface VoucherItemProps {
@@ -57,6 +61,10 @@ const VoucherItem = (props: VoucherItemProps) => {
     onPress,
   } = props;
 
+  const now = new Date();
+  const startDate = date_from ? new Date(date_from) : null;
+  const isBeforeStart = startDate ? now.getTime() < startDate.getTime() : false;
+
   const getTitle = () => {
     if (discount_type === 'percentage') {
       return `Giảm ${discount_value}% Giảm tối đa ${formatMoneyShort(
@@ -66,6 +74,7 @@ const VoucherItem = (props: VoucherItemProps) => {
       return `Giảm ${formatMoneyShort(discount_value ?? 0)}`;
     }
   };
+
   return (
     <View
       style={[
@@ -96,9 +105,16 @@ const VoucherItem = (props: VoucherItemProps) => {
           <TextSizeCustom size={12}>
             Đơn tối thiểu: {min_order_amount?.toLocaleString('vi-VN')}đ
           </TextSizeCustom>
-          <TextSizeCustom size={12} style={{marginTop: 5}}>
-            HSD:{formatDate(date_to ?? '')}
-          </TextSizeCustom>
+
+          {isBeforeStart ? (
+            <TextSizeCustom size={12} style={{marginTop: 5}}>
+              {formatStartDate(date_from ?? '')}
+            </TextSizeCustom>
+          ) : (
+            <TextSizeCustom size={12} style={{marginTop: 5}}>
+              HSD: {formatExpiryDate(date_to ?? '')}
+            </TextSizeCustom>
+          )}
         </Block>
 
         <TouchIcon icon={IconSRC.icon_coppy} onPress={onPress} />
