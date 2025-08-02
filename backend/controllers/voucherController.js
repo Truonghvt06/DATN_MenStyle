@@ -107,7 +107,7 @@ exports.addVoucher = async (req, res) => {
     await voucher.save();
     console.log('Voucher saved successfully');
     
-    res.redirect('/coupons/view');
+    res.redirect('/voucher/view');
   } catch (error) {
     console.error('Error adding voucher:', error);
     res.status(500).send('Lỗi khi thêm voucher: ' + error.message);
@@ -158,7 +158,7 @@ exports.editVoucher = async (req, res) => {
     }
     
     console.log('Voucher updated successfully');
-    res.redirect('/coupons/view');
+    res.redirect('/voucher/view');
   } catch (error) {
     console.error('Error updating voucher:', error);
     res.status(500).send('Lỗi khi cập nhật voucher: ' + error.message);
@@ -177,7 +177,7 @@ exports.deleteVoucher = async (req, res) => {
     }
     
     console.log('Voucher deleted successfully');
-    res.redirect('/coupons/view');
+    res.redirect('/voucher/view');
   } catch (error) {
     console.error('Error deleting voucher:', error);
     res.status(500).send('Lỗi khi xoá voucher: ' + error.message);

@@ -22,7 +22,7 @@
   <nav class="sidebar" id="sidebar">
     <a href="/"><i class="bi bi-house"></i><span>Trang chủ</span></a>
     <a href="/products/view"><i class="bi bi-box"></i><span> Sản phẩm</span></a>
-    <a href="/coupons/view"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
+    <a href="/voucher/view"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
     <a href="/accounts/view"><i class="bi bi-people"></i><span> Tài khoản</span></a>
     <a href="/accounts/admin/orders"><i class="bi bi-receipt-cutoff"></i><span> Đơn hàng</span></a>
     <a href="/stats-overview"><i class="bi bi-bar-chart-line"></i><span> Thống kê</span></a>
@@ -31,7 +31,7 @@
   <div class="content">
     <header><i class="bi bi-ticket"></i> Thêm voucher mới</header>
     <main>
-      <form action="/coupons/add" method="POST" class="row g-3">
+      <form action="/voucher/add" method="POST" class="row g-3">
         <div class="col-md-6">
           <label class="form-label">Tiêu đề voucher <span class="text-danger">*</span></label>
           <input type="text" name="title" class="form-control" required />
@@ -83,7 +83,7 @@
         </div>
         <div class="col-12 d-flex gap-2">
           <button type="submit" class="btn btn-success"><i class="bi bi-save"></i> Lưu voucher</button>
-          <a href="/coupons/view" class="btn btn-secondary">Quay lại</a>
+          <a href="/voucher/view" class="btn btn-secondary">Quay lại</a>
         </div>
       </form>
     </main>

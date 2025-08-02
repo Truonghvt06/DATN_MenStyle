@@ -84,7 +84,7 @@
   <nav class="sidebar" id="sidebar">
     <a href="/"><i class="bi bi-house"></i><span>Trang chủ</span></a>
     <a href="/products/view"><i class="bi bi-box"></i><span> Sản phẩm</span></a>
-    <a href="/coupons/view"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
+    <a href="/voucher/view"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
     <a href="/accounts/view"><i class="bi bi-people"></i><span> Tài khoản</span></a>
     <a href="/accounts/admin/orders"><i class="bi bi-receipt-cutoff"></i><span> Đơn hàng</span></a>
     <a href="/stats-overview"><i class="bi bi-bar-chart-line"></i><span> Thống kê</span></a>
@@ -94,7 +94,7 @@
     <header><i class="bi bi-ticket"></i> MenStyle - Quản lý voucher</header>
     <main>
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <a href="/coupons/add" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Thêm voucher mới</a>
+        <a href="/voucher/add" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Thêm voucher mới</a>
       </div>
       <table class="table table-bordered table-hover align-middle">
         <thead>
@@ -138,7 +138,7 @@
                 <td><%= voucher.date_from ? new Date(voucher.date_from).toLocaleDateString('vi-VN') : '' %></td>
                 <td><%= voucher.date_to ? new Date(voucher.date_to).toLocaleDateString('vi-VN') : '' %></td>
                 <td>
-                  <% if (voucher.is_status) { %>
+                  <% if (voucher.is_active==true) { %>
                     <span class="badge" style="background:#198754; color:#fff; font-size:1rem; padding:8px 18px;">
                       <i class="bi bi-check-circle-fill"></i> Kích hoạt
                     </span>
@@ -149,10 +149,10 @@
                   <% } %>
                 </td>
                 <td>
-                  <a href="/coupons/edit/<%= voucher._id %>" class="btn btn-warning btn-sm">
+                  <a href="/voucher/edit/<%= voucher._id %>" class="btn btn-warning btn-sm">
                     <i class="bi bi-pencil"></i> Sửa
                   </a>
-                  <form action="/coupons/delete/<%= voucher._id %>" method="POST" style="display:inline;">
+                  <form action="/voucher/delete/<%= voucher._id %>" method="POST" style="display:inline;">
                     <button onclick="return confirm('Xác nhận xoá voucher này?')" class="btn btn-danger btn-sm">
                       <i class="bi bi-trash"></i> Xoá
                     </button>
