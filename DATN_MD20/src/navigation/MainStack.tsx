@@ -2,7 +2,6 @@ import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createStackNavigator} from '@react-navigation/stack';
-
 import ScreenName from './ScreenName';
 import HomeScreen from '../screens/Main/HomeScreen';
 import ProfileScreen from '../screens/Main/ProfileScreen';
@@ -36,7 +35,6 @@ import ChangePasswordScreen from '../screens/Auth/changePassword/ChangePasswordS
 import NewPassChange from '../screens/Auth/changePassword/NewPass';
 import ManageReviewScreen from '../screens/Main/Profile/Account/Review/ManageReviewScreen';
 import AddReviewScreen from '../screens/Main/Profile/Account/Review/AddReviewScreen';
-import SearchScreenn from '../screens/Main/Search/SearchDetailScreen';
 import ListSearchScreen from '../screens/Main/Search/ListSearchScreen';
 import SearchDetailScreen from '../screens/Main/Search/SearchDetailScreen';
 
@@ -52,6 +50,10 @@ const MainStack = () => {
       <Stack.Screen name={ScreenName.Main.Home} component={HomeScreen} />
       <Stack.Screen name={ScreenName.Main.Profile} component={ProfileScreen} />
       <Stack.Screen name={ScreenName.Main.Cart} component={CartScreen} />
+      <Stack.Screen
+        name={ScreenName.Main.Checkout}
+        component={CheckoutScreen}
+      />
       <Stack.Screen name={ScreenName.Main.Settings} component={HomeScreen} />
       <Stack.Screen name={ScreenName.Main.Search} component={SearchScreen} />
       <Stack.Screen

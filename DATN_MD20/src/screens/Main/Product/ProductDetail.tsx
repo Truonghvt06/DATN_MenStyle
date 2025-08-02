@@ -42,8 +42,8 @@ import useLanguage from '../../../hooks/useLanguage';
 import {useAppTheme} from '../../../themes/ThemeContext';
 import Toast from 'react-native-toast-message';
 import configToast from '../../../components/utils/configToast';
-import { addToCart, fetchCart } from '../../../redux/reducers/cart';
 import ModalCenter from '../../../components/dataDisplay/Modal/ModalCenter';
+import {addToCart, fetchCart} from '../../../redux/actions/cart';
 
 const ProductDetail = () => {
   const {top} = useSafeAreaInsets();
@@ -128,18 +128,26 @@ const ProductDetail = () => {
   const handleAddCart = async () => {
     if (!user?._id) return handleLogin();
     const variantIndex = proData?.variants?.findIndex(
-      (v: any) => v.size === selectedSize && v.color === selectedColor
+      (v: any) => v.size === selectedSize && v.color === selectedColor,
     );
     if (variantIndex === -1) return;
     await dispatch(
-      addToCart({ userId: user._id, productId: proData._id, variantIndex })
+      addToCart({
+        userId: user._id,
+        productId: proData._id,
+        variantIndex,
+        quantity: Number(quantity),
+      }),
     );
     await dispatch(fetchCart(user._id));
     setOpenModal(false);
     Toast.show({
       type: 'notification',
       text1: 'Thành công',
-      text2: 'Đã thêm vào giỏ hàng!'
+      text2: 'Đã thêm vào giỏ hàng!',
+      visibilityTime: 1000,
+      autoHide: true,
+      swipeable: true,
     });
   };
 
@@ -159,8 +167,8 @@ const ProductDetail = () => {
               label=" chi tiết Sản phẩm"
               paddingTop={top}
               backgroundColor={theme.background}
-          labelColor={theme.text}
-          iconColor={theme.text}
+              labelColor={theme.text}
+              iconColor={theme.text}
               onPressLeft={() => {
                 // dispatch(clearProductDetail());
                 // if (idOld) {

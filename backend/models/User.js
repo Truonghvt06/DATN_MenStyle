@@ -12,7 +12,7 @@ const cartItemSchema = new mongoose.Schema(
     variantIndex: { type: Number, required: true },
     quantity: { type: Number, required: true, default: 1 },
   },
-  { _id: false }
+  { _id: false, timestamps: true }
 );
 
 const favoriteItemSchema = new mongoose.Schema(

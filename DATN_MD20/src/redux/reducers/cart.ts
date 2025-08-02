@@ -1,71 +1,34 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import cartService from '../../services/cart';
+import {
+  addToCart,
+  fetchCart,
+  removeFromCart,
+  updateCart,
+} from '../actions/cart';
 
-export const fetchCart = createAsyncThunk(
-  'cart/fetchCart',
-  async (userId: string, { rejectWithValue }) => {
-    try {
-      const data = await cartService.getCart(userId);
-      return data;
-    } catch (err: any) {
-      return rejectWithValue(err.message || 'Lỗi khi lấy giỏ hàng');
-    }
-  }
-);
+interface CartState {
+  items: any[];
+  loading: boolean;
+  error: string | null;
+}
 
-export const addToCart = createAsyncThunk(
-  'cart/addToCart',
-  async (
-    { userId, productId, variantIndex }: { userId: string; productId: string; variantIndex: number },
-    { rejectWithValue }
-  ) => {
-    try {
-      const data = await cartService.addToCart(userId, productId, variantIndex);
-      return data;
-    } catch (err: any) {
-      return rejectWithValue(err.message || 'Lỗi khi thêm vào giỏ hàng');
-    }
-  }
-);
-
-export const updateCart = createAsyncThunk(
-  'cart/updateCart',
-  async (
-    { userId, action }: { userId: string; action: string },
-    { rejectWithValue }
-  ) => {
-    try {
-      const data = await cartService.updateCart(userId, action);
-      return data;
-    } catch (err: any) {
-      return rejectWithValue(err.message || 'Lỗi khi cập nhật giỏ hàng');
-    }
-  }
-);
-
-export const removeFromCart = createAsyncThunk(
-  'cart/removeFromCart',
-  async (
-    { userId, index }: { userId: string; index: number },
-    { rejectWithValue }
-  ) => {
-    try {
-      const data = await cartService.removeFromCart(userId, index);
-      return data;
-    } catch (err: any) {
-      return rejectWithValue(err.message || 'Lỗi khi xóa sản phẩm khỏi giỏ hàng');
-    }
-  }
-);
+const initialState: CartState = {
+  items: [],
+  loading: false,
+  error: null,
+};
 
 const cartSlice = createSlice({
   name: 'cart',
-  initialState: {
-    items: [],
-    loading: false,
-    error: null,
-  } as any,
-  reducers: {},
+  initialState,
+  reducers: {
+    clearCart: state => {
+      state.items = [];
+      state.error = null;
+      state.loading = false;
+    },
+  },
   extraReducers: builder => {
     builder
       .addCase(fetchCart.pending, state => {
@@ -90,6 +53,57 @@ const cartSlice = createSlice({
         // Sau khi xóa, nên fetch lại cart
       });
   },
+  // extraReducers: builder => {
+  //   builder
+  //     // fetchCart
+  //     .addCase(fetchCart.pending, state => {
+  //       state.loading = true;
+  //       state.error = null;
+  //     })
+  //     .addCase(fetchCart.fulfilled, (state, action) => {
+  //       state.loading = false;
+  //       state.items = action.payload?.cart || [];
+  //     })
+  //     .addCase(fetchCart.rejected, (state, action) => {
+  //       state.loading = false;
+  //       state.error = action.payload as string;
+  //     })
+
+  //     // addToCart
+  //     .addCase(addToCart.pending, state => {
+  //       state.error = null;
+  //     })
+  //     .addCase(addToCart.fulfilled, (state, action) => {
+  //       // nếu backend trả về cart mới thì cập nhật luôn, nếu không thì giữ nguyên và frontend nên gọi fetchCart
+  //       if (action.payload?.cart) {
+  //         state.items = action.payload.cart;
+  //       }
+  //     })
+  //     .addCase(addToCart.rejected, (state, action) => {
+  //       state.error = action.payload as string;
+  //     })
+
+  //     // updateCart
+  //     .addCase(updateCart.fulfilled, (state, action) => {
+  //       if (action.payload?.cart) {
+  //         state.items = action.payload.cart;
+  //       }
+  //     })
+  //     .addCase(updateCart.rejected, (state, action) => {
+  //       state.error = action.payload as string;
+  //     })
+
+  //     // removeFromCart
+  //     .addCase(removeFromCart.fulfilled, (state, action) => {
+  //       if (action.payload?.cart) {
+  //         state.items = action.payload.cart;
+  //       }
+  //     })
+  //     .addCase(removeFromCart.rejected, (state, action) => {
+  //       state.error = action.payload as string;
+  //     });
+  // },
 });
 
-export default cartSlice.reducer; 
+export const {clearCart} = cartSlice.actions;
+export default cartSlice.reducer;

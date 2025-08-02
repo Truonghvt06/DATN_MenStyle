@@ -5,40 +5,45 @@ import {
   TouchableWithoutFeedback,
   Alert,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import ContainerView from '../../components/layout/ContainerView';
 import Header from '../../components/dataDisplay/Header';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import ButtonBase from '../../components/dataEntry/Button/ButtonBase';
 import Block from '../../components/layout/Block';
 import metrics from '../../constants/metrics';
-import {
-  TextMedium,
-  TextSizeCustom,
-} from '../../components/dataEntry/TextBase';
-import { dataProduct } from '../../constants/data';
+import {TextMedium, TextSizeCustom} from '../../components/dataEntry/TextBase';
+import {dataProduct} from '../../constants/data';
 import CartItem from '../../components/dataDisplay/CartItem';
-import { IconSRC } from '../../constants/icons';
+import {IconSRC} from '../../constants/icons';
 import useLanguage from '../../hooks/useLanguage';
-import { useAppTheme } from '../../themes/ThemeContext';
-import { useAppDispatch, useAppSelector } from '../../redux/store';
-import { fetchCart, updateCart, removeFromCart } from '../../redux/reducers/cart';
-import { TextSmall } from '../../components/dataEntry/TextBase';
+import {useAppDispatch, useAppSelector} from '../../redux/store';
+import {TextSmall} from '../../components/dataEntry/TextBase';
 import TouchIcon from '../../components/dataEntry/Button/TouchIcon';
-import { colors } from '../../themes/colors';
+import {colors} from '../../themes/colors';
 import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
+import {useAppTheme} from '../../themes/ThemeContext';
+import ModalCenter from '../../components/dataDisplay/Modal/ModalCenter';
+import {fetchCart, removeFromCart, updateCart} from '../../redux/actions/cart';
 
 const CartScreen = () => {
-  const { top } = useSafeAreaInsets();
-  const { getTranslation } = useLanguage();
-  const { user } = useAppSelector(state => state.auth);
-  const { items: cartData, loading } = useAppSelector(state => state.cart);
+  const {top} = useSafeAreaInsets();
+  const theme = useAppTheme();
+  const {getTranslation} = useLanguage();
+
+  const {user} = useAppSelector(state => state.auth);
+  const {items: cartData, loading} = useAppSelector(state => state.cart);
   const dispatch = useAppDispatch();
+
+  const listCart = [...cartData].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
 
   // State quản lý checkbox
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
   const [selectAll, setSelectAll] = useState(false);
+  const [isOpenCheck, setIsOpenCheck] = useState(false);
 
   // Hàm làm sạch URL ảnh
   const cleanImageUrl = (url: string) => {
@@ -53,7 +58,9 @@ const CartScreen = () => {
       setSelectedItems(new Set());
       setSelectAll(false);
     } else {
-      const allIndices = new Set(cartData.map((_: any, index: number) => index));
+      const allIndices = new Set(
+        cartData.map((_: any, index: number) => index),
+      );
       setSelectedItems(allIndices as Set<number>);
       setSelectAll(true);
     }
@@ -68,7 +75,7 @@ const CartScreen = () => {
       newSelectedItems.add(index);
     }
     setSelectedItems(newSelectedItems);
-    
+
     // Cập nhật trạng thái "chọn tất cả"
     if (newSelectedItems.size === cartData.length) {
       setSelectAll(true);
@@ -78,49 +85,33 @@ const CartScreen = () => {
   };
 
   // Hàm xóa tất cả sản phẩm đã chọn
-  const handleDeleteSelected = () => {
+  const handleDeleteSelected = async () => {
     if (selectedItems.size === 0) return;
-    
-    Alert.alert(
-      'Xác nhận xóa',
-      `Bạn có chắc chắn muốn xóa ${selectedItems.size} sản phẩm đã chọn khỏi giỏ hàng?`,
-      [
-        {
-          text: 'Hủy',
-          style: 'cancel',
-        },
-        {
-          text: 'Xóa',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              // Xóa từng sản phẩm đã chọn theo thứ tự ngược lại để tránh lỗi index
-              const sortedIndices = Array.from(selectedItems).sort((a, b) => b - a);
-              
-              for (const index of sortedIndices) {
-                if (!user?._id) return;
-                await dispatch(removeFromCart({ userId: user._id, index }));
-              }
-              
-              // Fetch lại cart sau khi xóa
-              if (user?._id) {
-                await dispatch(fetchCart(user._id));
-              }
-              
-              // Reset state
-              setSelectedItems(new Set());
-              setSelectAll(false);
-              
-              console.log(`Đã xóa ${selectedItems.size} sản phẩm khỏi giỏ hàng`);
-            } catch (error) {
-              console.error('Lỗi khi xóa sản phẩm:', error);
-              Alert.alert('Lỗi', 'Không thể xóa sản phẩm. Vui lòng thử lại.');
-            }
-          },
-        },
-      ],
-      { cancelable: true }
-    );
+    setIsOpenCheck(false);
+
+    try {
+      // Xóa từng sản phẩm đã chọn theo thứ tự ngược lại để tránh lỗi index
+      const sortedIndices = Array.from(selectedItems).sort((a, b) => b - a);
+
+      for (const index of sortedIndices) {
+        if (!user?._id) return;
+        await dispatch(removeFromCart({userId: user._id, index}));
+      }
+
+      // Fetch lại cart sau khi xóa
+      if (user?._id) {
+        await dispatch(fetchCart(user._id));
+      }
+
+      // Reset state
+      setSelectedItems(new Set());
+      setSelectAll(false);
+
+      // console.log(`Đã xóa ${selectedItems.size} sản phẩm khỏi giỏ hàng`);
+    } catch (error) {
+      console.error('Lỗi khi xóa sản phẩm:', error);
+      Alert.alert('Lỗi', 'Không thể xóa sản phẩm. Vui lòng thử lại.');
+    }
   };
 
   React.useEffect(() => {
@@ -134,7 +125,7 @@ const CartScreen = () => {
     console.log('=== DEBUG CART DATA ===');
     console.log('Cart data length:', cartData.length);
     console.log('Full cart data:', JSON.stringify(cartData, null, 2));
-    
+
     if (cartData.length > 0) {
       const firstItem = cartData[0];
       console.log('First item:', firstItem);
@@ -142,8 +133,16 @@ const CartScreen = () => {
       console.log('Product name:', firstItem?.productId?.name);
       console.log('Variant index:', firstItem?.variantIndex);
       console.log('All variants:', firstItem?.productId?.variants);
-      console.log('Selected variant image:', firstItem?.productId?.variants?.[firstItem?.variantIndex]?.image);
-      console.log('Clean image URL:', cleanImageUrl(firstItem?.productId?.variants?.[firstItem?.variantIndex]?.image));
+      console.log(
+        'Selected variant image:',
+        firstItem?.productId?.variants?.[firstItem?.variantIndex]?.image,
+      );
+      console.log(
+        'Clean image URL:',
+        cleanImageUrl(
+          firstItem?.productId?.variants?.[firstItem?.variantIndex]?.image,
+        ),
+      );
       console.log('Fallback image:', firstItem?.productId?.image);
     }
   }, [cartData]);
@@ -154,15 +153,14 @@ const CartScreen = () => {
     setSelectAll(false);
   }, [cartData.length]);
 
-  const theme = useAppTheme();
-
   const handleChangeQuantity = (index: number, value: string) => {
     // Gọi API cập nhật số lượng
     if (!user?._id) return;
-    const action = parseInt(value) > parseInt(cartData[index].quantity)
-      ? `increase-${index}`
-      : `decrease-${index}`;
-    dispatch(updateCart({ userId: user._id, action })).then(() => {
+    const action =
+      parseInt(value) > parseInt(cartData[index].quantity)
+        ? `increase-${index}`
+        : `decrease-${index}`;
+    dispatch(updateCart({userId: user._id, action})).then(() => {
       dispatch(fetchCart(user._id));
     });
   };
@@ -173,29 +171,39 @@ const CartScreen = () => {
 
   const handleDelete = (index: number) => {
     if (!user?._id) return;
-    dispatch(removeFromCart({ userId: user._id, index })).then(() => {
+    dispatch(removeFromCart({userId: user._id, index})).then(() => {
       dispatch(fetchCart(user._id));
     });
   };
 
   // Hàm tính tổng tiền chỉ cho các sản phẩm đã chọn
-  const totalPrice = cartData.reduce((sum: number, item: any, index: number) => {
-    if (selectedItems.has(index)) {
-      return sum + (parseInt(item.quantity || '1') * (item.productId?.price || 0));
-    }
-    return sum;
-  }, 0);
+  const totalPrice = cartData.reduce(
+    (sum: number, item: any, index: number) => {
+      if (selectedItems.has(index)) {
+        return (
+          sum + parseInt(item.quantity || '1') * (item.productId?.price || 0)
+        );
+      }
+      return sum;
+    },
+    0,
+  );
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <ContainerView style={{ flex: 1, backgroundColor: theme.background }}>
+      <ContainerView style={{flex: 1, backgroundColor: theme.background}}>
         <Header
           visibleLeft
           label={getTranslation('gio_hang')}
           paddingTop={top}
-          backgroundColor={theme.background}
-          labelColor={theme.text}
-          iconColor={theme.text}
+        />
+        <ModalCenter
+          visible={isOpenCheck}
+          content={`Bạn có chắc chắn muốn xóa ${selectedItems.size} sản phẩm đã chọn khỏi giỏ hàng?`}
+          onClose={() => setIsOpenCheck(false)}
+          onPress={() => {
+            handleDeleteSelected();
+          }}
         />
 
         {/* Header với checkbox "Chọn tất cả" */}
@@ -205,17 +213,16 @@ const CartScreen = () => {
             alignCT
             justifyBW
             padH={metrics.space}
-            padV={10}
+            h={50}
             backgroundColor={theme.background}
-            borderBottomW={0.5}
-            >
+            borderBottomW={0.5}>
             <Block row alignCT>
               <TouchIcon
                 icon={selectAll ? IconSRC.icon_check : IconSRC.icon_uncheck}
                 size={20}
                 onPress={handleSelectAll}
               />
-              <TextSmall color={theme.text} style={{ marginLeft: 10 }}>
+              <TextSmall color={theme.text} style={{marginLeft: 10}}>
                 Chọn tất cả ({selectedItems.size}/{cartData.length})
               </TextSmall>
             </Block>
@@ -223,10 +230,10 @@ const CartScreen = () => {
               <TouchIcon
                 icon={IconSRC.icon_delete}
                 size={18}
-                onPress={handleDeleteSelected}
+                onPress={() => setIsOpenCheck(true)}
                 containerStyle={{
                   backgroundColor: colors.red,
-                  padding: 8,
+                  padding: 5,
                   borderRadius: 6,
                 }}
               />
@@ -235,22 +242,23 @@ const CartScreen = () => {
         )}
 
         <FlatList
-          data={cartData}
+          data={listCart}
           keyExtractor={(item, index) => item.productId?._id + '-' + index}
-          renderItem={({ item, index }) => {
+          renderItem={({item, index}) => {
             const imageUrl = cleanImageUrl(
-              item.productId?.variants?.[item.variantIndex]?.image || item.productId?.image
+              item.productId?.variants?.[item.variantIndex]?.image ||
+                item.productId?.image,
             );
             const isSelected = selectedItems.has(index);
             return (
               <CartItem
                 icon={isSelected ? IconSRC.icon_check : IconSRC.icon_uncheck}
                 name={item.productId?.name}
-                image={{ uri: imageUrl }}
+                image={{uri: imageUrl}}
                 price={item.productId?.price}
                 color={item.productId?.variants?.[item.variantIndex]?.color}
                 size={item.productId?.variants?.[item.variantIndex]?.size}
-                containerStyle={{ paddingHorizontal: metrics.space }}
+                containerStyle={{paddingHorizontal: metrics.space}}
                 value={item.quantity + ''}
                 onChangeText={text => handleChangeQuantity(index, text)}
                 onPress={() => {}}
@@ -259,7 +267,10 @@ const CartScreen = () => {
               />
             );
           }}
-          contentContainerStyle={{ paddingBottom: 100, backgroundColor: theme.background }}
+          contentContainerStyle={{
+            paddingBottom: 100,
+            backgroundColor: theme.background,
+          }}
         />
 
         <Block
@@ -272,20 +283,24 @@ const CartScreen = () => {
           positionA
           bottom0>
           <Block row justifyBW marB={10} alignCT>
-            <TextMedium style={{ color: theme.text }}>
+            <TextMedium style={{color: theme.text}}>
               {getTranslation('tong_cong')}:
             </TextMedium>
-            <TextSizeCustom size={20} bold style={{ color: theme.text }}>
+            <TextSizeCustom size={20} bold style={{color: theme.text}}>
               {totalPrice.toLocaleString('vi-VN')}đ
             </TextSizeCustom>
           </Block>
           {selectedItems.size > 0 && (
-            <TextSmall color={theme.gray} style={{ marginBottom: 5 }}>
+            <TextSmall color={theme.gray} style={{marginBottom: 5}}>
               Đã chọn {selectedItems.size} sản phẩm
             </TextSmall>
           )}
           <ButtonBase
-            title={selectedItems.size > 0 ? `${getTranslation('thanh_toan')} (${selectedItems.size})` : getTranslation('thanh_toan')}
+            title={
+              selectedItems.size > 0
+                ? `${getTranslation('thanh_toan')} (${selectedItems.size})`
+                : getTranslation('thanh_toan')
+            }
             onPress={() => {
               if (selectedItems.size === 0) {
                 // Hiển thị thông báo yêu cầu chọn sản phẩm

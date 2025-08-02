@@ -1,8 +1,10 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const voucherController = require('../controllers/voucherController');
+const voucherController = require("../controllers/voucherController");
+const voucherControllerApp = require("../controllers/voucherControllerApp");
 
 // Hiển thị danh sách voucher
+
 router.get('/view', voucherController.viewVouchers);
 
 // Hiển thị form thêm voucher
@@ -24,6 +26,11 @@ router.post('/delete/:id', voucherController.deleteVoucher);
 router.post('/toggle-status/:id', voucherController.toggleVoucherStatus);
 
 // API trả về danh sách voucher cho mobile app
-router.get('/api/vouchers', voucherController.apiGetVouchers);
+router.get("/api/vouchers", voucherController.apiGetVouchers);
 
-module.exports = router; 
+//
+//
+//API APP
+router.get("/", voucherControllerApp.getActiveVouchers);
+
+module.exports = router;

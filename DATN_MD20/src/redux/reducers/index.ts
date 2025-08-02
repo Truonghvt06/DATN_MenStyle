@@ -9,6 +9,7 @@ import address from './address';
 import notification from './notification';
 import cart from './cart';
 import review from './review';
+import voucher from './voucher';
 
 export default combineReducers({
   auth,
@@ -21,4 +22,5 @@ export default combineReducers({
   notification,
   cart,
   review,
+  voucher,
 });
