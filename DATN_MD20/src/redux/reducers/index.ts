@@ -8,6 +8,7 @@ import banner from './banner';
 import address from './address';
 import notification from './notification';
 import cart from './cart';
+import review from './review';
 
 export default combineReducers({
   auth,
@@ -19,4 +20,5 @@ export default combineReducers({
   address,
   notification,
   cart,
+  review,
 });
