@@ -6,8 +6,9 @@ const ORDER_ENUM = [
   "Shipping",
   "Delivered",
   "Paid",
-  "Canceled",
+  "Cancelled",
 ];
+
 const orderItemSchema = new mongoose.Schema({
   product_id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -15,8 +16,8 @@ const orderItemSchema = new mongoose.Schema({
     required: true,
   },
   product_variant_id: { type: String, required: true },
-  price: { type: Number },
-  quantity: { type: Number },
+  price: { type: Number, required: true },
+  quantity: { type: Number, required: true },
 });
 
 const orderSchema = new mongoose.Schema(
@@ -26,8 +27,8 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    total_amount: { type: Number },
-    status: { type: String, enum: ORDER_ENUM, default: "Pending" },
+    total_amount: { type: Number, required: true },
+    status: { type: String, enum: ORDER_ENUM, default: "pending" },
     shipping_address_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Address",

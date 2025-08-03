@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8" />
   <title>MenStyle - Đơn hàng</title>
@@ -87,11 +88,23 @@
       border-radius: 0.5rem;
     }
 
-    .badge-Pending { background-color: #ffc107; color: #212529; }
-    .badge-Completed { background-color: #198754; color: white; }
-    .badge-Cancelled { background-color: #dc3545; color: white; }
+    .badge-Pending {
+      background-color: #ffc107;
+      color: #212529;
+    }
+
+    .badge-Completed {
+      background-color: #198754;
+      color: white;
+    }
+
+    .badge-Cancelled {
+      background-color: #dc3545;
+      color: white;
+    }
   </style>
 </head>
+
 <body>
   <!-- Sidebar -->
   <nav class="sidebar" id="sidebar">
@@ -128,43 +141,60 @@
             </tr>
           </thead>
           <tbody>
-            <% orders.forEach((order, index) => { %>
+            <% orders.forEach((order, index)=> { %>
               <tr>
-                <td><%= index + 1 %></td>
+                <td>
+                  <%= index + 1 %>
+                </td>
                 <td class="text-start">
-                  <strong><%= order.user_id.name %></strong><br>
-                  <small><%= order.user_id.email %></small>
+                  <strong>
+                    <%= order.user_id.name %>
+                  </strong><br>
+                  <small>
+                    <%= order.user_id.email %>
+                  </small>
                 </td>
                 <td class="text-start">
                   <% if (order.shipping_address_id) { %>
                     <%= order.shipping_address_id.recipient_name %><br>
-                    <small>
-                      <%= order.shipping_address_id.address_line %>, 
-                      <%= order.shipping_address_id.ward %>, 
-                      <%= order.shipping_address_id.district %>, 
-                      <%= order.shipping_address_id.province %>
-                    </small>
-                  <% } else { %>
-                    <em>Không có địa chỉ</em>
-                  <% } %>
+                      <small>
+                        <%= order.shipping_address_id.address_line %>,
+                          <%= order.shipping_address_id.ward %>,
+                            <%= order.shipping_address_id.district %>,
+                              <%= order.shipping_address_id.province %>
+                      </small>
+                      <% } else { %>
+                        <em>Không có địa chỉ</em>
+                        <% } %>
                 </td>
-                
-                <td><%= order.payment_method_id.code %></td>
-                <td><%= order.total_amount.toLocaleString('vi-VN') %> ₫</td>
-                <td>
-                    <form class="status-form" data-id="<%= order._id %>">
-                      <select class="form-select form-select-sm status-select" name="status">
-                        <option value="pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Chờ xử lý</option>
-                        <option value="paid" <%= order.status === 'Paid' ? 'selected' : '' %>>Đã thanh toán</option>
-                        <option value="shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Đang giao hàng</option>
-                        <option value="delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Đã giao</option>
-                        <option value="cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Đã hủy</option>
-                      </select>
-                    </form>
-                  </td>                  
-                <td><%= new Date(order.createdAt).toLocaleDateString('vi-VN') %></td>
+
+                <% if (order.payment_method_id) { %>
+                  <td>
+                    <%= order.payment_method_id.code %>
+                  </td>
+                  <% } else { %>
+                    <td>Không xác định</td>
+                    <% } %>
+
+                      <td>
+                        <%= order.total_amount.toLocaleString('vi-VN') %> ₫
+                      </td>
+                      <td>
+                        <select onchange="updateStatus('<%= order._id %>', this.value)">
+                          <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Chờ xử lý</option>
+                          <option value="confirmed" <%= order.status === 'confirmed' ? 'selected' : '' %>>Đã xác nhận</option>
+                          <option value="shipping" <%= order.status === 'shipping' ? 'selected' : '' %>>Đang giao hàng</option>
+                          <option value="delivered" <%= order.status === 'delivered' ? 'selected' : '' %>>Đã giao</option>
+                          <option value="paid" <%= order.status === 'paid' ? 'selected' : '' %>>Đã thanh toán</option>
+                          <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Đã hủy</option>
+                        </select>
+                        
+                      </td>
+                      <td>
+                        <%= new Date(order.createdAt).toLocaleDateString('vi-VN') %>
+                      </td>
               </tr>
-            <% }) %>
+              <% }) %>
           </tbody>
         </table>
       </div>
@@ -178,33 +208,32 @@
     toggleBtn.addEventListener('click', () => {
       sidebar.classList.toggle('collapsed');
     });
-   
-  document.querySelectorAll('.status-select').forEach(select => {
-    select.addEventListener('change', async function () {
-      const form = this.closest('.status-form');
-      const orderId = form.getAttribute('data-id');
-      const newStatus = this.value;
 
-      try {
-        const res = await fetch(`/orders/update-status/${orderId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ status: newStatus }),
-        });
-
-        if (!res.ok) {
-          const msg = await res.text();
-          alert("Lỗi cập nhật: " + msg);
-        } else {
-          alert("Cập nhật trạng thái thành công!");
-        }
-      } catch (err) {
-        alert("Lỗi mạng hoặc máy chủ.");
-      }
+    async function updateStatus(orderId, status) {
+  try {
+    console.log('Updating status for order:', orderId, 'to:', status);
+    const response = await fetch(`/order/update-status/${orderId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status }),
     });
-  });
+    const data = await response.json();
+    if (response.ok) {
+      alert('Cập nhật trạng thái thành công!');
+      location.reload();
+    } else {
+      alert('Lỗi: ' + data.message);
+    }
+  } catch (error) {
+    console.error('Lỗi khi cập nhật trạng thái:', error);
+    alert('Lỗi khi cập nhật trạng thái: ' + error.message);
+  }
+}
+
+
   </script>
 </body>
+
 </html>

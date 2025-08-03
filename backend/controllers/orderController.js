@@ -75,3 +75,23 @@ exports.getOrderDetail = async (req, res) => {
     res.status(500).json({ message: "Lỗi server khi lấy chi tiết đơn hàng" });
   }
 };
+exports.updateStatus = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const { status } = req.body;
+
+    const updated = await Order.findByIdAndUpdate(orderId, { status }, { new: true });
+
+    if (!updated) {
+      return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+    }
+
+    res.json({ message: 'Cập nhật trạng thái thành công', order: updated });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Lỗi máy chủ' });
+  }
+};
+
+
+

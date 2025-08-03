@@ -103,15 +103,6 @@ exports.processCheckout = async (req, res) => {
       0
     );
 
-    await Order.create({
-      user_id: userId,
-      total_amount: total,
-      shipping_address_id: address._id,
-      payment_method_id: payment._id,
-      items,
-      status: "Pending",
-    });
-
     user.cart = [];
     await user.save();
 
@@ -119,17 +110,5 @@ exports.processCheckout = async (req, res) => {
   } catch (err) {
     console.error("Lỗi khi xử lý thanh toán:", err);
     res.status(500).send("Không thể thanh toán.");
-  }
-};
-exports.updateStatus = async (req, res) => {
-  const orderId = req.params.id;
-  const { status } = req.body;
-
-  try {
-    await Order.findByIdAndUpdate(orderId, { status });
-    res.status(200).send("Trạng thái đã được cập nhật.");
-  } catch (err) {
-    console.error("Lỗi khi cập nhật trạng thái:", err);
-    res.status(500).send("Không thể cập nhật trạng thái.");
   }
 };
