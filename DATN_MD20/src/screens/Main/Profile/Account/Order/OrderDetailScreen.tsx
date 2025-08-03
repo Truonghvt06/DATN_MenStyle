@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import ContainerView from '../../../../../components/layout/ContainerView';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Header from '../../../../../components/dataDisplay/Header';
@@ -29,20 +29,28 @@ import useLanguage from '../../../../../hooks/useLanguage';
 import {useAppTheme} from '../../../../../themes/ThemeContext';
 import navigation from '../../../../../navigation/navigation';
 import ScreenName from '../../../../../navigation/ScreenName';
-import {useAppDispatch} from '../../../../../redux/store';
+import {useAppDispatch, useAppSelector} from '../../../../../redux/store';
 import {fetchNotifications} from '../../../../../redux/actions/notification';
 import {colors} from '../../../../../themes/colors';
+import {getOrderDetail} from '../../../../../redux/actions/order';
+import moment from 'moment';
 
 const OrderDetailScreen = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
-  const {orders, screen} = useRoute().params as {orders?: any; screen?: string};
+  const {orderId, screen} = useRoute().params as {
+    orderId?: any;
+    screen?: string;
+  };
   const [isOpen, setIsOpen] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [selectedId, setSelectedId] = useState<string | undefined>();
   const theme = useAppTheme();
 
   const dispatch = useAppDispatch();
+  const {order} = useAppSelector(state => state.order);
+
+  console.log('AAAA', order);
 
   const displayData = showAll ? dataItemOrder : dataItemOrder.slice(0, 2);
   const reasons = [
@@ -53,19 +61,71 @@ const OrderDetailScreen = () => {
     {id: '5', label: getTranslation('khac')},
   ];
 
+  useEffect(() => {
+    dispatch(getOrderDetail(orderId));
+  }, []);
+
+  // Lấy 2 ký tự đầu
+  const first2 = order?._id.slice(0, 2);
+  // Lấy 4 ký tự giữa (ví dụ từ vị trí 10 đến 14)
+  const middle4 = order?._id.slice(10, 14);
+  // Lấy 2 ký tự cuối
+  const last2 = order?._id.slice(-2);
+  // Gộp thành mã đơn hàng
+  const orderCode = `${first2}${middle4}${last2}`.toUpperCase();
+
+  const formattedItems =
+    order?.items?.map((item: any) => {
+      const variant = item.product_id?.variants.find(
+        (v: any) => v._id === item.product_variant_id,
+      );
+      // {
+      //   order.items?.product_id?.name;
+      // }
+      // {
+      //   order.quantity;
+      // }
+      // {
+      //   order.items.price?.toLocaleString('vi-VN');
+      // }
+      return {
+        ...item,
+        image: variant?.image, // FlatList dùng Image source = { uri: ... }
+        color: variant?.color,
+        size: variant?.size,
+      };
+    }) || [];
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'Pending':
+        return 'Chờ xác nhận';
+      case 'Confirmed':
+        return 'Đã xác nhận';
+      case 'Shipping':
+        return 'Chờ giao hàng';
+      case 'Delivered':
+        return 'Đã giao';
+      case 'Canceled':
+        return 'Đã huỷ';
+      default:
+        return 'Không rõ';
+    }
+  };
+
   const handleToggle = () => setShowAll(prev => !prev);
 
   const getStatusColor = (status?: string) => {
     switch (status) {
-      case 'Chờ xác nhận':
+      case 'Pending':
         return colors.blue2;
-      case 'Đã xác nhận':
+      case 'Confirmed':
         return colors.blue1;
-      case 'Chờ giao hàng':
+      case 'Shipping':
         return colors.orange;
-      case 'Đã giao':
+      case 'Delivered':
         return colors.green1;
-      case 'Đã huỷ':
+      case 'Canceled':
         return colors.red;
       default:
         return colors.gray;
@@ -101,27 +161,28 @@ const OrderDetailScreen = () => {
                 ellipsizeMode="tail"
                 bold
                 color={theme.text}>
-                ID: #ABCDEFD
+                ID: #{orderCode}
               </TextHeight>
               <TextSizeCustom size={12} color={colors.gray}>
-                {getTranslation('ngay')}: 12/05/2025
+                {getTranslation('ngay')}:{' '}
+                {moment(order?.createdAt).format('DD/MM/YYYY')}
               </TextSizeCustom>
             </Block>
             <Block
               containerStyle={[
                 styles.status,
-                {backgroundColor: getStatusColor(orders?.status)},
+                {backgroundColor: getStatusColor(order?.status)},
               ]}>
-              <TextSmall>{orders?.status}</TextSmall>
+              <TextSmall>{getStatusText(order?.status)}</TextSmall>
             </Block>
           </Block>
 
-          {orders?.status !== 'Đã huỷ' && (
+          {order?.status !== 'Canceled' && (
             <Block marT={30}>
               <TextHeight medium color={theme.text}>
                 {getTranslation('trang_thai_don_hang')}
               </TextHeight>
-              <OrderStatusStep status={orders?.status} />
+              <OrderStatusStep status={order?.status} />
             </Block>
           )}
 
@@ -129,43 +190,45 @@ const OrderDetailScreen = () => {
             <TextHeight medium color={theme.text}>
               {getTranslation('san_pham')}{' '}
               <TextSmall color={colors.gray}>
-                ({dataItemOrder.length} {getTranslation('san_pham_')})
+                ({order?.items?.length} {getTranslation('san_pham_')})
               </TextSmall>
             </TextHeight>
-            {displayData.map((item, index) => (
-              <Block
-                key={index}
-                row
-                padV={8}
-                borderBottomW={0.3}
-                borderColor={theme.border_color}>
-                <Image source={item.image} style={styles.image} />
-                <Block padH={10} flex5>
-                  <TextSmall
-                    numberOfLines={2}
-                    ellipsizeMode="tail"
-                    style={styles.text}
-                    medium>
-                    {item.name}
-                  </TextSmall>
-                  <Block row>
-                    <TextSizeCustom size={12} color={colors.gray}>
-                      Size: {item.size} |{' '}
-                    </TextSizeCustom>
-                    <TextSizeCustom size={12} color={colors.gray}>
-                      {getTranslation('mau')}: {item.color} |{' '}
-                    </TextSizeCustom>
-                    <TextSizeCustom size={12} color={colors.gray}>
-                      SL: {item.quantity}
-                    </TextSizeCustom>
+            {formattedItems.map((item: any, index: number) => {
+              return (
+                <Block
+                  key={index}
+                  row
+                  padV={8}
+                  borderBottomW={0.3}
+                  borderColor={theme.border_color}>
+                  <Image source={{uri: item?.image}} style={styles.image} />
+                  <Block padH={10} flex5>
+                    <TextSmall
+                      numberOfLines={2}
+                      ellipsizeMode="tail"
+                      style={styles.text}
+                      medium>
+                      {item.product_id?.name}
+                    </TextSmall>
+                    <Block row>
+                      <TextSizeCustom size={12} color={colors.gray}>
+                        Size: {item?.size} |{' '}
+                      </TextSizeCustom>
+                      <TextSizeCustom size={12} color={colors.gray}>
+                        {getTranslation('mau')}: {item?.color} |{' '}
+                      </TextSizeCustom>
+                      <TextSizeCustom size={12} color={colors.gray}>
+                        SL: {item?.quantity}
+                      </TextSizeCustom>
+                    </Block>
+                    <TextMedium medium color={colors.primary}>
+                      {item?.price?.toLocaleString('vi-VN')}VND
+                    </TextMedium>
                   </Block>
-                  <TextMedium medium color={colors.primary}>
-                    {item.price.toLocaleString('vi-VN')}VND
-                  </TextMedium>
                 </Block>
-              </Block>
-            ))}
-            {dataItemOrder.length > 2 && (
+              );
+            })}
+            {order?.items?.length > 2 && (
               <TouchableOpacity
                 onPress={handleToggle}
                 style={{alignItems: 'center', marginTop: 10}}>
@@ -188,7 +251,7 @@ const OrderDetailScreen = () => {
                 style={[styles.icon_add, {tintColor: theme.icon}]}
               />
               <TextSmall color={theme.text}>
-                Phương Canh, Xuân Phương, Nam Từ Liêm, Hà Nội
+                {`${order?.shipping_address_id?.address_line}, ${order?.shipping_address_id?.ward}, ${order?.shipping_address_id?.district}, ${order?.shipping_address_id?.province}`}
               </TextSmall>
             </Block>
           </Block>
@@ -198,22 +261,23 @@ const OrderDetailScreen = () => {
               {getTranslation('thanh_toan')}
             </TextHeight>
             <TextSmall color={theme.text}>
-              {getTranslation('phuong_thuc_thanh_toan')}: COD
+              {getTranslation('phuong_thuc_thanh_toan')}:{' '}
+              {`${order?.payment_method_id?.code}`}
             </TextSmall>
           </Block>
 
           <Block row justifyBW alignCT marV={30}>
-            <TextHeight bold color={theme.text}>
+            <TextHeight medium color={theme.text}>
               {getTranslation('tong_cong')}:
             </TextHeight>
-            <TextHeight bold color={theme.text}>
-              890.000đ
+            <TextHeight medium color={theme.text}>
+              {order?.total_amount?.toLocaleString('vi-VN')}VND
             </TextHeight>
           </Block>
 
           <ButtonBase
             title={
-              orders?.status !== 'Đã huỷ'
+              order?.status !== 'Canceled'
                 ? getTranslation('huy_don')
                 : getTranslation('mua_lai')
             }

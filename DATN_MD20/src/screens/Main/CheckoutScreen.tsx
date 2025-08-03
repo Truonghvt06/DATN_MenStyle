@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Modal,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import ContainerView from '../../components/layout/ContainerView';
 import Header from '../../components/dataDisplay/Header';
@@ -27,9 +28,15 @@ import {colors} from '../../themes/colors';
 import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
 import TouchIcon from '../../components/dataEntry/Button/TouchIcon';
-import orderService from '../../services/orders'; // Thêm dòng này
+import orderService, {CreateOrderPayload} from '../../services/orders'; // Thêm dòng này
 import {axiosInstance} from '../../services';
 import {fetchAddresses} from '../../redux/actions/address';
+import {fetchPaymentMethods} from '../../redux/actions/payment';
+import {createOrder} from '../../redux/actions/order';
+import Toast from 'react-native-toast-message';
+import {clearCart} from '../../redux/reducers/cart';
+import {fetchCart} from '../../redux/actions/cart';
+import cartService from '../../services/cart';
 
 interface CheckoutScreenProps {
   route?: {
@@ -48,12 +55,15 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
 
   const dispatch = useAppDispatch();
   const {listAddress} = useAppSelector(state => state.address);
+  const {listPaymentMethod} = useAppSelector(state => state.paymentMenthod);
+
+  // console.log('PPP: ', listPaymentMethod);
 
   const {selectedItems = [], cartData = []} = route?.params || {};
 
   // State cho form thanh toán
   const [selectedAddress, setSelectedAddress] = useState<any>();
-  const [paymentMethod, setPaymentMethod] = useState('cod'); // cod: tiền mặt, bank: chuyển khoản
+  const [paymentMethod, setPaymentMethod] = useState('COD'); // cod: tiền mặt, bank: chuyển khoản
   const [loading, setLoading] = useState(false);
   const [selectedVoucher, setSelectedVoucher] = useState<any>(null);
   const [showVoucherModal, setShowVoucherModal] = useState(false);
@@ -66,10 +76,15 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
     dispatch(fetchAddresses());
   }, [dispatch]);
 
+  //PaymenMethod
+  useEffect(() => {
+    dispatch(fetchPaymentMethods());
+  }, []);
+
   useEffect(() => {
     if (listAddress.length === 0) return;
 
-    // Nếu chưa có selectedAddress từ trước (hoặc là FIXED_ADDRESS giả), thì chọn địa chỉ mặc định hoặc đầu tiên
+    // Nếu chưa có selectedAddress từ trước , thì chọn địa chỉ mặc định hoặc đầu tiên
     if (
       !selectedAddress ||
       (selectedAddress &&
@@ -164,29 +179,57 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
       return;
     }
 
-    setLoading(true);
-    try {
-      const orderData = {
-        userId: user?._id,
-        products: selectedProducts,
-        address: selectedAddress,
-        paymentMethod,
-        voucher: selectedVoucher,
-        subtotal,
-        shippingFee,
-        discount,
-        total,
-      };
-      await orderService.createOrder(orderData);
+    const items = selectedProducts.map(item => ({
+      product_id: item.productId._id,
+      product_variant_id:
+        item.productId.variants?.[item.variantIndex]?._id || '',
+      price: item.productId.price,
+      quantity: item.quantity,
+    }));
 
-      Alert.alert('Thành công', 'Đơn hàng đã được đặt thành công!', [
-        {
-          text: 'OK',
-          onPress: () => {
-            navigation.navigate(ScreenName.Main.Cart);
-          },
-        },
-      ]);
+    const payload: CreateOrderPayload = {
+      user_id: user?._id,
+      total_amount: total,
+      shipping_address_id: selectedAddress._id,
+      payment_method_id:
+        listPaymentMethod.find(pm => pm.code === paymentMethod)?._id ?? '',
+      items,
+    };
+
+    setLoading(true);
+
+    try {
+      const resultAction = await dispatch(createOrder(payload));
+
+      if (createOrder.fulfilled.match(resultAction)) {
+        // 👉 Lấy các index trong giỏ hàng đã thanh toán
+        const removeIndexes = selectedItems;
+
+        // 👉 Gọi xóa từng item theo index (dùng Promise.all để thực hiện song song)
+        await Promise.all(
+          selectedItems.map((_, index) =>
+            cartService.removeFromCart(user._id, index),
+          ),
+        );
+
+        // 👉 Cập nhật lại Redux store
+        await dispatch(fetchCart(user._id));
+
+        Toast.show({
+          type: 'notification',
+          position: 'top',
+          text1: 'Thành công',
+          text2: 'Đặt hàng thành công',
+          visibilityTime: 1000,
+          autoHide: true,
+          swipeable: true,
+        });
+
+        navigation.navigate(ScreenName.Main.BottonTab);
+      } else {
+        const error: any = resultAction.payload || 'Đặt hàng thất bại';
+        Alert.alert('Lỗi', error);
+      }
     } catch (error) {
       Alert.alert('Lỗi', 'Không thể đặt hàng. Vui lòng thử lại.');
     } finally {
@@ -355,34 +398,26 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
           <TextMedium bold style={{marginBottom: 10}}>
             Phương thức thanh toán
           </TextMedium>
-          <Block row alignCT marB={10}>
-            <TouchIcon
-              icon={
-                paymentMethod === 'cod'
-                  ? IconSRC.icon_check
-                  : IconSRC.icon_uncheck
-              }
-              size={20}
-              onPress={() => setPaymentMethod('cod')}
-            />
-            <TextMedium style={{marginLeft: 10}}>
-              Tiền mặt khi nhận hàng
-            </TextMedium>
-          </Block>
-          <Block row alignCT>
-            <TouchIcon
-              icon={
-                paymentMethod === 'bank'
-                  ? IconSRC.icon_check
-                  : IconSRC.icon_uncheck
-              }
-              size={20}
-              onPress={() => setPaymentMethod('bank')}
-            />
-            <TextMedium style={{marginLeft: 10}}>
-              Chuyển khoản ngân hàng
-            </TextMedium>
-          </Block>
+          {listPaymentMethod.map((item, index) => {
+            return (
+              <Block key={index} row alignCT marB={10}>
+                <TouchIcon
+                  icon={
+                    paymentMethod === item.code
+                      ? IconSRC.icon_check
+                      : IconSRC.icon_uncheck
+                  }
+                  size={20}
+                  onPress={() => setPaymentMethod(item.code)}
+                />
+                <Image
+                  source={{uri: item.image}}
+                  style={{width: 25, height: 25, marginHorizontal: 10}}
+                />
+                <TextMedium>{item.name}</TextMedium>
+              </Block>
+            );
+          })}
         </Block>
 
         {/* Tổng tiền */}
@@ -410,7 +445,13 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
               </TextSmall>
             </Block>
           )}
-          <Block row justifyBW marT={10} padT={10} borderTopW={1}>
+          <Block
+            row
+            justifyBW
+            marT={10}
+            padT={10}
+            borderTopW={0.3}
+            borderColor={theme.border_color}>
             <TextMedium bold>Tổng cộng:</TextMedium>
             <TextSizeCustom size={18} bold color={theme.primary}>
               {total.toLocaleString('vi-VN')}VND
@@ -426,11 +467,7 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
         padB={45}
         backgroundColor={theme.background}>
         <ButtonBase
-          title={
-            loading
-              ? 'Đang xử lý...'
-              : `Thanh toán ${total.toLocaleString('vi-VN')}VND`
-          }
+          title={`Thanh toán ( ${total.toLocaleString('vi-VN')}VND )`}
           onPress={handleCheckout}
           disabled={loading || !selectedAddress}
         />

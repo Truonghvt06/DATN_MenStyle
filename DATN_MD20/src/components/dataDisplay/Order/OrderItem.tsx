@@ -79,7 +79,7 @@ const OrderItem = (props: Propos) => {
         <Block row justifyBW padB={10}>
           <Block>
             <TextHeight numberOfLines={1} ellipsizeMode="tail" bold>
-              #{code_order}ABCDEF
+              #{code_order}
             </TextHeight>
             <TextSizeCustom size={12} color={colors.gray}>
               {date}
@@ -99,14 +99,14 @@ const OrderItem = (props: Propos) => {
           renderItem={({item}) => {
             return (
               <Block row flex1 marB={8}>
-                <Image source={item.image} style={styles.image} />
+                <Image source={{uri: item.image}} style={styles.image} />
                 <Block padH={10} flex5>
                   <TextSmall
                     numberOfLines={2}
                     ellipsizeMode="tail"
                     style={styles.text}
                     medium>
-                    {item.name}
+                    {item.product_id?.name}
                   </TextSmall>
                   <Block row>
                     <TextSizeCustom size={12} color={colors.gray}>
@@ -136,8 +136,8 @@ const OrderItem = (props: Propos) => {
           <TextSmall color={colors.gray}>
             {totalOrder} {getTranslation('san_pham_')}
           </TextSmall>
-          <TextHeight bold>
-            {getTranslation('tong')}: {total?.toLocaleString('vi-VN')}đ
+          <TextHeight medium>
+            {getTranslation('tong')}: {total?.toLocaleString('vi-VN')}VND
           </TextHeight>
         </Block>
       </Block>

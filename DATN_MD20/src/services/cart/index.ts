@@ -10,9 +10,9 @@ const cartService = {
   // Lấy giỏ hàng của user
   getCart: async (userId: string) => {
     const res = await axiosInstance.get(`/accounts/api/cart/${userId}`);
-    console.log('=== BACKEND API DEBUG ===');
-    console.log('User ID:', userId);
-    console.log('API Response:', JSON.stringify(res.data, null, 2));
+    // console.log('=== BACKEND API DEBUG ===');
+    // console.log('User ID:', userId);
+    // console.log('API Response:', JSON.stringify(res.data, null, 2));
     return res.data;
   },
   // Thêm sản phẩm vào giỏ hàng (theo biến thể)

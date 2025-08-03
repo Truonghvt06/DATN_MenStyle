@@ -205,7 +205,7 @@ const ProductDetail = () => {
                 <TextMedium medium numberOfLines={2} ellipsizeMode="tail">
                   {proData?.name}
                 </TextMedium>
-                <TextHeight bold color={colors.red}>
+                <TextHeight bold color={colors.primary}>
                   {typeof proData?.price === 'number'
                     ? `${proData?.price.toLocaleString('vi-VN')} VND`
                     : null}
