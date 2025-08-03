@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useMemo, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import ContainerView from '../../../../../components/layout/ContainerView';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Header from '../../../../../components/dataDisplay/Header';
@@ -19,12 +19,19 @@ import navigation from '../../../../../navigation/navigation';
 import ScreenName from '../../../../../navigation/ScreenName';
 import useLanguage from '../../../../../hooks/useLanguage';
 import {useAppTheme} from '../../../../../themes/ThemeContext';
+import {useAppDispatch, useAppSelector} from '../../../../../redux/store';
+import {getOrders} from '../../../../../redux/actions/order';
+import moment from 'moment';
 
 const OrderScreen = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
   const theme = useAppTheme();
   const [selectedTab, setSelectedTab] = useState('Chờ xác nhận');
+
+  const dispatch = useAppDispatch();
+  const {orders} = useAppSelector(state => state.order);
+  // console.log('ASS:', orders);
 
   const dataOrder = [
     {id: 'o1', name: getTranslation('tat_ca')},
@@ -34,6 +41,12 @@ const OrderScreen = () => {
     {id: 'o5', name: getTranslation('da_giao')},
     {id: 'o6', name: getTranslation('da_huy')},
   ];
+
+  ///GET DON HANG
+  useEffect(() => {
+    dispatch(getOrders());
+  }, []);
+  ///
 
   const handleTabPress = (tab: string) => {
     setSelectedTab(tab);
@@ -58,6 +71,23 @@ const OrderScreen = () => {
         return dataProduct;
     }
   }, [selectedTab]);
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'Pending':
+        return 'Chờ xác nhận';
+      case 'Confirmed':
+        return 'Đã xác nhận';
+      case 'Shipping':
+        return 'Chờ giao hàng';
+      case 'Delivered':
+        return 'Đã giao';
+      case 'Canceled':
+        return 'Đã huỷ';
+      default:
+        return 'Không rõ';
+    }
+  };
 
   const renderTab = (item: any) => (
     <TouchableOpacity
@@ -98,23 +128,46 @@ const OrderScreen = () => {
         </ScrollView>
       </View>
       <FlatList
-        data={filteredProducts}
-        keyExtractor={item => `od-${item.id}`}
-        renderItem={({item}) => (
-          <OrderItem
-            code_order={item.id}
-            date={item.createdAt}
-            total={item.total}
-            status={item.status}
-            data={dataItemOrder}
-            onPress={() => {
-              navigation.navigate(ScreenName.Main.OrderDetail, {
-                screen: 'order',
-                orders: item,
-              });
-            }}
-          />
-        )}
+        data={orders}
+        keyExtractor={item => `od-${item._id}`}
+        renderItem={({item}) => {
+          // Lấy 2 ký tự đầu
+          const first2 = item._id.slice(0, 2);
+          // Lấy 4 ký tự giữa (ví dụ từ vị trí 10 đến 14)
+          const middle4 = item._id.slice(10, 14);
+          // Lấy 2 ký tự cuối
+          const last2 = item._id.slice(-2);
+          // Gộp thành mã đơn hàng
+          const orderCode = `${first2}${middle4}${last2}`.toUpperCase();
+
+          const formattedItems = item.items.map((item: any) => {
+            const variant = item.product_id?.variants.find(
+              (v: any) => v._id === item.product_variant_id,
+            );
+            return {
+              ...item,
+              image: variant?.image, // FlatList dùng Image source = { uri: ... }
+              color: variant?.color,
+              size: variant?.size,
+            };
+          });
+
+          return (
+            <OrderItem
+              code_order={orderCode}
+              date={moment(item.createdAt).format('DD/MM/YYYY')}
+              total={item.total_amount}
+              status={getStatusText(item.status)}
+              data={formattedItems}
+              onPress={() => {
+                navigation.navigate(ScreenName.Main.OrderDetail, {
+                  screen: 'order',
+                  orderId: item._id,
+                });
+              }}
+            />
+          );
+        }}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingTop: 15,

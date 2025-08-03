@@ -106,14 +106,16 @@ const BottomTab = () => {
               }}>
               <Block>
                 {token ? (
-                  <View style={styles.cart}>
-                    <TextSizeCustom
-                      color="white"
-                      size={11}
-                      style={{textAlign: 'center'}}>
-                      {items.length}
-                    </TextSizeCustom>
-                  </View>
+                  items.length === 0 ? null : (
+                    <View style={styles.cart}>
+                      <TextSizeCustom
+                        color="white"
+                        size={11}
+                        style={{textAlign: 'center'}}>
+                        {items.length}
+                      </TextSizeCustom>
+                    </View>
+                  )
                 ) : null}
                 <Image
                   source={IconBottomTab.icon_cart}

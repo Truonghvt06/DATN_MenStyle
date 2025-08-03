@@ -92,7 +92,7 @@ router.get("/detail/:id", async (req, res) => {
       .populate("favorites.productId")
       .lean();
     const products = await Product.find().lean();
-    console.log("Số lượng sản phẩm trong giỏ hàng:", products.length);
+    // console.log("Số lượng sản phẩm trong giỏ hàng:", products.length);
     res.render("user_detail", { user, products });
   } catch (err) {
     console.error(err);
@@ -336,11 +336,14 @@ router.get("/:id/orders", accountController.showOrderPage);
 router.get("/api/cart/:userId", async (req, res) => {
   try {
     const user = await User.findById(req.params.userId)
-      // .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       .populate("cart.productId")
       .lean();
+    const sortCart = user.cart.sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
+
     if (!user) return res.status(404).json({ message: "Không tìm thấy user" });
-    res.json({ cart: user.cart || [] });
+    res.json({ cart: sortCart });
   } catch (err) {
     res.status(500).json({ message: "Lỗi server", error: err.message });
   }

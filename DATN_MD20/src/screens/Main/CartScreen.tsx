@@ -36,9 +36,9 @@ const CartScreen = () => {
   const {items: cartData, loading} = useAppSelector(state => state.cart);
   const dispatch = useAppDispatch();
 
-  const listCart = [...cartData].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
+  // const listCart = [...cartData].sort(
+  //   (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  // );
 
   // State quản lý checkbox
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
@@ -119,33 +119,6 @@ const CartScreen = () => {
       dispatch(fetchCart(user._id));
     }
   }, [user?._id, dispatch]);
-
-  // Thêm log để debug
-  React.useEffect(() => {
-    console.log('=== DEBUG CART DATA ===');
-    console.log('Cart data length:', cartData.length);
-    console.log('Full cart data:', JSON.stringify(cartData, null, 2));
-
-    if (cartData.length > 0) {
-      const firstItem = cartData[0];
-      console.log('First item:', firstItem);
-      console.log('Product ID:', firstItem?.productId?._id);
-      console.log('Product name:', firstItem?.productId?.name);
-      console.log('Variant index:', firstItem?.variantIndex);
-      console.log('All variants:', firstItem?.productId?.variants);
-      console.log(
-        'Selected variant image:',
-        firstItem?.productId?.variants?.[firstItem?.variantIndex]?.image,
-      );
-      console.log(
-        'Clean image URL:',
-        cleanImageUrl(
-          firstItem?.productId?.variants?.[firstItem?.variantIndex]?.image,
-        ),
-      );
-      console.log('Fallback image:', firstItem?.productId?.image);
-    }
-  }, [cartData]);
 
   // Reset checkbox state khi cartData thay đổi
   React.useEffect(() => {
@@ -242,7 +215,7 @@ const CartScreen = () => {
         )}
 
         <FlatList
-          data={listCart}
+          data={cartData}
           keyExtractor={(item, index) => item.productId?._id + '-' + index}
           renderItem={({item, index}) => {
             const imageUrl = cleanImageUrl(

@@ -17,7 +17,6 @@ const orderItemSchema = new mongoose.Schema({
   product_variant_id: { type: String, required: true },
   price: { type: Number },
   quantity: { type: Number },
-  isExpired: { type: Boolean, default: false },
 });
 
 const orderSchema = new mongoose.Schema(
