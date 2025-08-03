@@ -12,9 +12,13 @@ const addressRouter = require("./routes/address");
 const notificationRouter = require("./routes/notification");
 const reviewRouter = require("./routes/review");
 const orderRouter = require("./routes/order");
+
 const paymentRouter = require("./routes/paymentMethod");
 
 const voucherRouter = require("./routes/voucher");
+
+const dashboardRouter = require("./routes/dashboard"); 
+
 
 const path = require("path");
 const cors = require("cors");
@@ -48,6 +52,9 @@ app.use("/review", reviewRouter);
 app.use("/order", orderRouter);
 app.use("/payment-method", paymentRouter);
 app.use("/voucher", voucherRouter);
+
+
+app.use("/dashboard", dashboardRouter);
 
 // Hàm tự động ẩn item order sau 7 ngày
 // const cron = require("node-cron");
