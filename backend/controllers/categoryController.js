@@ -43,3 +43,42 @@ exports.searchCategory = async (req, res) => {
       .json({ message: "Lỗi tìm kiếm loại sản phẩm", error: err.message });
   }
 };
+exports.getAddProductTypeForm = (req, res) => {
+  res.render("productType_add", { message: null });
+};
+
+exports.addProductType = async (req, res) => {
+  try {
+    const { name, description, image } = req.body;
+
+    // Kiểm tra tên thể loại
+    if (!name) {
+      return res.render("productType_add", {
+        message: { type: "error", text: "Tên thể loại là bắt buộc!" },
+      });
+    }
+
+    // Kiểm tra xem tên đã tồn tại chưa
+    const existingType = await Category.findOne({ name });
+    if (existingType) {
+      return res.render("productType_add", {
+        message: { type: "error", text: "Tên thể loại đã tồn tại!" },
+      });
+    }
+
+    const productType = new Category({
+      name,
+      description: description || "",
+      image: image || "",
+    });
+
+    await productType.save();
+    res.render("productType_add", {
+      message: { type: "success", text: "Thêm thể loại thành công!" },
+    });
+  } catch (error) {
+    res.render("productType_add", {
+      message: { type: "error", text: "Lỗi server: " + error.message },
+    });
+  }
+};
