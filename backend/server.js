@@ -12,13 +12,10 @@ const addressRouter = require("./routes/address");
 const notificationRouter = require("./routes/notification");
 const reviewRouter = require("./routes/review");
 const orderRouter = require("./routes/order");
-
 const paymentRouter = require("./routes/paymentMethod");
-
 const voucherRouter = require("./routes/voucher");
-
-const dashboardRouter = require("./routes/dashboard"); 
-
+const dashboardRouter = require("./routes/dashboard");
+const cartRouter = require("./routes/cart");
 
 const path = require("path");
 const cors = require("cors");
@@ -52,8 +49,7 @@ app.use("/review", reviewRouter);
 app.use("/order", orderRouter);
 app.use("/payment-method", paymentRouter);
 app.use("/voucher", voucherRouter);
-
-
+app.use("/cart", cartRouter);
 app.use("/dashboard", dashboardRouter);
 
 // Hàm tự động ẩn item order sau 7 ngày
@@ -83,7 +79,7 @@ mongoose
 
     app.listen(port, () => {
       console.log(`Server chạy ở http://localhost:${port}`);
-      console.log(`Server chạy ở http://192.168.55.106:${port}`);
+      console.log(`Server chạy ở http://192.168.55.103:${port}`);
     });
   })
   .catch((error) => {

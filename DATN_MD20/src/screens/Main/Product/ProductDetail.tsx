@@ -43,7 +43,8 @@ import {useAppTheme} from '../../../themes/ThemeContext';
 import Toast from 'react-native-toast-message';
 import configToast from '../../../components/utils/configToast';
 import ModalCenter from '../../../components/dataDisplay/Modal/ModalCenter';
-import {addToCart, fetchCart} from '../../../redux/actions/cart';
+import {addCart, fetchCart} from '../../../redux/actions/cart/cartAction';
+// import {addToCart, fetchCart} from '../../../redux/actions/cart';
 
 const ProductDetail = () => {
   const {top} = useSafeAreaInsets();
@@ -125,21 +126,81 @@ const ProductDetail = () => {
   };
 
   //Them gio hang
+  // const handleAddCart = async () => {
+  //   if (!user?._id) return handleLogin();
+  //   const variantIndex = proData?.variants?.findIndex(
+  //     (v: any) => v.size === selectedSize && v.color === selectedColor,
+  //   );
+  //   if (variantIndex === -1) return;
+  //   await dispatch(
+  //     addToCart({
+  //       userId: user._id,
+  //       productId: proData._id,
+  //       variantIndex,
+  //       quantity: Number(quantity),
+  //     }),
+  //   );
+  //   await dispatch(fetchCart(user._id));
+  //   setOpenModal(false);
+  //   Toast.show({
+  //     type: 'notification',
+  //     text1: 'Thành công',
+  //     text2: 'Đã thêm vào giỏ hàng!',
+  //     visibilityTime: 1000,
+  //     autoHide: true,
+  //     swipeable: true,
+  //   });
+  // };
+
   const handleAddCart = async () => {
-    if (!user?._id) return handleLogin();
+    if (!token) {
+      setIsOpenCheck(true);
+      return;
+    }
+    // parse và validate quantity
+    const qty = parseInt(quantity, 10);
+    if (isNaN(qty) || qty < 1) {
+      Alert.alert('Lỗi', 'Số lượng phải là số nguyên lớn hơn 0');
+      return;
+    }
+
+    // tìm variant phù hợp
     const variantIndex = proData?.variants?.findIndex(
       (v: any) => v.size === selectedSize && v.color === selectedColor,
     );
-    if (variantIndex === -1) return;
+
+    if (variantIndex === -1) {
+      Alert.alert('Lỗi', 'Bạn chưa chọn kích thước / màu hợp lệ');
+      return;
+    }
+
+    const variant = proData.variants[variantIndex];
+    if (!variant) {
+      Alert.alert('Lỗi', 'Phiên bản sản phẩm không tồn tại');
+      return;
+    }
+
+    if (variant.quantity < qty) {
+      Alert.alert(
+        'Thông báo',
+        `Tối đa chỉ còn ${variant.quantity} sản phẩm trong kho`,
+      );
+      return;
+    }
+
+    // gọi thêm vào giỏ
     await dispatch(
-      addToCart({
-        userId: user._id,
+      addCart({
         productId: proData._id,
         variantIndex,
-        quantity: Number(quantity),
+        quantity: qty,
       }),
-    );
-    await dispatch(fetchCart(user._id));
+    ).unwrap();
+
+    // nếu cần làm mới giỏ
+    await dispatch(fetchCart());
+
+    // thông báo thành công
     setOpenModal(false);
     Toast.show({
       type: 'notification',

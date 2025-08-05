@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 
 const ORDER_ENUM = [
-  "Pending",
-  "Confirmed",
-  "Shipping",
-  "Delivered",
-  "Paid",
-  "Cancelled",
+  "pending",
+  "confirmed",
+  "shipping",
+  "delivered",
+  "paid",
+  "cancelled",
 ];
 
 const orderItemSchema = new mongoose.Schema({
