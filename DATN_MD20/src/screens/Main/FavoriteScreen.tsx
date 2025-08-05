@@ -1,4 +1,12 @@
-import {Alert, FlatList, Image, StyleSheet, Text, View} from 'react-native';
+import {
+  Alert,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import ContainerView from '../../components/layout/ContainerView';
@@ -18,13 +26,18 @@ import {
   deleteFavorite,
   fetchFavorites,
 } from '../../redux/actions/favorite';
-import {TextMedium} from '../../components/dataEntry/TextBase';
+import {TextMedium, TextSmall} from '../../components/dataEntry/TextBase';
 import ButtonBase from '../../components/dataEntry/Button/ButtonBase';
 import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
 import Toast from 'react-native-toast-message';
 import configToast from '../../components/utils/configToast';
 import {useAppTheme} from '../../themes/ThemeContext';
+import ModalCenter from '../../components/dataDisplay/Modal/ModalCenter';
+import {addCart, fetchCart} from '../../redux/actions/cart/cartAction';
+import {fetchProductDetail} from '../../redux/actions/product';
+import AddCart from './Product/AddCart';
+import {clearProductDetail} from '../../redux/reducers/product';
 
 const FavoriteScreen = () => {
   const theme = useAppTheme();
@@ -32,45 +45,64 @@ const FavoriteScreen = () => {
   const {getTranslation} = useLanguage();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpenAddCart, setIsOpenAddCart] = useState(false);
+  const [isOpenCheck, setIsOpenCheck] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
     null,
   );
+  const [proData, setProData] = useState<any>([]);
+  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedColor, setSelectedColor] = useState('');
+  const [quantity, setQuantity] = useState('1');
 
   const dispatch = useAppDispatch();
   const {listFavorite} = useAppSelector(state => state.favorite);
   const {token} = useAppSelector(state => state.auth);
+  const {detail} = useAppSelector(state => state.product);
+
+  console.log('FAVORI: ', listFavorite);
+  console.log('PROO: ', proData);
+
+  //tạo mảng chứa
+  const sizes = [...new Set(proData?.variants?.map((v: any) => v.size) || [])];
+  const colorss = [
+    ...new Set(proData?.variants?.map((v: any) => v.color) || []),
+  ];
 
   useEffect(() => {
     dispatch(fetchFavorites());
   }, []);
+  useEffect(() => {
+    // fetch nếu thiếu
+    if (!detail || detail._id !== selectedProductId) {
+      if (selectedProductId) {
+        dispatch(fetchProductDetail(selectedProductId));
+      }
+    }
+  }, [selectedProductId]);
 
-  const showAlert = () => {
-    Alert.alert(
-      getTranslation('thong_bao'),
-      getTranslation('xoa_toan_bo'),
-      [
-        {
-          text: getTranslation('huy'),
-          style: 'cancel',
-        },
-        {
-          text: 'OK',
-          onPress: () => {
-            dispatch(clearFavorites());
-            Toast.show({
-              type: 'notification',
-              position: 'top',
-              text1: 'Thành công',
-              text2: 'Tất cả sản phẩm đã xoá khỏi yêu thích',
-              visibilityTime: 1000,
-              autoHide: true,
-              swipeable: true,
-            });
-          },
-        },
-      ],
-      {cancelable: true},
-    );
+  useEffect(() => {
+    if (detail && detail._id === selectedProductId) {
+      setProData(detail);
+      if (detail.variants?.length) {
+        setSelectedSize(detail.variants[0].size);
+        setSelectedColor(detail.variants[0].color);
+      }
+    }
+  }, [detail, selectedProductId]);
+
+  const handleDelAllFavorite = () => {
+    dispatch(clearFavorites());
+    setIsOpenCheck(false);
+    Toast.show({
+      type: 'notification',
+      position: 'top',
+      text1: 'Thành công',
+      text2: 'Tất cả sản phẩm đã xoá khỏi yêu thích',
+      visibilityTime: 1000,
+      autoHide: true,
+      swipeable: true,
+    });
   };
 
   const handleDelFavorite = () => {
@@ -89,6 +121,76 @@ const FavoriteScreen = () => {
     }
   };
 
+  const handleAddtoCart = async () => {
+    // parse và validate quantity
+    const qty = parseInt(quantity, 10);
+    if (isNaN(qty) || qty < 1) {
+      Alert.alert('Lỗi', 'Số lượng phải là số nguyên lớn hơn 0');
+      return;
+    }
+
+    // tìm variant phù hợp
+    const variantIndex = proData?.variants?.findIndex(
+      (v: any) => v.size === selectedSize && v.color === selectedColor,
+    );
+
+    if (variantIndex === -1) {
+      Alert.alert('Lỗi', 'Bạn chưa chọn kích thước / màu hợp lệ');
+      return;
+    }
+
+    const variant = proData.variants[variantIndex];
+    if (!variant) {
+      Alert.alert('Lỗi', 'Phiên bản sản phẩm không tồn tại');
+      return;
+    }
+
+    if (variant.quantity < qty) {
+      Alert.alert(
+        'Thông báo',
+        `Tối đa chỉ còn ${variant.quantity} sản phẩm trong kho`,
+      );
+      return;
+    }
+
+    // gọi thêm vào giỏ
+    if (!selectedProductId) {
+      Alert.alert('Lỗi', 'Không tìm thấy sản phẩm để thêm vào giỏ hàng');
+      return;
+    }
+    await dispatch(
+      addCart({
+        productId: selectedProductId,
+        variantIndex,
+        quantity: qty,
+      }),
+    ).unwrap();
+
+    // nếu cần làm mới giỏ
+    await dispatch(fetchCart());
+
+    // thông báo thành công
+    setIsOpenAddCart(false);
+    Toast.show({
+      type: 'notification',
+      text1: 'Thành công',
+      text2: 'Đã thêm vào giỏ hàng!',
+      visibilityTime: 1000,
+      autoHide: true,
+      swipeable: true,
+    });
+  };
+
+  const handleClearModal = () => {
+    setIsOpenAddCart(false);
+    setProData(null);
+    setSelectedProductId(null);
+    setSelectedSize('');
+    setSelectedColor('');
+    setQuantity('1');
+    dispatch(clearProductDetail());
+  };
+
   return (
     <ContainerView>
       <Header
@@ -101,7 +203,7 @@ const FavoriteScreen = () => {
             icon={IconSRC.icon_delete}
             color={colors.red}
             containerStyle={{marginRight: 8}}
-            onPress={showAlert}
+            onPress={() => setIsOpenCheck(true)}
           />
         }
       />
@@ -154,7 +256,10 @@ const FavoriteScreen = () => {
               price={item.price}
               image={item.variants?.[0]?.image || ''}
               onPress={() => {}}
-              onPressAdd={() => {}}
+              onPressAdd={() => {
+                setSelectedProductId(item._id);
+                setIsOpenAddCart(true);
+              }}
               onPressIcon={() => {
                 setSelectedProductId(item._id);
                 setIsOpen(true);
@@ -185,7 +290,10 @@ const FavoriteScreen = () => {
               sizeLeft={20}
               containerStyle={{paddingVertical: 25}}
               name={getTranslation('them_vao_gio_hang')}
-              onPress={() => {}}
+              onPress={() => {
+                setIsOpen(false);
+                setIsOpenAddCart(true);
+              }}
             />
             <ButtonOption
               iconLeft={IconSRC.icon_delete}
@@ -197,6 +305,118 @@ const FavoriteScreen = () => {
             />
           </Block>
         }
+      />
+
+      {/* Modal Thêm vào giỏ hàng */}
+      <ModalBottom
+        visible={isOpenAddCart}
+        animationType="fade"
+        heightModal={530}
+        onClose={() => {
+          handleClearModal();
+        }}
+        children={
+          <AddCart
+            image={
+              proData?.variants?.find(
+                (v: any) =>
+                  v.size === selectedSize && v.color === selectedColor,
+              )?.image || ''
+            }
+            price={
+              typeof proData?.price === 'number'
+                ? proData?.price.toLocaleString('vi-VN')
+                : '0'
+            }
+            quantity_kho={
+              proData?.variants?.find(
+                (v: any) =>
+                  v.size === selectedSize && v.color === selectedColor,
+              )?.quantity || 0
+            }
+            onColse={() => {
+              handleClearModal();
+            }}
+            value={quantity}
+            onChangeText={text => setQuantity(text)}
+            onPress={handleAddtoCart}
+            size={
+              <>
+                <TextSmall style={styles.boW}>
+                  {getTranslation('kich_thuoc')}
+                </TextSmall>
+                <View style={{flexDirection: 'row'}}>
+                  {sizes.map((size: any, index): any => {
+                    return (
+                      <TouchIcon
+                        key={`size-${index}`}
+                        colorTitle={
+                          selectedSize === size ? colors.while : colors.black
+                        }
+                        title={size}
+                        containerStyle={[
+                          styles.size,
+                          {
+                            backgroundColor:
+                              selectedSize === size
+                                ? colors.blue1
+                                : colors.while,
+                          },
+                        ]}
+                        onPress={() => {
+                          setSelectedSize(size);
+                        }}
+                      />
+                    );
+                  })}
+                </View>
+              </>
+            }
+            color={
+              <>
+                <TextSmall style={{marginTop: 7}}>
+                  {getTranslation('mau_sac')}
+                </TextSmall>
+                <View style={{flexDirection: 'row'}}>
+                  {colorss.map((color: any, index) => {
+                    return (
+                      <TouchableOpacity
+                        onPress={() => setSelectedColor(color)}
+                        key={`color-${index}`}
+                        style={[
+                          styles.color,
+                          {
+                            backgroundColor:
+                              selectedColor === color
+                                ? colors.blue1
+                                : colors.while,
+                          },
+                        ]}>
+                        <TextSmall
+                          color={
+                            selectedColor === color
+                              ? colors.while
+                              : colors.black
+                          }>
+                          {color}
+                        </TextSmall>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </>
+            }
+          />
+        }
+      />
+
+      <ModalCenter
+        visible={isOpenCheck}
+        content={'Bạn có chắc muốn xoá tất cả yêu thích'}
+        onClose={() => setIsOpenCheck(false)}
+        onPress={() => {
+          handleDelAllFavorite();
+        }}
       />
 
       <Toast config={configToast} />
@@ -217,5 +437,37 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  boW: {
+    borderTopWidth: 0.3,
+    borderColor: colors.while,
+    paddingVertical: 7,
+  },
+  size: {
+    width: 50,
+    height: 35,
+    borderRadius: 7,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 7,
+    marginBottom: 15,
+  },
+  color: {
+    overflow: 'hidden',
+    borderRadius: 7,
+    height: 35,
+    backgroundColor: colors.while,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginRight: 8,
+    marginBottom: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  colorView: {
+    width: 35,
+    height: 35,
+    borderRadius: 30,
+    margin: 2,
   },
 });

@@ -110,7 +110,7 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
     selectedItems.includes(index),
   );
 
-  console.log('PRO: ', selectedProducts);
+  // console.log('PRO: ', selectedProducts);
 
   // Tính tổng tiền
   const subtotal = selectedProducts.reduce((sum, item) => {

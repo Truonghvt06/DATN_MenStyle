@@ -44,7 +44,7 @@ const CartScreen = () => {
   // const listCart = [...cartData].sort(
   //   (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   // );
-  console.log('CART: ', listCart);
+  // console.log('CART: ', listCart);
 
   // State quản lý checkbox
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());

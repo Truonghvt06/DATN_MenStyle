@@ -1,12 +1,17 @@
 const mongoose = require("mongoose");
 
-const ORDER_ENUM = [
-  "pending",
-  "confirmed",
-  "shipping",
-  "delivered",
-  "paid",
-  "cancelled",
+const ORDER_STATUS_ENUM = [
+  "pending", // Chờ xác nhận
+  "confirmed", // Đã xác nhận
+  "shipping", // Đang giao
+  "delivered", // Đã giao
+  "cancelled", // Đã huỷ
+];
+
+const PAYMENT_STATUS_ENUM = [
+  "unpaid", // Chưa thanh toán
+  "paid", // Đã thanh toán
+  "refunded", // Hoàn tiền
 ];
 
 const orderItemSchema = new mongoose.Schema({
@@ -28,7 +33,15 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
     total_amount: { type: Number, required: true },
-    status: { type: String, enum: ORDER_ENUM, default: "pending" },
+
+    // Tách 2 trạng thái
+    order_status: { type: String, enum: ORDER_STATUS_ENUM, default: "pending" },
+    payment_status: {
+      type: String,
+      enum: PAYMENT_STATUS_ENUM,
+      default: "unpaid",
+    },
+
     shipping_address_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Address",
@@ -40,6 +53,7 @@ const orderSchema = new mongoose.Schema(
       ref: "PaymentMethod",
       required: true,
     },
+
     items: { type: [orderItemSchema], default: [] },
     deliveredAt: { type: Date, default: null },
   },

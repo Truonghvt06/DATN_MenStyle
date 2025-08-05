@@ -152,7 +152,9 @@ const CartItem = (props: Props) => {
                 Xoá
               </TextSmall>
             </TouchableOpacity>
-            <TextMedium medium>{price?.toLocaleString('vi-VN')}VND</TextMedium>
+            <TextMedium medium color={colors.primary}>
+              {price?.toLocaleString('vi-VN')}VND
+            </TextMedium>
           </Block>
         </Block>
       </TouchableOpacity>
