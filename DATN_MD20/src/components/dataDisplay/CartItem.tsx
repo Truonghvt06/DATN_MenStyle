@@ -52,16 +52,34 @@ const CartItem = (props: Props) => {
   } = props;
 
   const handleTru = () => {
-    const newValue = Math.max(1, parseInt(value || '1') - 1); //So sánh value với 1 Math.max(1,..): lấy kq lớn hơn
-    onChangeText?.(String(newValue));
-    inputRef.current?.blur(); // Ẩn con trỏ
+    const current = parseInt(value || '1', 10);
+    const newValue = current - 1;
+    if (newValue < 1) {
+      onPressDelete?.();
+    } else {
+      onChangeText?.(String(newValue));
+    }
+    inputRef.current?.blur();
   };
 
   const handleCong = () => {
-    const newValue = parseInt(value || '1') + 1;
+    const newValue = parseInt(value || '1', 10) + 1;
     onChangeText?.(String(newValue));
-    inputRef.current?.blur(); // Ẩn con trỏ
+    inputRef.current?.blur();
   };
+  // const handleTextChange = (text: string) => {
+  //   const parsed = parseInt(text, 10);
+  //   if (isNaN(parsed)) {
+  //     // giữ nguyên hoặc reset về 1
+  //     onChangeText?.('1');
+  //     return;
+  //   }
+  //   if (parsed < 1) {
+  //     onPressDelete?.();
+  //   } else {
+  //     onChangeText?.(String(parsed));
+  //   }
+  // };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

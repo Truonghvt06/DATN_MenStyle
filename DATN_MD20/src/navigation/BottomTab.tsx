@@ -15,7 +15,8 @@ import {dataProduct} from '../constants/data';
 import useLanguage from '../hooks/useLanguage';
 import {useAppDispatch, useAppSelector} from '../redux/store';
 import {useAppTheme} from '../themes/ThemeContext';
-import {fetchCart} from '../redux/actions/cart';
+import {fetchCart} from '../redux/actions/cart/cartAction';
+// import {fetchCart} from '../redux/actions/cart';
 
 const Tab = createBottomTabNavigator();
 const BottomTab = () => {
@@ -24,10 +25,11 @@ const BottomTab = () => {
   const {token, user} = useAppSelector(state => state.auth);
 
   const dispatch = useAppDispatch();
-  const {items} = useAppSelector(state => state.cart);
+  const {listCart} = useAppSelector(state => state.cartt);
 
   useEffect(() => {
-    dispatch(fetchCart(user?._id));
+    // dispatch(fetchCart(user?._id));
+    dispatch(fetchCart());
   }, []);
 
   // const {} = useAppSelector(state => state.cart);
@@ -106,13 +108,13 @@ const BottomTab = () => {
               }}>
               <Block>
                 {token ? (
-                  items.length === 0 ? null : (
+                  listCart.length === 0 ? null : (
                     <View style={styles.cart}>
                       <TextSizeCustom
                         color="white"
                         size={11}
                         style={{textAlign: 'center'}}>
-                        {items.length}
+                        {listCart.length}
                       </TextSizeCustom>
                     </View>
                   )

@@ -48,20 +48,38 @@ const OrderItem = (props: Propos) => {
 
   const getStatusColor = (status?: string) => {
     switch (status) {
-      case 'Chờ xác nhận':
+      case 'pending':
         return colors.blue2;
-      case 'Đã xác nhận':
+      case 'confirmed':
         return colors.blue1;
-      case 'Chờ giao hàng':
+      case 'shipping':
         return colors.orange;
-      case 'Đã giao':
+      case 'delivered':
         return colors.green1;
-      case 'Đã huỷ':
+      case 'cancelled':
         return colors.red;
       default:
         return colors.gray;
     }
   };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return getTranslation('cho_xac_nhan');
+      case 'confirmed':
+        return getTranslation('da_xac_nhan');
+      case 'shipping':
+        return getTranslation('cho_giao_hang');
+      case 'delivered':
+        return getTranslation('da_giao');
+      case 'cancelled':
+        return getTranslation('da_huy');
+      default:
+        return 'Không rõ';
+    }
+  };
+
   return (
     <TouchableOpacity
       {...props}
@@ -90,12 +108,14 @@ const OrderItem = (props: Propos) => {
               styles.status,
               {backgroundColor: getStatusColor(status)},
             ]}>
-            <TextSmall color={colors.while}>{status}</TextSmall>
+            <TextSmall color={colors.while}>
+              {getStatusText(status ?? '')}
+            </TextSmall>
           </Block>
         </Block>
         <FlatList
           data={displayData}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item._id}
           renderItem={({item}) => {
             return (
               <Block row flex1 marB={8}>

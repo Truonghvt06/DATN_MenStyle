@@ -39,6 +39,7 @@ interface VoucherItemProps {
   date_from?: string;
   date_to?: Date | string;
   is_active?: true;
+  icon?: any;
   onPress?: () => void;
 }
 
@@ -58,6 +59,7 @@ const VoucherItem = (props: VoucherItemProps) => {
     date_from,
     date_to,
     is_active,
+    icon = IconSRC.icon_coppy,
     onPress,
   } = props;
 
@@ -99,9 +101,9 @@ const VoucherItem = (props: VoucherItemProps) => {
           <TextSizeCustom size={16} bold style={{marginBottom: 3}}>
             {getTitle()}
           </TextSizeCustom>
-          <TextSizeCustom size={12} numberOfLines={1} ellipsizeMode="tail">
+          {/* <TextSizeCustom size={12} numberOfLines={1} ellipsizeMode="tail">
             {description}
-          </TextSizeCustom>
+          </TextSizeCustom> */}
           <TextSizeCustom size={12}>
             Đơn tối thiểu: {min_order_amount?.toLocaleString('vi-VN')}đ
           </TextSizeCustom>
@@ -117,7 +119,7 @@ const VoucherItem = (props: VoucherItemProps) => {
           )}
         </Block>
 
-        <TouchIcon icon={IconSRC.icon_coppy} onPress={onPress} />
+        <TouchIcon icon={icon} onPress={onPress} />
       </View>
     </View>
   );

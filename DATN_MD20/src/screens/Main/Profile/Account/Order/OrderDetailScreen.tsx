@@ -66,11 +66,11 @@ const OrderDetailScreen = () => {
   }, []);
 
   // Lấy 2 ký tự đầu
-  const first2 = order?._id.slice(0, 2);
+  const first2 = order?._id?.slice(0, 2);
   // Lấy 4 ký tự giữa (ví dụ từ vị trí 10 đến 14)
-  const middle4 = order?._id.slice(10, 14);
+  const middle4 = order?._id?.slice(10, 14);
   // Lấy 2 ký tự cuối
-  const last2 = order?._id.slice(-2);
+  const last2 = order?._id?.slice(-2);
   // Gộp thành mã đơn hàng
   const orderCode = `${first2}${middle4}${last2}`.toUpperCase();
 
@@ -98,15 +98,15 @@ const OrderDetailScreen = () => {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'Pending':
+      case 'pending':
         return 'Chờ xác nhận';
-      case 'Confirmed':
+      case 'confirmed':
         return 'Đã xác nhận';
-      case 'Shipping':
+      case 'shipping':
         return 'Chờ giao hàng';
-      case 'Delivered':
+      case 'delivered':
         return 'Đã giao';
-      case 'Canceled':
+      case 'cancelled':
         return 'Đã huỷ';
       default:
         return 'Không rõ';
@@ -117,15 +117,15 @@ const OrderDetailScreen = () => {
 
   const getStatusColor = (status?: string) => {
     switch (status) {
-      case 'Pending':
+      case 'pending':
         return colors.blue2;
-      case 'Confirmed':
+      case 'confirmed':
         return colors.blue1;
-      case 'Shipping':
+      case 'shipping':
         return colors.orange;
-      case 'Delivered':
+      case 'delivered':
         return colors.green1;
-      case 'Canceled':
+      case 'cancelled':
         return colors.red;
       default:
         return colors.gray;
@@ -173,11 +173,13 @@ const OrderDetailScreen = () => {
                 styles.status,
                 {backgroundColor: getStatusColor(order?.status)},
               ]}>
-              <TextSmall>{getStatusText(order?.status)}</TextSmall>
+              <TextSmall color={colors.while}>
+                {getStatusText(order?.status)}
+              </TextSmall>
             </Block>
           </Block>
 
-          {order?.status !== 'Canceled' && (
+          {order?.status !== 'cancelled' && (
             <Block marT={30}>
               <TextHeight medium color={theme.text}>
                 {getTranslation('trang_thai_don_hang')}
@@ -277,7 +279,7 @@ const OrderDetailScreen = () => {
 
           <ButtonBase
             title={
-              order?.status !== 'Canceled'
+              order?.status !== 'cancelled'
                 ? getTranslation('huy_don')
                 : getTranslation('mua_lai')
             }

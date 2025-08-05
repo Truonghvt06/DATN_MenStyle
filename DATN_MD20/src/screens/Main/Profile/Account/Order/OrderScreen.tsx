@@ -27,7 +27,7 @@ const OrderScreen = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
   const theme = useAppTheme();
-  const [selectedTab, setSelectedTab] = useState('Chờ xác nhận');
+  const [selectedTab, setSelectedTab] = useState(getTranslation('tat_ca'));
 
   const dispatch = useAppDispatch();
   const {orders} = useAppSelector(state => state.order);
@@ -54,40 +54,25 @@ const OrderScreen = () => {
 
   const bg = useRef(null);
 
-  const filteredProducts = useMemo(() => {
-    switch (selectedTab) {
-      case 'Chờ xác nhận':
-        return [...dataProduct].sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        );
-      case 'Đã xác nhận':
-      case 'Chờ giao hàng':
-      case 'Đã giao ':
-      case 'Đã huỷ':
-        return [...dataProduct].sort((a, b) => a.price - b.price);
-      case 'Tất cả':
-      default:
-        return dataProduct;
-    }
-  }, [selectedTab]);
+  const filteredorder = useMemo(() => {
+    if (!orders || orders.length === 0) return [];
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'Pending':
-        return 'Chờ xác nhận';
-      case 'Confirmed':
-        return 'Đã xác nhận';
-      case 'Shipping':
-        return 'Chờ giao hàng';
-      case 'Delivered':
-        return 'Đã giao';
-      case 'Canceled':
-        return 'Đã huỷ';
+    switch (selectedTab) {
+      case getTranslation('cho_xac_nhan'):
+        return orders.filter(order => order.status === 'pending');
+      case getTranslation('da_xac_nhan'):
+        return orders.filter(order => order.status === 'confirmed');
+      case getTranslation('cho_giao_hang'):
+        return orders.filter(order => order.status === 'shipping');
+      case getTranslation('da_giao'):
+        return orders.filter(order => order.status === 'delivered');
+      case getTranslation('da_huy'):
+        return orders.filter(order => order.status === 'cancelled');
+      case getTranslation('tat_ca'):
       default:
-        return 'Không rõ';
+        return orders;
     }
-  };
+  }, [orders, selectedTab]);
 
   const renderTab = (item: any) => (
     <TouchableOpacity
@@ -128,15 +113,15 @@ const OrderScreen = () => {
         </ScrollView>
       </View>
       <FlatList
-        data={orders}
-        keyExtractor={item => `od-${item._id}`}
+        data={filteredorder}
+        keyExtractor={item => item._id}
         renderItem={({item}) => {
           // Lấy 2 ký tự đầu
-          const first2 = item._id.slice(0, 2);
+          const first2 = item._id?.slice(0, 2);
           // Lấy 4 ký tự giữa (ví dụ từ vị trí 10 đến 14)
-          const middle4 = item._id.slice(10, 14);
+          const middle4 = item._id?.slice(10, 14);
           // Lấy 2 ký tự cuối
-          const last2 = item._id.slice(-2);
+          const last2 = item._id?.slice(-2);
           // Gộp thành mã đơn hàng
           const orderCode = `${first2}${middle4}${last2}`.toUpperCase();
 
@@ -157,7 +142,7 @@ const OrderScreen = () => {
               code_order={orderCode}
               date={moment(item.createdAt).format('DD/MM/YYYY')}
               total={item.total_amount}
-              status={getStatusText(item.status)}
+              status={item.status}
               data={formattedItems}
               onPress={() => {
                 navigation.navigate(ScreenName.Main.OrderDetail, {

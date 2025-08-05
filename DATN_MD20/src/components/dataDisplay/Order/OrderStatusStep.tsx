@@ -45,10 +45,10 @@ const OrderStatusStep = ({status}: Props) => {
   ];
 
   const statusIndex: any = {
-    'Chờ xác nhận': 0,
-    'Đã xác nhận': 1,
-    'Chờ giao hàng': 2,
-    'Đã giao': 3,
+    pending: 0,
+    confirmed: 1,
+    shipping: 2,
+    delivered: 3,
   };
 
   const currentPosition = statusIndex[status] ?? 0;

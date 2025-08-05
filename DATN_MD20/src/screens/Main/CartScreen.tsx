@@ -5,7 +5,7 @@ import {
   TouchableWithoutFeedback,
   Alert,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import ContainerView from '../../components/layout/ContainerView';
 import Header from '../../components/dataDisplay/Header';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -25,25 +25,43 @@ import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
 import {useAppTheme} from '../../themes/ThemeContext';
 import ModalCenter from '../../components/dataDisplay/Modal/ModalCenter';
-import {fetchCart, removeFromCart, updateCart} from '../../redux/actions/cart';
+import {
+  fetchCart,
+  removeCart,
+  updateCart,
+} from '../../redux/actions/cart/cartAction';
+// import {fetchCart, removeFromCart, updateCart} from '../../redux/actions/cart';
 
 const CartScreen = () => {
   const {top} = useSafeAreaInsets();
   const theme = useAppTheme();
   const {getTranslation} = useLanguage();
 
-  const {user} = useAppSelector(state => state.auth);
-  const {items: cartData, loading} = useAppSelector(state => state.cart);
   const dispatch = useAppDispatch();
+  const {user} = useAppSelector(state => state.auth);
+  const {listCart, loading} = useAppSelector(state => state.cartt);
 
   // const listCart = [...cartData].sort(
   //   (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   // );
+  console.log('CART: ', listCart);
 
   // State quản lý checkbox
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
   const [selectAll, setSelectAll] = useState(false);
   const [isOpenCheck, setIsOpenCheck] = useState(false);
+
+  useEffect(() => {
+    if (user?._id) {
+      dispatch(fetchCart());
+    }
+  }, [dispatch, user?._id]);
+
+  // Reset checkbox state khi listCart thay đổi
+  useEffect(() => {
+    setSelectedItems(new Set());
+    setSelectAll(false);
+  }, [listCart.length]);
 
   // Hàm làm sạch URL ảnh
   const cleanImageUrl = (url: string) => {
@@ -59,7 +77,7 @@ const CartScreen = () => {
       setSelectAll(false);
     } else {
       const allIndices = new Set(
-        cartData.map((_: any, index: number) => index),
+        listCart.map((_: any, index: number) => index),
       );
       setSelectedItems(allIndices as Set<number>);
       setSelectAll(true);
@@ -77,90 +95,110 @@ const CartScreen = () => {
     setSelectedItems(newSelectedItems);
 
     // Cập nhật trạng thái "chọn tất cả"
-    if (newSelectedItems.size === cartData.length) {
+    if (newSelectedItems.size === listCart.length) {
       setSelectAll(true);
     } else {
       setSelectAll(false);
     }
   };
 
-  // Hàm xóa tất cả sản phẩm đã chọn
-  const handleDeleteSelected = async () => {
-    if (selectedItems.size === 0) return;
-    setIsOpenCheck(false);
+  //Xoá từng item
+  const handleDelete = async (index: number) => {
+    if (!user?._id) return;
+    const item = listCart[index];
+    if (!item) return;
 
     try {
-      // Xóa từng sản phẩm đã chọn theo thứ tự ngược lại để tránh lỗi index
-      const sortedIndices = Array.from(selectedItems).sort((a, b) => b - a);
+      await dispatch(
+        removeCart([
+          {
+            productId: item.productId._id || item.productId, // tùy structure
+            variantIndex: item.variantIndex,
+          },
+        ]),
+      ).unwrap();
+      await dispatch(fetchCart());
+    } catch (err) {
+      console.warn('Xóa thất bại', err);
+      Alert.alert('Lỗi', 'Không thể xóa sản phẩm. Thử lại sau.');
+    }
+  };
 
-      for (const index of sortedIndices) {
-        if (!user?._id) return;
-        await dispatch(removeFromCart({userId: user._id, index}));
-      }
+  // Xóa nhiều item đã chọn
+  const handleDeleteSelected = async () => {
+    if (selectedItems.size === 0) return;
+    if (!user?._id) {
+      setIsOpenCheck(true);
+      return;
+    }
 
-      // Fetch lại cart sau khi xóa
-      if (user?._id) {
-        await dispatch(fetchCart(user._id));
-      }
+    try {
+      const itemsToRemove = Array.from(selectedItems).map(idx => {
+        const it = listCart[idx];
+        return {
+          productId: it.productId._id || it.productId,
+          variantIndex: it.variantIndex,
+        };
+      });
 
-      // Reset state
+      await dispatch(removeCart(itemsToRemove)).unwrap();
+      setIsOpenCheck(false);
+      await dispatch(fetchCart());
       setSelectedItems(new Set());
       setSelectAll(false);
-
-      // console.log(`Đã xóa ${selectedItems.size} sản phẩm khỏi giỏ hàng`);
     } catch (error) {
-      console.error('Lỗi khi xóa sản phẩm:', error);
-      Alert.alert('Lỗi', 'Không thể xóa sản phẩm. Vui lòng thử lại.');
+      console.error('Lỗi khi xóa nhiều:', error);
+      Alert.alert('Lỗi', 'Xóa thất bại. Vui lòng thử lại.');
     }
   };
 
-  React.useEffect(() => {
-    if (user?._id) {
-      dispatch(fetchCart(user._id));
+  // Cập nhật số lượng
+  const handleChangeQuantity = async (index: number, value: string) => {
+    if (!user?._id) return;
+    const parsed = parseInt(value, 10);
+    if (isNaN(parsed) || parsed < 1) return; // hoặc hiển thị lỗi nhỏ
+
+    const item = listCart[index];
+    if (!item) return;
+
+    const variant = item.productId?.variants?.[item.variantIndex];
+    if (!variant) return;
+
+    if (parsed > variant.quantity) {
+      Alert.alert(
+        'Thông báo',
+        `Tối đa chỉ còn ${variant.quantity} sản phẩm trong kho`,
+      );
+      return;
     }
-  }, [user?._id, dispatch]);
 
-  // Reset checkbox state khi cartData thay đổi
-  React.useEffect(() => {
-    setSelectedItems(new Set());
-    setSelectAll(false);
-  }, [cartData.length]);
+    // nếu số lượng không đổi thì bỏ
+    if (item.quantity === parsed) return;
 
-  const handleChangeQuantity = (index: number, value: string) => {
-    // Gọi API cập nhật số lượng
-    if (!user?._id) return;
-    const action =
-      parseInt(value) > parseInt(cartData[index].quantity)
-        ? `increase-${index}`
-        : `decrease-${index}`;
-    dispatch(updateCart({userId: user._id, action})).then(() => {
-      dispatch(fetchCart(user._id));
-    });
-  };
-
-  const handleToggleCheck = (index: number) => {
-    // Tuỳ ý, nếu muốn chọn sản phẩm để thanh toán
-  };
-
-  const handleDelete = (index: number) => {
-    if (!user?._id) return;
-    dispatch(removeFromCart({userId: user._id, index})).then(() => {
-      dispatch(fetchCart(user._id));
-    });
+    try {
+      await dispatch(
+        updateCart({
+          productId: item.productId._id || item.productId,
+          variantIndex: item.variantIndex,
+          quantity: parsed,
+        }),
+      ).unwrap();
+      await dispatch(fetchCart());
+    } catch (err) {
+      console.warn('Cập nhật số lượng thất bại', err);
+      Alert.alert('Lỗi', 'Không thể cập nhật số lượng. Thử lại sau.');
+    }
   };
 
   // Hàm tính tổng tiền chỉ cho các sản phẩm đã chọn
-  const totalPrice = cartData.reduce(
-    (sum: number, item: any, index: number) => {
+  const totalPrice = useMemo(() => {
+    return listCart.reduce((sum: number, item: any, index: number) => {
       if (selectedItems.has(index)) {
-        return (
-          sum + parseInt(item.quantity || '1') * (item.productId?.price || 0)
-        );
+        return sum + item.quantity * (item.productId?.price || 0);
       }
       return sum;
-    },
-    0,
-  );
+    }, 0);
+  }, [listCart, selectedItems]);
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -180,7 +218,7 @@ const CartScreen = () => {
         />
 
         {/* Header với checkbox "Chọn tất cả" */}
-        {cartData.length > 0 && (
+        {listCart.length > 0 && (
           <Block
             row
             alignCT
@@ -196,7 +234,7 @@ const CartScreen = () => {
                 onPress={handleSelectAll}
               />
               <TextSmall color={theme.text} style={{marginLeft: 10}}>
-                Chọn tất cả ({selectedItems.size}/{cartData.length})
+                Chọn tất cả ({selectedItems.size}/{listCart.length})
               </TextSmall>
             </Block>
             {selectedItems.size > 0 && (
@@ -215,7 +253,7 @@ const CartScreen = () => {
         )}
 
         <FlatList
-          data={cartData}
+          data={listCart}
           keyExtractor={(item, index) => item.productId?._id + '-' + index}
           renderItem={({item, index}) => {
             const imageUrl = cleanImageUrl(
@@ -282,7 +320,7 @@ const CartScreen = () => {
                 // Navigate đến màn hình thanh toán
                 navigation.navigate(ScreenName.Main.Checkout, {
                   selectedItems: Array.from(selectedItems),
-                  cartData: cartData,
+                  listCart: listCart,
                 });
               }
             }}
