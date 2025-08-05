@@ -85,8 +85,8 @@ const cartSlicee = createSlice({
     builder
 
       .addCase(removeCart.fulfilled, (state, action: PayloadAction<any[]>) => {
-        state.loading = false;
-        state.listCart = action.payload;
+        // state.loading = false;
+        // state.listCart = action.payload;
       })
       .addCase(removeCart.rejected, (state, action) => {
         state.loading = false;

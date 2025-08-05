@@ -419,9 +419,8 @@ const ProductDetail = () => {
           </>
         )}
 
+        {/* Modal Thêm vào giỏ hàng */}
         <ModalBottom
-          // header
-          // label="Thêm sản phẩm"
           visible={openModal}
           animationType="fade"
           heightModal={530}
@@ -535,6 +534,7 @@ const ProductDetail = () => {
             />
           }
         />
+
         {/* <Toast config={configToast} /> */}
 
         <ModalCenter

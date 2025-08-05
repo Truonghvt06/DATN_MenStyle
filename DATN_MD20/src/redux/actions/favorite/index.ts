@@ -18,7 +18,7 @@ export const fetchFavorites = createAsyncThunk(
   async (_, {rejectWithValue}) => {
     try {
       const favorites = await favoriteService.getFavoritesAPI();
-      console.log('FAVO:', favorites);
+      // console.log('FAVO:', favorites);
 
       //   return favorites.map((item: any) => item._id); // Trả về mảng ID
       return favorites; // Trả về mảng ID
