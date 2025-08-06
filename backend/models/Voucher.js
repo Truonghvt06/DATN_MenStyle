@@ -6,6 +6,7 @@ const VOUCHER_SCOPE = ["order", "shipping"];
 
 const voucherSchema = new mongoose.Schema(
   {
+<<<<<<< HEAD
     title: { type: String, required: true }, // Tiêu đề voucher, bắt buộc
     code: { type: String, required: true, unique: true }, // Mã voucher, bắt buộc, không được trùng lặp
     image: { type: String, default: "" }, // Hình ảnh đại diện voucher, có thể để trống
@@ -29,6 +30,18 @@ const voucherSchema = new mongoose.Schema(
     date_from: { type: Date, required: true }, // Ngày bắt đầu hiệu lực
     date_to: { type: Date, required: true }, // Ngày hết hạn
     is_active: { type: Boolean, default: true }, // Trạng thái voucher (đang hoạt động hoặc bị khóa)
+=======
+    code: { type: String, required: true },
+    description: { type: String, required: false, default: "" },
+    discount_type: { type: String, enum: VOUCHER_ENUM, required: true },
+    discount_value: { type: String, required: true },
+    min_order_amount: { type: Number, required: false, default: 0 },
+    quantity: { type: Number, required: true },
+    used_count: { type: Number, default: 0 },
+    date_from: { type: String, required: true },
+    date_to: { type: String, required: true },
+    is_status: { type: Boolean, default: false },
+>>>>>>> origin/NguyenDucThanh2808
   },
   { timestamps: true }
 );
