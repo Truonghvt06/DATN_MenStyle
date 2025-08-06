@@ -18,76 +18,61 @@
       display: flex;
     }
 
+    .sidebar.collapsed a span {
+  display: none;
+}
+
+
     .sidebar {
       width: 240px;
-      height: 100vh;
+      min-height: 100vh;
       background: #fff;
-      padding: 30px 20px;
-      box-shadow: 2px 0 6px rgba(0, 0, 0, 0.05);
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      position: fixed;
-      top: 0;
-      left: 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      padding: 20px 0;
       transition: all 0.3s ease;
-      z-index: 1000;
     }
 
     .sidebar.collapsed {
-      transform: translateX(-100%);
+      width: 60px;
     }
 
     .sidebar a {
-      text-decoration: none;
-      color: #333;
-      font-weight: 500;
-      padding: 10px 15px;
-      border-radius: 6px;
       display: flex;
       align-items: center;
       gap: 10px;
+      padding: 10px 20px;
+      color: #333;
+      text-decoration: none;
+      font-weight: 500;
       transition: 0.3s;
-      border: 1px solid transparent;
+      white-space: nowrap;
     }
 
     .sidebar a:hover {
       background: #111;
       color: #fff;
-      border-color: #111;
+    }
+
+    .sidebar a i {
+      font-size: 20px;
     }
 
     .content {
       flex: 1;
-      margin-left: 240px;
+      padding: 30px;
       transition: margin-left 0.3s ease;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .content.collapsed {
-      margin-left: 0;
     }
 
     header {
       background-color: #111;
       color: #fff;
       padding: 15px 20px;
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 600;
       display: flex;
       align-items: center;
       gap: 15px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-
-    header .toggle-btn {
-      background: none;
-      border: none;
-      color: #fff;
-      font-size: 24px;
-      cursor: pointer;
+      margin-bottom: 30px;
     }
 
     main {
@@ -154,49 +139,69 @@
     <a href="/voucher/view"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
     <a href="/accounts/view"><i class="bi bi-people"></i><span> Tài khoản</span></a>
     <a href="/accounts/admin/orders"><i class="bi bi-receipt-cutoff"></i><span> Đơn hàng</span></a>
-    <a href="/stats-overview"><i class="bi bi-bar-chart-line"></i><span> Thống kê</span></a>
+    <a href="/dashboard/stats-overview"><i class="bi bi-bar-chart-line"></i><span> Thống kê</span></a>
     <a href="/setting/view"><i class="bi bi-gear"></i> <span>Cài đặt</span></a>
   </nav>
   <!-- Content -->
   <div class="content" id="main-content">
     <header>
-      <button class="toggle-btn" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+      <button id="toggleBtn" class="btn btn-dark"><i class="bi bi-list"></i></button>
       MenStyle - Cài đặt hệ thống
     </header>
 
-    <main>
-      <div class="setting-title">Trang Cài Đặt</div><div class="col-md-4">
-          <div class="card-box">
-            <div class="icon-box bg-success"><i class="bi bi-shield-lock"></i></div>
-            <h6 class="mt-2">Đổi mật khẩu</h6>
+    <main class="container my-4">
+      <div class="text-center mb-4">
+        <h2 class="setting-title">Trang Cài Đặt</h2>
+      </div>
+    
+      <div class="row justify-content-center">
+        <!-- Đổi mật khẩu -->
+        <div class="col-md-4 mb-4">
+          <div class="card-box text-center p-4 border rounded shadow-sm">
+            <div class="icon-box bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+              <i class="bi bi-shield-lock fs-4"></i>
+            </div>
+            <h6 class="mt-3">Đổi mật khẩu</h6>
             <p class="text-muted">Thay đổi mật khẩu đăng nhập</p>
             <a href="/change-password" class="btn btn-outline-success btn-sm">Đổi mật khẩu</a>
           </div>
         </div>
-
-        <div class="col-md-4">
-          <div class="card-box">
-            <div class="icon-box bg-danger"><i class="bi bi-image"></i></div>
-            <h6 class="mt-2">Banner quảng cáo</h6>
+    
+        <!-- Banner quảng cáo -->
+        <div class="col-md-4 mb-4">
+          <div class="card-box text-center p-4 border rounded shadow-sm">
+            <div class="icon-box bg-danger text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+              <i class="bi bi-image fs-4"></i>
+            </div>
+            <h6 class="mt-3">Banner quảng cáo</h6>
             <p class="text-muted">Thêm, sửa hoặc xoá các banner</p>
             <a href="/banner/view/options" class="btn btn-outline-danger btn-sm">Quản lý banner</a>
           </div>
         </div>
       </div>
     </main>
+    
   </div>
 
   <script>
-    function toggleSidebar() {
-      const sidebar = document.getElementById("sidebar");
-      const main = document.getElementById("main-content");
+    const toggleBtn = document.getElementById('toggleBtn');
+    const sidebar = document.getElementById('sidebar');
+    const content = document.getElementById('content');
 
-      sidebar.classList.toggle("collapsed");
-      main.classList.toggle("collapsed");
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+    });
 
-      if (window.innerWidth <= 768) {
-        sidebar.classList.toggle("active");
-        main.classList.toggle("shifted");
+    function toggleVariants(id, collapse = false) {
+      const shortDiv = document.getElementById('variant-short-' + id);
+      const fullDiv = document.getElementById('variant-full-' + id);
+
+      if (collapse) {
+        shortDiv.style.display = 'block';
+        fullDiv.style.display = 'none';
+      } else {
+        shortDiv.style.display = 'none';
+        fullDiv.style.display = 'block';
       }
     }
   </script>
