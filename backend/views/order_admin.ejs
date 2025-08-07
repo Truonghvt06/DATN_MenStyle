@@ -136,7 +136,8 @@
               <th>Địa chỉ giao hàng</th>
               <th>Thanh toán</th>
               <th>Tổng tiền</th>
-              <th>Trạng thái</th>
+              <th>Trạng thái tt</th>
+              <th>Trạng thái đơn </th>
               <th>Ngày tạo</th>
             </tr>
           </thead>
@@ -180,15 +181,27 @@
                         <%= order.total_amount.toLocaleString('vi-VN') %> ₫
                       </td>
                       <td>
+                        <% if (order.payment_status === 'unpaid') { %>
+                          Chưa thanh toán
+                        <% } else if (order.payment_status === 'paid') { %>
+                          Đã thanh toán
+                        <% } else if (order.payment_status === 'refunded') { %>
+                          Hoàn tiền
+                        <% } else { %>
+                          Không xác định
+                        <% } %>
+                      </td>
+                      
+                      <td>
                         <select onchange="updateStatus('<%= order._id %>', this.value)">
-                          <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Chờ xử lý</option>
-                          <option value="confirmed" <%= order.status === 'confirmed' ? 'selected' : '' %>>Đã xác nhận</option>
-                          <option value="shipping" <%= order.status === 'shipping' ? 'selected' : '' %>>Đang giao hàng</option>
-                          <option value="delivered" <%= order.status === 'delivered' ? 'selected' : '' %>>Đã giao</option>
-                          <option value="paid" <%= order.status === 'paid' ? 'selected' : '' %>>Đã thanh toán</option>
-                          <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Đã hủy</option>
-                        </select>
-                        
+                          <option value="pending" <%= order.order_status === 'pending' ? 'selected' : '' %>>Chờ xử lý</option>
+                          <option value="confirmed" <%= order.order_status === 'confirmed' ? 'selected' : '' %>>Đã xác nhận</option>
+                          <option value="shipping" <%= order.order_status === 'shipping' ? 'selected' : '' %>>Đang giao hàng</option>
+                          <option value="delivered" <%= order.order_status === 'delivered' ? 'selected' : '' %>>Đã giao</option>
+                          <option value="paid" <%= order.order_status === 'paid' ? 'selected' : '' %>>Đã thanh toán</option>
+                          <option value="cancelled" <%= order.order_status === 'cancelled' ? 'selected' : '' %>>Đã hủy</option>
+                        </select>                        
+                      
                       </td>
                       <td>
                         <%= new Date(order.createdAt).toLocaleDateString('vi-VN') %>
@@ -209,15 +222,15 @@
       sidebar.classList.toggle('collapsed');
     });
 
-    async function updateStatus(orderId, status) {
+    async function updateStatus(orderId, order_status) {
   try {
-    console.log('Updating status for order:', orderId, 'to:', status);
+    console.log('Updating status for order:', orderId, 'to:', order_status);
     const response = await fetch(`/order/update-status/${orderId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ order_status }),
     });
     const data = await response.json();
     if (response.ok) {
