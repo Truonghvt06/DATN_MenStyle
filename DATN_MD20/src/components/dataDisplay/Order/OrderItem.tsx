@@ -24,7 +24,7 @@ interface Propos {
   code_order?: any;
   date?: string;
   total?: number;
-  status?: string;
+  order_status?: string;
   backgroundColor?: string;
   containerStyle?: ViewStyle;
   onPress?: () => void;
@@ -36,7 +36,7 @@ const OrderItem = (props: Propos) => {
     data,
     code_order,
     date,
-    status,
+    order_status,
     total,
     backgroundColor = colors.green1,
     containerStyle,
@@ -96,9 +96,9 @@ const OrderItem = (props: Propos) => {
       <Block padV={12} padH={10} overflow="hidden" flex1>
         <Block row justifyBW padB={10}>
           <Block>
-            <TextHeight numberOfLines={1} ellipsizeMode="tail" bold>
-              #{code_order}
-            </TextHeight>
+            <TextMedium numberOfLines={1} ellipsizeMode="tail" medium>
+              ID: {code_order}
+            </TextMedium>
             <TextSizeCustom size={12} color={colors.gray}>
               {date}
             </TextSizeCustom>
@@ -106,10 +106,10 @@ const OrderItem = (props: Propos) => {
           <Block
             containerStyle={[
               styles.status,
-              {backgroundColor: getStatusColor(status)},
+              {backgroundColor: getStatusColor(order_status)},
             ]}>
             <TextSmall color={colors.while}>
-              {getStatusText(status ?? '')}
+              {getStatusText(order_status ?? '')}
             </TextSmall>
           </Block>
         </Block>

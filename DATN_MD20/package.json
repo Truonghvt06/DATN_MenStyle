@@ -39,6 +39,7 @@
     "react-native-localize": "^3.4.1",
     "react-native-otp-textinput": "^1.1.7",
     "react-native-progress-steps": "^2.0.3",
+    "react-native-qrcode-svg": "^6.3.15",
     "react-native-radio-buttons-group": "^3.1.0",
     "react-native-ratings": "^8.1.0",
     "react-native-safe-area-context": "^5.4.1",
