@@ -109,59 +109,12 @@ router.get("/detail/:id", async (req, res) => {
     const products = await Product.find().lean();
     console.log("Số lượng sản phẩm trong giỏ hàng:", products.length);
     res.render("user_detail", { user, products });
-    // =======
-    //     const { userId, productId, variantIndex = 0 } = req.body;
-    //     const user = await User.findById(userId);
-    //     if (!user) return res.status(404).json({ message: "Không tìm thấy user" });
 
-    //     const exists = user.favorites.some(
-    //       (item) =>
-    //         item.productId.toString() === productId &&
-    //         item.variantIndex === variantIndex
-    //     );
-
-    //     if (!exists) {
-    //       user.favorites.push({ productId, variantIndex });
-    //       await user.save();
-    //     }
-    //     res.json({ success: true, message: "Đã thêm sản phẩm vào yêu thích." });
   } catch (err) {
     console.error(err);
     res.status(500).send("Lỗi server");
   }
 });
-// router.post("/:id/cart/add-variant", async (req, res) => {
-//   const userId = req.params.id;
-//   const { productId } = req.body;
-//   const variantIndex = Number(req.body.variantIndex);
-
-//   try {
-//     if (isNaN(variantIndex)) {
-//       return res.status(400).send("Biến thể không hợp lệ");
-//     }
-
-//     const user = await User.findById(userId);
-//     if (!user) return res.status(404).send("Không tìm thấy người dùng");
-
-//     const existing = user.cart.find(
-//       (item) =>
-//         item.productId.toString() === productId &&
-//         item.variantIndex === variantIndex
-//     );
-
-//     if (existing) {
-//       existing.quantity += 1;
-//     } else {
-//       user.cart.push({ productId, variantIndex, quantity: 1 });
-//     }
-
-//     await user.save();
-//     res.redirect(`/accounts/detail/${userId}`);
-//   } catch (err) {
-//     console.error("Lỗi thêm vào giỏ hàng:", err);
-//     res.status(500).send("Lỗi server");
-//   }
-// });
 
 router.post("/:id/cart/add-variant", async (req, res) => {
   const userId = req.params.id;
@@ -246,15 +199,7 @@ router.post("/:id/favorites/add", async (req, res) => {
     }
 
     res.redirect(`/accounts/detail/${userId}`);
-    // =======
-    //     const user = await User.findById(req.params.id)
-    //       .populate("cart.productId")
-    //       .populate("favorites.productId")
-    //       .lean();
-    //     const products = await Product.find().lean();
-    //     console.log('Số lượng sản phẩm trong giỏ hàng:', products.length);
-    //     res.render("user_detail", { user, products });
-    // >>>>>>> Stashed changes
+
   } catch (err) {
     console.error("Lỗi thêm vào yêu thích:", err);
     res.status(500).send("Lỗi server khi thêm vào yêu thích");
@@ -350,5 +295,61 @@ router.get("/api/cart/:userId", async (req, res) => {
 });
 
 // router.post('/api/orders', accountController.apiCreateOrder);
+// API thống kê dashboard
+// API thống kê dashboard
+router.get("/api/dashboard-stats", async (req, res) => {
+  try {
+    const now = new Date();
+
+    // Lấy 0h hôm nay
+    const startOfToday = new Date(now);
+    startOfToday.setHours(0, 0, 0, 0);
+
+    // Lấy 0h của 7 ngày trước
+    const startOf7DaysAgo = new Date(startOfToday);
+    startOf7DaysAgo.setDate(startOf7DaysAgo.getDate() - 6);
+
+    // Lấy 23:59:59 hôm nay
+    const endOfToday = new Date(startOfToday);
+    endOfToday.setHours(23, 59, 59, 999);
+
+    // ===== Doanh thu 7 ngày gần nhất =====
+    const revenueAgg = await Order.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startOf7DaysAgo, $lte: endOfToday }, // ✅ đổi từ updatedAt → createdAt
+          payment_status: "paid" // ✅ đúng field
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$total_amount" } // ✅ đúng field
+        }
+      }
+    ]);
+    const revenue = revenueAgg.length > 0 ? revenueAgg[0].total : 0;
+
+    // ===== Đơn hàng mới =====
+    const newOrders = await Order.countDocuments({
+      createdAt: { $gte: startOf7DaysAgo, $lte: endOfToday },
+      payment_status: "paid" // ✅ hợp lý hơn "delivered"
+    });
+
+    // ===== Khách hàng mới =====
+    const newCustomers = await User.countDocuments({
+      createdAt: { $gte: startOf7DaysAgo, $lte: endOfToday }
+    });
+
+    res.json({
+      revenue,
+      newOrders,
+      newCustomers
+    });
+  } catch (err) {
+    console.error("Lỗi lấy dashboard stats:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
 
 module.exports = router;
