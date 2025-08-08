@@ -158,7 +158,10 @@ exports.zaloCallback = async (req, res) => {
     }
 
     // Parse data từ ZaloPay
-    const dataJson = JSON.parse(dataStr);
+    const dataJson = JSON.parse(dataStr, config.key2);
+
+    console.log("DATA: ", dataJson);
+
     const app_trans_id = dataJson["app_trans_id"];
     const zp_trans_id = dataJson["zp_trans_id"];
     const server_time = dataJson["server_time"];
