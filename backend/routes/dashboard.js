@@ -1,56 +1,131 @@
 const express = require('express');
 const router = express.Router();
+const Order = require('../models/Order');
 const User = require('../models/User');
 const Product = require('../models/Product');
 
-// /dashboard/view
-router.get('/view', async (req, res) => {
+// Route VIEW: Giao diện tổng quan dashboard
+router.get('/stats-overview', (req, res) => {
+  const today = new Date();
+  const from = new Date(today.setHours(0, 0, 0, 0)).toISOString(); // đầu ngày
+  const to = new Date().toISOString(); // hiện tại
+
+  res.render('stats-overview', { defaultFrom: from, defaultTo: to });
+});
+
+// Route API: Trả về JSON thống kê dashboard
+router.get("/stats", async (req, res) => {
   try {
-    const userCount = await User.countDocuments();
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const { from, to } = req.query;
+    const start = new Date(from);
+    const end = new Date(to);
 
-    const buyersToday = await User.find({
-      updatedAt: { $gte: today },
-      cart: { $exists: true, $not: { $size: 0 } }
-    }).countDocuments();
+    // Xử lý múi giờ Việt Nam (UTC+7)
+    const VN_OFFSET = 7 * 60 * 60 * 1000;
+    const startVN = new Date(start.getTime() - VN_OFFSET);
+    const endVN = new Date(end.getTime() - VN_OFFSET);
+    startVN.setHours(0, 0, 0, 0);
+    endVN.setHours(23, 59, 59, 999);
 
-    const totalVariants = await Product.aggregate([
-      { $unwind: '$variants' },
-      { $group: { _id: null, total: { $sum: '$variants.quantity' } } }
+    // 1. Đơn hàng đã thanh toán
+    const orders = await Order.find({
+      payment_status: "paid",
+      createdAt: { $gte: startVN, $lte: endVN }
+    });
+
+    const revenue = orders.reduce((total, order) => total + order.total_amount, 0);
+    const orderCount = orders.length;
+
+    // 2. Top 5 sản phẩm bán chạy
+    const bestSellers = await Order.aggregate([
+      {
+        $match: {
+          payment_status: "paid",
+          createdAt: { $gte: startVN, $lte: endVN }
+        }
+      },
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.product_id",
+          totalRevenue: { $sum: { $multiply: ["$items.price", "$items.quantity"] } },
+          totalSold: { $sum: "$items.quantity" }
+        }
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "product"
+        }
+      },
+      { $unwind: "$product" },
+      { $sort: { totalRevenue: -1 } },
+      { $limit: 5 },
+      {
+        $project: {
+          _id: 0,
+          productId: "$product._id",
+          name: "$product.name",
+          totalRevenue: 1,
+          totalSold: 1
+        }
+      }
     ]);
 
-    res.render('dashboard', {
-      revenueToday: 0,
-      buyersToday: buyersToday,
-      userCount: userCount,
-      totalRevenue: 0,
-      totalProductQuantity: totalVariants[0]?.total || 0
+    // 3. Người dùng mới
+    const newUsers = await User.find({
+      createdAt: { $gte: startVN, $lte: endVN },
+    }).sort({ createdAt: -1 });
+
+    // 4. Tổng hợp theo ngày cho biểu đồ
+    const generateDateMap = (from, to) => {
+      const map = {};
+      const current = new Date(from);
+      while (current <= to) {
+        const key = current.toISOString().split("T")[0];
+        map[key] = 0;
+        current.setDate(current.getDate() + 1);
+      }
+      return map;
+    };
+
+    const dailyRevenueMap = generateDateMap(startVN, endVN);
+    orders.forEach(order => {
+      const date = new Date(order.createdAt.getTime() + VN_OFFSET).toISOString().split("T")[0];
+      if (dailyRevenueMap[date] !== undefined) {
+        dailyRevenueMap[date] += order.total_amount;
+      }
+    });
+
+    const dailyUserMap = generateDateMap(startVN, endVN);
+    newUsers.forEach(user => {
+      const date = new Date(user.createdAt.getTime() + VN_OFFSET).toISOString().split("T")[0];
+      if (dailyUserMap[date] !== undefined) {
+        dailyUserMap[date] += 1;
+      }
+    });
+
+    res.json({
+      revenue,
+      orderCount,
+      newCustomers: newUsers.length,
+      newUsers: newUsers.map((u, index) => ({
+        index: index + 1,
+        fullName: u.fullname || "Không tên",
+        email: u.email,
+        createdAt: u.createdAt.toISOString().split("T")[0]
+      })),
+      bestSellers,
+      dailyRevenue: Object.entries(dailyRevenueMap).map(([date, total]) => ({ date, total })),
+      dailyUsers: Object.entries(dailyUserMap).map(([date, count]) => ({ date, count }))
     });
 
   } catch (err) {
-    res.status(500).send('Lỗi Dashboard: ' + err.message);
+    console.error("Lỗi khi lấy thống kê:", err);
+    res.status(500).json({ error: "Lỗi server" });
   }
-});
-
-router.get('/stats-overview', async (req, res) => {
-  // Giả sử bạn muốn thống kê 10 ngày cho newUsers và doanh thu daily
-  const userLabels = ['Ngày 1', 'Ngày 2', 'Ngày 3', 'Ngày 4', 'Ngày 5', 'Ngày 6', 'Ngày 7', 'Ngày 8', 'Ngày 9', 'Ngày 10'];
-  const newUsersData = [0, 0, 3, 0, 1, 0, 0, 0, 0, 0];
-  const dailyLabels = ['Ngày 1', 'Ngày 2', 'Ngày 3', 'Ngày 4', 'Ngày 5', 'Ngày 6', 'Ngày 7'];
-  const revenueDaily = [0, 0, 0, 0, 0, 0, 0];
-  const monthlyLabels = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
-  const revenueMonthly = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-  res.render('stats-overview', {
-    title: 'Thống kê',
-    userLabels,
-    newUsersData,
-    dailyLabels,
-    revenueDaily,
-    monthlyLabels,
-    revenueMonthly
-  });
 });
 
 module.exports = router;
