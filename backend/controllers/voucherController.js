@@ -3,19 +3,18 @@ const Voucher = require("../models/Voucher");
 // Hàm kiểm tra và cập nhật trạng thái voucher dựa trên ngày hết hạn
 const updateVoucherStatus = async () => {
   try {
-    const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
+    const now = new Date();
 
     // Tìm các voucher đã hết hạn và đang kích hoạt
     const expiredVouchers = await Voucher.find({
-      date_to: { $lt: today },
-      is_status: true,
+      date_to: { $lt: now },
+      is_active: true,
     });
 
     if (expiredVouchers.length > 0) {
-      // Cập nhật trạng thái thành false cho các voucher hết hạn
       await Voucher.updateMany(
         { _id: { $in: expiredVouchers.map((v) => v._id) } },
-        { is_status: false }
+        { is_active: false }
       );
       console.log(`Đã tự động tắt ${expiredVouchers.length} voucher hết hạn`);
     }
@@ -59,8 +58,6 @@ exports.editVoucherForm = async (req, res) => {
 // Xử lý thêm voucher
 exports.addVoucher = async (req, res) => {
   try {
-    console.log("Received voucher data:", req.body);
-
     const {
       title,
       code,
@@ -72,20 +69,18 @@ exports.addVoucher = async (req, res) => {
       date_from,
       date_to,
       is_status,
+      voucher_scope,
     } = req.body;
 
-    console.log("Parsed data:", {
-      title,
-      code,
-      description,
-      discount_type,
-      discount_value,
-      min_order_amount,
-      quantity,
-      date_from,
-      date_to,
-      is_status,
-    });
+    // Validate mã voucher
+    const codeRegex = /^.{12}$/; // Đúng 12 ký tự bất kỳ
+    if (!codeRegex.test(code)) {
+      return res.status(400).send("Mã voucher phải gồm đúng 12 ký tự.");
+    }
+    const existed = await Voucher.findOne({ code });
+    if (existed) {
+      return res.status(400).send("Mã voucher đã tồn tại.");
+    }
 
     // Tạo voucher mới
     const voucher = new Voucher({
@@ -96,11 +91,12 @@ exports.addVoucher = async (req, res) => {
       discount_value,
       min_order_amount: min_order_amount || 0,
       quantity,
-      date_from,
-      date_to,
+      date_from: new Date(date_from), // Sửa dòng này
+      date_to: new Date(date_to),     // Sửa dòng này
       is_status: is_status === "true" || is_status === true,
       max_discount_value:
         discount_type === "percentage" ? req.body.max_discount : undefined,
+      voucher_scope,
     });
 
     console.log("Voucher object to save:", voucher);
@@ -119,9 +115,6 @@ exports.addVoucher = async (req, res) => {
 // Xử lý sửa voucher
 exports.editVoucher = async (req, res) => {
   try {
-    console.log("Updating voucher with ID:", req.params.id);
-    console.log("Update data:", req.body);
-
     const {
       code,
       description,
@@ -132,7 +125,18 @@ exports.editVoucher = async (req, res) => {
       date_from,
       date_to,
       is_status,
+      voucher_scope,
     } = req.body;
+
+    // Validate mã voucher
+    const codeRegex = /^.{12}$/; // Đúng 12 ký tự bất kỳ
+    if (!codeRegex.test(code)) {
+      return res.status(400).send("Mã voucher phải gồm đúng 12 ký tự.");
+    }
+    const existed = await Voucher.findOne({ code, _id: { $ne: req.params.id } });
+    if (existed) {
+      return res.status(400).send("Mã voucher đã tồn tại.");
+    }
 
     const updateData = {
       code,
@@ -141,14 +145,15 @@ exports.editVoucher = async (req, res) => {
       discount_value,
       min_order_amount: min_order_amount || 0,
       quantity,
-      date_from,
-      date_to,
+      date_from: new Date(date_from), // Sửa dòng này
+      date_to: new Date(date_to),     // Sửa dòng này
       is_status:
         typeof is_status !== "undefined"
           ? is_status === "true" || is_status === true
           : false,
       max_discount_value:
         discount_type === "percentage" ? req.body.max_discount : undefined,
+      voucher_scope, // Thêm dòng này
     };
 
     console.log("Update data to save:", updateData);
