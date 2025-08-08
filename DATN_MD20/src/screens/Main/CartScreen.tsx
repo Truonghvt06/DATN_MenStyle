@@ -298,7 +298,7 @@ const CartScreen = () => {
               {getTranslation('tong_cong')}:
             </TextMedium>
             <TextSizeCustom size={20} bold style={{color: theme.text}}>
-              {totalPrice.toLocaleString('vi-VN')}đ
+              {totalPrice.toLocaleString('vi-VN')}VND
             </TextSizeCustom>
           </Block>
           {selectedItems.size > 0 && (
@@ -320,7 +320,7 @@ const CartScreen = () => {
                 // Navigate đến màn hình thanh toán
                 navigation.navigate(ScreenName.Main.Checkout, {
                   selectedItems: Array.from(selectedItems),
-                  listCart: listCart,
+                  list_Cart: listCart,
                 });
               }
             }}

@@ -32,6 +32,8 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    code: { type: String, required: true },
+    voucher_code: { type: String, default: "" },
     total_amount: { type: Number, required: true },
 
     // Tách 2 trạng thái

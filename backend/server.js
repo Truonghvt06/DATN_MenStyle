@@ -12,10 +12,12 @@ const addressRouter = require("./routes/address");
 const notificationRouter = require("./routes/notification");
 const reviewRouter = require("./routes/review");
 const orderRouter = require("./routes/order");
-const paymentRouter = require("./routes/paymentMethod");
+const paymentMethodRouter = require("./routes/paymentMethod");
 const voucherRouter = require("./routes/voucher");
 const dashboardRouter = require("./routes/dashboard");
 const cartRouter = require("./routes/cart");
+const paymentRouter = require("./routes/payment");
+const zaloRouter = require("./routes/zalo");
 
 const path = require("path");
 const cors = require("cors");
@@ -47,10 +49,12 @@ app.use("/address", addressRouter);
 app.use("/notification", notificationRouter);
 app.use("/review", reviewRouter);
 app.use("/order", orderRouter);
-app.use("/payment-method", paymentRouter);
+app.use("/payment-method", paymentMethodRouter);
 app.use("/voucher", voucherRouter);
 app.use("/cart", cartRouter);
 app.use("/dashboard", dashboardRouter);
+app.use("/payment", paymentRouter);
+app.use("/zalo", zaloRouter);
 
 // Hàm tự động ẩn item order sau 7 ngày
 // const cron = require("node-cron");
