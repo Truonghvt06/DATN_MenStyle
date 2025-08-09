@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -6,6 +6,9 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
+  Linking,
+  AppState,
+  AppStateStatus,
 } from 'react-native';
 import ContainerView from '../../components/layout/ContainerView';
 import Header from '../../components/dataDisplay/Header';
@@ -29,17 +32,19 @@ import TouchIcon from '../../components/dataEntry/Button/TouchIcon';
 import {CreateOrderPayload} from '../../services/orders'; // Thêm dòng này
 import {fetchAddresses} from '../../redux/actions/address';
 import {fetchPaymentMethods} from '../../redux/actions/payment';
-import {createOrder} from '../../redux/actions/order';
+import {createOrder, getOrders} from '../../redux/actions/order';
 import Toast from 'react-native-toast-message';
 import ModalBottom from '../../components/dataDisplay/Modal/ModalBottom';
 import VoucherItem from './Profile/Others/Voucher/VoucherItem';
 import {fetchCart, removeCart} from '../../redux/actions/cart/cartAction';
+import zaloService from '../../services/zalo';
+import ModalCenter from '../../components/dataDisplay/Modal/ModalCenter';
 
 interface CheckoutScreenProps {
   route?: {
     params?: {
       selectedItems: number[];
-      listCart: any[];
+      list_Cart: any[];
     };
   };
 }
@@ -48,13 +53,14 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
   const theme = useAppTheme();
-  const {selectedItems = [], listCart = []} = route?.params || {};
+  const {selectedItems = [], list_Cart = []} = route?.params || {};
 
   const dispatch = useAppDispatch();
   const {user} = useAppSelector(state => state.auth);
   const {listAddress} = useAppSelector(state => state.address);
   const {listPaymentMethod} = useAppSelector(state => state.paymentMenthod);
   const {vouchers} = useAppSelector(state => state.voucher);
+  const {orders} = useAppSelector(state => state.order);
 
   const voucherOrder = vouchers.filter(vc => {
     vc.voucher_scope === 'order';
@@ -62,8 +68,6 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
   const voucherShipping = vouchers.filter(vc => {
     vc.voucher_scope === 'shipping';
   });
-
-  // console.log('PPP: ', listPaymentMethod);
 
   // State cho form thanh toán
   const [selectedAddress, setSelectedAddress] = useState<any>();
@@ -75,10 +79,28 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
   // Danh sách voucher lấy từ backend
   const [availableVouchers, setAvailableVouchers] = useState<any[]>([]);
 
+  //XU LY SAU KHI THANH TOAN ZALOPAY XONG
+  const appState = useRef(AppState.currentState);
+  const [showPaymentSuccessModal, setShowPaymentSuccessModal] = useState(false);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener(
+      'change',
+      handleAppStateChange,
+    );
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+  //
+
   //DIA CHI
   useEffect(() => {
     dispatch(fetchAddresses());
+    dispatch(getOrders());
   }, [dispatch]);
+
+  // console.log('OOO: ', orders);
 
   //PaymenMethod
   useEffect(() => {
@@ -106,7 +128,7 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
   useEffect(() => {}, []);
 
   // Lọc sản phẩm đã chọn
-  const selectedProducts = listCart.filter((_, index) =>
+  const selectedProducts = list_Cart.filter((_, index) =>
     selectedItems.includes(index),
   );
 
@@ -155,6 +177,30 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
     setSelectedVoucher(null);
   };
 
+  //THONG BAO KHI THANH TOAN THANH CONG
+  const handleAppStateChange = async (nextAppState: AppStateStatus) => {
+    if (
+      appState.current.match(/inactive|background/) &&
+      nextAppState === 'active'
+    ) {
+      // App vừa được mở lại
+      // Gọi API kiểm tra trạng thái đơn hàng ZaloPay
+
+      const latestOrder = await dispatch(getOrders()).unwrap();
+      const last = latestOrder?.[0];
+
+      if (
+        last?.payment_method_id?.code === 'ZALOPAY' &&
+        last?.payment_status === 'paid'
+      ) {
+        // ✅ Hiển thị modal hoặc Toast
+        Alert.alert('Thanh toán thành công', 'Cảm ơn bạn đã mua hàng!');
+      }
+    }
+
+    appState.current = nextAppState;
+  };
+
   // Xử lý thanh toán
   const handleCheckout = async () => {
     if (!selectedAddress) {
@@ -170,45 +216,114 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
       quantity: item.quantity,
     }));
 
+    const paymentMethodId =
+      listPaymentMethod.find(pm => pm.code === paymentMethod)?._id ?? '';
+
     const payload: CreateOrderPayload = {
       user_id: user?._id,
       total_amount: total,
       shipping_address_id: selectedAddress._id,
-      payment_method_id:
-        listPaymentMethod.find(pm => pm.code === paymentMethod)?._id ?? '',
+      payment_method_id: paymentMethodId,
       items,
     };
 
     setLoading(true);
 
     try {
-      const resultAction = await dispatch(createOrder(payload));
+      // 🧾 COD
+      if (paymentMethod === 'COD') {
+        const resultAction = await dispatch(createOrder(payload));
 
-      if (createOrder.fulfilled.match(resultAction)) {
-        const indexDel = selectedProducts.map(item => ({
-          productId: item.productId?._id,
-          variantIndex: item.variantIndex,
-        }));
+        if (createOrder.fulfilled.match(resultAction)) {
+          const indexDel = selectedProducts.map(item => ({
+            productId: item.productId?._id,
+            variantIndex: item.variantIndex,
+          }));
 
-        await dispatch(removeCart(indexDel)).unwrap();
-        await dispatch(fetchCart());
+          await dispatch(removeCart(indexDel)).unwrap();
+          await dispatch(fetchCart());
 
-        Toast.show({
-          type: 'notification',
-          position: 'top',
-          text1: 'Thành công',
-          text2: 'Đặt hàng thành công',
-          visibilityTime: 1000,
-          autoHide: true,
-          swipeable: true,
-        });
+          Toast.show({
+            type: 'notification',
+            position: 'top',
+            text1: 'Thành công',
+            text2: 'Đặt hàng thành công',
+            visibilityTime: 1000,
+            autoHide: true,
+            swipeable: true,
+          });
 
-        navigation.navigate(ScreenName.Main.BottonTab);
-      } else {
-        const error: any = resultAction.payload || 'Đặt hàng thất bại';
-        Alert.alert('Lỗi', error);
+          navigation.navigate(ScreenName.Main.BottonTab);
+        } else {
+          const error: any = resultAction.payload || 'Đặt hàng thất bại';
+          Alert.alert('Lỗi', error);
+        }
+      }
+
+      // 💳 ZaloPay
+      else if (paymentMethod === 'ZALOPAY') {
+        const resultAction = await dispatch(createOrder(payload));
+
+        if (createOrder.fulfilled.match(resultAction)) {
+          const indexDel = selectedProducts.map(item => ({
+            productId: item.productId?._id,
+            variantIndex: item.variantIndex,
+          }));
+
+          await dispatch(removeCart(indexDel)).unwrap();
+          await dispatch(fetchCart());
+          await dispatch(getOrders());
+
+          const createdOrder = resultAction.payload?.order;
+          const order_id = createdOrder?._id;
+          const order_code = createdOrder?.code || `MENSTYLE_${Date.now()}`;
+
+          const zaloRes = await zaloService.createZaloPayOrder({
+            amount: total,
+            order_id,
+            order_code,
+            description: 'Thanh toán đơn hàng ZaloPay',
+          });
+
+          console.log('ZALO: ', zaloRes);
+
+          const {order_url} = zaloRes;
+
+          if (order_url) {
+            //Áp dụng cho zaloPay Sandbox
+            Linking.openURL(order_url);
+
+            //Áp dụng cho zaloPay thật
+            // const supported = await Linking.canOpenURL(order_url);
+            // if (supported) {
+            //   Linking.openURL(order_url);
+            // } else {
+            //   Alert.alert(
+            //     'Không thể mở ZaloPay',
+            //     'Vui lòng kiểm tra cài đặt app ZaloPay',
+            //   );
+            // }
+          } else {
+            Alert.alert('Lỗi', 'Không lấy được link thanh toán ZaloPay');
+          }
+          Toast.show({
+            type: 'notification',
+            position: 'top',
+            text1: 'Thành công',
+            text2: 'Đặt hàng thành công',
+            visibilityTime: 1000,
+            autoHide: true,
+            swipeable: true,
+          });
+
+          navigation.navigate(ScreenName.Main.BottonTab);
+        } else {
+          const error: any = resultAction.payload || 'Đặt hàng thất bại';
+          Alert.alert('Lỗi', error);
+        }
       }
     } catch (error) {
+      console.error('Checkout error:', error);
       Alert.alert('Lỗi', 'Không thể đặt hàng. Vui lòng thử lại.');
     } finally {
       setLoading(false);
@@ -224,6 +339,11 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
         backgroundColor={theme.background}
         labelColor={theme.text}
         iconColor={theme.text}
+      />
+      <ModalCenter
+        visible={showPaymentSuccessModal}
+        content={'Thanh toán ZaloPay thành công!'}
+        onClose={() => setShowPaymentSuccessModal(false)}
       />
 
       <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false}>

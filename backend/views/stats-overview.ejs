@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <title>Thống kê - MenStyle</title>
@@ -10,136 +11,267 @@
       background-color: #f8f9fa;
       font-family: 'Segoe UI', sans-serif;
     }
+
+    .box-card {
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      background: #fff;
+    }
+
+    .box-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .value {
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .small-label {
+      font-size: 14px;
+      color: #666;
+    }
+
     .chart-card {
       padding: 20px;
       border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
       background: #fff;
-      margin-bottom: 30px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     }
-    .chart-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 15px;
+
+    table th,
+    table td {
+      vertical-align: middle !important;
     }
   </style>
+  <script>
+    const defaultFrom = "<%= defaultFrom %>";
+    const defaultTo = "<%= defaultTo %>";
+  </script>
 </head>
-<body class="p-4 bg-light">
+
+<body class="p-4">
   <div class="container-fluid">
     <h2 class="mb-4">📊 Thống kê hệ thống</h2>
 
-    <!-- Dữ liệu từ server truyền vào qua thẻ ẩn -->
-    <div id="ejs-data"
-         data-user-labels='<%- JSON.stringify(userLabels) %>'
-         data-new-users='<%- JSON.stringify(newUsersData) %>'
-         data-daily-labels='<%- JSON.stringify(dailyLabels) %>'
-         data-revenue-daily='<%- JSON.stringify(revenueDaily) %>'
-         data-monthly-labels='<%- JSON.stringify(monthlyLabels) %>'
-         data-revenue-monthly='<%- JSON.stringify(revenueMonthly) %>'>
+    <div class="d-flex justify-content-end align-items-center mb-3">
+      <div>
+        <select id="time-range" class="form-select border-primary" style="width: 200px;">
+          <option value="today">Hôm nay</option>
+          <option value="yesterday">Hôm qua</option>
+          <option value="7">1 tuần qua</option>
+          <option value="14">2 tuần qua</option>
+          <option value="60">2 tháng qua</option>
+          <option value="180">6 tháng qua</option>
+          <option value="365">1 năm qua</option>
+        </select>
+        <div class="small mt-1 text-muted" id="dateRangeLabel">Loading...</div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-md-4">
+        <div class="box-card text-dark">
+          <div class="small-label">Doanh Thu</div>
+          <div class="value text-success" id="revenue">₫0</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="box-card text-dark">
+          <div class="small-label">Đơn Hàng</div>
+          <div class="value" id="order-count">0</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="box-card text-dark">
+          <div class="small-label">Khách Hàng Mới</div>
+          <div class="value" id="new-users-count">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-md-12">
+        <div class="chart-card">
+          <h5 class="mb-3">🔥 Sản Phẩm Bán Chạy</h5>
+          <table class="table table-bordered" id="best-sellers">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Sản Phẩm</th>
+                <th>Doanh Thu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="3" class="text-center">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
     <div class="row g-4">
-      <div class="col-lg-4">
-        <div class="chart-card" style="background-color: #f06292; color: white;">
-          <div class="chart-title">Người dùng mới</div>
-          <canvas id="newUsersChart"></canvas>
+      <div class="col-md-6">
+        <div class="chart-card">
+          <h5 class="mb-3">📈 Biểu đồ Doanh thu</h5>
+          <canvas id="revenueChart" height="250"></canvas>
         </div>
       </div>
-
-      <div class="col-lg-4">
-        <div class="chart-card" style="background-color: #66bb6a; color: white;">
-          <div class="chart-title">Doanh thu theo ngày</div>
-          <canvas id="dailyRevenueChart"></canvas>
-        </div>
-      </div>
-
-      <div class="col-lg-4">
-        <div class="chart-card" style="background-color: #212121; color: white;">
-          <div class="chart-title">Doanh thu theo tháng</div>
-          <canvas id="monthlyRevenueChart"></canvas>
+      <div class="col-md-6">
+        <div class="chart-card">
+          <h5 class="mb-3">👥 Biểu đồ Người dùng mới</h5>
+          <canvas id="userChart" height="250"></canvas>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // Lấy dữ liệu từ thẻ div#ejs-data
-    const dataDiv = document.getElementById('ejs-data');
-    const userLabels = JSON.parse(dataDiv.dataset.userLabels);
-    const newUsersData = JSON.parse(dataDiv.dataset.newUsers);
-    const dailyLabels = JSON.parse(dataDiv.dataset.dailyLabels);
-    const revenueDaily = JSON.parse(dataDiv.dataset.revenueDaily);
-    const monthlyLabels = JSON.parse(dataDiv.dataset.monthlyLabels);
-    const revenueMonthly = JSON.parse(dataDiv.dataset.revenueMonthly);
+    let revenueChart, userChart;
 
-    // Người dùng mới
-    new Chart(document.getElementById('newUsersChart'), {
-      type: 'line',
-      data: {
-        labels: userLabels,
-        datasets: [{
-          label: 'Người dùng mới',
-          data: newUsersData,
-          borderColor: '#fff',
-          backgroundColor: '#fff',
-          fill: false,
-          tension: 0.3
-        }]
-      },
-      options: {
-        plugins: { legend: { labels: { color: '#fff' } } },
-        scales: {
-          x: { ticks: { color: '#fff' } },
-          y: { ticks: { color: '#fff' } }
-        }
+    function formatDate(date) {
+      return date.toISOString().split('T')[0];
+    }
+
+    function updateDateRangeLabel(value) {
+      const today = new Date();
+      let start = new Date();
+      let end = new Date();
+
+      if (value === 'today') {
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+      } else if (value === 'yesterday') {
+        start.setDate(today.getDate() - 1);
+        end.setDate(today.getDate() - 1);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+      } else {
+        const days = parseInt(value);
+        start.setDate(today.getDate() - days);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
       }
+
+      document.getElementById('dateRangeLabel').innerText =
+        `Từ ${formatDate(start)} đến ${formatDate(end)}`;
+    }
+
+    async function fetchStats(from, to) {
+      const url = `/dashboard/stats?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      updateStatsUI(data);
+    }
+
+    function updateStatsUI(data) {
+      document.getElementById('revenue').innerText = formatCurrency(data.revenue);
+      document.getElementById('order-count').innerText = data.orderCount;
+      document.getElementById('new-users-count').innerText = data.newCustomers;
+
+      renderBestSellers(data.bestSellers);
+      renderRevenueChart(data.dailyRevenue);
+      renderUserChart(data.dailyUsers);
+    }
+
+    function renderBestSellers(products) {
+      const tbody = document.querySelector('#best-sellers tbody');
+      if (!products.length) {
+        tbody.innerHTML = `<tr><td colspan="3" class="text-center">Không có dữ liệu</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      products.forEach((item, index) => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${item.name || 'Không tên'}</td>
+            <td>${formatCurrency(item.totalRevenue)}</td>
+          </tr>`;
+      });
+    }
+
+    function renderRevenueChart(data) {
+      const ctx = document.getElementById('revenueChart').getContext('2d');
+      if (revenueChart) revenueChart.destroy();
+      revenueChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.map(i => i.date),
+          datasets: [{
+            label: 'Doanh thu',
+            data: data.map(i => i.total),
+            borderWidth: 2,
+            borderColor: '#4CAF50',
+            fill: false
+          }]
+        }
+      });
+    }
+
+    function renderUserChart(data) {
+      const ctx = document.getElementById('userChart').getContext('2d');
+      if (userChart) userChart.destroy();
+      userChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.map(i => i.date),
+          datasets: [{
+            label: 'Người dùng mới',
+            data: data.map(i => i.count),
+            backgroundColor: '#2196F3'
+          }]
+        }
+      });
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+      }).format(value || 0);
+    }
+
+    document.getElementById('time-range').addEventListener('change', function () {
+      const range = this.value;
+      updateDateRangeLabel(range);
+
+      const today = new Date();
+      let start = new Date();
+      let end = new Date();
+
+      if (range === 'today') {
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+      } else if (range === 'yesterday') {
+        start.setDate(today.getDate() - 1);
+        end.setDate(today.getDate() - 1);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+      } else {
+        const days = parseInt(range);
+        start.setDate(today.getDate() - days);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+      }
+
+      fetchStats(start.toISOString(), end.toISOString());
     });
 
-    // Doanh thu theo ngày
-    new Chart(document.getElementById('dailyRevenueChart'), {
-      type: 'line',
-      data: {
-        labels: dailyLabels,
-        datasets: [{
-          label: 'Doanh thu theo ngày',
-          data: revenueDaily,
-          borderColor: '#fff',
-          backgroundColor: '#fff',
-          fill: false,
-          tension: 0.3
-        }]
-      },
-      options: {
-        plugins: { legend: { labels: { color: '#fff' } } },
-        scales: {
-          x: { ticks: { color: '#fff' } },
-          y: { ticks: { color: '#fff' } }
-        }
-      }
-    });
-
-    // Doanh thu theo tháng
-    new Chart(document.getElementById('monthlyRevenueChart'), {
-      type: 'line',
-      data: {
-        labels: monthlyLabels,
-        datasets: [{
-          label: 'Doanh thu theo tháng',
-          data: revenueMonthly,
-          borderColor: '#fff',
-          backgroundColor: '#fff',
-          fill: false,
-          tension: 0.3
-        }]
-      },
-      options: {
-        plugins: { legend: { labels: { color: '#fff' } } },
-        scales: {
-          x: { ticks: { color: '#fff' } },
-          y: { ticks: { color: '#fff' } }
-        }
+    document.addEventListener("DOMContentLoaded", () => {
+      if (defaultFrom && defaultTo) {
+        fetchStats(defaultFrom, defaultTo);
+        document.getElementById('time-range').value = "today";
+        updateDateRangeLabel("today");
       }
     });
   </script>
+
 </body>
+
 </html>

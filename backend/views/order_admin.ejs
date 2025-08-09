@@ -102,6 +102,21 @@
       background-color: #dc3545;
       color: white;
     }
+
+    .card {
+      border-radius: 10px;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      color: #6c757d;
+    }
+
+    .card h3 {
+      font-weight: bold;
+      margin: 0;
+      color: #111;
+    }
   </style>
 </head>
 
@@ -126,6 +141,79 @@
 
     <main>
       <h3 class="mb-4"><i class="bi bi-receipt-cutoff"></i> Đơn hàng khách hàng</h3>
+      <!-- Thống kê đơn hàng -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card text-center shadow-sm border-0">
+            <div class="card-body">
+              <h5 class="card-title">Tổng đơn hàng</h5>
+              <h3>
+                <%= orders.length %>
+              </h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card text-center shadow-sm border-0">
+            <div class="card-body">
+              <h5 class="card-title">Chờ xử lý</h5>
+              <h3>
+                <%= orders.filter(o=> o.order_status === 'pending').length %>
+              </h3>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="col-md-3">
+          <div class="card text-center shadow-sm border-0">
+            <div class="card-body">
+              <h5 class="card-title">Đang xử lý</h5>
+              <h3>
+                <% const tong=orders.length; const choXuLy=orders.filter(o=> o.order_status === 'pending').length;
+                  const hoanThanh = orders.filter(o => o.order_status === 'delivered' && o.payment_status ===
+                  'paid').length;
+                  const dangXuLy = tong - choXuLy - hoanThanh;
+                  %>
+                  <%= dangXuLy %>
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center shadow-sm border-0">
+            <div class="card-body">
+              <h5 class="card-title">Đã hoàn thành</h5>
+              <h3>
+                <%= orders.filter(o=> o.order_status === 'delivered' && o.payment_status === 'paid').length %>
+              </h3>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mb-3 row g-2 text-center">
+        <div class="col">
+          <button class="btn btn-dark w-100 py-2 fs-6" onclick="filterOrders('all')">Tất cả</button>
+        </div>
+        <div class="col">
+          <button class="btn btn-dark w-100 py-2 fs-6" onclick="filterOrders('pending')">Chờ xử lý</button>
+        </div>
+        <div class="col">
+          <button class="btn btn-dark w-100 py-2 fs-6" onclick="filterOrders('confirmed')">Đã xác nhận</button>
+        </div>
+        <div class="col">
+          <button class="btn btn-dark w-100 py-2 fs-6" onclick="filterOrders('shipping')">Đang giao</button>
+        </div>
+        <div class="col">
+          <button class="btn btn-dark w-100 py-2 fs-6" onclick="filterOrders('delivered')">Đã giao</button>
+        </div>
+        <div class="col">
+          <button class="btn btn-dark w-100 py-2 fs-6" onclick="filterOrders('cancelled')">Đã hủy</button>
+        </div>
+      </div>
+
+
 
       <div class="table-responsive">
         <table class="table table-bordered table-hover text-center align-middle">
@@ -148,9 +236,11 @@
                   <%= index + 1 %>
                 </td>
                 <td class="text-start">
-                  <strong>
-                    <%= order.user_id.name %>
-                  </strong><br>
+                  <a href="/order/order_detail/<%= order._id %>" class="text-decoration-none text-dark fw-bold">
+                    <strong>
+                      <%= order.user_id.name %>
+                    </strong><br>
+                  </a>
                   <small>
                     <%= order.user_id.email %>
                   </small>
@@ -181,28 +271,37 @@
                         <%= order.total_amount.toLocaleString('vi-VN') %> ₫
                       </td>
                       <td>
-                        <% if (order.payment_status === 'unpaid') { %>
-                          Chưa thanh toán
-                        <% } else if (order.payment_status === 'paid') { %>
-                          Đã thanh toán
-                        <% } else if (order.payment_status === 'refunded') { %>
-                          Hoàn tiền
-                        <% } else { %>
-                          Không xác định
-                        <% } %>
+                        <select onchange="updatePaymentStatus('<%= order._id %>', this.value)">
+                          <option value="unpaid" <%=order.payment_status==='unpaid' ? 'selected' : '' %>>Chưa thanh toán
+                          </option>
+                          <option value="paid" <%=order.payment_status==='paid' ? 'selected' : '' %>>Đã thanh toán
+                          </option>
+                          <option value="refunded" <%=order.payment_status==='refunded' ? 'selected' : '' %>>Hoàn tiền
+                          </option>
+                        </select>
                       </td>
-                      
                       <td>
                         <select onchange="updateStatus('<%= order._id %>', this.value)">
-                          <option value="pending" <%= order.order_status === 'pending' ? 'selected' : '' %>>Chờ xử lý</option>
-                          <option value="confirmed" <%= order.order_status === 'confirmed' ? 'selected' : '' %>>Đã xác nhận</option>
-                          <option value="shipping" <%= order.order_status === 'shipping' ? 'selected' : '' %>>Đang giao hàng</option>
-                          <option value="delivered" <%= order.order_status === 'delivered' ? 'selected' : '' %>>Đã giao</option>
-                          <option value="paid" <%= order.order_status === 'paid' ? 'selected' : '' %>>Đã thanh toán</option>
-                          <option value="cancelled" <%= order.order_status === 'cancelled' ? 'selected' : '' %>>Đã hủy</option>
-                        </select>                        
-                      
-                      </td>
+                            <option value="pending" <%= order.order_status==='pending' ? 'selected' : '' %>>
+                                Chờ xử lý
+                            </option>
+                            <option value="confirmed" <%= order.order_status==='confirmed' ? 'selected' : '' %>>
+                                Đã xác nhận
+                            </option>
+                            <option value="shipping" <%= order.order_status==='shipping' ? 'selected' : '' %>>
+                                Đang giao hàng
+                            </option>
+                            <option value="delivered" <%= order.order_status==='delivered' ? 'selected' : '' %>>
+                                Đã giao
+                            </option>
+                            <option value="cancelled" 
+                                <%= order.order_status==='cancelled' ? 'selected' : '' %> 
+                                <%= order.order_status !== 'pending' ? 'disabled' : '' %>>
+                                Đã hủy
+                            </option>
+                        </select>
+                    </td>
+                    
                       <td>
                         <%= new Date(order.createdAt).toLocaleDateString('vi-VN') %>
                       </td>
@@ -210,6 +309,9 @@
               <% }) %>
           </tbody>
         </table>
+        <nav>
+          <ul class="pagination justify-content-center" id="pagination"></ul>
+        </nav>
       </div>
     </main>
   </div>
@@ -223,28 +325,160 @@
     });
 
     async function updateStatus(orderId, order_status) {
-  try {
-    console.log('Updating status for order:', orderId, 'to:', order_status);
-    const response = await fetch(`/order/update-status/${orderId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ order_status }),
-    });
-    const data = await response.json();
-    if (response.ok) {
-      alert('Cập nhật trạng thái thành công!');
-      location.reload();
-    } else {
-      alert('Lỗi: ' + data.message);
+      try {
+        console.log('Updating status for order:', orderId, 'to:', order_status);
+        const response = await fetch(`/order/update-status/${orderId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ order_status }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          alert('Cập nhật trạng thái thành công!');
+          location.reload();
+        } else {
+          alert('Lỗi: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Lỗi khi cập nhật trạng thái:', error);
+        alert('Lỗi khi cập nhật trạng thái: ' + error.message);
+      }
     }
-  } catch (error) {
-    console.error('Lỗi khi cập nhật trạng thái:', error);
-    alert('Lỗi khi cập nhật trạng thái: ' + error.message);
-  }
-}
+    async function updatePaymentStatus(orderId, payment_status) {
+      try {
+        console.log('Updating payment status for order:', orderId, 'to:', payment_status);
+        const response = await fetch(`/order/update-payment-status/${orderId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ payment_status }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          alert('Cập nhật trạng thái thanh toán thành công!');
+          location.reload();
+        } else {
+          alert('Lỗi: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Lỗi khi cập nhật trạng thái thanh toán:', error);
+        alert('Lỗi khi cập nhật: ' + error.message);
+      }
+    }
+    function filterOrders(status) {
+      const rows = document.querySelectorAll("tbody tr");
+      rows.forEach(row => {
+        const orderStatus = row.querySelector("select[onchange^='updateStatus']").value;
+        if (status === 'all' || orderStatus === status) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+    // ========= PHÂN TRANG =========
+    const rowsPerPage = 15;
+    let currentPage = 1;
 
+    function renderTable() {
+      const rows = document.querySelectorAll("tbody tr");
+      const totalPages = Math.ceil(rows.length / rowsPerPage);
+
+      // Ẩn tất cả
+      rows.forEach(row => row.style.display = "none");
+
+      // Hiện các dòng trong trang hiện tại
+      const start = (currentPage - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
+      rows.forEach((row, index) => {
+        if (index >= start && index < end) {
+          row.style.display = "";
+        }
+      });
+
+      renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+      const pagination = document.getElementById("pagination");
+      pagination.innerHTML = "";
+
+      // Nút Previous
+      const prevLi = document.createElement("li");
+      prevLi.className = `page-item ${currentPage === 1 ? "disabled" : ""}`;
+      prevLi.innerHTML = `<a class="page-link" href="#">«</a>`;
+      prevLi.addEventListener("click", e => {
+        e.preventDefault();
+        if (currentPage > 1) {
+          currentPage--;
+          renderTable();
+        }
+      });
+      pagination.appendChild(prevLi);
+
+      // Các nút số
+      for (let i = 1; i <= totalPages; i++) {
+        const li = document.createElement("li");
+        li.className = `page-item ${i === currentPage ? "active" : ""}`;
+        li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+        li.addEventListener("click", e => {
+          e.preventDefault();
+          currentPage = i;
+          renderTable();
+        });
+        pagination.appendChild(li);
+      }
+
+      // Nút Next
+      const nextLi = document.createElement("li");
+      nextLi.className = `page-item ${currentPage === totalPages ? "disabled" : ""}`;
+      nextLi.innerHTML = `<a class="page-link" href="#">»</a>`;
+      nextLi.addEventListener("click", e => {
+        e.preventDefault();
+        if (currentPage < totalPages) {
+          currentPage++;
+          renderTable();
+        }
+      });
+      pagination.appendChild(nextLi);
+    }
+
+    // Gọi khi load
+    renderTable();
+
+    // Khi lọc trạng thái thì reset về trang 1
+    function filterOrders(status) {
+      const rows = document.querySelectorAll("tbody tr");
+      rows.forEach(row => {
+        const orderStatus = row.querySelector("select[onchange^='updateStatus']").value;
+        if (status === 'all' || orderStatus === status) {
+          row.style.display = '';
+          row.dataset.show = "true";
+        } else {
+          row.style.display = 'none';
+          row.dataset.show = "false";
+        }
+      });
+
+      // Cập nhật lại phân trang chỉ với các dòng đang show
+      const visibleRows = Array.from(rows).filter(row => row.dataset.show === "true");
+      const totalPages = Math.ceil(visibleRows.length / rowsPerPage);
+      currentPage = 1;
+
+      // Hiện các dòng của trang đầu tiên
+      visibleRows.forEach((row, index) => {
+        if (index < rowsPerPage) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+
+      renderPagination(totalPages);
+    }
 
   </script>
 </body>

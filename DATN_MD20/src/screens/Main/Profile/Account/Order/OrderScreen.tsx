@@ -31,7 +31,7 @@ const OrderScreen = () => {
 
   const dispatch = useAppDispatch();
   const {orders} = useAppSelector(state => state.order);
-  // console.log('ASS:', orders);
+  console.log('ASS:', orders);
 
   const dataOrder = [
     {id: 'o1', name: getTranslation('tat_ca')},
@@ -59,15 +59,15 @@ const OrderScreen = () => {
 
     switch (selectedTab) {
       case getTranslation('cho_xac_nhan'):
-        return orders.filter(order => order.status === 'pending');
+        return orders.filter(order => order.order_status === 'pending');
       case getTranslation('da_xac_nhan'):
-        return orders.filter(order => order.status === 'confirmed');
+        return orders.filter(order => order.order_status === 'confirmed');
       case getTranslation('cho_giao_hang'):
-        return orders.filter(order => order.status === 'shipping');
+        return orders.filter(order => order.order_status === 'shipping');
       case getTranslation('da_giao'):
-        return orders.filter(order => order.status === 'delivered');
+        return orders.filter(order => order.order_status === 'delivered');
       case getTranslation('da_huy'):
-        return orders.filter(order => order.status === 'cancelled');
+        return orders.filter(order => order.order_status === 'cancelled');
       case getTranslation('tat_ca'):
       default:
         return orders;
@@ -139,10 +139,10 @@ const OrderScreen = () => {
 
           return (
             <OrderItem
-              code_order={orderCode}
+              code_order={item.code}
               date={moment(item.createdAt).format('DD/MM/YYYY')}
               total={item.total_amount}
-              status={item.status}
+              order_status={item.order_status}
               data={formattedItems}
               onPress={() => {
                 navigation.navigate(ScreenName.Main.OrderDetail, {

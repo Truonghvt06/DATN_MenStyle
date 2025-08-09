@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
     height: 45,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
   btn1: {
     width: '100%',
