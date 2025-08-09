@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết đơn hàng <%= order.code %>
+    </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 240px;
+            min-height: 100vh;
+            background: #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            padding: 20px 0;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            width: 60px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .sidebar a:hover {
+            background: #111;
+            color: #fff;
+        }
+
+        .sidebar.collapsed a span {
+            display: none;
+        }
+
+        .sidebar a i {
+            font-size: 20px;
+        }
+
+        .content {
+            flex: 1;
+            padding: 30px;
+            transition: margin-left 0.3s ease;
+        }
+
+        header {
+            background-color: #111;
+            color: #fff;
+            padding: 15px 20px;
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .table th {
+            background-color: #343a40;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .badge-status {
+            font-size: 0.85rem;
+            padding: 5px 10px;
+            border-radius: 0.5rem;
+        }
+
+        .badge-Pending {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .badge-Completed {
+            background-color: #198754;
+            color: white;
+        }
+
+        .badge-Cancelled {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .card {
+            border-radius: 10px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            color: #6c757d;
+        }
+
+        .card h3 {
+            font-weight: bold;
+            margin: 0;
+            color: #111;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="sidebar" id="sidebar">
+        <a href="/"><i class="bi bi-house"></i><span>Trang chủ</span></a>
+        <a href="/products/view"><i class="bi bi-box"></i><span> Sản phẩm</span></a>
+        <a href="/voucher/view"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
+        <a href="/accounts/view"><i class="bi bi-people"></i><span> Tài khoản</span></a>
+        <a href="/accounts/admin/orders"><i class="bi bi-receipt-cutoff"></i><span> Đơn hàng</span></a>
+        <a href="/dashboard/stats-overview"><i class="bi bi-bar-chart-line"></i><span> Thống kê</span></a>
+        <a href="/setting/view"><i class="bi bi-gear"></i> <span>Cài đặt</span></a>
+    </nav>
+    <div class="content" id="content">
+        <header>
+            <button id="toggleBtn" class="btn btn-dark"><i class="bi bi-list"></i></button>
+            Danh sách đơn hàng
+        </header>
+        <main>
+            <div class="order-info shadow-sm">
+                <h5>Mã đơn hàng: <strong>
+                        <%= order.code %>
+                    </strong></h5>
+                <p><strong>Người đặt:</strong>
+                    <%= order.user_id?.name %> (<%= order.user_id?.email %>)
+                </p>
+                <p><strong>Ngày tạo:</strong>
+                    <%= order.createdAt.toLocaleString("vi-VN") %>
+                </p>
+                <p><strong>Địa chỉ giao hàng:</strong>
+                    <%= order.shipping_address_id?.full_name %> -
+                        <%= order.shipping_address_id?.phone %> -
+                            <%= order.shipping_address_id?.address %>
+                </p>
+                <p><strong>Phương thức thanh toán:</strong>
+                    <%= order.payment_method_id?.name %>
+                </p>
+                <p>
+                    <strong>Trạng thái đơn hàng:</strong>
+                    <span class="status-badge 
+    <%= order.order_status === 'pending' ? 'bg-warning' : 
+        order.order_status === 'confirmed' ? 'bg-info' :
+        order.order_status === 'shipping' ? 'bg-primary' :
+        order.order_status === 'delivered' ? 'bg-success' :
+        'bg-danger' %> text-white">
+                        <%= order.order_status==='pending' ? 'Chờ xác nhận' : order.order_status==='confirmed'
+                            ? 'Đã xác nhận' : order.order_status==='shipping' ? 'Đang giao' :
+                            order.order_status==='delivered' ? 'Đã giao' : 'Đã huỷ' %>
+                    </span>
+
+                </p>
+                <p>
+                    <strong>Trạng thái thanh toán:</strong>
+                    <span
+                        class="status-badge <%= order.payment_status === 'paid' ? 'bg-success' : 'bg-warning' %> text-white">
+                        <%= order.payment_status==='paid' ? 'Đã thanh toán' : 'Chưa thanh toán' %>
+                    </span>
+                </p>
+                <p><strong>Tổng tiền:</strong>
+                    <%= order.total_amount.toLocaleString("vi-VN") %>₫
+                </p>
+            </div>
+
+            <!-- Danh sách sản phẩm -->
+            <div class="order-products shadow-sm">
+                <h5 class="p-3 border-bottom">Sản phẩm</h5>
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Hình ảnh</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Số lượng</th>
+                            <th>Giá</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% order.items.forEach(item=> { %>
+                            <tr>
+                                <td>
+                                    <% const variant=item.product_id?.variants.find(v=>
+                                        v._id.toString() === item.product_variant_id
+                                        );
+                                        %>
+                                        <% if (variant) { %>
+                                            <img src="<%= variant.image %>" alt="<%= item.product_id.name %>"
+                                                width="100">
+                                            <% } else { %>
+                                                <span>Không có ảnh</span>
+                                                <% } %>
+                                </td>
+
+                                <td>
+                                    <%= item.product_id?.name %>
+                                </td>
+                                <td>
+                                    <%= item.quantity %>
+                                </td>
+                                <td>
+                                    <%= item.price.toLocaleString("vi-VN") %>₫
+                                </td>
+                                <td>
+                                    <%= (item.price * item.quantity).toLocaleString("vi-VN") %>₫
+                                </td>
+                            </tr>
+                            <% }) %>
+                    </tbody>
+                </table>
+            </div>
+            <% if (order.order_status==='pending' ) { %>
+                <div class="mt-3">
+                    <button type="button" class="btn btn-success"
+                        onclick="updateStatus('<%= order._id %>', 'confirmed')">
+                        Xác nhận đơn
+                    </button>
+                    <button type="button" class="btn btn-danger"
+                        onclick="updateStatus('<%= order._id %>', 'cancelled')">
+                        Huỷ đơn
+                    </button>
+                </div>
+                <% } %>
+
+
+
+                    <!-- Nút quay lại -->
+                    <div class="mt-3">
+                        <a href="/accounts/admin/orders" class="btn btn-secondary">← Quay lại danh sách</a>
+                    </div>
+        </main>
+
+    </div>
+    <script> const toggleBtn = document.getElementById('toggleBtn');
+        const sidebar = document.getElementById('sidebar');
+
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+        async function updateStatus(orderId, order_status) {
+            try {
+                console.log('Updating status for order:', orderId, 'to:', order_status);
+                const response = await fetch(`/order/update-status/${orderId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ order_status }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Cập nhật trạng thái thành công!');
+                    location.reload();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Lỗi khi cập nhật trạng thái:', error);
+                alert('Lỗi khi cập nhật trạng thái: ' + error.message);
+            }
+        }
+    </script>
+    </div>
+
+</body>
+
+</html>

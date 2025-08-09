@@ -91,25 +91,6 @@ exports.getOrders = async (req, res) => {
   }
 };
 
-exports.getOrderDetail = async (req, res) => {
-  try {
-    const { orderId } = req.params;
-
-    const order = await Order.findById(orderId)
-      .populate("items.product_id")
-      .populate("shipping_address_id")
-      .populate("payment_method_id");
-
-    if (!order) {
-      return res.status(404).json({ message: "Đơn hàng không tồn tại" });
-    }
-
-    res.status(200).json({ order });
-  } catch (error) {
-    console.error("Lỗi khi lấy chi tiết đơn hàng:", error);
-    res.status(500).json({ message: "Lỗi server khi lấy chi tiết đơn hàng" });
-  }
-};
 exports.updateStatus = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -144,6 +125,23 @@ exports.updatePaymentStatus = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Lỗi máy chủ' });
+  }
+};
+exports.getOrderDetail = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const order = await Order.findById(orderId)
+      .populate("user_id")
+      .populate("items.product_id")
+      .populate("shipping_address_id")
+      .populate("payment_method_id");
+
+    if (!order) return res.status(404).send("Không tìm thấy đơn hàng");
+
+    res.render("order_detail", { order });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Lỗi server");
   }
 };
 
