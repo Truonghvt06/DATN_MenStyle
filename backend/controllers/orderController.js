@@ -129,3 +129,25 @@ exports.updateStatus = async (req, res) => {
     res.status(500).json({ message: "Lỗi máy chủ" });
   }
 };
+exports.updatePaymentStatus = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const { payment_status } = req.body;
+
+    const updated = await Order.findByIdAndUpdate(orderId, { payment_status }, { new: true });
+
+    if (!updated) {
+      return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+    }
+
+    res.json({ message: 'Cập nhật trạng thái thanh toán thành công', payment_status: updated });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Lỗi máy chủ' });
+  }
+};
+
+
+
+
+

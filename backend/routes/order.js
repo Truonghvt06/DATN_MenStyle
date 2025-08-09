@@ -16,5 +16,7 @@ router.get(
 );
 // POST method để cập nhật trạng thái
 router.post("/update-status/:id", orderController.updateStatus);
+router.post("/update-payment-status/:id", orderController.updatePaymentStatus);
+
 
 module.exports = router;
