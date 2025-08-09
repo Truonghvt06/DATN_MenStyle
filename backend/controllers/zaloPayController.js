@@ -172,7 +172,7 @@ exports.zaloCallback = async (req, res) => {
     console.log("Mã đơn hàng:", order_code);
 
     // Tìm đơn hàng
-    const order = await Order.findOne({ code: order_code });
+    const order = await Order.findOne({ _id: order_code });
     if (!order) {
       result.return_code = -1;
       result.return_message = "Không tìm thấy đơn hàng";
