@@ -82,3 +82,13 @@ exports.addProductType = async (req, res) => {
     });
   }
 };
+// controllers/categoryController.js
+exports.getAllProductTypesView = async (req, res) => {
+  try {
+    const categories = await Category.find();
+    res.render("productType_list", { categories });
+  } catch (error) {
+    res.status(500).send("Lỗi khi lấy danh sách thể loại");
+  }
+};
+

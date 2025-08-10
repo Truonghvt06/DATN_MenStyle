@@ -24,6 +24,9 @@ router.get("/searchSort", productController.searchSort);
 // Routes for adding product type
 router.get("/product-types/add", categoryController.getAddProductTypeForm);
 router.post("/product-types", categoryController.addProductType);
+// routes/productType.js hoặc thêm vào router chính
+router.get("/product-types/view", categoryController.getAllProductTypesView);
+
 
 // API: Lấy toàn bộ sản phẩm dạng JSON
 router.get("/", async (req, res) => {
