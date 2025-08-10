@@ -147,6 +147,7 @@ exports.cancelOrder = async (req, res) => {
 };
 
 ////WEBSITE
+
 exports.updateStatus = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -221,3 +222,26 @@ exports.updatePaymentStatus = async (req, res) => {
     res.status(500).json({ message: "Lỗi máy chủ" });
   }
 };
+
+exports.getOrderDetail = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const order = await Order.findById(orderId)
+      .populate("user_id")
+      .populate("items.product_id")
+      .populate("shipping_address_id")
+      .populate("payment_method_id");
+
+    if (!order) return res.status(404).send("Không tìm thấy đơn hàng");
+
+    res.render("order_detail", { order });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Lỗi server");
+  }
+};
+
+
+
+
+

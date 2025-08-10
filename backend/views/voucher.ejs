@@ -81,7 +81,7 @@
     }
 
     .table th {
-      background-color: #007bff;
+      background-color: #343a40;
       color: white;
       font-weight: 600;
       text-align: center;
@@ -125,118 +125,173 @@
       MenStyle - Quản lý voucher
     </header>
     <main>
+      <!-- Thêm tab chuyển đổi -->
       <div class="d-flex justify-content-between align-items-center mb-3">
         <a href="/voucher/add" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Thêm voucher mới</a>
+        <button id="toggleTableBtn" class="btn btn-outline-secondary">Lịch sử sử dụng voucher</button>
       </div>
-      <table class="table table-bordered table-hover align-middle">
-        <thead>
-          <tr>
-            <th>Mã voucher</th>
-            <th>Mô tả</th>
-            <th>Loại giảm giá</th>
-            <th>Kiểu giảm giá</th>
-            <th>Giá trị giảm</th>
-            <th>Giá trị giảm tối đa</th>
-            <th>Đơn tối thiểu</th>
-            <th>Số lượng</th>
-            <th>Đã dùng</th>
-            <th>Bắt đầu</th>
-            <th>Kết thúc</th>
-            <th>Trạng thái</th>
-            <th>Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% if (vouchers.length===0) { %>
+
+      <!-- Bảng voucher hiện tại -->
+      <div id="voucherTable">
+        <table class="table table-bordered table-hover align-middle">
+          <thead>
             <tr>
-              <td colspan="13" class="text-center">Chưa có voucher nào</td>
+              <th>Mã voucher</th>
+              <th>Mô tả</th>
+              <th>Loại giảm giá</th>
+              <th>Kiểu giảm giá</th>
+              <th>Giá trị giảm</th>
+              <th>Giá trị giảm tối đa</th>
+              <th>Đơn tối thiểu</th>
+              <th>Số lượng</th>
+              <th>Đã dùng</th>
+              <th>Bắt đầu</th>
+              <th>Kết thúc</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
             </tr>
-            <% } else { %>
-              <% vouchers.forEach(voucher=> { %>
-                <tr>
-                  <td>
-                    <%= voucher.code %>
-                  </td>
-                  <td>
-                    <%= voucher.description %>
-                  </td>
-                  <td>
-                    <%= voucher.voucher_scope==='shipping' ? 'Vận chuyển' : 'Đơn hàng' %>
-                  </td>
-                  <td>
-                    <%= voucher.discount_type==='percentage' ? 'Phần trăm' : 'Cố định' %>
-                  </td>
-                  <td>
-                    <%= voucher.discount_value %>
-                      <%= voucher.discount_type==='percentage' ? '%' : ' VNĐ' %>
-                  </td>
-                  <td>
-                    <% if (voucher.discount_type==='percentage' ) { %>
-                      <%= voucher.max_discount_value ? voucher.max_discount_value.toLocaleString('vi-VN') + 'đ' : '-' %>
-                        <% } else { %>
-                          -
-                          <% } %>
-                  </td>
-                  <td>
-                    <%= voucher.min_order_amount %> VNĐ
-                  </td>
-                  <td>
-                    <%= voucher.quantity %>
-                  </td>
-                  <td>
-                    <%= voucher.used_count %>
-                  </td>
-                  <td>
-                    <%= voucher.date_from ? new Date(voucher.date_from).toLocaleDateString('vi-VN') : '' %>
-                  </td>
-                  <td>
-                    <%= voucher.date_to ? new Date(voucher.date_to).toLocaleDateString('vi-VN') : '' %>
-                  </td>
-                  <td>
-                    <% if (voucher.is_active==true) { %>
-                      <span class="badge" style="background:#198754; color:#fff; font-size:1rem; padding:8px 18px;">
-                        <i class="bi bi-check-circle-fill"></i> Kích hoạt
-                      </span>
-                      <% } else { %>
-                        <span class="badge" style="background:#dc3545; color:#fff; font-size:1rem; padding:8px 18px;">
-                          <i class="bi bi-x-circle-fill"></i> Ẩn
+          </thead>
+          <tbody>
+            <% if (vouchers.length===0) { %>
+              <tr>
+                <td colspan="13" class="text-center">Chưa có voucher nào</td>
+              </tr>
+              <% } else { %>
+                <% vouchers.forEach(voucher=> { %>
+                  <tr>
+                    <td>
+                      <%= voucher.code %>
+                    </td>
+                    <td>
+                      <%= voucher.description %>
+                    </td>
+                    <td>
+                      <%= voucher.voucher_scope==='shipping' ? 'Vận chuyển' : 'Đơn hàng' %>
+                    </td>
+                    <td>
+                      <%= voucher.discount_type==='percentage' ? 'Phần trăm' : 'Cố định' %>
+                    </td>
+                    <td>
+                      <%= voucher.discount_value %>
+                        <%= voucher.discount_type==='percentage' ? '%' : ' VNĐ' %>
+                    </td>
+                    <td>
+                      <% if (voucher.discount_type==='percentage' ) { %>
+                        <%= voucher.max_discount_value ? voucher.max_discount_value.toLocaleString('vi-VN') + 'đ' : '-' %>
+                          <% } else { %>
+                            -
+                            <% } %>
+                    </td>
+                    <td>
+                      <%= voucher.min_order_amount %> VNĐ
+                    </td>
+                    <td>
+                      <%= voucher.quantity %>
+                    </td>
+                    <td>
+                      <%= voucher.used_count %>
+                    </td>
+                    <td>
+                      <%= voucher.date_from ? new Date(voucher.date_from).toLocaleDateString('vi-VN') : '' %>
+                    </td>
+                    <td>
+                      <%= voucher.date_to ? new Date(voucher.date_to).toLocaleDateString('vi-VN') : '' %>
+                    </td>
+                    <td>
+                      <% if (voucher.is_active==true) { %>
+                        <span class="badge" style="background:#198754; color:#fff; font-size:1rem; padding:8px 18px;">
+                          <i class="bi bi-check-circle-fill"></i> Kích hoạt
                         </span>
-                        <% } %>
-                  </td>
-                  <td>
-                    <a href="/voucher/edit/<%= voucher._id %>" class="btn btn-warning btn-sm">
-                      <i class="bi bi-pencil"></i> Sửa
-                    </a>
-                    
-                  </td>
-                </tr>
-                <% }) %>
-                  <% } %>
-        </tbody>
-      </table>
+                        <% } else { %>
+                          <span class="badge" style="background:#dc3545; color:#fff; font-size:1rem; padding:8px 18px;">
+                            <i class="bi bi-x-circle-fill"></i> Ẩn
+                          </span>
+                          <% } %>
+                    </td>
+                    <td>
+                      <a href="/voucher/edit/<%= voucher._id %>" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil"></i> Sửa
+                      </a>
+
+                    </td>
+                  </tr>
+                  <% }) %>
+                    <% } %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Bảng lịch sử voucher (ẩn mặc định) -->
+      <div id="voucherHistory" style="display:none;">
+        <form class="row g-3 mb-3">
+          <div class="col-md-3">
+            <label class="form-label">Chọn tháng</label>
+            <input type="month" name="month" class="form-control" value="2025-08" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Nhập mã voucher</label>
+            <input type="text" name="voucher_code" class="form-control" placeholder="Nhập mã voucher cần tìm" />
+          </div>
+          <div class="col-md-3 align-self-end">
+            <button type="submit" class="btn btn-primary">Lọc</button>
+          </div>
+        </form>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Mã voucher</th>
+              <th>Sản phẩm đã áp dụng</th>
+              <th>Số lần sử dụng</th>
+              <th>Tổng tiền đã giảm</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>WELCOME10</td>
+              <td>Áo thun, Quần jeans</td>
+              <td>12</td>
+              <td>1.200.000 VNĐ</td>
+            </tr>
+            <tr>
+              <td>FREESHIP</td>
+              <td>Giày sneaker</td>
+              <td>5</td>
+              <td>150.000 VNĐ</td>
+            </tr>
+            <tr>
+              <td>SAVE20</td>
+              <td>Áo sơ mi</td>
+              <td>3</td>
+              <td>300.000 VNĐ</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </main>
   </div>
   <script>
     const toggleBtn = document.getElementById('toggleBtn');
     const sidebar = document.getElementById('sidebar');
-    const content = document.getElementById('content');
-
     toggleBtn.addEventListener('click', () => {
       sidebar.classList.toggle('collapsed');
     });
 
-    function toggleVariants(id, collapse = false) {
-      const shortDiv = document.getElementById('variant-short-' + id);
-      const fullDiv = document.getElementById('variant-full-' + id);
+    // Chỉ dùng 1 nút chuyển đổi giữa 2 bảng
+    const toggleTableBtn = document.getElementById('toggleTableBtn');
+    const voucherTable = document.getElementById('voucherTable');
+    const voucherHistory = document.getElementById('voucherHistory');
 
-      if (collapse) {
-        shortDiv.style.display = 'block';
-        fullDiv.style.display = 'none';
+    toggleTableBtn.onclick = function() {
+      if (voucherTable.style.display !== 'none') {
+        voucherTable.style.display = 'none';
+        voucherHistory.style.display = 'block';
+        toggleTableBtn.textContent = 'Quay lại danh sách voucher';
       } else {
-        shortDiv.style.display = 'none';
-        fullDiv.style.display = 'block';
+        voucherHistory.style.display = 'none';
+        voucherTable.style.display = 'block';
+        toggleTableBtn.textContent = 'Lịch sử sử dụng voucher';
       }
-    }
+    };
   </script>
 </body>
 
