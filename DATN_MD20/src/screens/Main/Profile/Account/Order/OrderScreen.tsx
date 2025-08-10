@@ -31,7 +31,7 @@ const OrderScreen = () => {
 
   const dispatch = useAppDispatch();
   const {orders} = useAppSelector(state => state.order);
-  console.log('ASS:', orders);
+  // console.log('ASS:', orders);
 
   const dataOrder = [
     {id: 'o1', name: getTranslation('tat_ca')},
@@ -116,15 +116,6 @@ const OrderScreen = () => {
         data={filteredorder}
         keyExtractor={item => item._id}
         renderItem={({item}) => {
-          // Lấy 2 ký tự đầu
-          const first2 = item._id?.slice(0, 2);
-          // Lấy 4 ký tự giữa (ví dụ từ vị trí 10 đến 14)
-          const middle4 = item._id?.slice(10, 14);
-          // Lấy 2 ký tự cuối
-          const last2 = item._id?.slice(-2);
-          // Gộp thành mã đơn hàng
-          const orderCode = `${first2}${middle4}${last2}`.toUpperCase();
-
           const formattedItems = item.items.map((item: any) => {
             const variant = item.product_id?.variants.find(
               (v: any) => v._id === item.product_variant_id,

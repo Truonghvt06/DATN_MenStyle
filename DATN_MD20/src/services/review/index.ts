@@ -5,7 +5,7 @@ const reviewService = {
   getPendingReviewItems: async () => {
     try {
       const res = await axiosInstance.get('/review/reviewable');
-      console.log('ABC', res.data.pending);
+      // console.log('ABC----', res.data.pending);
 
       return res.data.pending;
     } catch (err: any) {
@@ -27,7 +27,7 @@ const reviewService = {
   getMyReviews: async () => {
     try {
       const res = await axiosInstance.get('/review');
-      console.log('ABC', res.data.reviews);
+      // console.log('ABC', res.data.reviews);
 
       return res.data.reviews;
     } catch (err: any) {

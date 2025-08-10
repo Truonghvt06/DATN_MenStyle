@@ -45,15 +45,20 @@ const reviewSlice = createSlice({
 
       // Create review
       .addCase(createReview.fulfilled, (state, action) => {
-        state.myReviews.unshift(action.payload); // Thêm review mới vào đầu
+        const newReview = action.payload; // backend trả về review mới
+
+        // 1. Xóa item khỏi pending (theo order_id + product_id + variant)
         state.pending = state.pending.filter(
           item =>
             !(
-              item.product_id === action.payload.product_id &&
-              item.product_variant_id === action.payload.product_variant_id &&
-              item.order_id === action.payload.order_id
+              item.order_id === newReview.order_id &&
+              item.product_id === newReview.product_id &&
+              item.product_variant_id === newReview.product_variant_id
             ),
         );
+
+        // 2. Thêm vào myReviews (nếu muốn hiển thị ngay)
+        state.myReviews.unshift(newReview);
       });
   },
 });

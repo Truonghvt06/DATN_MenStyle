@@ -17,7 +17,8 @@ export const createReview = createAsyncThunk(
   'review/create',
   async (data: ReviewCreateType, {rejectWithValue}) => {
     try {
-      return await reviewService.createReview(data);
+      const res = await reviewService.createReview(data);
+      return res;
     } catch (err) {
       return rejectWithValue(err);
     }

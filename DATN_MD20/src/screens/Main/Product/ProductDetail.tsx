@@ -51,7 +51,7 @@ const ProductDetail = () => {
   const {getTranslation} = useLanguage();
   const route = useRoute();
   // const {product} = route.params as {product: any};
-  const {id} = route.params as {id: string; idOld?: string};
+  const {id} = route.params as {id: string};
   const theme = useAppTheme();
 
   const [proData, setProData] = useState<any>([]);

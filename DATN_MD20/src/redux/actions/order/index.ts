@@ -36,3 +36,20 @@ export const getOrderDetail = createAsyncThunk(
     }
   },
 );
+
+export const putCancelOrder = createAsyncThunk(
+  'order/cancelOrder',
+  async (
+    {orderId, reason}: {orderId: string; reason: string},
+    {rejectWithValue},
+  ) => {
+    try {
+      const order = await orderService.cancelOrder({orderId, reason});
+      return order;
+    } catch (error: any) {
+      return rejectWithValue(
+        error?.response?.data?.message || 'Lỗi khi huỷ đơn hàng',
+      );
+    }
+  },
+);

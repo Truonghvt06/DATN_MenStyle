@@ -1,6 +1,11 @@
 import {createSlice} from '@reduxjs/toolkit';
 import {OrderState} from '../../../services/orders';
-import {createOrder, getOrders, getOrderDetail} from '../../actions/order';
+import {
+  createOrder,
+  getOrders,
+  getOrderDetail,
+  putCancelOrder,
+} from '../../actions/order';
 
 const initialState: OrderState = {
   loading: false,
@@ -18,6 +23,9 @@ const orderSlice = createSlice({
       state.order = null;
       state.orders = [];
       state.error = null;
+    },
+    clearOrderDetail: state => {
+      state.order = null;
     },
   },
   extraReducers: builder => {
@@ -63,9 +71,15 @@ const orderSlice = createSlice({
       .addCase(getOrderDetail.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+
+      //cancelOrrder
+      .addCase(putCancelOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.order = action.payload;
       });
   },
 });
 
-export const {resetOrder} = orderSlice.actions;
+export const {resetOrder, clearOrderDetail} = orderSlice.actions;
 export default orderSlice.reducer;

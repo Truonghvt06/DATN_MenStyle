@@ -17,6 +17,7 @@ import {
   fetchMyReviews,
   fetchPendingReviewItems,
 } from '../../../../../redux/actions/review';
+import moment from 'moment';
 
 const ManageReviewScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -28,7 +29,7 @@ const ManageReviewScreen = () => {
   const {pending, myReviews} = useAppSelector(state => state.review);
 
   // console.log('ABC', pending);
-  // console.log('ABCD', myReviews);
+  console.log('ABCD', myReviews);
 
   const tabs = ['Chưa đánh giá', 'Đã đánh giá'];
 
@@ -37,24 +38,11 @@ const ManageReviewScreen = () => {
     dispatch(fetchMyReviews());
   }, []);
 
-  // const filteredProducts = useMemo(() => {
-  //   if (!pending && !myReviews) return [];
-  //   switch (selectedTab) {
-  //     case 'Chưa đánh giá':
-  //       return [...pending];
-  //     case 'Đã đánh giá':
-  //       return [...myReviews];
-
-  //     default:
-  //       return pending;
-  //   }
-  // }, [selectedTab, pending, myReviews]);
-
-  const handleReview = () => {
-    navigation.navigate(ScreenName.Main.AddReview);
+  const handleReview = (items: any) => {
+    navigation.navigate(ScreenName.Main.AddReview, {items: items});
   };
-  const handleProductDetail = () => {
-    // navigation.navigate(ScreenName.Main.AddReview);
+  const handleProductDetail = (id: string) => {
+    navigation.navigate(ScreenName.Main.ProductDetail, {id: id});
   };
 
   const renderTab = (tab: string) => (
@@ -91,20 +79,8 @@ const ManageReviewScreen = () => {
       <View style={[styles.tab, {borderColor: theme.border_color}]}>
         {tabs.map(renderTab)}
       </View>
-      {/* <Block padH={8} padT={10} padB={30}>
-        <ItemRated
-          name={'Áo Polo Nam Coolmate Premium'}
-          image={''}
-          id_order={'#54354'}
-          size={'L'}
-          color={'Đỏ'}
-          deliveredAt={'12/12/2024'}
-          onPress={() => {
-            handleReview();
-          }}
-        />
-      </Block>
-      <Block>
+
+      {/* <Block>
         <ItemNotRated
           avatar=""
           nameUser="truong"
@@ -122,44 +98,52 @@ const ManageReviewScreen = () => {
         />
       </Block> */}
       <Block padH={8} padT={10} padB={30}>
-        {pending.length === 0 || myReviews.length === 0 ? (
-          <TextSmall style={{textAlign: 'center'}}>Không có sản phẩm</TextSmall>
-        ) : selectedTab === 'Chưa đánh giá' ? (
-          <FlatList
-            data={pending}
-            keyExtractor={index => `pen-${index}`}
-            renderItem={({item}) => {
-              return (
+        {selectedTab === 'Chưa đánh giá' ? (
+          pending.length === 0 ? (
+            <TextSmall style={{textAlign: 'center'}}>
+              Không có sản phẩm
+            </TextSmall>
+          ) : (
+            <FlatList
+              data={pending}
+              keyExtractor={(item, index) => `pen-${index}`}
+              renderItem={({item}) => (
                 <ItemRated
-                  name={item.product_name || 'Tên sản phẩm'}
-                  image={item.image || ''}
+                  name={item.product_name}
+                  image={item.product_image}
                   id_order={item.order_id}
-                  size={item.size || 'N/A'}
-                  color={item.color || 'N/A'}
-                  deliveredAt={item.deliveredAt}
-                  onPress={() => handleReview()}
+                  size={item.product_size}
+                  color={item.product_color}
+                  deliveredAt={moment(item.deliveredAt).format('DD/MM/YYYY')}
+                  onPress={() => handleReview(item)}
                 />
-              );
-            }}
-          />
+              )}
+              contentContainerStyle={{marginBottom: 20, gap: 10}}
+            />
+          )
+        ) : myReviews.length === 0 ? (
+          <TextSmall style={{textAlign: 'center'}}>Không có sản phẩm</TextSmall>
         ) : (
           <FlatList
             data={myReviews}
-            keyExtractor={index => `pen-${index}`}
+            keyExtractor={(item, index) => `rev-${item._id}`}
             renderItem={({item}) => {
+              const variant = item.product_id?.variants?.find(
+                (v: any) =>
+                  v._id.toString() === item.product_variant_id.toString(),
+              );
               return (
                 <ItemNotRated
-                  avatar={item.avatar || ''}
-                  nameUser={'Bạn'} // hoặc từ user info
-                  namePro={item.product_name}
-                  image={item.image || ''}
-                  id_order={item.order_id}
-                  size={'N/A'}
-                  color={'N/A'}
-                  star={item.rating.toString()}
-                  date={new Date(item.createdAt).toLocaleDateString()}
+                  avatar={item.user_id?.avatar}
+                  nameUser={item.user_id?.name}
+                  namePro={item.product_id?.name}
+                  image={variant.image}
+                  size={variant.size}
+                  color={variant.color}
+                  star={item.rating}
+                  date={moment(item.createdAt).format('DD/MM/YYYY')}
                   comment={item.comment}
-                  onPress={() => handleProductDetail()}
+                  onPress={() => handleProductDetail(item.product_id?._id)}
                 />
               );
             }}

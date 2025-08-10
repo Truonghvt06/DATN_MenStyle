@@ -21,18 +21,20 @@ const recalcProductRating = async (product_id) => {
 // Lấy tất cả sản phẩm đã giao trong vòng 7 ngày để hiển thị ở "chưa đánh giá" (không loại trừ đã từng review)
 exports.getPendingReviewItems = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.id;
     const now = new Date();
 
     // Lấy tất cả đơn hàng đã giao của user
     const orders = await Order.find({
       user_id: userId,
-      status: "Delivered",
+      order_status: "delivered",
     })
+      .populate("items.product_id")
       .lean()
       .exec();
 
-    const pending = [];
+    // Map để giữ sản phẩm duy nhất theo (name + size + color)
+    const productMap = new Map();
 
     for (const order of orders) {
       const deliveredAt = order.deliveredAt
@@ -42,54 +44,77 @@ exports.getPendingReviewItems = async (req, res) => {
 
       const daysSinceDelivery =
         (now.getTime() - deliveredAt.getTime()) / (1000 * 60 * 60 * 24);
-      if (daysSinceDelivery > 7) continue; // quá hạn thì không cho đánh giá
+      if (daysSinceDelivery > 7) continue; // quá hạn đánh giá
 
       for (const item of order.items) {
-        // Kiểm tra xem order-item này đã có review (cùng order_id + product + variant) chưa
+        // Kiểm tra đã review chưa
         const existing = await Review.findOne({
           user_id: userId,
           order_id: order._id,
           product_id: item.product_id,
           product_variant_id: item.product_variant_id,
         }).lean();
+        if (existing) continue;
 
-        if (existing) {
-          continue; // đã đánh giá trên chính order này, bỏ qua
+        // Lấy thông tin variant
+        const variant = item.product_id?.variants?.find(
+          (v) => v._id.toString() === item.product_variant_id.toString()
+        );
+
+        const key = `${item.product_id?.name || ""}_${variant?.size || ""}_${
+          variant?.color || ""
+        }`;
+
+        // Nếu chưa có trong map hoặc đơn này mới hơn thì cập nhật
+        if (
+          !productMap.has(key) ||
+          deliveredAt > productMap.get(key).deliveredAt
+        ) {
+          productMap.set(key, {
+            order_id: order._id,
+            order_code: order.code,
+            product_id: item.product_id,
+            product_image: variant?.image || "",
+            product_name: item.product_id?.name || "",
+            product_size: variant?.size || "",
+            product_color: variant?.color || "",
+            product_variant_id: item.product_variant_id,
+            price: item.price,
+            quantity: item.quantity,
+            deliveredAt,
+          });
         }
-
-        pending.push({
-          order_id: order._id,
-          product_id: item.product_id,
-          product_variant_id: item.product_variant_id,
-          price: item.price,
-          quantity: item.quantity,
-          deliveredAt,
-        });
       }
     }
 
-    return res.status(200).json({ pending }); // trả về "chưa đánh giá"
+    // Sắp xếp theo ngày giao mới nhất
+    const pending = Array.from(productMap.values()).sort(
+      (a, b) => b.deliveredAt - a.deliveredAt
+    );
+
+    return res.status(200).json({ pending });
   } catch (err) {
     console.error("Error in getPendingReviewItems:", err);
     return res.status(500).json({ message: "Lỗi máy chủ", error: err.message });
   }
 };
+
 // POST /reviews — tạo review cho 1 order-item
 exports.createReview = async (req, res) => {
   try {
     const { product_id, order_id, product_variant_id, rating, comment } =
       req.body;
-    const user_id = req.user._id;
+    const user_id = req.user.id;
 
     if (!product_id || !order_id || !product_variant_id || rating == null) {
       return res.status(400).json({ message: "Thiếu thông tin đánh giá" });
     }
 
-    // 1. Kiểm tra order thuộc user và đã Delivered
+    // 1. Kiểm tra order thuộc user và đã delivered
     const order = await Order.findOne({
       _id: order_id,
       user_id,
-      status: "Delivered",
+      order_status: "delivered",
     })
       .lean()
       .exec();
@@ -158,42 +183,42 @@ exports.createReview = async (req, res) => {
 // GET /reviews/my — lấy review đã tạo của user (có thể dùng để hiển thị tab "Đã đánh giá")
 exports.getMyReviews = async (req, res) => {
   try {
-    const user_id = req.user._id;
+    const user_id = req.user.id;
 
     // Lấy tất cả review của user, kèm info product + order
     const reviews = await Review.find({ user_id })
-      .populate({
-        path: "product_id",
-        select: "name variants price rating_avg rating_count",
-      })
-      .populate({
-        path: "order_id",
-        select: "status deliveredAt",
-      })
+      .populate("product_id")
+      .populate("user_id")
       .lean()
       .exec();
 
-    // Có thể format thêm để frontend dễ dùng
-    const formatted = reviews.map((r) => ({
-      review_id: r._id,
-      order_id: r.order_id?._id,
-      order_status: r.order_id?.status,
-      deliveredAt: r.order_id?.deliveredAt,
-      product_id: r.product_id?._id,
-      product_name: r.product_id?.name,
-      product_variant_id: r.product_variant_id,
-      rating: r.rating,
-      comment: r.comment,
-      createdAt: r.createdAt,
-      product_snapshot: {
-        rating_avg: r.product_id?.rating_avg,
-        rating_count: r.product_id?.rating_count,
-        price: r.product_id?.price,
-        variants: r.product_id?.variants,
-      },
-    }));
+    const sortReview = reviews.sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
+    // // Có thể format thêm để frontend dễ dùng
+    // const formatted = reviews.map((r) => {
+    //   const variant = r.product_id?.variants?.find(
+    //     (v) => v._id.toString() === item.product_variant_id.toString()
+    //   );
+    //   return {
+    //     _id: r._id,
+    //     deliveredAt: r.order_id?.deliveredAt,
+    //     product_id: r.product_id?._id,
+    //     product_name: r.product_id?.name,
+    //     product_variant_id: r.product_variant_id,
+    //     rating: r.rating,
+    //     comment: r.comment,
+    //     createdAt: r.createdAt,
+    //     product_snapshot: {
+    //       rating_avg: r.product_id?.rating_avg,
+    //       rating_count: r.product_id?.rating_count,
+    //       price: r.product_id?.price,
+    //       variants: r.product_id?.variants,
+    //     },
+    //   };
+    // });
 
-    return res.status(200).json({ reviews: formatted });
+    return res.status(200).json({ reviews: sortReview });
   } catch (err) {
     console.error("Lỗi lấy review của user:", err);
     return res.status(500).json({ message: "Lỗi máy chủ", error: err.message });

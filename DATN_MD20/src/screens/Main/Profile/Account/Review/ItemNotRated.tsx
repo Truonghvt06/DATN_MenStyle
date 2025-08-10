@@ -17,7 +17,7 @@ interface Props {
   avatar: string;
   namePro: string;
   image: string;
-  id_order: string;
+  id_order?: string;
   size: string;
   color: string;
   star: any;
@@ -68,7 +68,7 @@ const ItemNotRated = (props: Props) => {
       <Block>
         <Block row alignCT>
           <Image
-            source={image ? {uri: image} : ImgSRC.img_avatar}
+            source={avatar ? {uri: avatar} : ImgSRC.img_avatar}
             style={styles.avatar}
           />
           <Block>
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     paddingHorizontal: 8,
     paddingVertical: 8,
-    // borderRadius: 8,
+    borderRadius: 8,
     marginBottom: 10,
   },
   image: {
@@ -141,8 +141,9 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   pro: {
+    padding: 5,
     flexDirection: 'row',
-    borderWidth: 0.3,
+    borderWidth: 0.5,
     borderRadius: 8,
     overflow: 'hidden',
     marginTop: 8,
