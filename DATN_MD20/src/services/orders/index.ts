@@ -60,6 +60,21 @@ const orderService = {
       throw error?.response?.data || error;
     }
   },
+  cancelOrder: async ({orderId, reason}: {orderId: string; reason: string}) => {
+    try {
+      const response = await axiosInstance.put(
+        `/order/cancelOrder/${orderId}`,
+        {reason},
+      );
+      return response.data.order;
+    } catch (error: any) {
+      console.error(
+        'Lỗi khi huỷ đơn hàng:',
+        error?.response?.data || error.message,
+      );
+      throw error?.response?.data || error;
+    }
+  },
 };
 
 export default orderService;

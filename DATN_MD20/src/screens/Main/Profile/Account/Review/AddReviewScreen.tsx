@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   Keyboard,
   KeyboardAvoidingView,
@@ -25,16 +26,82 @@ import {
   TextSmall,
 } from '../../../../../components/dataEntry/TextBase';
 import ButtonBase from '../../../../../components/dataEntry/Button/ButtonBase';
+import {useRoute} from '@react-navigation/native';
+import {useAppDispatch} from '../../../../../redux/store';
+import {
+  createReview,
+  fetchMyReviews,
+  fetchPendingReviewItems,
+} from '../../../../../redux/actions/review';
+import navigation from '../../../../../navigation/navigation';
+import Toast from 'react-native-toast-message';
 
 const AddReviewScreen = () => {
   const {top} = useSafeAreaInsets();
+  const route = useRoute<any>();
+  const {items} = route.params;
   const theme = useAppTheme();
   const {getTranslation} = useLanguage();
+
+  console.log('ITEM: ', items);
 
   const [rating, setRating] = useState(5);
   const [note, setNote] = useState('');
 
-  const handleSend = () => {};
+  const dispatch = useAppDispatch();
+
+  const handleSend = async () => {
+    // Validate
+    if (!rating) {
+      Alert.alert('Thông báo', 'Vui lòng chọn số sao đánh giá');
+      return;
+    }
+    if (
+      !items?.order_id ||
+      !items?.product_id?._id ||
+      !items?.product_variant_id
+    ) {
+      Alert.alert('Thông báo', 'Thiếu thông tin sản phẩm để đánh giá');
+      return;
+    }
+
+    try {
+      // Data gửi lên server
+      const data = {
+        order_id: items.order_id,
+        product_id: items.product_id._id,
+        product_variant_id: items.product_variant_id,
+        rating,
+        comment: note.trim(),
+      };
+
+      // Gọi API create review
+      const result = await dispatch(createReview(data));
+
+      if (createReview.fulfilled.match(result)) {
+        // Refresh danh sách review
+        await dispatch(fetchMyReviews());
+        await dispatch(fetchPendingReviewItems());
+
+        Toast.show({
+          type: 'notification', // Có thể là 'success', 'error', 'info'
+          position: 'top',
+          text1: 'Thành công',
+          text2: 'Đánh giá đã được gửi đi',
+          visibilityTime: 1000, // số giây hiển thị Toast
+          autoHide: true,
+          swipeable: true,
+        });
+        navigation.goBack();
+      } else {
+        const error: any = result.payload || 'Gửi đánh giá thất bại';
+        Alert.alert('Lỗi', String(error?.message || error));
+      }
+    } catch (error) {
+      console.error('Lỗi khi gửi đánh giá:', error);
+      Alert.alert('Lỗi', 'Có lỗi xảy ra khi gửi đánh giá');
+    }
+  };
 
   return (
     <ContainerView style={{flex: 1}}>
@@ -46,12 +113,22 @@ const AddReviewScreen = () => {
           <ScrollView>
             <Block padH={8} padT={16}>
               <Block row marB={20}>
-                <Image source={ImgSRC.img_pro} style={styles.image} />
+                <Image
+                  source={
+                    items.product_image
+                      ? {uri: items.product_image}
+                      : ImgSRC.img_pro
+                  }
+                  style={styles.image}
+                />
                 <Block>
-                  <TextMedium bold>Áo Polo Nam Coolmate Premium</TextMedium>
-                  <TextSizeCustom size={12}>Đơn hàng #DH005</TextSizeCustom>
+                  <TextMedium bold>{items.product_name}</TextMedium>
                   <TextSizeCustom size={12}>
-                    Phân loại: Size L, Màu xanh
+                    Đơn hàng: {items.order_code}
+                  </TextSizeCustom>
+                  <TextSizeCustom size={12}>
+                    Phân loại: Size {items.product_size}, Màu{' '}
+                    {items.product_color}
                   </TextSizeCustom>
                 </Block>
               </Block>

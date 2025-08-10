@@ -302,7 +302,7 @@ const CartScreen = () => {
             </TextSizeCustom>
           </Block>
           {selectedItems.size > 0 && (
-            <TextSmall color={theme.gray} style={{marginBottom: 5}}>
+            <TextSmall color={theme.text} style={{marginBottom: 5}}>
               Đã chọn {selectedItems.size} sản phẩm
             </TextSmall>
           )}

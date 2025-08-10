@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -32,8 +33,14 @@ import ScreenName from '../../../../../navigation/ScreenName';
 import {useAppDispatch, useAppSelector} from '../../../../../redux/store';
 import {fetchNotifications} from '../../../../../redux/actions/notification';
 import {colors} from '../../../../../themes/colors';
-import {getOrderDetail} from '../../../../../redux/actions/order';
+import {
+  getOrderDetail,
+  getOrders,
+  putCancelOrder,
+} from '../../../../../redux/actions/order';
 import moment from 'moment';
+import {clearOrderDetail} from '../../../../../redux/reducers/order';
+import Toast from 'react-native-toast-message';
 
 const OrderDetailScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -52,7 +59,6 @@ const OrderDetailScreen = () => {
 
   console.log('AAAA', order);
 
-  const displayData = showAll ? dataItemOrder : dataItemOrder.slice(0, 2);
   const reasons = [
     {id: '1', label: getTranslation('thay_doi_y')},
     {id: '2', label: getTranslation('tim_mau_moi')},
@@ -67,17 +73,19 @@ const OrderDetailScreen = () => {
 
   const formattedItems =
     order?.items?.map((item: any) => {
-      const variant = item.product_id?.variants.find(
+      const variant = item?.product_id?.variants?.find?.(
         (v: any) => v._id === item.product_variant_id,
       );
 
       return {
         ...item,
-        image: variant?.image, // FlatList dùng Image source = { uri: ... }
-        color: variant?.color,
-        size: variant?.size,
+        image: variant?.image ?? item?.image ?? '',
+        color: variant?.color ?? item?.color ?? '',
+        size: variant?.size ?? item?.size ?? '',
       };
     }) || [];
+
+  const displayData = showAll ? formattedItems : formattedItems.slice(0, 2);
 
   const getStatusText = (status: string) => {
     switch (status) {
@@ -96,8 +104,6 @@ const OrderDetailScreen = () => {
     }
   };
 
-  const handleToggle = () => setShowAll(prev => !prev);
-
   const getStatusColor = (status?: string) => {
     switch (status) {
       case 'pending':
@@ -115,11 +121,56 @@ const OrderDetailScreen = () => {
     }
   };
 
+  const handleToggle = () => setShowAll(prev => !prev);
+
+  //MUA LAI
+  const handleBuyBack = () => {
+    const firstItem = order?.items?.[0];
+    const productId = firstItem?.product_id?._id?.toString?.();
+    navigation.navigate(ScreenName.Main.ProductDetail, {id: productId});
+  };
+
+  //HUY DON
+  const handleCancelled = async () => {
+    // chưa chọn lý do
+    if (!selectedId) {
+      Alert.alert(getTranslation('thong_bao'), 'Vui lòng chọn lý do huỷ');
+      return;
+    }
+
+    // lấy text lý do từ danh sách
+    const reasonText = reasons.find(r => r.id === selectedId)?.label || '';
+
+    const result = await dispatch(
+      putCancelOrder({orderId: order?._id, reason: reasonText}),
+    );
+
+    if (putCancelOrder.fulfilled.match(result)) {
+      setIsOpen(false);
+      Toast.show({
+        type: 'notification',
+        position: 'top',
+        text1: 'Thành công',
+        text2: 'Huỷ đơn hàng thành công',
+        visibilityTime: 1000, // số giây hiển thị Toast
+        autoHide: true,
+        swipeable: true,
+      });
+
+      await dispatch(getOrders());
+      navigation.goBack();
+    } else {
+      const error: any = result.payload || 'Huỷ đơn hàng thất bại';
+      Alert.alert('Lỗi', error);
+    }
+  };
+
   const handleBack = async () => {
     if (screen === 'notification') {
       await dispatch(fetchNotifications());
       navigation.goBack();
     } else {
+      dispatch(clearOrderDetail());
       navigation.goBack();
     }
   };
@@ -178,7 +229,7 @@ const OrderDetailScreen = () => {
                 ({order?.items?.length} {getTranslation('san_pham_')})
               </TextSmall>
             </TextHeight>
-            {formattedItems.map((item: any, index: number) => {
+            {displayData.map((item: any, index: number) => {
               return (
                 <Block
                   key={index}
@@ -262,11 +313,19 @@ const OrderDetailScreen = () => {
 
           <ButtonBase
             title={
-              order?.status !== 'cancelled'
-                ? getTranslation('huy_don')
-                : getTranslation('mua_lai')
+              order?.order_status === 'cancelled' ||
+              order?.order_status === 'delivered'
+                ? getTranslation('mua_lai')
+                : // : order?.order_status === 'delivered'
+                  // ? getTranslation('mua_lai')
+                  getTranslation('huy_don')
             }
-            onPress={() => setIsOpen(true)}
+            onPress={() => {
+              order?.order_status === 'cancelled' ||
+              order?.order_status === 'delivered'
+                ? handleBuyBack()
+                : setIsOpen(true);
+            }}
           />
         </Block>
       </ScrollView>
@@ -294,7 +353,9 @@ const OrderDetailScreen = () => {
           <ButtonBase
             containerStyle={{marginTop: 30}}
             title={getTranslation('xac_nhan_huy')}
-            onPress={() => {}}
+            onPress={() => {
+              handleCancelled();
+            }}
           />
         </ScrollView>
       </ModalBottom>
