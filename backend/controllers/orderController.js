@@ -223,7 +223,7 @@ exports.updatePaymentStatus = async (req, res) => {
   }
 };
 
-exports.getOrderDetail = async (req, res) => {
+exports.getOrderDetaill = async (req, res) => {
   try {
     const orderId = req.params.id;
     const order = await Order.findById(orderId)
@@ -240,8 +240,3 @@ exports.getOrderDetail = async (req, res) => {
     res.status(500).send("Lỗi server");
   }
 };
-
-
-
-
-

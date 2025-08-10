@@ -19,6 +19,6 @@ router.put("/cancelOrder/:id", orderController.cancelOrder);
 router.post("/update-status/:id", orderController.updateStatus);
 router.post("/update-payment-status/:id", orderController.updatePaymentStatus);
 
-router.get("/order_detail/:id", orderController.getOrderDetail);
+router.get("/order_detail/:id", orderController.getOrderDetaill);
 
 module.exports = router;
