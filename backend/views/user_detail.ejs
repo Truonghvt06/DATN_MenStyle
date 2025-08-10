@@ -186,7 +186,6 @@
                 <th>Số lượng</th>
                 <th>Đơn giá</th>
                 <th>Thành tiền</th>
-                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -207,58 +206,16 @@
                 </td>
                 <td style="width: 160px">
                   <div class="input-group">
-          
-                    <form
-                      method="POST"
-                      action="/accounts/<%= user._id %>/cart/update-all"
-                      onsubmit="return validateAction(this)"
-                    >
-                      <input
-                        type="hidden"
-                        name="action"
-                        value="decrease-<%= index %>"
-                      />
-                      <button type="submit" class="btn btn-outline-secondary">
-                        -
-                      </button>
-                    </form>
                     <input
                       type="text"
                       class="form-control text-center"
                       value="<%= item.quantity %>"
                       readonly
                     />
-                  
-                    <form
-                      method="POST"
-                      action="/accounts/<%= user._id %>/cart/update-all"
-                      onsubmit="return validateAction(this)"
-                    >
-                      <input
-                        type="hidden"
-                        name="action"
-                        value="increase-<%= index %>"
-                      />
-                      <button type="submit" class="btn btn-outline-secondary">
-                        +
-                      </button>
-                    </form>
                   </div>
                 </td>
                 <td><%= price.toLocaleString('vi-VN') %> ₫</td>
                 <td><%= subtotal.toLocaleString('vi-VN') %> ₫</td>
-                <td>
-                  <form
-                    method="POST"
-                    action="/accounts/<%= user._id %>/cart/remove-item"
-                    onsubmit="return confirm('Xóa sản phẩm này khỏi giỏ hàng?')"
-                  >
-                    <input type="hidden" name="index" value="<%= index %>" />
-                    <button class="btn btn-sm btn-outline-danger">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </form>
-                </td>
               </tr>
               <% }) %>
             </tbody>
@@ -270,7 +227,6 @@
                 <td>
                   <strong><%= totalPrice.toLocaleString('vi-VN') %> ₫</strong>
                 </td>
-                <td></td>
               </tr>
             </tfoot>
           </table>
@@ -283,22 +239,6 @@
         </div>
 
   
-        <div class="card mt-4">
-          <div class="card-title">
-            <i class="bi bi-heart-fill"></i> Danh sách yêu thích (<%=
-            user.favorites.length %> sản phẩm)
-          </div>
-          <% if (user.favorites.length > 0) { %>
-          <ul>
-            <% user.favorites.forEach(item => { %>
-            <li><%= item.productId?.name || 'Không có tên' %></li>
-            <% }) %>
-          </ul>
-          <% } else { %>
-          <p class="text-muted">Danh sách yêu thích trống</p>
-          <% } %>
-          
-        </div>
       </main>
     </div>
 
