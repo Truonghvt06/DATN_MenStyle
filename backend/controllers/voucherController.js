@@ -29,7 +29,7 @@ exports.viewVouchers = async (req, res) => {
     // Cập nhật trạng thái voucher trước khi hiển thị
     await updateVoucherStatus();
 
-    const vouchers = await Voucher.find();
+    const vouchers = await Voucher.find().sort({ is_active: -1, date_to: -1 });
     res.render("voucher", { vouchers });
   } catch (error) {
     res.status(500).send("Lỗi khi lấy danh sách voucher");
