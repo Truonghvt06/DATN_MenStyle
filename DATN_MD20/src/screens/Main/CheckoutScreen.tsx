@@ -39,6 +39,12 @@ import VoucherItem from './Profile/Others/Voucher/VoucherItem';
 import {fetchCart, removeCart} from '../../redux/actions/cart/cartAction';
 import zaloService from '../../services/zalo';
 import ModalCenter from '../../components/dataDisplay/Modal/ModalCenter';
+import {
+  fetchAvailableVouchers,
+  useVoucherAction,
+} from '../../redux/actions/voucher';
+import {Voucher} from '../../services/voucher';
+import {formatMoneyShort} from '../../utils/formatDate';
 
 interface CheckoutScreenProps {
   route?: {
@@ -59,30 +65,46 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
   const {user} = useAppSelector(state => state.auth);
   const {listAddress} = useAppSelector(state => state.address);
   const {listPaymentMethod} = useAppSelector(state => state.paymentMenthod);
-  const {vouchers} = useAppSelector(state => state.voucher);
+  const {availableVouchers} = useAppSelector(state => state.voucher);
   const {orders} = useAppSelector(state => state.order);
 
-  const voucherOrder = vouchers.filter(vc => {
-    vc.voucher_scope === 'order';
-  });
-  const voucherShipping = vouchers.filter(vc => {
-    vc.voucher_scope === 'shipping';
-  });
+  // console.log('VOUCHER: ', availableVouchers);
 
   // State cho form thanh toán
   const [selectedAddress, setSelectedAddress] = useState<any>();
   const [paymentMethod, setPaymentMethod] = useState('COD'); // cod: tiền mặt, bank: chuyển khoản
   const [loading, setLoading] = useState(false);
-  const [selectedVoucher, setSelectedVoucher] = useState<any>(null);
-  const [showVoucherModal, setShowVoucherModal] = useState(false);
-
-  // Danh sách voucher lấy từ backend
-  const [availableVouchers, setAvailableVouchers] = useState<any[]>([]);
 
   //XU LY SAU KHI THANH TOAN ZALOPAY XONG
   const appState = useRef(AppState.currentState);
   const [showPaymentSuccessModal, setShowPaymentSuccessModal] = useState(false);
 
+  //VOUCHER
+  // const [selectedVoucher, setSelectedVoucher] = useState<any>(null);
+  const [showVoucherModal, setShowVoucherModal] = useState(false);
+  const [selectedOrderVoucher, setSelectedOrderVoucher] =
+    useState<Voucher | null>(null);
+  const [selectedShippingVoucher, setSelectedShippingVoucher] =
+    useState<Voucher | null>(null);
+
+  const [showAllOrder, setShowAllOrder] = useState(false);
+  const [showAllShipping, setShowAllShipping] = useState(false);
+  // thêm 2 state nháp dùng riêng trong modal
+  const [draftOrderVoucher, setDraftOrderVoucher] = useState<Voucher | null>(
+    null,
+  );
+  const [draftShippingVoucher, setDraftShippingVoucher] =
+    useState<Voucher | null>(null);
+
+  // khi mở modal, copy từ state thật -> state nháp
+  useEffect(() => {
+    if (showVoucherModal) {
+      setDraftOrderVoucher(selectedOrderVoucher);
+      setDraftShippingVoucher(selectedShippingVoucher);
+    }
+  }, [showVoucherModal]);
+
+  //XU LY SAU KHI THANH TOAN ZALOPAY XONG
   useEffect(() => {
     const subscription = AppState.addEventListener(
       'change',
@@ -105,7 +127,7 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
   //PaymenMethod
   useEffect(() => {
     dispatch(fetchPaymentMethods());
-    // dispatch(fetchVouchers());
+    dispatch(fetchAvailableVouchers());
   }, []);
 
   useEffect(() => {
@@ -123,10 +145,6 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
     }
   }, [listAddress]);
 
-  ///
-
-  useEffect(() => {}, []);
-
   // Lọc sản phẩm đã chọn
   const selectedProducts = list_Cart.filter((_, index) =>
     selectedItems.includes(index),
@@ -141,41 +159,106 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
 
   const shippingFee = 30000; // Phí vận chuyển
 
-  // Tính giảm giá từ voucher
-  const calculateDiscount = () => {
-    if (!selectedVoucher) return 0;
+  ///VOUCHER
+  const voucherOrder: Voucher[] = [];
+  const voucherShipping: Voucher[] = [];
+  const applyingVouchersRef = useRef(false);
 
-    let discount = 0;
+  availableVouchers.forEach(vc => {
+    if (vc?.min_order_amount <= subtotal) {
+      (vc.voucher_scope === 'order' ? voucherOrder : voucherShipping).push(vc);
+    }
+  });
 
-    if (selectedVoucher.discount > 0) {
-      // Giảm giá theo %
-      discount = (subtotal * selectedVoucher.discount) / 100;
-      if (selectedVoucher.maxDiscount) {
-        discount = Math.min(discount, selectedVoucher.maxDiscount);
-      }
+  // console.log('VOUCHER ORDER:', voucherOrder);
+  // console.log('VOUCHER SHIPPING:', voucherShipping);
+
+  const applySelectedVouchers = async () => {
+    if (applyingVouchersRef.current) return; // tránh gọi trùng
+    applyingVouchersRef.current = true;
+
+    const tasks: Promise<any>[] = [];
+    if (selectedOrderVoucher?._id) {
+      tasks.push(dispatch(useVoucherAction(selectedOrderVoucher._id)).unwrap());
+    }
+    if (selectedShippingVoucher?._id) {
+      tasks.push(
+        dispatch(useVoucherAction(selectedShippingVoucher._id)).unwrap(),
+      );
     }
 
-    if (selectedVoucher.shippingDiscount) {
-      // Giảm phí vận chuyển
-      discount += selectedVoucher.shippingDiscount;
+    try {
+      await Promise.all(tasks);
+      // cập nhật lại store để ẩn voucher đã dùng khỏi danh sách
+      setSelectedOrderVoucher(null);
+      setSelectedShippingVoucher(null);
+      dispatch(fetchAvailableVouchers());
+    } catch (e) {
+      console.log('applySelectedVouchers error:', e);
     }
-
-    return discount;
   };
 
-  const discount = calculateDiscount();
-  const total = subtotal + shippingFee - discount;
+  const handleRemoveOrderVoucher = () => setSelectedOrderVoucher(null);
+  const handleRemoveShippingVoucher = () => setSelectedShippingVoucher(null);
+  const handleDraftSelectOrder = (v: Voucher) =>
+    setDraftOrderVoucher(prev => (prev?.code === v.code ? null : v));
 
-  // Hàm chọn voucher
-  const handleSelectVoucher = (voucher: any) => {
-    setSelectedVoucher(voucher);
+  const handleDraftSelectShipping = (v: Voucher) =>
+    setDraftShippingVoucher(prev => (prev?.code === v.code ? null : v));
+
+  const handleApplyVouchers = () => {
+    setSelectedOrderVoucher(draftOrderVoucher);
+    setSelectedShippingVoucher(draftShippingVoucher);
     setShowVoucherModal(false);
   };
 
-  // Hàm xóa voucher
-  const handleRemoveVoucher = () => {
-    setSelectedVoucher(null);
+  const calcOrderDiscount = (vc?: Voucher) => {
+    if (!vc) return 0;
+    let d = 0;
+    if (vc.discount_type === 'percentage')
+      d = (subtotal * (vc.discount_value ?? 0)) / 100;
+    else d = vc.discount_value ?? 0;
+    if (vc.max_discount_value) d = Math.min(d, vc.max_discount_value);
+    return Math.max(0, d);
   };
+
+  const calcShippingDiscount = (vc?: Voucher) => {
+    if (!vc) return 0;
+    let d = 0;
+    if (vc.discount_type === 'percentage')
+      d = (shippingFee * (vc.discount_value ?? 0)) / 100;
+    else d = vc.discount_value ?? 0;
+    if (vc.max_discount_value) d = Math.min(d, vc.max_discount_value);
+    d = Math.min(d, shippingFee); // không giảm quá phí ship
+    return Math.max(0, d);
+  };
+
+  const discountOrder = calcOrderDiscount(selectedOrderVoucher ?? undefined);
+  const discountShipping = calcShippingDiscount(
+    selectedShippingVoucher ?? undefined,
+  );
+
+  // Tổng tiền mới
+  const total = Math.max(
+    0,
+    subtotal + shippingFee - discountOrder - discountShipping,
+  );
+
+  const getTitle = ({
+    discount_type,
+    discount_value,
+    max_discount_value,
+  }: any) => {
+    if (discount_type === 'percentage') {
+      return `Giảm ${discount_value}% Giảm tối đa ${formatMoneyShort(
+        max_discount_value ?? 0,
+      )}`;
+    } else {
+      return `Giảm ${formatMoneyShort(discount_value ?? 0)}`;
+    }
+  };
+
+  ////////////////////////////////
 
   //THONG BAO KHI THANH TOAN THANH CONG
   const handleAppStateChange = async (nextAppState: AppStateStatus) => {
@@ -193,6 +276,7 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
         last?.payment_method_id?.code === 'ZALOPAY' &&
         last?.payment_status === 'paid'
       ) {
+        await applySelectedVouchers();
         // ✅ Hiển thị modal hoặc Toast
         Alert.alert('Thanh toán thành công', 'Cảm ơn bạn đã mua hàng!');
       }
@@ -242,6 +326,7 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
 
           await dispatch(removeCart(indexDel)).unwrap();
           await dispatch(fetchCart());
+          await applySelectedVouchers();
 
           Toast.show({
             type: 'notification',
@@ -396,55 +481,73 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
           <TextMedium bold style={{marginBottom: 10}}>
             Mã giảm giá
           </TextMedium>
-          {selectedVoucher ? (
-            <TouchableOpacity onPress={() => setShowVoucherModal(true)}>
-              <Block
-                backgroundColor={colors.green}
-                padH={15}
-                padV={12}
-                borderRadius={8}
-                borderWidth={1}
-                borderColor={colors.green}>
+
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => setShowVoucherModal(true)}>
+            <Block
+              backgroundColor={theme.card}
+              padH={15}
+              padV={12}
+              borderRadius={8}>
+              {selectedOrderVoucher || selectedShippingVoucher ? (
+                <>
+                  {selectedOrderVoucher && (
+                    <Block row justifyBW alignCT marB={8}>
+                      <Block flex1>
+                        <TextMedium medium>
+                          {getTitle(selectedOrderVoucher)}
+                        </TextMedium>
+                        <TextSmall color={colors.gray}>
+                          {selectedOrderVoucher.code}
+                        </TextSmall>
+                      </Block>
+                      <TouchIcon
+                        icon={IconSRC.icon_close}
+                        size={10}
+                        onPress={handleRemoveOrderVoucher}
+                        containerStyle={{
+                          backgroundColor: colors.while,
+                          padding: 8,
+                          borderRadius: 12,
+                        }}
+                      />
+                    </Block>
+                  )}
+                  {selectedShippingVoucher && (
+                    <Block row justifyBW alignCT>
+                      <Block flex1>
+                        <TextMedium bold>
+                          {getTitle(selectedShippingVoucher)}
+                        </TextMedium>
+                        <TextSmall color={colors.gray}>
+                          {selectedShippingVoucher.code}
+                        </TextSmall>
+                      </Block>
+                      <TouchIcon
+                        icon={IconSRC.icon_close}
+                        size={10}
+                        onPress={handleRemoveShippingVoucher}
+                        containerStyle={{
+                          padding: 8,
+                          borderRadius: 12,
+                        }}
+                      />
+                    </Block>
+                  )}
+                </>
+              ) : (
                 <Block row justifyBW alignCT>
-                  <Block flex1>
-                    <TextMedium bold color={colors.while}>
-                      {selectedVoucher.code}
-                    </TextMedium>
-                    <TextSmall color={colors.while} style={{marginTop: 5}}>
-                      {selectedVoucher.name}
-                    </TextSmall>
-                  </Block>
-                  <TouchIcon
-                    icon={IconSRC.icon_close}
-                    size={16}
-                    onPress={handleRemoveVoucher}
-                    containerStyle={{
-                      backgroundColor: colors.while,
-                      padding: 8,
-                      borderRadius: 12,
-                    }}
-                  />
-                </Block>
-              </Block>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity onPress={() => setShowVoucherModal(true)}>
-              <Block
-                backgroundColor={theme.card}
-                padH={15}
-                padV={12}
-                borderRadius={8}>
-                <Block row justifyBW alignCT>
-                  <TextSmall color={colors.gray}>Chưa có mã giảm giá</TextSmall>
+                  <TextSmall color={colors.gray}>Chưa chọn voucher</TextSmall>
                   <TouchIcon
                     icon={IconSRC.icon_back_right}
                     size={16}
                     color={colors.gray}
                   />
                 </Block>
-              </Block>
-            </TouchableOpacity>
-          )}
+              )}
+            </Block>
+          </TouchableOpacity>
         </Block>
 
         {/* Danh sách sản phẩm */}
@@ -525,23 +628,32 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
           <Block row justifyBW marB={8}>
             <TextSmall color={colors.gray}>Tạm tính:</TextSmall>
             <TextSmall color={colors.gray}>
-              {subtotal.toLocaleString('vi-VN')}đ
+              {subtotal.toLocaleString('vi-VN')}VND
             </TextSmall>
           </Block>
           <Block row justifyBW marB={8}>
             <TextSmall color={colors.gray}>Phí vận chuyển:</TextSmall>
             <TextSmall color={colors.gray}>
-              {shippingFee.toLocaleString('vi-VN')}đ
+              {shippingFee.toLocaleString('vi-VN')}VND
             </TextSmall>
           </Block>
-          {discount > 0 && (
-            <Block row justifyBW marB={8}>
-              <TextSmall color={colors.green}>Giảm giá:</TextSmall>
-              <TextSmall color={colors.green}>
-                -{discount.toLocaleString('vi-VN')}đ
-              </TextSmall>
-            </Block>
-          )}
+          <Block row justifyBW marB={8}>
+            <TextSmall color={colors.gray}>Giảm giá đơn hàng:</TextSmall>
+            <TextSmall color={discountOrder > 0 ? colors.red : colors.gray}>
+              {discountOrder > 0
+                ? `-${discountOrder.toLocaleString('vi-VN')}VND`
+                : '0VND'}
+            </TextSmall>
+          </Block>
+
+          <Block row justifyBW marB={8}>
+            <TextSmall color={colors.gray}>Giảm phí vận chuyển:</TextSmall>
+            <TextSmall color={discountShipping > 0 ? colors.red : colors.gray}>
+              {discountShipping > 0
+                ? `-${discountShipping.toLocaleString('vi-VN')}VND`
+                : '0VND'}
+            </TextSmall>
+          </Block>
           <Block
             row
             justifyBW
@@ -577,68 +689,131 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
         heightModal={metrics.diviceHeight * 0.8}
         visible={showVoucherModal}
         onClose={() => setShowVoucherModal(false)}>
-        <ScrollView
-          contentContainerStyle={{paddingHorizontal: 8, paddingTop: 15}}>
-          <Block
-            containerStyle={[
-              styles.inputContainer,
-              {borderColor: theme.border_color},
-            ]}>
-            <TextInput
-              placeholder="Nhập mã voucher"
-              style={{flex: 1, paddingLeft: 10}}
+        <>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingHorizontal: 8,
+              paddingTop: 15,
+              paddingBottom: 50,
+            }}>
+            <Block
+              containerStyle={[
+                styles.inputContainer,
+                {borderColor: theme.border_color},
+              ]}>
+              <TextInput
+                placeholder="Nhập mã voucher"
+                placeholderTextColor={theme.placeholderTextColor}
+                style={{flex: 1, paddingLeft: 10}}
+              />
+              <TouchableOpacity activeOpacity={0.8} style={styles.btnVc}>
+                <TextSmall style={{textAlign: 'center'}}>Áp dụng</TextSmall>
+              </TouchableOpacity>
+            </Block>
+
+            {/* === VOUCHER SHIPPING === */}
+            <Block marT={20}>
+              <TextMedium medium style={{marginBottom: 8}}>
+                Ưu đãi vận chuyển
+              </TextMedium>
+
+              {(showAllShipping
+                ? voucherShipping
+                : voucherShipping.slice(0, 2)
+              ).map((item, index) => {
+                const isSelected = draftShippingVoucher?.code === item.code; // dùng draft
+                return (
+                  <VoucherItem
+                    key={`${item.code}-${index}`}
+                    image={item.image}
+                    icon={
+                      isSelected ? IconSRC.icon_check : IconSRC.icon_uncheck
+                    }
+                    title={item.title}
+                    description={item.description}
+                    voucher_scope={item.voucher_scope}
+                    discount_type={item.discount_type}
+                    max_discount_value={item.max_discount_value}
+                    discount_value={item.discount_value}
+                    min_order_amount={item.min_order_amount}
+                    date_from={item.date_from}
+                    date_to={item.date_to}
+                    code={item.code || ''}
+                    onPress={() => handleDraftSelectShipping(item)} // <— dùng handler draft
+                    onPressAll={() => handleDraftSelectShipping(item)}
+                  />
+                );
+              })}
+
+              {voucherShipping.length > 2 && (
+                <TouchableOpacity
+                  onPress={() => setShowAllShipping(v => !v)}
+                  style={{paddingVertical: 8}}>
+                  <TextSmall medium color={colors.primary}>
+                    {showAllShipping
+                      ? 'Thu gọn'
+                      : `Xem thêm (${voucherShipping.length - 2})`}
+                  </TextSmall>
+                </TouchableOpacity>
+              )}
+            </Block>
+
+            {/* === VOUCHER ORDER === */}
+            <Block marT={20}>
+              <TextMedium medium style={{marginBottom: 8}}>
+                Ưu đãi đơn hàng
+              </TextMedium>
+
+              {(showAllOrder ? voucherOrder : voucherOrder.slice(0, 2)).map(
+                (item, index) => {
+                  const isSelected = draftOrderVoucher?.code === item.code; // dùng draft
+                  return (
+                    <VoucherItem
+                      key={`${item.code}-${index}`}
+                      image={item.image}
+                      icon={
+                        isSelected ? IconSRC.icon_check : IconSRC.icon_uncheck
+                      }
+                      title={item.title}
+                      description={item.description}
+                      voucher_scope={item.voucher_scope}
+                      discount_type={item.discount_type}
+                      max_discount_value={item.max_discount_value}
+                      discount_value={item.discount_value}
+                      min_order_amount={item.min_order_amount}
+                      date_from={item.date_from}
+                      date_to={item.date_to}
+                      code={item.code || ''}
+                      onPress={() => handleDraftSelectOrder(item)} // <— dùng handler draft
+                      onPressAll={() => handleDraftSelectOrder(item)}
+                    />
+                  );
+                },
+              )}
+
+              {voucherOrder.length > 2 && (
+                <TouchableOpacity
+                  onPress={() => setShowAllOrder(v => !v)}
+                  style={{paddingVertical: 8}}>
+                  <TextSmall medium color={colors.primary}>
+                    {showAllOrder
+                      ? 'Thu gọn'
+                      : `Xem thêm (${voucherOrder.length - 2})`}
+                  </TextSmall>
+                </TouchableOpacity>
+              )}
+            </Block>
+          </ScrollView>
+          <Block padH={8} padB={45} padT={10}>
+            <ButtonBase
+              title={'Áp dụng'}
+              onPress={() => {
+                handleApplyVouchers();
+              }}
             />
-            <TouchableOpacity activeOpacity={0.8} style={styles.btnVc}>
-              <TextSmall style={{textAlign: 'center'}}>Áp dụng</TextSmall>
-            </TouchableOpacity>
           </Block>
-          <Block marT={20}>
-            <TextMedium medium>Ưu đãi vận chuyển</TextMedium>
-            {voucherOrder.map((item, index) => {
-              return (
-                <VoucherItem
-                  key={index}
-                  image={item.image}
-                  icon={IconSRC.icon_check}
-                  title={item.title}
-                  description={item.description}
-                  voucher_scope={item.voucher_scope}
-                  discount_type={item.discount_type}
-                  max_discount_value={item.max_discount_value}
-                  discount_value={item.discount_value}
-                  min_order_amount={item.min_order_amount}
-                  date_from={item.date_from}
-                  date_to={item.date_to}
-                  code={item.code || ''}
-                  onPress={() => {}}
-                />
-              );
-            })}
-          </Block>
-          <Block marT={20}>
-            <TextMedium medium>Mã giảm giá</TextMedium>
-            {voucherShipping.map((item, index) => {
-              return (
-                <VoucherItem
-                  key={index}
-                  image={item.image}
-                  icon={IconSRC.icon_check}
-                  title={item.title}
-                  description={item.description}
-                  voucher_scope={item.voucher_scope}
-                  discount_type={item.discount_type}
-                  max_discount_value={item.max_discount_value}
-                  discount_value={item.discount_value}
-                  min_order_amount={item.min_order_amount}
-                  date_from={item.date_from}
-                  date_to={item.date_to}
-                  code={item.code || ''}
-                  onPress={() => {}}
-                />
-              );
-            })}
-          </Block>
-        </ScrollView>
+        </>
       </ModalBottom>
     </ContainerView>
   );
@@ -661,7 +836,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: 'row',
-    borderWidth: 0.3,
+    borderWidth: 0.5,
     borderRadius: 8,
     height: 40,
     overflow: 'hidden',
@@ -669,128 +844,7 @@ const styles = StyleSheet.create({
   btnVc: {
     justifyContent: 'center',
     paddingHorizontal: 20,
-    backgroundColor: colors.gray,
+    backgroundColor: colors.gray3,
     height: '100%',
   },
 });
-
-//  <Modal
-//         visible={showVoucherModal}
-//         animationType="slide"
-//         transparent={true}
-//         onRequestClose={() => setShowVoucherModal(false)}>
-//         <View style={styles.modalOverlay}>
-//           <View
-//             style={[styles.modalContent, {backgroundColor: theme.background}]}>
-//             {/* Header modal */}
-//             <Block row justifyBW alignCT padH={20} padV={15} borderBottomW={1}>
-//               <TouchIcon
-//                 icon={IconSRC.icon_back_left}
-//                 size={20}
-//                 onPress={() => setShowVoucherModal(false)}
-//               />
-//               <TextMedium bold>Chọn mã giảm giá</TextMedium>
-//               <Block width={20} />
-//             </Block>
-
-//             {/* Danh sách voucher */}
-//             <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false}>
-//               <Block padH={20} padV={15}>
-//                 {availableVouchers
-//                   .filter(voucher => subtotal >= voucher.minOrder)
-//                   .map(voucher => (
-//                     <TouchableOpacity
-//                       key={voucher.id}
-//                       onPress={() => handleSelectVoucher(voucher)}
-//                       style={{
-//                         backgroundColor: theme.card,
-//                         padding: 15,
-//                         borderRadius: 8,
-//                         marginBottom: 12,
-//                         borderWidth: 1,
-//                       }}>
-//                       <Block row justifyBW alignCT>
-//                         <Block flex1>
-//                           <Block row alignCT marB={5}>
-//                             <TextMedium bold>{voucher.code}</TextMedium>
-//                             {selectedVoucher?.id === voucher.id && (
-//                               <Block
-//                                 backgroundColor={colors.green}
-//                                 padH={8}
-//                                 padV={4}
-//                                 borderRadius={12}
-//                                 marL={10}>
-//                                 <TextSmall color={colors.while} bold>
-//                                   Đã chọn
-//                                 </TextSmall>
-//                               </Block>
-//                             )}
-//                           </Block>
-//                           <TextSmall
-//                             color={theme.gray}
-//                             style={{marginBottom: 5}}>
-//                             {voucher.name}
-//                           </TextSmall>
-//                           <TextSmall color={colors.red}>
-//                             Đơn tối thiểu:{' '}
-//                             {voucher.minOrder.toLocaleString('vi-VN')}đ
-//                           </TextSmall>
-//                           {voucher.discount > 0 && (
-//                             <TextSmall
-//                               color={colors.green}
-//                               style={{marginTop: 3}}>
-//                               Giảm {voucher.discount}%{' '}
-//                               {voucher.maxDiscount
-//                                 ? `(tối đa ${voucher.maxDiscount.toLocaleString(
-//                                     'vi-VN',
-//                                   )}đ)`
-//                                 : ''}
-//                             </TextSmall>
-//                           )}
-//                           {voucher.shippingDiscount && (
-//                             <TextSmall
-//                               color={colors.green}
-//                               style={{marginTop: 3}}>
-//                               Miễn phí vận chuyển
-//                             </TextSmall>
-//                           )}
-//                         </Block>
-//                         {selectedVoucher?.id === voucher.id ? (
-//                           <TouchIcon
-//                             icon={IconSRC.icon_check}
-//                             size={20}
-//                             color={colors.green}
-//                           />
-//                         ) : (
-//                           <TouchIcon
-//                             icon={IconSRC.icon_back_right}
-//                             size={16}
-//                             color={theme.gray}
-//                           />
-//                         )}
-//                       </Block>
-//                     </TouchableOpacity>
-//                   ))}
-
-//                 {availableVouchers.filter(
-//                   voucher => subtotal >= voucher.minOrder,
-//                 ).length === 0 && (
-//                   <Block
-//                     backgroundColor={theme.card}
-//                     padH={20}
-//                     padV={30}
-//                     borderRadius={8}
-//                     alignCT>
-//                     <TextMedium color={theme.gray}>
-//                       Không có voucher phù hợp
-//                     </TextMedium>
-//                     <TextSmall color={theme.gray} style={{marginTop: 5}}>
-//                       Đơn hàng tối thiểu để sử dụng voucher: 200.000đ
-//                     </TextSmall>
-//                   </Block>
-//                 )}
-//               </Block>
-//             </ScrollView>
-//           </View>
-//         </View>
-//       </Modal>

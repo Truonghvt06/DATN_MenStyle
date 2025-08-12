@@ -34,6 +34,7 @@ import {useAppDispatch, useAppSelector} from '../../../../../redux/store';
 import {fetchNotifications} from '../../../../../redux/actions/notification';
 import {colors} from '../../../../../themes/colors';
 import {
+  buyAgain,
   getOrderDetail,
   getOrders,
   putCancelOrder,
@@ -124,10 +125,28 @@ const OrderDetailScreen = () => {
   const handleToggle = () => setShowAll(prev => !prev);
 
   //MUA LAI
-  const handleBuyBack = () => {
-    const firstItem = order?.items?.[0];
-    const productId = firstItem?.product_id?._id?.toString?.();
-    navigation.navigate(ScreenName.Main.ProductDetail, {id: productId});
+  const handleBuyBack = async () => {
+    try {
+      const resultAction = await dispatch(buyAgain(orderId));
+
+      if (buyAgain.fulfilled.match(resultAction)) {
+        // Nếu cần điều hướng sang giỏ hàng hoặc màn hình khác:
+        navigation.resetToHome(ScreenName.Main.BottonTab, {
+          screen: ScreenName.Main.Cart, // hoặc tên route tab giỏ hàng
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Thất bại',
+          text2: (resultAction.payload as string) || '',
+        });
+      }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Thất bại!!!',
+      });
+    }
   };
 
   //HUY DON

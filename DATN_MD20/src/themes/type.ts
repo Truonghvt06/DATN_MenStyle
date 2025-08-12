@@ -11,6 +11,7 @@ export type ThemeType = {
   background_login: string;
   background_img: string;
   background_input: string;
+  background_conten_modal: string;
 
   text: string;
   text_gray: string;

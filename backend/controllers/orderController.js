@@ -1,6 +1,9 @@
 const Order = require("../models/Order");
 const Product = require("../models/Product");
+const User = require("../models/User");
+const mongoose = require("mongoose");
 
+//UPDATE PRODUCT
 const generateOrderCode = () => {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Tránh O, 0, I, 1
   let random = "";
@@ -17,6 +20,7 @@ const generateOrderCode = () => {
   return `${prefix}${random}`;
 };
 
+//TẠO DON HANG
 exports.createOrder = async (req, res) => {
   try {
     const { total_amount, shipping_address_id, payment_method_id, items } =
@@ -72,6 +76,7 @@ exports.createOrder = async (req, res) => {
   }
 };
 
+//LAY TAT CA DON HANG
 exports.getOrders = async (req, res) => {
   try {
     const user_id = req.user?.id || req.body.user_id;
@@ -92,6 +97,7 @@ exports.getOrders = async (req, res) => {
   }
 };
 
+//LAY DƠN HÀNG THEO ID
 exports.getOrderDetail = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -112,6 +118,7 @@ exports.getOrderDetail = async (req, res) => {
   }
 };
 
+//HUY DON HANG
 exports.cancelOrder = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -146,8 +153,103 @@ exports.cancelOrder = async (req, res) => {
   }
 };
 
-////WEBSITE
+//MUA LẠI DƠN HÀNG
+exports.buyAgain = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { order_id } = req.body;
 
+    // 1. Validate order_id
+    if (!order_id || !mongoose.Types.ObjectId.isValid(order_id)) {
+      return res.status(400).json({ message: "order_id không hợp lệ" });
+    }
+
+    // 2. Tìm đơn hàng
+    const order = await Order.findById(order_id).populate("items.product_id");
+    if (!order) {
+      return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
+    }
+
+    // 3. Check quyền sở hữu
+    if (order.user_id.toString() !== userId.toString()) {
+      return res
+        .status(403)
+        .json({ message: "Không có quyền truy cập đơn hàng này" });
+    }
+
+    // 4. Chỉ cho phép mua lại nếu đã giao hoặc hủy
+    if (!["delivered", "cancelled"].includes(order.order_status)) {
+      return res
+        .status(400)
+        .json({ message: "Chỉ có thể mua lại đơn hàng đã giao hoặc đã hủy" });
+    }
+
+    // 5. Lấy thông tin user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Không tìm thấy user" });
+    }
+
+    // 6. Lặp qua từng item và validate tồn kho
+    for (const item of order.items) {
+      const product = await Product.findById(item.product_id);
+      if (!product) {
+        return res.status(400).json({
+          message: `Sản phẩm ${item.product_id} không còn tồn tại`,
+        });
+      }
+
+      // Tìm biến thể
+      const variant = product.variants.find(
+        (v) => v._id.toString() === item.product_variant_id.toString()
+      );
+      if (!variant) {
+        return res.status(400).json({
+          message: `Biến thể không tồn tại cho sản phẩm ${product.name}`,
+        });
+      }
+
+      if (variant.quantity < 1) {
+        return res.status(400).json({
+          message: `Sản phẩm ${product.name} (${variant.size}/${variant.color}) đã hết hàng`,
+        });
+      }
+
+      // 7. Thêm vào giỏ hàng hoặc cộng dồn số lượng
+      const cartIndex = user.cart.findIndex(
+        (c) =>
+          c.productId.toString() === product._id.toString() &&
+          c.variant_id?.toString() === variant._id.toString()
+      );
+
+      if (cartIndex > -1) {
+        user.cart[cartIndex].quantity += item.quantity;
+      } else {
+        user.cart.push({
+          productId: product._id,
+          variant_id: variant._id,
+          variantIndex: product.variants.indexOf(variant),
+          quantity: item.quantity,
+        });
+      }
+    }
+
+    // 8. Lưu lại user
+    await user.save();
+
+    return res.status(200).json({
+      message: "Đã thêm sản phẩm từ đơn cũ vào giỏ hàng",
+      cart: user.cart,
+    });
+  } catch (error) {
+    console.error("reorder error:", error);
+    return res
+      .status(500)
+      .json({ message: "Lỗi server", error: error.message });
+  }
+};
+
+////WEBSITE
 exports.updateStatus = async (req, res) => {
   try {
     const orderId = req.params.id;

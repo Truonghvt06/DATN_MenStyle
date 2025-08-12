@@ -54,4 +54,23 @@ export const voucherService = {
       throw err.response?.data || {message: 'Lỗi khi lấy voucher'};
     }
   },
+
+  getAvailableVouchers: async () => {
+    try {
+      const res = await axiosInstance.get('/voucher/available-voucher');
+      return res.data;
+    } catch (error: any) {
+      console.error('voucherService.getAvailableVouchers error:', error);
+      throw error?.response?.data || {message: 'Lỗi khi lấy danh sách voucher'};
+    }
+  },
+  useVoucher: async (voucherId: string) => {
+    try {
+      const res = await axiosInstance.post(`/voucher/update/${voucherId}`);
+      return res.data; // { success, message, voucher }
+    } catch (error: any) {
+      console.error('voucherService.useVoucher error:', error);
+      throw error?.response?.data || {message: 'Lỗi khi sử dụng voucher'};
+    }
+  },
 };

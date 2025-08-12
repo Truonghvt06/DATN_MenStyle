@@ -21,3 +21,30 @@ export const fetchVouchers = createAsyncThunk(
     }
   },
 );
+
+export const fetchAvailableVouchers = createAsyncThunk(
+  'voucher/fetchAvailableVouchers',
+  async (_, {rejectWithValue}) => {
+    try {
+      const data = await voucherService.getAvailableVouchers();
+      // Giả sử backend trả về { success, total, vouchers }
+      return data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error?.message || 'Lỗi khi lấy danh sách voucher khả dụng',
+      );
+    }
+  },
+);
+
+export const useVoucherAction = createAsyncThunk(
+  'voucher/useVoucher',
+  async (voucherId: string, {rejectWithValue}) => {
+    try {
+      const data = await voucherService.useVoucher(voucherId);
+      return data; // { success, message, voucher }
+    } catch (error: any) {
+      return rejectWithValue(error?.message || 'Lỗi khi sử dụng voucher');
+    }
+  },
+);

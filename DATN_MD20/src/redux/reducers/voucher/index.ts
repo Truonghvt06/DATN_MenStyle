@@ -1,5 +1,9 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {fetchVouchers} from '../../actions/voucher';
+import {
+  fetchAvailableVouchers,
+  fetchVouchers,
+  useVoucherAction,
+} from '../../actions/voucher';
 import {Voucher} from '../../../services/voucher';
 
 interface VoucherState {
@@ -10,6 +14,10 @@ interface VoucherState {
   loading: boolean;
   error: string | null;
   refreshing: boolean;
+
+  availableVouchers: Voucher[];
+  availableTotal: number;
+  usedVoucher?: Voucher | null;
 }
 
 const initialState: VoucherState = {
@@ -20,6 +28,10 @@ const initialState: VoucherState = {
   loading: false,
   error: null,
   refreshing: false,
+
+  availableVouchers: [],
+  availableTotal: 0,
+  usedVoucher: null,
 };
 
 const voucherSlice = createSlice({
@@ -31,6 +43,10 @@ const voucherSlice = createSlice({
       state.total = 0;
       state.page = 1;
       state.error = null;
+    },
+    clearAvailableVouchers: state => {
+      state.availableVouchers = [];
+      state.availableTotal = 0;
     },
   },
   extraReducers: builder => {
@@ -68,6 +84,49 @@ const voucherSlice = createSlice({
           typeof action.payload === 'string'
             ? action.payload
             : action.error?.message || 'Lỗi khi lấy voucher';
+      })
+
+      // fetchAvailableVouchers
+      .addCase(fetchAvailableVouchers.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        fetchAvailableVouchers.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.loading = false;
+          state.availableVouchers = action.payload.vouchers || [];
+          state.availableTotal = action.payload.total || 0;
+          state.error = null;
+        },
+      )
+      .addCase(fetchAvailableVouchers.rejected, (state, action: any) => {
+        state.loading = false;
+        state.error =
+          typeof action.payload === 'string'
+            ? action.payload
+            : action.error?.message || 'Lỗi khi lấy voucher khả dụng';
+      })
+
+      //useVoucher
+      .addCase(useVoucherAction.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        useVoucherAction.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.loading = false;
+          state.usedVoucher = action.payload?.voucher || null;
+          state.error = null;
+        },
+      )
+      .addCase(useVoucherAction.rejected, (state, action: any) => {
+        state.loading = false;
+        state.error =
+          typeof action.payload === 'string'
+            ? action.payload
+            : action.error?.message || 'Lỗi khi áp dụng voucher';
       });
   },
 });

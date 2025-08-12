@@ -24,9 +24,10 @@ import {
   formatStartDate,
 } from '../../../../../utils/formatDate';
 import Clipboard from '@react-native-clipboard/clipboard';
+import {TouchableOpacity} from 'react-native';
 
 interface VoucherItemProps {
-  title: string;
+  title?: string;
   code?: string;
   image?: string;
   description?: string;
@@ -41,6 +42,7 @@ interface VoucherItemProps {
   is_active?: true;
   icon?: any;
   onPress?: () => void;
+  onPressAll?: () => void;
 }
 
 const VoucherItem = (props: VoucherItemProps) => {
@@ -61,6 +63,7 @@ const VoucherItem = (props: VoucherItemProps) => {
     is_active,
     icon = IconSRC.icon_coppy,
     onPress,
+    onPressAll,
   } = props;
 
   const now = new Date();
@@ -78,11 +81,13 @@ const VoucherItem = (props: VoucherItemProps) => {
   };
 
   return (
-    <View
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={onPressAll}
       style={[
         styles.constainer,
         {
-          backgroundColor: theme.background_item,
+          backgroundColor: theme.background,
           shadowColor: theme.shadow_color,
         },
       ]}>
@@ -98,7 +103,7 @@ const VoucherItem = (props: VoucherItemProps) => {
           }
         />
         <Block flex1 padL={10} padR={15}>
-          <TextSizeCustom size={16} bold style={{marginBottom: 3}}>
+          <TextSizeCustom size={16} medium style={{marginBottom: 3}}>
             {getTitle()}
           </TextSizeCustom>
           {/* <TextSizeCustom size={12} numberOfLines={1} ellipsizeMode="tail">
@@ -121,7 +126,7 @@ const VoucherItem = (props: VoucherItemProps) => {
 
         <TouchIcon icon={icon} onPress={onPress} />
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -133,9 +138,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 8,
     shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 3,
     paddingVertical: 16,
     paddingHorizontal: 8,
     overflow: 'hidden',

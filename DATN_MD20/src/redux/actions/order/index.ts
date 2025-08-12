@@ -53,3 +53,18 @@ export const putCancelOrder = createAsyncThunk(
     }
   },
 );
+
+//MUA LAI
+export const buyAgain = createAsyncThunk(
+  'order/buyAgain',
+  async (orderId: string, {rejectWithValue}) => {
+    try {
+      const response = await orderService.buyAgain(orderId);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error?.response?.data?.message || 'Lỗi khi mua lại đơn hàng',
+      );
+    }
+  },
+);
