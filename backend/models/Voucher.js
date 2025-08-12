@@ -4,6 +4,23 @@ const VOUCHER_ENUM = ["percentage", "fixed"];
 // Các kiểu giảm giá: percentage (theo %), fixed (giảm số tiền cố định)
 const VOUCHER_SCOPE = ["order", "shipping"];
 
+const voucherUsageSchema = new mongoose.Schema(
+  {
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    voucher_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Voucher",
+      required: true,
+    },
+    used_at: { type: Date, default: Date.now },
+  },
+  { timestamps: true }
+);
+
 const voucherSchema = new mongoose.Schema(
   {
     title: { type: String, required: true }, // Tiêu đề voucher, bắt buộc
@@ -29,6 +46,7 @@ const voucherSchema = new mongoose.Schema(
     date_from: { type: Date, required: true }, // Ngày bắt đầu hiệu lực
     date_to: { type: Date, required: true }, // Ngày hết hạn
     is_active: { type: Boolean, default: true }, // Trạng thái voucher (đang hoạt động hoặc bị khóa)
+    voucher_usage: { type: [voucherUsageSchema], default: [] },
   },
   { timestamps: true }
 );

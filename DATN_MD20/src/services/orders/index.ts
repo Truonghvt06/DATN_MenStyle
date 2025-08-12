@@ -75,6 +75,19 @@ const orderService = {
       throw error?.response?.data || error;
     }
   },
+
+  buyAgain: async (order_id: string) => {
+    try {
+      const response = await axiosInstance.post('/order/buyAgain', {order_id});
+      return response.data;
+    } catch (error: any) {
+      console.error(
+        'Lỗi khi mua lại đơn hàng:',
+        error?.response?.data || error.message,
+      );
+      throw error?.response?.data || error;
+    }
+  },
 };
 
 export default orderService;

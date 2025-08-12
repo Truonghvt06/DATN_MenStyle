@@ -5,6 +5,7 @@ import {
   getOrders,
   getOrderDetail,
   putCancelOrder,
+  buyAgain,
 } from '../../actions/order';
 
 const initialState: OrderState = {
@@ -73,10 +74,33 @@ const orderSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      //cancelOrrder
+      // Cancel Order
+      .addCase(putCancelOrder.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(putCancelOrder.fulfilled, (state, action) => {
         state.loading = false;
         state.order = action.payload;
+      })
+      .addCase(putCancelOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      // ✅ Buy Again
+      .addCase(buyAgain.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(buyAgain.fulfilled, (state, action) => {
+        state.loading = false;
+        state.order = action.payload; // kết quả trả về order mới
+        state.error = null;
+      })
+      .addCase(buyAgain.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });

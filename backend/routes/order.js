@@ -15,7 +15,9 @@ router.get(
   orderController.getOrderDetail
 );
 router.put("/cancelOrder/:id", orderController.cancelOrder);
-// POST method để cập nhật trạng thái
+router.post("/buyAgain", authMiddleware, orderController.buyAgain);
+
+// POST method để cập nhật trạng thái(WEB)
 router.post("/update-status/:id", orderController.updateStatus);
 router.post("/update-payment-status/:id", orderController.updatePaymentStatus);
 
