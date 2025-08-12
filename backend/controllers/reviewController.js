@@ -1,5 +1,20 @@
 const Order = require("../models/Order");
 const Review = require("../models/Review");
+const User = require("../models/User");
+
+exports.getReviewsByProduct = async (req, res) => {
+  try {
+    const productId = req.params.productId;
+    const reviews = await Review.find({ product_id: productId })
+      .populate("user_id", "name email") // Lấy thông tin người dùng
+      .sort({ createdAt: -1 });
+
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error: error.message });
+  }
+};
+
 const Product = require("../models/Product");
 const mongoose = require("mongoose");
 
@@ -222,5 +237,17 @@ exports.getMyReviews = async (req, res) => {
   } catch (err) {
     console.error("Lỗi lấy review của user:", err);
     return res.status(500).json({ message: "Lỗi máy chủ", error: err.message });
+  }
+};
+exports.getReviewsByProduct = async (req, res) => {
+  try {
+    const productId = req.params.productId;
+    const reviews = await Review.find({ product_id: productId })
+      .populate("user_id", "name email") // Lấy thông tin người dùng
+      .sort({ createdAt: -1 });
+
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };

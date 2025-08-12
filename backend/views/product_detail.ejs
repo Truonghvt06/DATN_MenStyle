@@ -226,6 +226,10 @@
             <p class="text-muted">Không có biến thể</p>
             <% } %>
       </div>
+      <div class="card-box">
+        <h5>Đánh giá sản phẩm</h5>
+        <div id="reviews-container" class="mb-3 text-muted">Đang tải đánh giá...</div>
+      </div>
 
       <a href="/products/view" class="back-link">← Quay lại danh sách sản phẩm</a>
     </main>
@@ -238,6 +242,33 @@
       sidebar.classList.toggle('active');
       content.classList.toggle('shifted');
     }
+    const productId = "<%= product._id %>";
+
+  async function loadReviews() {
+    try {
+      const res = await fetch(`/review/product/${productId}`);
+      const reviews = await res.json();
+
+      const container = document.getElementById("reviews-container");
+      if (reviews.length === 0) {
+        container.innerHTML = "<p class='text-muted'>Chưa có đánh giá nào.</p>";
+        return;
+      }
+
+      container.innerHTML = reviews.map(r => `
+        <div class="border-bottom pb-2 mb-2">
+          <strong>${r.user_id?.name || 'Người dùng ẩn danh'}</strong> - 
+          <span class="text-warning">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</span>
+          <p>${r.comment || ''}</p>
+          <small class="text-muted">${new Date(r.createdAt).toLocaleDateString()}</small>
+        </div>
+      `).join("");
+    } catch (error) {
+      document.getElementById("reviews-container").innerHTML = "<p class='text-danger'>Lỗi khi tải đánh giá.</p>";
+    }
+  }
+
+  loadReviews();
   </script>
 </body>
 
