@@ -5,6 +5,8 @@ const nodemailer = require('nodemailer');
 const Admin = require('../models/admin');
 const Banner = require('../models/Banner');
 const User = require('../models/User');
+const Order=require('../models/Order');
+const Product=require('../models/Product');
 
 /* ------------ Helpers / Middleware ------------ */
 function ensureAdmin(req, res, next) {
@@ -86,7 +88,30 @@ router.get('/home', ensureAdmin, async (req, res) => {
   try {
     const banners = await Banner.find().sort({ createdAt: -1 });
     const userCount = await User.countDocuments();
-    res.render('home', { banners, userCount });
+
+    // Đếm đơn hàng pending
+    const pendingOrderCount = await Order.countDocuments({ order_status: 'pending' });
+
+    // Lấy danh sách biến thể có số lượng < 50
+    const lowStockProducts = await Product.aggregate([
+      { $unwind: '$variants' },
+      { $match: { 'variants.quantity': { $lt: 50 } } },
+      {
+        $project: {
+          name: 1,
+          'variants.size': 1,
+          'variants.color': 1,
+          'variants.quantity': 1
+        }
+      }
+    ]);
+
+    res.render('home', {
+      banners,
+      userCount,
+      pendingOrderCount,
+      lowStockProducts
+    });
   } catch (error) {
     res.status(500).send('Lỗi khi tải trang quản trị: ' + error.message);
   }

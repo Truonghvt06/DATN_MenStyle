@@ -127,5 +127,25 @@ router.get("/stats", async (req, res) => {
     res.status(500).json({ error: "Lỗi server" });
   }
 });
+exports.getDashboard = async (req, res) => {
+  try {
+    // Số lượng đơn hàng đang pending
+    const pendingOrderCount = await Order.countDocuments({ order_status: "pending" });
+
+    // Tổng số người dùng
+    const userCount = await User.countDocuments();
+
+  
+    res.render("dashboard", {
+      pendingOrderCount,
+      userCount,
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Lỗi server");
+  }
+};
+
 
 module.exports = router;

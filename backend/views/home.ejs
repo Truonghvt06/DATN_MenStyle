@@ -157,47 +157,43 @@
     <main>
       <div class="dashboard-title">Tổng quan hệ thống</div>
       <p class="text-muted">Chào mừng bạn đến với bảng điều khiển. Dưới đây là một số thống kê nhanh.</p>
-
-      <div class="container-fluid mt-4">
-        <div class="row g-4">
-          <div class="col-md-6 col-lg-3">
-            <div class="card-box">
-              <div class="icon-box bg-primary"><i class="bi bi-currency-dollar"></i></div>
-              <h6 class="mt-2">Doanh Thu Hôm Nay</h6>
-              <h4 class="text-primary fw-bold"><%= 0 %> VNĐ</h4>
-              <div class="text-success text-muted-small">+<%= 0 %> so với hôm qua</div>
+    
+      <div class="row g-3">
+        <div class="col-md-6 col-lg-3">
+          <div class="card-box text-center">
+            <div class="icon-box bg-primary mx-auto">
+              <i class="bi bi-currency-dollar"></i>
             </div>
+            <h6 class="mt-2">Đơn Hàng Chờ Xử Lý</h6>
+            <h4 class="text-primary fw-bold"><%= pendingOrderCount %></h4>
+            <div class="text-muted text-muted-small">Tổng số đơn chưa xử lý</div>
           </div>
-
-          <div class="col-md-6 col-lg-3">
-            <div class="card-box">
-              <div class="icon-box bg-danger"><i class="bi bi-cart-check"></i></div>
-              <h6 class="mt-2">Đơn Hàng Hôm Nay</h6>
-              <h4 class="text-danger fw-bold"><%= 0 %></h4>
-              <div class="text-muted text-muted-small"><%= 0 %> đơn mới hôm nay</div>
+        </div>
+    
+        <div class="col-md-6 col-lg-3">
+          <div class="card-box text-center">
+            <div class="icon-box bg-success mx-auto">
+              <i class="bi bi-person-circle"></i>
             </div>
+            <h6 class="mt-2">Tổng Người Dùng</h6>
+            <h4 class="text-success fw-bold"><%= userCount %></h4>
+            <div class="text-muted text-muted-small"><%= userCount %> giỏ hàng đã tạo</div>
           </div>
-
-          <div class="col-md-6 col-lg-3">
-            <div class="card-box">
-              <div class="icon-box bg-success"><i class="bi bi-person-circle"></i></div>
-              <h6 class="mt-2">Tổng Người Dùng</h6>
-              <h4 class="text-success fw-bold"><%= userCount %></h4>
-              <div class="text-muted text-muted-small"><%= userCount %> giỏ hàng đã tạo</div>
+        </div>
+    
+        <div class="col-md-6 col-lg-3">
+          <div class="card-box text-center">
+            <div class="icon-box bg-info mx-auto">
+              <i class="bi bi-graph-up"></i>
             </div>
-          </div>
-
-          <div class="col-md-6 col-lg-3">
-            <div class="card-box">
-              <div class="icon-box bg-info"><i class="bi bi-graph-up"></i></div>
-              <h6 class="mt-2">Tổng Doanh Thu Tháng</h6>
-              <h4 class="text-info fw-bold"><%= 0 %> VNĐ</h4>
-              <div class="text-muted text-muted-small"><%= 0 %> sản phẩm tồn kho</div>
-            </div>
+            <h6 class="mt-2">Tổng Doanh Thu Tháng</h6>
+            <h4 class="text-info fw-bold">0 VNĐ</h4>
+            <div class="text-muted text-muted-small">0 sản phẩm tồn kho</div>
           </div>
         </div>
       </div>
     </main>
+    
   </div>
 
   <script>
