@@ -12,6 +12,7 @@ export interface Notification {
   image: string;
   content: string;
   is_read: boolean;
+  data: any;
   createdAt: string;
 }
 

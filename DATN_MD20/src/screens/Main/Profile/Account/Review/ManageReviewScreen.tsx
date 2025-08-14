@@ -80,24 +80,7 @@ const ManageReviewScreen = () => {
         {tabs.map(renderTab)}
       </View>
 
-      {/* <Block>
-        <ItemNotRated
-          avatar=""
-          nameUser="truong"
-          namePro={'Áo Polo Nam Coolmate Premium'}
-          image={''}
-          id_order={'#54354'}
-          size={'L'}
-          color={'Đỏ'}
-          star={'4'}
-          date={'12/12/2024'}
-          comment={'đẹp lắm'}
-          onPress={() => {
-            handleProductDetail();
-          }}
-        />
-      </Block> */}
-      <Block padH={8} padT={10} padB={30}>
+      <Block flex1 padH={8} padT={10} padB={30}>
         {selectedTab === 'Chưa đánh giá' ? (
           pending.length === 0 ? (
             <TextSmall style={{textAlign: 'center'}}>
@@ -118,7 +101,8 @@ const ManageReviewScreen = () => {
                   onPress={() => handleReview(item)}
                 />
               )}
-              contentContainerStyle={{marginBottom: 20, gap: 10}}
+              contentContainerStyle={{paddingBottom: 50, gap: 10}}
+              showsVerticalScrollIndicator={false}
             />
           )
         ) : myReviews.length === 0 ? (
@@ -147,6 +131,8 @@ const ManageReviewScreen = () => {
                 />
               );
             }}
+            contentContainerStyle={{paddingBottom: 50, gap: 10}}
+            showsVerticalScrollIndicator={false}
           />
         )}
       </Block>

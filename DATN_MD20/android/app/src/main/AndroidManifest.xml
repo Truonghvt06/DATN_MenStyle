@@ -21,6 +21,19 @@
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
+          <!-- 👇 Khớp click_action từ FCM -->
+        <intent-filter>
+          <action android:name="OPEN_ORDER_DETAIL" />
+          <category android:name="android.intent.category.DEFAULT" />
+        </intent-filter>
+
+         <!-- 👇 Deep link menstyle://... (nếu bạn dùng deeplink) -->
+        <intent-filter android:autoVerify="true">
+          <action android:name="android.intent.action.VIEW" />
+          <category android:name="android.intent.category.DEFAULT" />
+          <category android:name="android.intent.category.BROWSABLE" />
+          <data android:scheme="menstyle" />
+        </intent-filter>
       </activity>
     </application>
 </manifest>

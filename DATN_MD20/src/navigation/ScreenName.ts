@@ -43,5 +43,6 @@ export default {
     AddReview: 'AddReview',
     ListSearchScreen: 'ListSearchScreen',
     SearchDetailScreen: 'SearchScreennn',
+    SeeMoreSearch: 'SeeMoreSearch',
   },
 };

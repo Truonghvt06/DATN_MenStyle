@@ -37,6 +37,7 @@ import ManageReviewScreen from '../screens/Main/Profile/Account/Review/ManageRev
 import AddReviewScreen from '../screens/Main/Profile/Account/Review/AddReviewScreen';
 import ListSearchScreen from '../screens/Main/Search/ListSearchScreen';
 import SearchDetailScreen from '../screens/Main/Search/SearchDetailScreen';
+import SeeMorePro from '../screens/Main/Search/SeeMorePro';
 
 const Stack = createStackNavigator();
 
@@ -87,6 +88,10 @@ const MainStack = () => {
         component={ProductDetail}
       />
       <Stack.Screen
+        name={ScreenName.Main.RelatedProductDetail}
+        component={RelatedProductDetail}
+      />
+      <Stack.Screen
         name={ScreenName.Main.Category}
         component={CategoryScreen}
       />
@@ -112,10 +117,7 @@ const MainStack = () => {
       />
       <Stack.Screen name={ScreenName.Main.UpdateInfo} component={UpdateInfor} />
       <Stack.Screen name={ScreenName.Main.Review} component={ReviewScreen} />
-      <Stack.Screen
-        name={ScreenName.Main.RelatedProductDetail}
-        component={RelatedProductDetail}
-      />
+
       <Stack.Screen name={ScreenName.Main.Voucher} component={VoucherScreen} />
       <Stack.Screen
         name={ScreenName.Main.ManageReviewScreen}
@@ -132,6 +134,10 @@ const MainStack = () => {
       <Stack.Screen
         name={ScreenName.Main.ListSearchScreen}
         component={ListSearchScreen}
+      />
+      <Stack.Screen
+        name={ScreenName.Main.SeeMoreSearch}
+        component={SeeMorePro}
       />
     </Stack.Navigator>
   );

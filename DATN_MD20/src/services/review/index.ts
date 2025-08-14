@@ -34,6 +34,16 @@ const reviewService = {
       throw err.response?.data || {message: 'Lỗi khi lấy đánh giá của bạn'};
     }
   },
+  getReviewsByProduct: async (productId: string) => {
+    try {
+      const res = await axiosInstance.get(`/review/product/${productId}`);
+      // console.log('ABC', res.data.reviews);
+
+      return res.data;
+    } catch (err: any) {
+      throw err.response?.data || {message: 'Lỗi khi lấy đánh giá của bạn'};
+    }
+  },
 };
 
 export default reviewService;

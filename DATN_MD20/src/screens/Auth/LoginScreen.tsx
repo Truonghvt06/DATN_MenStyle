@@ -168,7 +168,7 @@ const LoginScreen = () => {
 
                 <InputBase
                   value={email}
-                  placeholder={getTranslation('nhap_tai_khoan')}
+                  placeholder={getTranslation('nhap_email')}
                   isFocused={focusedInput === 'email'}
                   onFocus={() => setFocusedInput('email')}
                   onBlur={() => setFocusedInput(null)}

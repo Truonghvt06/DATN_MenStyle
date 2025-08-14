@@ -63,6 +63,30 @@ export const formatStartDate = (dateFrom: string | Date) => {
   }
 };
 
+export const formatDateComment = (dateTo: string | Date) => {
+  const now = new Date();
+  const targetDate = new Date(dateTo);
+
+  const diffMs = now.getTime() - targetDate.getTime(); // tính từ quá khứ đến hiện tại
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffMinutes < 1) {
+    return 'Vừa xong';
+  } else if (diffMinutes < 60) {
+    return `${diffMinutes} phút trước`;
+  } else if (diffHours < 24) {
+    return `${diffHours} giờ trước`;
+  } else if (diffDays === 1) {
+    return 'Hôm qua';
+  } else if (diffDays <= 3) {
+    return `${diffDays} ngày trước`;
+  } else {
+    return moment(targetDate).format('DD/MM/YYYY');
+  }
+};
+
 export const formatMoneyShort = (value: number): string => {
   if (value >= 1_000_000) {
     return `${value / 1_000_000}tr`; // 5,000,000 -> 5tr

@@ -5,16 +5,30 @@ import {TextMedium, TextSmall} from '../dataEntry/TextBase';
 import {Rating} from 'react-native-ratings';
 import {IconSRC, ImgSRC} from '../../constants/icons';
 import {colors} from '../../themes/colors';
+import {formatDateComment} from '../../utils/formatDate';
 interface Props {
   avatar?: any;
   name?: string;
   star?: number;
   review?: string;
+  date?: string;
+  size?: string;
+  color?: string;
   containerStyle?: ViewStyle;
   onPress?: () => void;
 }
 const ReviewItem = (props: Props) => {
-  const {avatar, name, star = 1, review, containerStyle, onPress} = props;
+  const {
+    avatar,
+    name,
+    star = 1,
+    review,
+    containerStyle,
+    onPress,
+    date,
+    size,
+    color,
+  } = props;
 
   const renderStars = (star: number = 0) => {
     const stars = [];
@@ -33,16 +47,22 @@ const ReviewItem = (props: Props) => {
   return (
     <Block padV={10} borderBottomWidth={0.5} borderColor={colors.gray1}>
       <Block row alignCT padB={10}>
-        <Image source={avatar || ImgSRC.img_avatar} style={styles.avatar} />
+        <Image
+          source={avatar ? {uri: avatar} : ImgSRC.img_avatar}
+          style={styles.avatar}
+        />
         <Block padH={10}>
           <TextSmall bold>{name}</TextSmall>
 
           {renderStars(star)}
         </Block>
         <TextSmall color={colors.gray} style={{flex: 1, textAlign: 'right'}}>
-          2 ngày trước
+          {formatDateComment(date as '')}
         </TextSmall>
       </Block>
+      <TextSmall color={colors.gray}>
+        Phân loại: Size {size}, Màu {color}
+      </TextSmall>
       <TextSmall>{review}</TextSmall>
     </Block>
   );

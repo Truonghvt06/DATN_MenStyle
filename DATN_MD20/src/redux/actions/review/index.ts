@@ -35,3 +35,14 @@ export const fetchMyReviews = createAsyncThunk(
     }
   },
 );
+
+export const fetchReviewsByProduct = createAsyncThunk(
+  'review/getReviewsByProduct',
+  async (productId: string, {rejectWithValue}) => {
+    try {
+      return await reviewService.getReviewsByProduct(productId);
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  },
+);

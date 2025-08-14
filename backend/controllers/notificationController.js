@@ -80,19 +80,32 @@ exports.deleteNotification = async (req, res) => {
 };
 
 // POST: Gửi thông báo từ admin
+// POST /notifications/send
 exports.sendNotificationFromAdmin = async (req, res) => {
   try {
-    const { title, content, image = "", type, targetUserId = null } = req.body;
-
+    const {
+      title,
+      content,
+      image = "",
+      type,
+      data = {},
+      targetUserId = null,
+    } = req.body;
     if (!["order", "promotion", "system"].includes(type)) {
       return res.status(400).json({ message: "Loại thông báo không hợp lệ" });
     }
 
-    // Gửi cho từng người (order/system) hoặc tất cả (promotion/system)
     if (type === "promotion" || (type === "system" && !targetUserId)) {
       const users = await User.find({ fcmToken: { $ne: "" } }).select("_id");
       for (const user of users) {
-        await sendFCMAndSave({ userId: user._id, title, content, image, type });
+        await sendFCMAndSave({
+          userId: user._id,
+          title,
+          content,
+          image,
+          type,
+          data,
+        });
       }
     } else if (targetUserId) {
       await sendFCMAndSave({
@@ -101,6 +114,7 @@ exports.sendNotificationFromAdmin = async (req, res) => {
         content,
         image,
         type,
+        data,
       });
     } else {
       return res

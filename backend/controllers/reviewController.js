@@ -1,12 +1,15 @@
 const Order = require("../models/Order");
 const Review = require("../models/Review");
 const User = require("../models/User");
+const Product = require("../models/Product");
+const mongoose = require("mongoose");
 
 exports.getReviewsByProduct = async (req, res) => {
   try {
     const productId = req.params.productId;
     const reviews = await Review.find({ product_id: productId })
-      .populate("user_id", "name email") // Lấy thông tin người dùng
+      .populate("user_id", "name email avatar") // Lấy thông tin người dùng
+      .populate("product_id") // Lấy thông tin sản phẩm
       .sort({ createdAt: -1 });
 
     res.json(reviews);
@@ -14,9 +17,6 @@ exports.getReviewsByProduct = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
-
-const Product = require("../models/Product");
-const mongoose = require("mongoose");
 
 // Helper: tính lại rating trung bình của product
 const recalcProductRating = async (product_id) => {
@@ -239,15 +239,15 @@ exports.getMyReviews = async (req, res) => {
     return res.status(500).json({ message: "Lỗi máy chủ", error: err.message });
   }
 };
-exports.getReviewsByProduct = async (req, res) => {
-  try {
-    const productId = req.params.productId;
-    const reviews = await Review.find({ product_id: productId })
-      .populate("user_id", "name email") // Lấy thông tin người dùng
-      .sort({ createdAt: -1 });
+// exports.getReviewsByProduct = async (req, res) => {
+//   try {
+//     const productId = req.params.productId;
+//     const reviews = await Review.find({ product_id: productId })
+//       .populate("user_id", "name email") // Lấy thông tin người dùng
+//       .sort({ createdAt: -1 });
 
-    res.json(reviews);
-  } catch (error) {
-    res.status(500).json({ message: "Lỗi server", error: error.message });
-  }
-};
+//     res.json(reviews);
+//   } catch (error) {
+//     res.status(500).json({ message: "Lỗi server", error: error.message });
+//   }
+// };
