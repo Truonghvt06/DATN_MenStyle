@@ -196,6 +196,7 @@ exports.zaloCallback = async (req, res) => {
 
       // Cập nhật trạng thái thanh toán của đơn hàng
       order.payment_status = "paid";
+      order.transaction_id = zp_trans_id;
       await order.save();
     } else {
       console.log("Giao dịch đã xử lý trước đó:", zp_trans_id);

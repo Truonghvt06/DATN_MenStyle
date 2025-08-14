@@ -577,7 +577,7 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
                 </TextSmall>
                 <TextSizeCustom
                   size={12}
-                  color={theme.gray}
+                  color={colors.gray}
                   style={{marginTop: 5}}>
                   SL: {item.quantity} x{' '}
                   {item.productId?.price?.toLocaleString('vi-VN')}VND
