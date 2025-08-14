@@ -11,8 +11,10 @@ import {useAppTheme} from '../../../themes/ThemeContext';
 
 const ReviewScreen = () => {
   const {top} = useSafeAreaInsets();
-  const route = useRoute();
+  const route = useRoute<any>();
+  const {reviews} = route.params || [];
   const theme = useAppTheme();
+  console.log('Reviews:', reviews);
 
   return (
     <ContainerView containerStyle={{backgroundColor: theme.background}}>
@@ -23,15 +25,24 @@ const ReviewScreen = () => {
         labelColor={theme.text}
       />
       <FlatList
-        data={dataProduct}
+        data={reviews}
         keyExtractor={(item, index) => `review-full-${index}`}
-        renderItem={({item}) => (
-          <ReviewItem
-            star={item.star}
-            name="Nguyen Van A"
-            review="Sản phẩm chất lượng tốt, vải mềm mại và thoáng mát. Rất hài lòng với lần mua hàng này."
-          />
-        )}
+        renderItem={({item}) => {
+          const variant = item.product_id?.variants?.find(
+            (v: any) => v._id.toString() === item.product_variant_id.toString(),
+          );
+          return (
+            <ReviewItem
+              avatar={item.user_id?.avatar}
+              star={item.rating}
+              name={item.user_id?.name || 'Người dùng'}
+              review={item.comment}
+              date={item.createdAt}
+              size={variant?.size}
+              color={variant?.color}
+            />
+          );
+        }}
         contentContainerStyle={{
           paddingBottom: 50,
           paddingHorizontal: 8,

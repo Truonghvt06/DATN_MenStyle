@@ -45,16 +45,24 @@ const SearchScreen = () => {
   const {token} = useAppSelector(state => state.auth);
   const {listFavoriteIds} = useAppSelector(state => state.favorite);
 
-  const productNew = [...proData]
+  const MS_PER_DAY = 24 * 60 * 60 * 1000;
+  const cutoff = Date.now() - 30 * MS_PER_DAY;
+
+  const productNew = (Array.isArray(proData) ? proData : [])
+    .filter(p => {
+      const t = new Date(p?.createdAt).getTime();
+      return Number.isFinite(t) && t >= cutoff; // chỉ giữ sp tạo trong 30 ngày
+    })
     .sort(
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     )
     .slice(0, 5);
 
-  const productHot = [...proData]
-    .sort((a, b) => b.sold_count - a.sold_count)
-    .slice(0, 5);
+  const productHot = [...proData].sort((a, b) => b.sold_count - a.sold_count);
+
+  const productNewSort = productNew.slice(0, 5);
+  const productHotSort = productHot.slice(0, 5);
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -85,6 +93,12 @@ const SearchScreen = () => {
 
   const handleProDetail = (id: string) => {
     navigation.navigate(ScreenName.Main.ProductDetail, {id});
+  };
+  const handleSeeMore = (title: string, data: any) => {
+    navigation.navigate(ScreenName.Main.SeeMoreSearch, {
+      title: title,
+      data: data,
+    });
   };
 
   return (
@@ -127,7 +141,11 @@ const SearchScreen = () => {
               bold>
               {getTranslation('san_pham_moi')}
             </TextHeight>
-            <TouchableOpacity activeOpacity={0.8} onPress={() => {}}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                handleSeeMore(getTranslation('san_pham_moi'), productNew);
+              }}>
               <TextSizeCustom
                 size={14}
                 style={{textDecorationLine: 'underline', fontStyle: 'italic'}}>
@@ -137,7 +155,7 @@ const SearchScreen = () => {
           </Block>
 
           <ListProduct
-            data={productNew}
+            data={productNewSort}
             horizontal={true}
             favoriteId={listFavoriteIds}
             onPress={id => {
@@ -157,7 +175,11 @@ const SearchScreen = () => {
               bold>
               {getTranslation('san_pham_ban_chay')}
             </TextHeight>
-            <TouchableOpacity activeOpacity={0.8} onPress={() => {}}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                handleSeeMore(getTranslation('san_pham_ban_chay'), productHot);
+              }}>
               <TextSizeCustom
                 size={14}
                 style={{textDecorationLine: 'underline', fontStyle: 'italic'}}>
@@ -166,7 +188,7 @@ const SearchScreen = () => {
             </TouchableOpacity>
           </Block>
           <ListProduct
-            data={productHot}
+            data={productHotSort}
             horizontal={true}
             // isSeemore
             favoriteId={listFavoriteIds}

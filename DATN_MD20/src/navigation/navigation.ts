@@ -5,9 +5,27 @@ import {
   TabActions,
 } from '@react-navigation/native';
 import ScreenName from './ScreenName';
+import {handleNotificationNavigation} from '../utils/common/firebase/fcmHelper';
 
 export const navigationRef = React.createRef<any>();
 export const isReadyRef: any = React.createRef<any>();
+
+// 👉 Thêm util hàng đợi
+let pendingNavData: any | null = null;
+
+export const queueNotificationNav = (data?: any) => {
+  if (!data) return;
+  pendingNavData = data;
+  tryProcessPendingNav();
+};
+
+export const tryProcessPendingNav = () => {
+  if (!pendingNavData) return;
+  if (isReadyRef.current && navigationRef.current) {
+    handleNotificationNavigation(pendingNavData);
+    pendingNavData = null;
+  }
+};
 
 const navigate = (routeName: string, params?: any) => {
   if (isReadyRef.current && navigationRef.current) {

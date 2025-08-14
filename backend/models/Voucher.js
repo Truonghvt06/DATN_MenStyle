@@ -11,6 +11,11 @@ const voucherUsageSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    order_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Order",
+      required: true,
+    },
     voucher_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Voucher",

@@ -48,7 +48,7 @@ export default function NotificationScreen() {
     if (notification.type === 'order') {
       navigation.navigate(ScreenName.Main.OrderDetail, {
         screen: 'notification',
-        orders: null,
+        orderId: listNotifications?.[0].data?.orderId,
       });
     } else if (notification.type === 'promotion') {
       navigation.navigate(ScreenName.Main.Voucher);
@@ -96,7 +96,7 @@ export default function NotificationScreen() {
       />
       <FlatList
         data={notifications}
-        keyExtractor={item => item._id}
+        keyExtractor={item => `noti-${item._id}`}
         renderItem={renderItem}
         contentContainerStyle={{
           paddingBottom: 30,

@@ -29,7 +29,7 @@ import {colors} from '../../../themes/colors';
 import {dataProduct} from '../../../constants/data';
 import TouchIcon from '../../../components/dataEntry/Button/TouchIcon';
 import ReviewItem from '../../../components/dataDisplay/ReviewItem';
-import {useRoute} from '@react-navigation/native';
+import {useFocusEffect, useRoute} from '@react-navigation/native';
 import ButtonBase from '../../../components/dataEntry/Button/ButtonBase';
 import ModalBottom from '../../../components/dataDisplay/Modal/ModalBottom';
 import AddCart from './AddCart';
@@ -44,6 +44,10 @@ import Toast from 'react-native-toast-message';
 import configToast from '../../../components/utils/configToast';
 import ModalCenter from '../../../components/dataDisplay/Modal/ModalCenter';
 import {addCart, fetchCart} from '../../../redux/actions/cart/cartAction';
+import {
+  fetchMyReviews,
+  fetchReviewsByProduct,
+} from '../../../redux/actions/review';
 // import {addToCart, fetchCart} from '../../../redux/actions/cart';
 
 const ProductDetail = () => {
@@ -75,13 +79,26 @@ const ProductDetail = () => {
   const {detail, relatedProducts} = useAppSelector(state => state.product);
   const {listFavoriteIds} = useAppSelector(state => state.favorite);
   const {token, user} = useAppSelector(state => state.auth);
+  const {myReviews} = useAppSelector(state => state.review);
 
-  useEffect(() => {
-    // fetch nếu thiếu
-    if (!detail || detail._id !== id) {
+  // console.log('REVIEWS:', myReviews);
+
+  // useEffect(() => {
+  //   // fetch nếu thiếu
+  //   if (!detail || detail._id !== id) {
+  //     dispatch(fetchProductDetail(id));
+  //   }
+  //   dispatch(fetchReviewsByProduct(id));
+  // }, [id]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // luôn lấy đúng data theo id của màn hình này
       dispatch(fetchProductDetail(id));
-    }
-  }, [id]);
+      dispatch(fetchReviewsByProduct(id));
+      return () => {}; // không cần cleanup
+    }, [dispatch, id]),
+  );
 
   useEffect(() => {
     if (detail && detail._id === id) {
@@ -321,6 +338,8 @@ const ProductDetail = () => {
                     )}
                   </Block>
                 </>
+
+                {/*  Hiển thị đánh giá */}
                 <>
                   <Block
                     row
@@ -329,67 +348,45 @@ const ProductDetail = () => {
                     padV={7}
                     borderTopWidth={0.5}
                     borderColor={colors.gray1}>
-                    <TextMedium bold>Đánh giá(123)</TextMedium>
+                    <TextMedium bold>
+                      Đánh giá ({myReviews?.length || 0})
+                    </TextMedium>
                     <TouchIcon
-                      title={getTranslation('xem_tat_ca')}
+                      title="Xem tất cả"
                       icon={IconSRC.icon_back_right}
                       containerStyle={{
                         flexDirection: 'row',
                         alignItems: 'center',
                       }}
                       onPress={() => {
-                        navigation.navigate(
-                          ScreenName.Main.Review,
-                          //   {
-                          //   reviews: proData?.reviews || [],
-                          // }
-                        );
+                        navigation.navigate(ScreenName.Main.Review, {
+                          reviews: myReviews || [],
+                        });
                       }}
                     />
                   </Block>
-                  {dataProduct.slice(0, 2).map((item, index) => {
-                    return (
-                      <ReviewItem
-                        key={`review-${index}`}
-                        star={item.star}
-                        name="Nguyen Van A"
-                        review="Sản phẩm chất lượng tốt, vải mềm mại và thoáng mát. Rất hài lòng với lần mua hàng này."
-                      />
-                    );
-                  })}
-                  {/* <>
-  <Block
-    row
-    justifyBW
-    alignCT
-    padV={7}
-    borderTopWidth={0.5}
-    borderColor={colors.gray1}>
-    <TextMedium bold>Đánh giá ({proData?.reviews?.length || 0})</TextMedium>
-    <TouchIcon
-      title="Xem tất cả"
-      icon={IconSRC.icon_back_right}
-      containerStyle={{
-        flexDirection: 'row',
-        alignItems: 'center',
-      }}
-      onPress={() => {
-        navigation.navigate(ScreenName.Main.Review, {
-          reviews: proData?.reviews || [],
-        });
-      }}
-    />
-  </Block>
 
-  {(proData?.reviews || []).slice(0, 2).map((item: any, index: number) => (
-    <ReviewItem
-      key={`review-${index}`}
-      star={item.star}
-      name={item.name}
-      review={item.review}
-    />
-  ))}
-</> */}
+                  {(myReviews || [])
+                    .slice(0, 2)
+                    .map((item: any, index: number) => {
+                      const variant = item.product_id?.variants?.find(
+                        (v: any) =>
+                          v._id.toString() ===
+                          item.product_variant_id.toString(),
+                      );
+                      return (
+                        <ReviewItem
+                          key={`review-${index}`}
+                          avatar={item.user_id?.avatar}
+                          star={item.rating}
+                          name={item.user_id?.name || 'Người dùng'}
+                          review={item.comment}
+                          date={item.createdAt}
+                          size={variant?.size}
+                          color={variant?.color}
+                        />
+                      );
+                    })}
                 </>
                 <TextMedium bold style={{marginTop: 20}}>
                   Sản phẩm liên quan

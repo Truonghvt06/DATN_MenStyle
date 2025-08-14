@@ -3,6 +3,7 @@ import {
   fetchPendingReviewItems,
   createReview,
   fetchMyReviews,
+  fetchReviewsByProduct,
 } from '../../actions/review';
 
 interface ReviewState {
@@ -41,6 +42,19 @@ const reviewSlice = createSlice({
       // My reviews
       .addCase(fetchMyReviews.fulfilled, (state, action) => {
         state.myReviews = action.payload;
+      })
+
+      // Reviews by product
+      .addCase(fetchReviewsByProduct.pending, state => {
+        state.loading = true;
+      })
+      .addCase(fetchReviewsByProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        state.myReviews = action.payload;
+      })
+      .addCase(fetchReviewsByProduct.rejected, (state, action: any) => {
+        state.loading = false;
+        state.error = action.payload?.message;
       })
 
       // Create review
