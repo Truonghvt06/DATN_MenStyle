@@ -23,6 +23,7 @@ const productSchema = new mongoose.Schema(
     rating_count: { type: Number, default: 0 },
     sold_count: { type: Number, default: 0 },
     is_fovorite: { type: Boolean, default: false },
+    is_activiti: { type: Boolean, default: true }, // Trạng thái sản phẩm (đang hoạt động hoặc bị khóa)
     variants: { type: [variantSchema], default: [] },
   },
   { timestamps: true }
