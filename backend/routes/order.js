@@ -21,6 +21,7 @@ router.post("/buyAgain", authMiddleware, orderController.buyAgain);
 router.post("/update-status/:id", orderController.updateStatus);
 router.post("/update-payment-status/:id", orderController.updatePaymentStatus);
 
-router.get("/order_detail/:id", orderController.getOrderDetaill);
+router.get("/order_detail/:id", orderController.getOrderDetail);
+router.get("/payment-by-order/:orderId", orderController.getPaymentByOrderId);
 
 module.exports = router;

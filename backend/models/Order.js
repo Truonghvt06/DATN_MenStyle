@@ -55,7 +55,12 @@ const orderSchema = new mongoose.Schema(
       ref: "PaymentMethod",
       required: true,
     },
-    transaction_id: { type: String, default: "" }, // Mã giao dịch thanh toán
+    payment_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Payment",
+      default: null,
+    },
+     // Mã giao dịch thanh toán
     items: { type: [orderItemSchema], default: [] },
     deliveredAt: { type: Date, default: null },
   },

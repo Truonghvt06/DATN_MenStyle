@@ -1,5 +1,6 @@
 const Order = require("../models/Order");
 const Product = require("../models/Product");
+const Payment = require('../models/Payment');
 const User = require("../models/User");
 const mongoose = require("mongoose");
 const { sendOrderNotification } = require("../utils/pushNotification");
@@ -98,6 +99,7 @@ exports.getOrders = async (req, res) => {
     const orders = await Order.find({ user_id })
       .populate("items.product_id")
       .populate("payment_method_id")
+      .populate("payment_id")
       .sort({ createdAt: -1 });
 
     res.status(200).json({ orders });
@@ -110,21 +112,72 @@ exports.getOrders = async (req, res) => {
 //LAY DƠN HÀNG THEO ID
 exports.getOrderDetail = async (req, res) => {
   try {
-    const { orderId } = req.params;
-
-    const order = await Order.findById(orderId)
+    const orderId = req.params.id;
+    let order = await Order.findById(orderId)
+      .populate("user_id")
       .populate("items.product_id")
       .populate("shipping_address_id")
-      .populate("payment_method_id");
+      .populate("payment_method_id")
+      .populate("payment_id");
 
-    if (!order) {
-      return res.status(404).json({ message: "Đơn hàng không tồn tại" });
+    if (!order) return res.status(404).send("Không tìm thấy đơn hàng");
+
+    // Nếu payment_id là null, tìm Payment theo order_id
+    if (!order.payment_id) {
+      const payment = await Payment.findOne({ order_id: new mongoose.Types.ObjectId(orderId) });
+      if (payment) {
+        // Cập nhật order.payment_id để sử dụng sau này
+        order.payment_id = payment._id;
+        await order.save();
+        // Populate lại payment_id
+        order = await Order.findById(orderId)
+          .populate("user_id")
+          .populate("items.product_id")
+          .populate("shipping_address_id")
+          .populate("payment_method_id")
+          .populate("payment_id");
+      }
     }
 
-    res.status(200).json({ order });
+    console.log("Order:", JSON.stringify(order, null, 2));
+    console.log("Payment:", order.payment_id ? JSON.stringify(order.payment_id, null, 2) : "No payment");
+
+    res.render("order_detail", { order });
+  } catch (err) {
+    console.error("Error in getOrderDetail:", err);
+    res.status(500).send("Lỗi server");
+  }
+};
+
+exports.getPaymentByOrderId = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+
+    // Kiểm tra order_id hợp lệ
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({ message: "order_id không hợp lệ" });
+    }
+
+    // Tìm bản ghi Payment theo order_id
+    const payment = await Payment.findOne({ order_id: new mongoose.Types.ObjectId(orderId) });
+    if (!payment) {
+      return res.status(404).json({ message: "Không tìm thấy bản ghi thanh toán cho đơn hàng này" });
+    }
+
+    res.status(200).json({
+      message: "Tìm thấy bản ghi thanh toán",
+      payment: {
+        payment_id: payment._id,
+        transaction_id: payment.transaction_id,
+        payment_status: payment.payment_status,
+        paid_at: payment.paid_at,
+        createdAt: payment.createdAt,
+        updatedAt: payment.updatedAt
+      }
+    });
   } catch (error) {
-    console.error("Lỗi khi lấy chi tiết đơn hàng:", error);
-    res.status(500).json({ message: "Lỗi server khi lấy chi tiết đơn hàng" });
+    console.error("Lỗi khi tìm Payment theo order_id:", error);
+    res.status(500).json({ message: "Lỗi server" });
   }
 };
 
@@ -334,24 +387,6 @@ exports.buyAgain = async (req, res) => {
 //     res.status(500).json({ message: "Lỗi máy chủ" });
 //   }
 // };
-
-exports.getOrderDetaill = async (req, res) => {
-  try {
-    const orderId = req.params.id;
-    const order = await Order.findById(orderId)
-      .populate("user_id")
-      .populate("items.product_id")
-      .populate("shipping_address_id")
-      .populate("payment_method_id");
-
-    if (!order) return res.status(404).send("Không tìm thấy đơn hàng");
-
-    res.render("order_detail", { order });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Lỗi server");
-  }
-};
 
 //Gắn thông báo
 exports.updateStatus = async (req, res) => {
