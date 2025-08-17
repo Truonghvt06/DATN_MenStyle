@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
   <meta charset="UTF-8" />
   <title>Danh sách sản phẩm - MenStyle</title>
@@ -14,7 +13,6 @@
       padding: 0;
       display: flex;
     }
-
     .sidebar {
       width: 240px;
       min-height: 100vh;
@@ -23,11 +21,9 @@
       padding: 20px 0;
       transition: all 0.3s ease;
     }
-
     .sidebar.collapsed {
       width: 60px;
     }
-
     .btn-outline-primary,
     .btn-outline-secondary {
       font-size: 13px;
@@ -36,17 +32,14 @@
       border-radius: 20px;
       transition: background-color 0.2s, color 0.2s;
     }
-
     .btn-outline-primary:hover {
       background-color: #007bff;
       color: white;
     }
-
     .btn-outline-secondary:hover {
       background-color: #6c757d;
       color: white;
     }
-
     .sidebar a {
       display: flex;
       align-items: center;
@@ -58,33 +51,27 @@
       transition: 0.3s;
       white-space: nowrap;
     }
-
     .description-cell {
       max-width: 200px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
     .sidebar a:hover {
       background: #111;
       color: #fff;
     }
-
     .sidebar.collapsed a span {
       display: none;
     }
-
     .sidebar a i {
       font-size: 20px;
     }
-
     .content {
       flex: 1;
       padding: 30px;
       transition: margin-left 0.3s ease;
     }
-
     header {
       background-color: #111;
       color: #fff;
@@ -96,18 +83,15 @@
       gap: 15px;
       margin-bottom: 30px;
     }
-
     .btn-add {
       background-color: #28a745;
       color: #fff;
       font-weight: 500;
       border-radius: 6px;
     }
-
     .btn-add:hover {
       background-color: #218838;
     }
-
     .product-img {
       width: 80px;
       height: 80px;
@@ -115,72 +99,65 @@
       border-radius: 6px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
-
     .variant-item {
       font-size: 14px;
       color: #333;
       line-height: 1.6;
     }
-
     .table th {
       background-color: #343a40;
       color: white;
       font-weight: 600;
       text-align: center;
     }
-
     .table td {
       vertical-align: middle;
     }
-
     .action-link {
       margin-right: 8px;
       font-weight: 500;
     }
-
     .action-link:hover {
       text-decoration: underline;
     }
-
     form select.form-select-sm,
     form input.form-control-sm {
       border-radius: 6px;
       padding: 4px 10px;
       font-size: 14px;
     }
-
     .no-image {
       color: gray;
       font-style: italic;
       font-size: 13px;
     }
-
     .search-container {
-    display: flex;
-    align-items: center;
-  }
-
-  .search-container i {
-    margin-right: 8px;
-    font-size: 1.1rem;
-  }
-
+      display: flex;
+      align-items: center;
+    }
+    .search-container i {
+      margin-right: 8px;
+      font-size: 1.1rem;
+    }
     .search-container input {
       padding-left: 35px;
     }
+    /* Thêm style cho sản phẩm đã ngừng bán */
+    .deactivated {
+      opacity: 0.5;
+    }
   </style>
 </head>
-
 <body>
   <nav class="sidebar" id="sidebar">
     <a href="/"><i class="bi bi-house"></i><span>Trang chủ</span></a>
-    <a href="/products/view"><i class="bi bi-box"></i><span> Sản phẩm</span></a>
-    <a href="/products/product-types/view"><i class="bi bi-tags"></i><span> Thể loại</span></a>
-    <a href="/voucher/view"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
-    <a href="/accounts/view"><i class="bi bi-people"></i><span> Tài khoản</span></a>
-    <a href="/accounts/admin/orders"><i class="bi bi-receipt-cutoff"></i><span> Đơn hàng</span></a>
-    <a href="/dashboard/stats-overview"><i class="bi bi-bar-chart-line"></i><span> Thống kê</span></a>
-    <a href="/setting/view"><i class="bi bi-gear"></i> <span>Cài đặt</span></a>
+    <a href="/products/view"><i class="bi bi-box"></i><span>Sản phẩm</span></a>
+    <a href="/products/product-types/view"><i class="bi bi-tags"></i><span>Thể loại</span></a>
+    <a href="/voucher/view"><i class="bi bi-ticket"></i><span>Phiếu giảm giá</span></a>
+    <a href="/accounts/view"><i class="bi bi-people"></i><span>Tài khoản</span></a>
+    <a href="/accounts/admin/orders"><i class="bi bi-receipt-cutoff"></i><span>Đơn hàng</span></a>
+    <a href="/dashboard/stats-overview"><i class="bi bi-bar-chart-line"></i><span>Thống kê</span></a>
+    <a href="/setting/view"><i class="bi bi-gear"></i><span>Cài đặt</span></a>
   </nav>
 
   <div class="content" id="content">
@@ -194,7 +171,6 @@
         <input type="text" name="search" class="form-control form-control-sm" placeholder="Tìm kiếm sản phẩm..." 
                value="<%= search || '' %>">
       </div>
-      
       <span class="fw-semibold mb-0"><i class="bi bi-funnel"></i> Lọc theo loại:</span>
       <input type="hidden" name="page" value="1">
       <select name="type" id="type" class="form-select w-auto" onchange="this.form.submit()">
@@ -214,7 +190,6 @@
         </a>
       </div>
     </div>
-    
 
     <div class="table-responsive">
       <table class="table table-bordered align-middle table-hover">
@@ -236,7 +211,7 @@
               const firstVariant = product.variants && product.variants[0] ? product.variants[0] : {};
               const totalQty = product.variants ? product.variants.reduce((sum, v) => sum + (v.quantity || 0), 0) : 0;
               %>
-              <tr>
+              <tr class="<%= product.is_activiti ? '' : 'deactivated' %>">
                 <td class="text-center">
                   <% if (firstVariant.image) { %>
                     <a href="/products/<%= product._id %>">
@@ -290,7 +265,11 @@
                   <%= totalQty %>
                 </td>
                 <td class="text-center">
-                  <a href="javascript:void(0);" class="action-link text-primary" onclick="checkBeforeEdit('<%= product._id %>')">Sửa</a>
+                  <% if (product.is_activiti) { %>
+                    <a href="javascript:void(0);" class="action-link text-danger" onclick="confirmDeactivate('<%= product._id %>')">Ngừng bán</a>
+                  <% } else { %>
+                    <span class="text-muted">Đã ngừng bán</span>
+                  <% } %>
                 </td>
               </tr>
               <% }) %>
@@ -337,17 +316,10 @@
       }
     }
 
-    function checkBeforeEdit(productId) {
-      fetch(`/products/check-edit/${productId}`)
-        .then(res => {
-          if (!res.ok) {
-            return res.text().then(msg => { throw new Error(msg); });
-          }
-          window.location.href = `/products/edit/${productId}`;
-        })
-        .catch(err => {
-          alert(err.message);
-        });
+    function confirmDeactivate(productId) {
+      if (confirm('Bạn có chắc muốn ngừng bán sản phẩm này?')) {
+        window.location.href = `/products/edit/${productId}`;
+      }
     }
 
     const searchInput = document.querySelector('input[name="search"]');
@@ -360,5 +332,4 @@
     });
   </script>
 </body>
-
 </html>

@@ -179,34 +179,73 @@ router.get("/search", async (req, res) => {
 });
 
 // View: Danh sách sản phẩm (Web)
+// Route: Hiển thị danh sách sản phẩm
 router.get("/view", async (req, res) => {
   try {
-    const typeFilter = req.query.type || "all";
-    const search = req.query.search || "";
-    const page = parseInt(req.query.page) || 1;
-    const limit = 5;
-    const types = await ProductType.find();
+    const { search, type, page = 1 } = req.query;
+    const limit = 10; // Số sản phẩm mỗi trang
+    const skip = (page - 1) * limit;
+
+    // Tạo query tìm kiếm
     let query = {};
-    if (typeFilter !== "all") {
-      query.type = typeFilter;
+    if (search) {
+      query.name = { $regex: search, $options: "i" };
     }
+    if (type && type !== "all") {
+      query.type = mongoose.Types.ObjectId.isValid(type) ? type : null;
+    }
+
+    // Lấy tổng số sản phẩm
     const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);
+
+    // Đếm số sản phẩm đang hoạt động và đã ngừng bán để debug
+    const activeProducts = await Product.countDocuments({ ...query, is_activiti: true });
+    const inactiveProducts = await Product.countDocuments({ ...query, is_activiti: false });
+    console.log("Debug phân trang:", {
+      totalProducts,
+      activeProducts,
+      inactiveProducts,
+      totalPages,
+      currentPage: page,
+      skip,
+      limit,
+    });
+
+    // Lấy danh sách sản phẩm, sắp xếp theo is_activiti và createdAt
     const products = await Product.find(query)
       .populate("type")
-      .skip((page - 1) * limit)
+      .sort({ is_activiti: -1, createdAt: -1 }) // is_activiti: true trước, sau đó theo createdAt
+      .skip(skip)
       .limit(limit);
+
+    // Log danh sách sản phẩm để kiểm tra
+    console.log(
+      "Sản phẩm ở trang hiện tại:",
+      products.map((p) => ({
+        _id: p._id,
+        name: p.name,
+        is_activiti: p.is_activiti,
+      }))
+    );
+
+    // Lấy danh sách ProductType cho bộ lọc
+    const types = await ProductType.find();
+
     res.render("products", {
       products,
       types,
-      selectedType: typeFilter,
-      currentPage: page,
+      search: search || "",
+      selectedType: type || "all",
+      currentPage: parseInt(page),
       totalPages,
-      search,
     });
-  } catch (error) {
-    console.error("Error fetching products for view:", error);
-    res.status(500).send("Lỗi khi lấy danh sách sản phẩm");
+  } catch (err) {
+    console.error("Lỗi khi lấy danh sách sản phẩm:", {
+      error: err.message,
+      stack: err.stack,
+    });
+    res.status(500).send(`Lỗi server: ${err.message}`);
   }
 });
 
@@ -251,39 +290,78 @@ router.post("/add", async (req, res) => {
   }
 });
 
-// View: Form chỉnh sửa sản phẩm
+// Route: Ngừng bán sản phẩm (thay thế GET /edit/:id)
 router.get("/edit/:id", async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
-    const types = await ProductType.find();
-    if (!product) return res.status(404).send("Không tìm thấy sản phẩm");
-    res.render("product_edit", { product, types });
-  } catch (err) {
-    res.status(500).send("Lỗi khi lấy sản phẩm để chỉnh sửa");
-  }
-});
+    const productId = req.params.id;
 
-// View: Xử lý chỉnh sửa sản phẩm
-router.post("/edit/:id", async (req, res) => {
-  try {
-    const { name, type, variants } = req.body;
-    const updatedVariants = Object.values(variants).map((v) => ({
-      size: v.size,
-      color: v.color,
-      quantity: Number(v.quantity),
-      image: v.image,
-    }));
-    await Product.findByIdAndUpdate(
-      req.params.id,
-      { name, type, variants: updatedVariants },
-      { new: true }
-    );
+    // Kiểm tra productId hợp lệ
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ success: false, message: `productId không hợp lệ: ${productId}` });
+    }
+
+    // Tìm sản phẩm
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: `Không tìm thấy sản phẩm với ID: ${productId}` });
+    }
+
+    // Kiểm tra trường is_activiti
+    if (typeof product.is_activiti !== "boolean") {
+      return res.status(400).json({ success: false, message: "Trường is_activiti không hợp lệ trong sản phẩm" });
+    }
+
+    // Cập nhật is_activiti thành false
+    product.is_activiti = false;
+    await product.save();
+
+    // Redirect về trang danh sách sản phẩm
     res.redirect("/products/view");
   } catch (err) {
-    res.status(500).send("Lỗi khi cập nhật sản phẩm");
+    console.error("Lỗi khi ngừng bán sản phẩm:", {
+      error: err.message,
+      stack: err.stack,
+      productId: req.params.id,
+    });
+    res.status(500).json({ success: false, message: `Lỗi server: ${err.message}` });
   }
 });
 
+// Route hiện có (từ trước)
+router.patch("/deactivate/:productId", async (req, res) => {
+  try {
+    const productId = req.params.productId;
+
+    // Kiểm tra productId hợp lệ
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ success: false, message: `productId không hợp lệ: ${productId}` });
+    }
+
+    // Tìm sản phẩm
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: `Không tìm thấy sản phẩm với ID: ${productId}` });
+    }
+
+    // Kiểm tra trường is_activiti
+    if (typeof product.is_activiti !== "boolean") {
+      return res.status(400).json({ success: false, message: "Trường is_activiti không hợp lệ trong sản phẩm" });
+    }
+
+    // Cập nhật is_activiti thành false
+    product.is_activiti = false;
+    await product.save();
+
+    res.status(200).json({ success: true, message: "Ngừng bán sản phẩm thành công" });
+  } catch (error) {
+    console.error("Lỗi khi ngừng bán sản phẩm:", {
+      error: error.message,
+      stack: error.stack,
+      productId: req.params.productId,
+    });
+    res.status(500).json({ success: false, message: `Lỗi server: ${error.message}` });
+  }
+});
 // View: Chi tiết sản phẩm
 router.get("/:id", async (req, res) => {
   try {
