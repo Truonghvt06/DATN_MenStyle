@@ -142,11 +142,12 @@ exports.getAvailableVouchers = async (req, res) => {
   }
 };
 
-//UPDATE VOUCHER
+// UPDATE VOUCHER: Sử dụng voucher
 exports.useVoucher = async (req, res) => {
   try {
     const { voucherId } = req.params;
-    const userId = req.user.id; // giả sử bạn đã có middleware auth gán req.user
+    const { orderId } = req.body; // nhận orderId từ body khi áp dụng voucher
+    const userId = req.user.id; // giả sử middleware auth đã gắn req.user
 
     const voucher = await Voucher.findById(voucherId);
     if (!voucher) {
@@ -187,10 +188,11 @@ exports.useVoucher = async (req, res) => {
       });
     }
 
-    // 3. Cập nhật used_count, voucher_usage
+    // 3. Cập nhật used_count, voucher_usage (thêm order_id)
     voucher.used_count += 1;
     voucher.voucher_usage.push({
       user_id: userId,
+      order_id: orderId || null, // thêm orderId, nếu chưa có thì để null
       voucher_id: voucher._id,
       used_at: now,
     });

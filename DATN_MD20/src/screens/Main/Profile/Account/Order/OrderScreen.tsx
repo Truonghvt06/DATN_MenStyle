@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ContainerView from '../../../../../components/layout/ContainerView';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Header from '../../../../../components/dataDisplay/Header';
@@ -29,8 +29,10 @@ const OrderScreen = () => {
   const theme = useAppTheme();
   const [selectedTab, setSelectedTab] = useState(getTranslation('tat_ca'));
 
+  const [refreshing, setRefreshing] = useState(false);
+
   const dispatch = useAppDispatch();
-  const {orders} = useAppSelector(state => state.order);
+  const {orders, loading} = useAppSelector(state => state.order);
   // console.log('ASS:', orders);
 
   const dataOrder = [
@@ -45,8 +47,23 @@ const OrderScreen = () => {
   ///GET DON HANG
   useEffect(() => {
     dispatch(getOrders());
-  }, []);
+  }, [dispatch]);
   ///
+
+  // ⭐ Hàm refresh
+  const onRefresh = useCallback(async () => {
+    try {
+      setRefreshing(true);
+      // Nếu createAsyncThunk: có thể dùng unwrap() để throw lỗi về catch
+      await dispatch(getOrders()).unwrap?.();
+      // hoặc: unwrapResult(await dispatch(getOrders()));
+    } catch (e) {
+      console.log('Refresh orders error:', e);
+      // TODO: hiện Toast/Alert nếu muốn
+    } finally {
+      setRefreshing(false);
+    }
+  }, [dispatch]);
 
   const handleTabPress = (tab: string) => {
     setSelectedTab(tab);
@@ -145,7 +162,17 @@ const OrderScreen = () => {
           );
         }}
         showsVerticalScrollIndicator={false}
+        refreshing={refreshing || loading}
+        onRefresh={() => onRefresh()}
+        ListEmptyComponent={() => (
+          <Block flex1 alignCT justifyCT>
+            <TextSmall style={{textAlign: 'center'}}>
+              {'Không có đơn hàng nào'}
+            </TextSmall>
+          </Block>
+        )}
         contentContainerStyle={{
+          flexGrow: 1,
           paddingTop: 15,
           paddingBottom: 30,
           paddingHorizontal: metrics.space,

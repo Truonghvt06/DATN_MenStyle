@@ -31,10 +31,69 @@ const generateOrderCode = () => {
 };
 
 //TẠO DON HANG
+// exports.createOrder = async (req, res) => {
+//   try {
+//     const { total_amount, shipping_address_id, payment_method_id, items } =
+//       req.body;
+//     const user_id = req.user?.id || req.body.user_id;
+
+//     // Kiểm tra dữ liệu đầu vào
+//     if (
+//       !user_id ||
+//       !shipping_address_id ||
+//       !payment_method_id ||
+//       !items?.length
+//     ) {
+//       return res.status(400).json({ message: "Thiếu thông tin đơn hàng" });
+//     }
+
+//     // Sinh mã đơn hàng và đảm bảo không trùng
+//     let orderCode;
+//     let isUnique = false;
+//     let attempts = 0;
+
+//     while (!isUnique && attempts < 5) {
+//       orderCode = generateOrderCode();
+//       const existingOrder = await Order.findOne({ code: orderCode });
+//       if (!existingOrder) isUnique = true;
+//       attempts++;
+//     }
+
+//     if (!isUnique) {
+//       return res
+//         .status(500)
+//         .json({ message: "Không thể tạo mã đơn hàng, vui lòng thử lại" });
+//     }
+
+//     const newOrder = new Order({
+//       user_id,
+//       total_amount,
+//       shipping_address_id,
+//       payment_method_id,
+//       items,
+//       code: orderCode,
+//     });
+
+//     const savedOrder = await newOrder.save();
+
+//     return res.status(201).json({
+//       message: "Tạo đơn hàng thành công",
+//       order: savedOrder,
+//     });
+//   } catch (error) {
+//     console.error("Lỗi khi tạo đơn hàng:", error);
+//     return res.status(500).json({ message: "Lỗi server khi tạo đơn hàng" });
+//   }
+// };
 exports.createOrder = async (req, res) => {
   try {
-    const { total_amount, shipping_address_id, payment_method_id, items } =
-      req.body;
+    const {
+      total_amount,
+      shipping_address_id,
+      payment_method_id,
+      items,
+      voucher_code, // nhận từ body
+    } = req.body;
     const user_id = req.user?.id || req.body.user_id;
 
     // Kiểm tra dữ liệu đầu vào
@@ -72,6 +131,7 @@ exports.createOrder = async (req, res) => {
       payment_method_id,
       items,
       code: orderCode,
+      voucher_code: voucher_code || [], // thêm voucher_code vào đây
     });
 
     const savedOrder = await newOrder.save();

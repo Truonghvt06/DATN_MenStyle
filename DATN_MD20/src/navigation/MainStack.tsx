@@ -38,6 +38,7 @@ import AddReviewScreen from '../screens/Main/Profile/Account/Review/AddReviewScr
 import ListSearchScreen from '../screens/Main/Search/ListSearchScreen';
 import SearchDetailScreen from '../screens/Main/Search/SearchDetailScreen';
 import SeeMorePro from '../screens/Main/Search/SeeMorePro';
+import SuccessCheckout from '../screens/Main/SuccessCheckout';
 
 const Stack = createStackNavigator();
 
@@ -138,6 +139,10 @@ const MainStack = () => {
       <Stack.Screen
         name={ScreenName.Main.SeeMoreSearch}
         component={SeeMorePro}
+      />
+      <Stack.Screen
+        name={ScreenName.Main.SuccessCheckout}
+        component={SuccessCheckout}
       />
     </Stack.Navigator>
   );

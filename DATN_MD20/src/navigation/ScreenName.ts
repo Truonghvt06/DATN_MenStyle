@@ -44,5 +44,6 @@ export default {
     ListSearchScreen: 'ListSearchScreen',
     SearchDetailScreen: 'SearchScreennn',
     SeeMoreSearch: 'SeeMoreSearch',
+    SuccessCheckout: 'SuccessCheckoutScreen',
   },
 };

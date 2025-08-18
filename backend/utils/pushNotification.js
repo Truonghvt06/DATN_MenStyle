@@ -78,7 +78,7 @@ async function sendFCMAndSave({
  * @param {"status"|"payment"} param0.reason
  */
 async function sendOrderNotification({ userId, order, reason }) {
-  const shortId = String(order._id);
+  const shortId = String(order.code);
   // .slice(-6);
   if (reason === "status") {
     const VI_STATUS = {
@@ -97,7 +97,7 @@ async function sendOrderNotification({ userId, order, reason }) {
 
     await sendFCMAndSave({
       userId,
-      title: `Trạng thái đơn hàng ${shortId}`,
+      title: `Cập nhật đơn hàng: ${shortId}`,
       content,
       type: "order",
       data: {
