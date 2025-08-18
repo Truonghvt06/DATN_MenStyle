@@ -25,6 +25,13 @@ const orderItemSchema = new mongoose.Schema({
   quantity: { type: Number, required: true },
 });
 
+const voucherCodeSchema = new mongoose.Schema({
+  code_order: { type: String, default: "" },
+  order_discount: { type: Number, default: 0 },
+  code_shipping: { type: String, default: "" },
+  shipping_discount: { type: Number, default: 0 },
+});
+
 const orderSchema = new mongoose.Schema(
   {
     user_id: {
@@ -33,7 +40,7 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
     code: { type: String, required: true },
-    voucher_code: { type: String, default: "" },
+    voucher_code: { type: [voucherCodeSchema], default: [] },
     total_amount: { type: Number, required: true },
 
     // Tách 2 trạng thái

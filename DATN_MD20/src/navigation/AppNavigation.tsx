@@ -6,6 +6,7 @@ import RootStack from './RootStack';
 import {isReadyRef, navigationRef, tryProcessPendingNav} from './navigation';
 import Toast from 'react-native-toast-message';
 import configToast from '../components/utils/configToast';
+import {tryProcessPendingNotiNav} from '../utils/common/firebase/fcmHelper';
 // import {flushStoredNotificationIfAny} from '../utils/common/firebase/fcmHelper';
 
 const AppNavigation = () => {
@@ -18,8 +19,8 @@ const AppNavigation = () => {
         onReady={async () => {
           isReadyRef.current = true;
           routeNameRef.current = navigationRef.current.getCurrentRoute().name;
-          // await flushStoredNotificationIfAny();
-          tryProcessPendingNav();
+          await tryProcessPendingNotiNav(); // xử lý điều hướng nếu app mở từ thông báo
+          // tryProcessPendingNav();
         }}>
         <RootStack />
       </NavigationContainer>

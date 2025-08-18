@@ -39,9 +39,12 @@ export const fetchAvailableVouchers = createAsyncThunk(
 
 export const useVoucherAction = createAsyncThunk(
   'voucher/useVoucher',
-  async (voucherId: string, {rejectWithValue}) => {
+  async (
+    {voucherId, orderId}: {voucherId: string; orderId: string},
+    {rejectWithValue},
+  ) => {
     try {
-      const data = await voucherService.useVoucher(voucherId);
+      const data = await voucherService.useVoucher(voucherId, orderId);
       return data; // { success, message, voucher }
     } catch (error: any) {
       return rejectWithValue(error?.message || 'Lỗi khi sử dụng voucher');

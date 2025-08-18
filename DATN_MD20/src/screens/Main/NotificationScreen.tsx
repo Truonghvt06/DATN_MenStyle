@@ -17,6 +17,7 @@ import {
   markNotificationAsRead,
 } from '../../redux/actions/notification';
 import moment from 'moment';
+import {formatDateComment} from '../../utils/formatDate';
 
 export default function NotificationScreen() {
   const {top} = useSafeAreaInsets();
@@ -81,7 +82,7 @@ export default function NotificationScreen() {
       </Text>
       <Text style={{color: theme.text}}>{item.content}</Text>
       <Text style={[styles.time, {color: theme.text}]}>
-        {moment(item.createdAt).format('DD-MM-YY')}
+        {formatDateComment(item.createdAt)}
       </Text>
       {!item.is_read && <View style={styles.dot} />}
     </TouchableOpacity>
@@ -128,6 +129,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   time: {
+    textAlign: 'right',
     fontSize: 12,
     marginTop: 4,
   },

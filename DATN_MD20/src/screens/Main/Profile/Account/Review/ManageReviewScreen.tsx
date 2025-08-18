@@ -26,7 +26,7 @@ const ManageReviewScreen = () => {
   const [selectedTab, setSelectedTab] = useState('Chưa đánh giá');
 
   const dispatch = useAppDispatch();
-  const {pending, myReviews} = useAppSelector(state => state.review);
+  const {pending, myReviews, loading} = useAppSelector(state => state.review);
 
   // console.log('ABC', pending);
   console.log('ABCD', myReviews);
@@ -83,9 +83,11 @@ const ManageReviewScreen = () => {
       <Block flex1 padH={8} padT={10} padB={30}>
         {selectedTab === 'Chưa đánh giá' ? (
           pending.length === 0 ? (
-            <TextSmall style={{textAlign: 'center'}}>
-              Không có sản phẩm
-            </TextSmall>
+            <Block flex1 alignCT justifyCT>
+              <TextSmall style={{textAlign: 'center'}}>
+                Bạn không có sản phẩm nào cần đánh giá
+              </TextSmall>
+            </Block>
           ) : (
             <FlatList
               data={pending}
@@ -101,12 +103,20 @@ const ManageReviewScreen = () => {
                   onPress={() => handleReview(item)}
                 />
               )}
-              contentContainerStyle={{paddingBottom: 50, gap: 10}}
+              contentContainerStyle={{flexGrow: 1, paddingBottom: 50, gap: 10}}
               showsVerticalScrollIndicator={false}
+              refreshing={loading}
+              onRefresh={() => {
+                dispatch(fetchPendingReviewItems());
+              }}
             />
           )
         ) : myReviews.length === 0 ? (
-          <TextSmall style={{textAlign: 'center'}}>Không có sản phẩm</TextSmall>
+          <Block flex1 alignCT justifyCT>
+            <TextSmall style={{textAlign: 'center'}}>
+              Bạn chưa đánh giá sản phẩm nào
+            </TextSmall>
+          </Block>
         ) : (
           <FlatList
             data={myReviews}
@@ -131,8 +141,12 @@ const ManageReviewScreen = () => {
                 />
               );
             }}
-            contentContainerStyle={{paddingBottom: 50, gap: 10}}
+            contentContainerStyle={{flexGrow: 1, paddingBottom: 50, gap: 10}}
             showsVerticalScrollIndicator={false}
+            refreshing={loading}
+            onRefresh={() => {
+              dispatch(fetchMyReviews());
+            }}
           />
         )}
       </Block>
