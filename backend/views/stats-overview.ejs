@@ -7,79 +7,47 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f8f9fa;
-      margin: 0;
-      padding: 0;
-      display: flex;
-    }
-    .sidebar {
-      width: 240px;
-      min-height: 100vh;
-      background: #fff;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-      padding: 20px 0;
-      transition: all 0.3s ease;
-    }
-    .sidebar.collapsed { width: 60px; }
-    .sidebar a {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 20px;
-      color: #333;
-      text-decoration: none;
-      font-weight: 500;
-      transition: 0.3s;
-      white-space: nowrap;
-    }
-    .sidebar a:hover { background: #111; color: #fff; }
-    .sidebar.collapsed a span { display: none; }
-    .sidebar a i { font-size: 20px; }
-    .content { flex: 1; padding: 30px; }
-    header {
-      background-color: #111;
-      color: #fff;
-      padding: 15px 20px;
-      font-size: 24px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      margin-bottom: 30px;
-    }
-    .value { font-size:28px; font-weight:700; }
-    .small-label { font-size:14px; color:#666; }
-    .chart-card { padding:20px; border-radius:12px; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.05); }
-    table th, table td { vertical-align:middle !important; }
-    .box-card { padding:20px; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,.05); background:#fff; }
-    /* KHỐI CỐ ĐỊNH CHIỀU CAO BIỂU ĐỒ (không bị chảy layout) */
-    .chart-wrap { position:relative; height:260px; }
-    .chart-wrap--yearly { position:relative; height:320px; }
-    .chart-wrap > canvas,
-    .chart-wrap--yearly > canvas {
-      display:block !important;
-      width:100% !important;
-      height:100% !important;
-    }
+    body { font-family:'Segoe UI',sans-serif; background:#f8f9fa; margin:0; padding:0; display:flex; }
+    .sidebar { width:240px; min-height:100vh; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.05); padding:20px 0; transition:.3s; }
+    .sidebar.collapsed{ width:60px; }
+    .sidebar a{ display:flex; align-items:center; gap:10px; padding:10px 20px; color:#333; text-decoration:none; font-weight:500; white-space:nowrap; transition:.2s; }
+    .sidebar a:hover{ background:#111; color:#fff; }
+    .sidebar.collapsed a span{ display:none; }
+    .sidebar a i{ font-size:20px; }
+    .content{ flex:1; padding:30px; }
+    header{ background:#111; color:#fff; padding:15px 20px; font-size:24px; font-weight:600; display:flex; align-items:center; gap:15px; margin-bottom:22px; }
+    .value{ font-size:28px; font-weight:700; }
+    .small-label{ font-size:14px; color:#666; }
+    .box-card, .chart-card{ padding:20px; border-radius:12px; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.05); }
+    table th, table td{ vertical-align:middle!important; }
+    .chart-wrap{ position:relative; height:260px; }
+    .chart-wrap--yearly{ position:relative; height:320px; }
+    .chart-wrap>canvas, .chart-wrap--yearly>canvas{ width:100%!important; height:100%!important; display:block!important; }
+    /* Thanh filter */
+    .filter-bar{ gap:8px; }
+    .filter-card{ padding:14px; border-radius:12px; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.05); }
+    .btn-apply{ min-width:110px; }
+    .muted{ color:#6c757d; }
   </style>
 </head>
+
 <script>
+  // server có thể truyền mặc định (ISO) – không bắt buộc
   const defaultFrom = "<%= defaultFrom %>";
   const defaultTo   = "<%= defaultTo %>";
 </script>
+
 <body>
   <!-- Sidebar -->
   <nav class="sidebar" id="sidebar">
     <a href="/"><i class="bi bi-house"></i><span>Trang chủ</span></a>
-    <a href="/products/view"><i class="bi bi-box"></i><span> Sản phẩm</span></a>
-    <a href="/products/product-types/view"><i class="bi bi-tags"></i><span> Thể loại</span></a>
-    <a href="/voucher/view"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
-    <a href="/accounts/view"><i class="bi bi-people"></i><span> Tài khoản</span></a>
-    <a href="/accounts/admin/orders"><i class="bi bi-receipt-cutoff"></i><span> Đơn hàng</span></a>
-    <a href="/dashboard/stats-overview"><i class="bi bi-bar-chart-line"></i><span> Thống kê</span></a>
-    <a href="/setting/view"><i class="bi bi-gear"></i> <span>Cài đặt</span></a>
+    <a href="/products/view"><i class="bi bi-box"></i><span>Sản phẩm</span></a>
+    <a href="/products/product-types/view"><i class="bi bi-tags"></i><span>Thể loại</span></a>
+    <a href="/voucher/view"><i class="bi bi-ticket"></i><span>Phiếu giảm giá</span></a>
+    <a href="/accounts/view"><i class="bi bi-people"></i><span>Tài khoản</span></a>
+    <a href="/accounts/admin/orders"><i class="bi bi-receipt-cutoff"></i><span>Đơn hàng</span></a>
+    <a href="/dashboard/stats-overview" class="fw-semibold"><i class="bi bi-bar-chart-line"></i><span>Thống kê</span></a>
+    <a href="/setting/view"><i class="bi bi-gear"></i><span>Cài đặt</span></a>
   </nav>
 
   <!-- Content -->
@@ -88,38 +56,58 @@
       <button id="toggleBtn" class="btn btn-dark"><i class="bi bi-list"></i></button>
       MenStyle - Thống kê
     </header>
-    <!-- Bộ lọc -->
-    <div class="d-flex justify-content-end align-items-center mb-3">
-      <div>
-        <select id="time-range" class="form-select border-primary" style="width:200px;">
-          <option value="today">Hôm nay</option>
-          <option value="yesterday">Hôm qua</option>
-          <option value="7">1 tuần qua</option>
-          <option value="14">2 tuần qua</option>
-          <option value="30">1 tháng qua</option>
-          <option value="60">2 tháng qua</option>
-          <option value="180">6 tháng qua</option>
-          <option value="365">1 năm qua</option>
-        </select>
-        <div class="small mt-1 text-muted" id="dateRangeLabel">Loading...</div>
+
+    <!-- FILTER: preset + khoảng ngày -->
+    <div class="filter-card mb-3">
+      <div class="row g-2 align-items-end filter-bar">
+        <div class="col-12 col-md-3">
+          <label class="form-label mb-1">Chọn nhanh</label>
+          <select id="time-range" class="form-select">
+            <option value="today">Hôm nay</option>
+            <option value="yesterday">Hôm qua</option>
+            <option value="7">1 tuần qua</option>
+            <option value="14">2 tuần qua</option>
+            <option value="30">1 tháng qua</option>
+            <option value="60">2 tháng qua</option>
+            <option value="180">6 tháng qua</option>
+            <option value="365">1 năm qua</option>
+          </select>
+        </div>
+
+        <div class="col-6 col-md-3">
+          <label class="form-label mb-1">Từ ngày</label>
+          <input type="date" id="fromDate" class="form-control">
+        </div>
+
+        <div class="col-6 col-md-3">
+          <label class="form-label mb-1">Đến ngày</label>
+          <input type="date" id="toDate" class="form-control">
+        </div>
+
+        <div class="col-12 col-md-3 d-grid d-md-block">
+          <button id="applyBtn" class="btn btn-primary btn-apply"><i class="bi bi-funnel me-1"></i>Áp dụng</button>
+          <button id="resetBtn" class="btn btn-outline-secondary ms-md-2 mt-2 mt-md-0"><i class="bi bi-arrow-repeat me-1"></i>Reset</button>
+        </div>
       </div>
+      <div class="mt-2 muted" id="dateRangeLabel">Chọn khoảng thời gian để xem thống kê</div>
     </div>
 
+    <!-- 3 KPI -->
     <div class="row g-4 mb-4">
       <div class="col-md-4">
-        <div class="box-card text-dark">
+        <div class="box-card">
           <div class="small-label">Doanh Thu</div>
           <div class="value text-success" id="revenue">₫0</div>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="box-card text-dark">
+        <div class="box-card">
           <div class="small-label">Đơn Hàng</div>
           <div class="value" id="order-count">0</div>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="box-card text-dark">
+        <div class="box-card">
           <div class="small-label">Khách Hàng Mới</div>
           <div class="value" id="new-users-count">0</div>
         </div>
@@ -132,12 +120,8 @@
         <div class="chart-card">
           <h5 class="mb-3">🔥 Sản Phẩm Bán Chạy</h5>
           <table class="table table-bordered" id="best-sellers">
-            <thead>
-              <tr><th>#</th><th>Sản Phẩm</th><th>Doanh Thu</th></tr>
-            </thead>
-            <tbody>
-              <tr><td colspan="3" class="text-center">Loading...</td></tr>
-            </tbody>
+            <thead><tr><th>#</th><th>Sản Phẩm</th><th>Doanh Thu</th></tr></thead>
+            <tbody><tr><td colspan="3" class="text-center">Loading...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -159,7 +143,7 @@
       </div>
     </div>
 
-    <!-- Biểu đồ năm -->
+    <!-- Biểu đồ theo năm -->
     <div class="row g-4 mt-4" id="yearly-wrap" style="display:none;">
       <div class="col-12">
         <div class="chart-card">
@@ -169,51 +153,58 @@
       </div>
     </div>
   </div>
-  </div>
+  <!-- /content -->
 
   <script>
-    const toggleBtn = document.getElementById('toggleBtn');
-    const sidebar = document.getElementById('sidebar');
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
+    // Sidebar toggle
+    document.getElementById('toggleBtn').addEventListener('click', ()=> {
+      document.getElementById('sidebar').classList.toggle('collapsed');
     });
+
+    // Charts instance
     let revenueChart, userChart, yearlyRevenueChart;
 
-    const VN_FORMAT = { style:'currency', currency:'VND' };
-    const fmtVND = v => new Intl.NumberFormat('vi-VN', VN_FORMAT).format(v || 0);
-    const fmtNum  = v => new Intl.NumberFormat('vi-VN').format(v || 0);
+    // Formatters
+    const VN_CCY = { style:'currency', currency:'VND' };
+    const fmtVND = v => new Intl.NumberFormat('vi-VN', VN_CCY).format(v || 0);
+    const fmtNum = v => new Intl.NumberFormat('vi-VN').format(v || 0);
+    const isoDateOnly = d => d.toISOString().split('T')[0];
 
-    function formatDate(d){ return d.toISOString().split('T')[0]; }
-
-    function updateDateRangeLabel(value){
+    // ----- Filter helpers -----
+    function setDateInputsByPreset(preset) {
       const today = new Date();
-      let start = new Date(), end = new Date();
-
-      if(value==='today'){
-        start.setHours(0,0,0,0); end.setHours(23,59,59,999);
-      }else if(value==='yesterday'){
+      let start = new Date(today), end = new Date(today);
+      if (preset === 'today') {
+        // giữ nguyên today
+      } else if (preset === 'yesterday') {
         start.setDate(today.getDate()-1);
         end.setDate(today.getDate()-1);
-        start.setHours(0,0,0,0); end.setHours(23,59,59,999);
-      }else{
-        const days = parseInt(value,10);
+      } else {
+        const days = parseInt(preset,10) || 0;
         start.setDate(today.getDate()-days);
-        start.setHours(0,0,0,0); end.setHours(23,59,59,999);
       }
-      document.getElementById('dateRangeLabel').innerText =
-        `Từ ${formatDate(start)} đến ${formatDate(end)}`;
+      document.getElementById('fromDate').value = isoDateOnly(start);
+      document.getElementById('toDate').value = isoDateOnly(end);
+      updateRangeLabel(start, end);
     }
 
-    async function fetchStats(from, to){
-      const res = await fetch(`/dashboard/stats?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+    function updateRangeLabel(s, e){
+      const label = document.getElementById('dateRangeLabel');
+      const sText = isoDateOnly(new Date(s));
+      const eText = isoDateOnly(new Date(e));
+      label.textContent = `Từ ${sText} đến ${eText}`;
+    }
+
+    async function fetchStatsISO(fromIso, toIso){
+      const res = await fetch(`/dashboard/stats?from=${encodeURIComponent(fromIso)}&to=${encodeURIComponent(toIso)}`);
       const data = await res.json();
       updateStatsUI(data);
     }
 
     function updateStatsUI(data){
-      document.getElementById('revenue').innerText = fmtVND(data.revenue);
-      document.getElementById('order-count').innerText = data.orderCount ?? 0;
-      document.getElementById('new-users-count').innerText = data.newCustomers ?? 0;
+      document.getElementById('revenue').textContent = fmtVND(data.revenue);
+      document.getElementById('order-count').textContent = data.orderCount ?? 0;
+      document.getElementById('new-users-count').textContent = data.newCustomers ?? 0;
 
       renderBestSellers(data.bestSellers || []);
       renderRevenueChart(data.dailyRevenue || []);
@@ -221,6 +212,7 @@
       renderYearlyRevenueChart(data.yearlyRevenue || []);
     }
 
+    // ----- Table -----
     function renderBestSellers(products){
       const tbody = document.querySelector('#best-sellers tbody');
       if(!products.length){
@@ -232,61 +224,48 @@
           <td>${i+1}</td>
           <td>${p.name || 'Không tên'}</td>
           <td>${fmtVND(p.totalRevenue)}</td>
-        </tr>`).join('');
+        </tr>
+      `).join('');
     }
 
-    // tạo gradient mượt cho line/area
-    function makeGradient(ctx, color='#4CAF50'){
-      const {height} = ctx.canvas;
-      const g = ctx.createLinearGradient(0,0,0,height);
-      g.addColorStop(0, color + '99');   // 60% opacity
-      g.addColorStop(1, color + '10');   // 6% opacity
+    // ----- Charts -----
+    function makeGradient(ctx, base='#4CAF50'){
+      const g = ctx.createLinearGradient(0,0,0,ctx.canvas.height);
+      g.addColorStop(0, base+'99');
+      g.addColorStop(1, base+'10');
       return g;
     }
 
     function renderRevenueChart(d){
       const ctx = document.getElementById('revenueChart').getContext('2d');
       if(revenueChart) revenueChart.destroy();
-
-      const labels = d.map(i=>i.date);
-      const values = d.map(i=>i.total);
-      const lineColor = '#4CAF50';
-
       revenueChart = new Chart(ctx,{
         type:'line',
         data:{
-          labels,
+          labels: d.map(i=>i.date),
           datasets:[{
             label:'Doanh thu',
-            data: values,
-            borderColor: lineColor,
-            backgroundColor: makeGradient(ctx, '#4CAF50'),
-            fill: true,                            // phủ gradient dưới đường
-            tension: 0.35,                         // sóng mượt
-            cubicInterpolationMode: 'monotone',    // mượt hơn
-            pointRadius: 3,
-            pointHoverRadius: 6,
-            pointBorderColor: lineColor,
-            pointBackgroundColor:'#fff',
+            data: d.map(i=>i.total),
+            borderColor:'#4CAF50',
+            backgroundColor: makeGradient(ctx,'#4CAF50'),
             borderWidth:2,
+            tension:.35,
+            fill:true,
+            pointRadius:3,
+            pointHoverRadius:6,
+            pointBackgroundColor:'#fff',
           }]
         },
         options:{
-          responsive:true,
-          maintainAspectRatio:true,
+          responsive:true, maintainAspectRatio:true,
           interaction:{ mode:'index', intersect:false },
           scales:{
-            x:{ grid:{ display:false } },
-            y:{
-              ticks:{ callback:v=>fmtNum(v) },
-              grid:{ color:'rgba(0,0,0,.06)' }
-            }
+            x:{ grid:{ display:false }},
+            y:{ grid:{ color:'rgba(0,0,0,.06)' }, ticks:{ callback:v=>fmtNum(v) } }
           },
           plugins:{
-            legend:{ labels:{ boxWidth:12 } },
-            tooltip:{
-              callbacks:{ label:ctx=>` ${fmtVND(ctx.parsed.y)}` }
-            }
+            legend:{ labels:{ boxWidth:12 }},
+            tooltip:{ callbacks:{ label:ctx=>` ${fmtVND(ctx.parsed.y)}` } }
           }
         }
       });
@@ -295,31 +274,26 @@
     function renderUserChart(d){
       const ctx = document.getElementById('userChart').getContext('2d');
       if(userChart) userChart.destroy();
-
-      const labels = d.map(i=>i.date);
-      const values = d.map(i=>i.count);
-
       userChart = new Chart(ctx,{
         type:'bar',
         data:{
-          labels,
+          labels: d.map(i=>i.date),
           datasets:[{
             label:'Người dùng mới',
-            data: values,
+            data: d.map(i=>i.count),
             backgroundColor:'#2196F3',
             borderRadius:6,
             borderSkipped:false
           }]
         },
         options:{
-          responsive:true,
-          maintainAspectRatio:true,
+          responsive:true, maintainAspectRatio:true,
           scales:{
-            x:{ grid:{ display:false } },
+            x:{ grid:{ display:false }},
             y:{ grid:{ color:'rgba(0,0,0,.06)' }, ticks:{ precision:0 } }
           },
           plugins:{
-            legend:{ labels:{ boxWidth:12 } },
+            legend:{ labels:{ boxWidth:12 }},
             tooltip:{ callbacks:{ label:ctx=>` ${fmtNum(ctx.parsed.y)} người` } }
           }
         }
@@ -330,38 +304,28 @@
       const wrap = document.getElementById('yearly-wrap');
       if(!d || !d.length){ wrap.style.display='none'; return; }
       wrap.style.display='';
-
       const ctx = document.getElementById('yearlyRevenueChart').getContext('2d');
       if(yearlyRevenueChart) yearlyRevenueChart.destroy();
 
-      // sort giảm dần theo năm
-      const dataSorted = [...d].sort((a,b)=> (b.year||0)-(a.year||0));
-      const labels = dataSorted.map(i=>i.year);
-      const values = dataSorted.map(i=>i.total);
-
+      const sorted = [...d].sort((a,b)=> (b.year||0)-(a.year||0));
       yearlyRevenueChart = new Chart(ctx,{
         type:'bar',
         data:{
-          labels,
+          labels: sorted.map(i=>i.year),
           datasets:[{
             label:'Doanh thu',
-            data: values,
+            data: sorted.map(i=>i.total),
             backgroundColor:'#57c5b6',
             borderColor:'#57c5b6',
-            borderWidth:1,
-            borderRadius: 6,
+            borderRadius:6,
             borderSkipped:false
           }]
         },
         options:{
-          indexAxis:'y',             // thanh ngang
-          responsive:true,
-          maintainAspectRatio:true,
+          indexAxis:'y',
+          responsive:true, maintainAspectRatio:true,
           scales:{
-            x:{
-              ticks:{ callback:v=>fmtNum(v) },
-              grid:{ color:'rgba(0,0,0,.06)' }
-            },
+            x:{ grid:{ color:'rgba(0,0,0,.06)' }, ticks:{ callback:v=>fmtNum(v) } },
             y:{ grid:{ display:false } }
           },
           plugins:{
@@ -372,33 +336,51 @@
       });
     }
 
-    // Lắng nghe đổi khoảng thời gian
+    // ----- Events -----
     document.getElementById('time-range').addEventListener('change', function(){
-      const today = new Date();
-      let start = new Date(), end = new Date();
-
-      if(this.value==='today'){
-        start.setHours(0,0,0,0); end.setHours(23,59,59,999);
-      }else if(this.value==='yesterday'){
-        start.setDate(today.getDate()-1);
-        end.setDate(today.getDate()-1);
-        start.setHours(0,0,0,0); end.setHours(23,59,59,999);
-      }else{
-        const days = parseInt(this.value,10);
-        start.setDate(today.getDate()-days);
-        start.setHours(0,0,0,0); end.setHours(23,59,59,999);
-      }
-
-      updateDateRangeLabel(this.value);
-      fetchStats(start.toISOString(), end.toISOString());
+      setDateInputsByPreset(this.value);
+      // tự fetch theo preset
+      const from = new Date(document.getElementById('fromDate').value+'T00:00:00');
+      const to   = new Date(document.getElementById('toDate').value+'T23:59:59');
+      fetchStatsISO(from.toISOString(), to.toISOString());
     });
 
-    // Khởi tạo
+    document.getElementById('applyBtn').addEventListener('click', ()=>{
+      const fromInput = document.getElementById('fromDate').value;
+      const toInput   = document.getElementById('toDate').value;
+      if(!fromInput || !toInput) return;
+      const s = new Date(fromInput+'T00:00:00');
+      const e = new Date(toInput+'T23:59:59');
+      updateRangeLabel(s,e);
+      fetchStatsISO(s.toISOString(), e.toISOString());
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      document.getElementById('time-range').value = 'today';
+      setDateInputsByPreset('today');
+      const s = new Date(); const e = new Date();
+      fetchStatsISO(new Date(isoDateOnly(s)+'T00:00:00').toISOString(),
+                    new Date(isoDateOnly(e)+'T23:59:59').toISOString());
+    });
+
+    // Init lần đầu
     document.addEventListener('DOMContentLoaded', ()=>{
-      if(defaultFrom && defaultTo){
+      if (defaultFrom && defaultTo) {
+        // server có from/to mặc định
+        const s = new Date(defaultFrom);
+        const e = new Date(defaultTo);
+        document.getElementById('fromDate').value = isoDateOnly(s);
+        document.getElementById('toDate').value   = isoDateOnly(e);
         document.getElementById('time-range').value = 'today';
-        updateDateRangeLabel('today');
-        fetchStats(defaultFrom, defaultTo);
+        updateRangeLabel(s,e);
+        fetchStatsISO(defaultFrom, defaultTo);
+      } else {
+        // mặc định hôm nay
+        document.getElementById('time-range').value = 'today';
+        setDateInputsByPreset('today');
+        const today = isoDateOnly(new Date());
+        fetchStatsISO(new Date(today+'T00:00:00').toISOString(),
+                      new Date(today+'T23:59:59').toISOString());
       }
     });
   </script>
