@@ -4,6 +4,7 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   Alert,
+  Image,
 } from 'react-native';
 import React, {useEffect, useMemo, useState} from 'react';
 import ContainerView from '../../components/layout/ContainerView';
@@ -251,38 +252,55 @@ const CartScreen = () => {
             )}
           </Block>
         )}
-
-        <FlatList
-          data={listCart}
-          keyExtractor={(item, index) => item.productId?._id + '-' + index}
-          renderItem={({item, index}) => {
-            const imageUrl = cleanImageUrl(
-              item.productId?.variants?.[item.variantIndex]?.image ||
-                item.productId?.image,
-            );
-            const isSelected = selectedItems.has(index);
-            return (
-              <CartItem
-                icon={isSelected ? IconSRC.icon_check : IconSRC.icon_uncheck}
-                name={item.productId?.name}
-                image={{uri: imageUrl}}
-                price={item.productId?.price}
-                color={item.productId?.variants?.[item.variantIndex]?.color}
-                size={item.productId?.variants?.[item.variantIndex]?.size}
-                containerStyle={{paddingHorizontal: metrics.space}}
-                value={item.quantity + ''}
-                onChangeText={text => handleChangeQuantity(index, text)}
-                onPress={() => {}}
-                onPressDelete={() => handleDelete(index)}
-                onPressCheck={() => handleToggleItem(index)}
-              />
-            );
-          }}
-          contentContainerStyle={{
-            paddingBottom: 100,
-            backgroundColor: theme.background,
-          }}
-        />
+        {listCart.length === 0 ? (
+          <Block flex1 alignCT justifyCT>
+            <Image source={IconSRC.icon_trolley} style={styles.icon_nolist} />
+            <TextMedium
+              style={{width: 200, textAlign: 'center', color: theme.text}}>
+              Bạn chưa có sản phẩm nào trong giỏ hàng
+            </TextMedium>
+            <ButtonBase
+              containerStyle={styles.btn_mua}
+              size={14}
+              title={'Mua sắm ngay'}
+              onPress={() => {
+                navigation.jumpTo(ScreenName.Main.Home);
+              }}
+            />
+          </Block>
+        ) : (
+          <FlatList
+            data={listCart}
+            keyExtractor={(item, index) => item.productId?._id + '-' + index}
+            renderItem={({item, index}) => {
+              const imageUrl = cleanImageUrl(
+                item.productId?.variants?.[item.variantIndex]?.image ||
+                  item.productId?.image,
+              );
+              const isSelected = selectedItems.has(index);
+              return (
+                <CartItem
+                  icon={isSelected ? IconSRC.icon_check : IconSRC.icon_uncheck}
+                  name={item.productId?.name}
+                  image={{uri: imageUrl}}
+                  price={item.productId?.price}
+                  color={item.productId?.variants?.[item.variantIndex]?.color}
+                  size={item.productId?.variants?.[item.variantIndex]?.size}
+                  containerStyle={{paddingHorizontal: metrics.space}}
+                  value={item.quantity + ''}
+                  onChangeText={text => handleChangeQuantity(index, text)}
+                  onPress={() => {}}
+                  onPressDelete={() => handleDelete(index)}
+                  onPressCheck={() => handleToggleItem(index)}
+                />
+              );
+            }}
+            contentContainerStyle={{
+              paddingBottom: 100,
+              backgroundColor: theme.background,
+            }}
+          />
+        )}
 
         <Block
           w100
@@ -334,4 +352,18 @@ const CartScreen = () => {
 
 export default CartScreen;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  icon_nolist: {
+    tintColor: colors.gray3,
+    marginBottom: 10,
+    width: 64,
+    height: 64,
+  },
+  btn_mua: {
+    marginTop: 30,
+    width: 160,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

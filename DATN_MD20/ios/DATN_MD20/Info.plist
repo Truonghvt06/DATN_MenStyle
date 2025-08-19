@@ -57,6 +57,15 @@
 		<string>Zocial.ttf</string>
 		<string>Fontisto.ttf</string>
 	</array>
+	<!-- Để Linking.canOpenURL kiểm tra được Gmail -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>googlegmail</string>
+		<string>fb</string>
+		<string>fb-messenger</string>
+		<string>zalo</string>
+	</array>
+	
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

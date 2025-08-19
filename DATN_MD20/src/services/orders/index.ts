@@ -58,7 +58,9 @@ const orderService = {
 
   getOrderDetail: async (orderId: string) => {
     try {
-      const response = await axiosInstance.get(`/order/my-orders/${orderId}`);
+      const response = await axiosInstance.get(
+        `/order/order-detail/${orderId}`,
+      );
       return response.data.order;
     } catch (error: any) {
       console.error(

@@ -40,7 +40,11 @@ const SuccessCheckout = () => {
         <ButtonBase
           title={'Đơn hàng'}
           size={14}
-          onPress={() => navigation.replace(ScreenName.Main.Orders)}
+          onPress={() =>
+            navigation.replace(ScreenName.Main.Orders, {
+              screen: 'order_payment',
+            })
+          }
           containerStyle={{flex: 1, height: 40}}
         />
       </Block>

@@ -9,10 +9,15 @@ router.post("/add-order", orderController.createOrder);
 router.get("/my-orders", authMiddleware, orderController.getOrders);
 
 // Lấy chi tiết 1 đơn hàng
+// router.get(
+//   "/my-orders/:orderId",
+//   authMiddleware,
+//   orderController.getOrderDetail
+// );
 router.get(
-  "/my-orders/:orderId",
+  "/order-detail/:orderId",
   authMiddleware,
-  orderController.getOrderDetail
+  orderController.getOrderDetailApp
 );
 router.put("/cancelOrder/:id", orderController.cancelOrder);
 router.post("/buyAgain", authMiddleware, orderController.buyAgain);
