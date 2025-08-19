@@ -129,7 +129,14 @@
       <!-- Thêm tab chuyển đổi -->
       <div class="d-flex justify-content-between align-items-center mb-3">
         <a href="/voucher/add" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Thêm voucher mới</a>
-        <button id="toggleTableBtn" class="btn btn-outline-secondary">Lịch sử sử dụng voucher</button>
+        <div class="d-flex align-items-center">
+          <select id="voucherTypeFilter" class="form-select form-select-sm me-2" style="width:140px;">
+            <option value="">Tất cả loại</option>
+            <option value="order">Đơn hàng</option>
+            <option value="shipping">Vận chuyển</option>
+          </select>
+          <button id="toggleTableBtn" class="btn btn-outline-secondary">Lịch sử sử dụng voucher</button>
+        </div>
       </div>
 
       <!-- Bảng voucher hiện tại -->
@@ -224,47 +231,100 @@
 
       <!-- Bảng lịch sử voucher (ẩn mặc định) -->
       <div id="voucherHistory" style="display:none;">
-        <form class="row g-3 mb-3">
+        <form class="row g-3 mb-3" method="GET" action="/voucher/view">
           <div class="col-md-3">
             <label class="form-label">Chọn tháng</label>
-            <input type="month" name="month" class="form-control" value="2025-08" />
+            <input type="month" name="month" class="form-control" value="<%= (historyFilters && historyFilters.month) ? historyFilters.month : '' %>" />
           </div>
           <div class="col-md-3">
             <label class="form-label">Nhập mã voucher</label>
-            <input type="text" name="voucher_code" class="form-control" placeholder="Nhập mã voucher cần tìm" />
+            <input type="text" name="voucher_code" class="form-control" value="<%= (historyFilters && historyFilters.voucher_code) ? historyFilters.voucher_code : '' %>" placeholder="Nhập mã voucher cần tìm" />
           </div>
           <div class="col-md-3 align-self-end">
             <button type="submit" class="btn btn-primary">Lọc</button>
           </div>
         </form>
-        <table class="table table-bordered">
+        <table class="table table-bordered align-middle">
           <thead>
             <tr>
               <th>Mã voucher</th>
-              <th>Sản phẩm đã áp dụng</th>
               <th>Số lần sử dụng</th>
               <th>Tổng tiền đã giảm</th>
+              <th>Chi tiết</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>WELCOME10</td>
-              <td>Áo thun, Quần jeans</td>
-              <td>12</td>
-              <td>1.200.000 VNĐ</td>
-            </tr>
-            <tr>
-              <td>FREESHIP</td>
-              <td>Giày sneaker</td>
-              <td>5</td>
-              <td>150.000 VNĐ</td>
-            </tr>
-            <tr>
-              <td>SAVE20</td>
-              <td>Áo sơ mi</td>
-              <td>3</td>
-              <td>300.000 VNĐ</td>
-            </tr>
+            <% if (!voucherHistoryStats || voucherHistoryStats.length===0) { %>
+              <tr>
+                <td colspan="4" class="text-center">Chưa có lịch sử sử dụng</td>
+              </tr>
+            <% } else { %>
+              <% voucherHistoryStats.forEach((vh, idx) => { %>
+                <tr>
+                  <td><strong><%= vh.voucher_code %></strong></td>
+                  <td class="text-center"><%= vh.use_count %></td>
+                  <td><%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(vh.total_discount || 0) %></td>
+                  <td class="text-center">
+                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#vh-<%= idx %>">
+                      Xem
+                    </button>
+                  </td>
+                </tr>
+                <tr class="collapse" id="vh-<%= idx %>">
+                  <td colspan="4">
+                    <div class="p-3 border rounded bg-white shadow-sm">
+                      <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle mb-0">
+                          <thead class="table-dark">
+                            <tr>
+                              <th class="text-center">Mã đơn</th>
+                              <th class="text-center">Ngày tạo</th>
+                              <th class="text-center">Khách hàng</th>
+                              <th class="text-center">Sản phẩm</th>
+                              <th class="text-center">Tạm tính</th>
+                              <th class="text-center">Loại voucher</th>
+                              <th class="text-center">Số tiền giảm</th>
+                              <th class="text-center">Thành tiền</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <% (vh.orders || []).forEach((o) => { %>
+                              <tr>
+                                <td class="text-center fw-bold"><%= o.code %></td>
+                                <td class="text-center"><%= new Date(o.createdAt).toLocaleString('vi-VN') %></td>
+                                <td class="text-center">
+                                  <% if (o.user) { %>
+                                    <%= o.user.name || o.user.email || '' %>
+                                  <% } %>
+                                </td>
+                                <td>
+                                  <%= (o.productNames || []).slice(0,5).join(', ') %>
+                                  <% if ((o.productNames || []).length > 5) { %>
+                                    ...
+                                  <% } %>
+                                </td>
+                                <td class="text-end"><%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(o.subtotal || 0) %></td>
+                                <td class="text-center">
+                                  <span class="badge <%= o.voucher_type === 'shipping' ? 'bg-success' : 'bg-primary' %>">
+                                    <%= o.voucher_type === 'shipping' ? 'Vận chuyển' : 'Đơn hàng' %>
+                                  </span>
+                                </td>
+                                <td class="text-end text-danger fw-bold">
+                                  - <%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(o.discount || 0) %>
+                                </td>
+                                <td class="text-end fw-bold">
+                                  <%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(o.total_amount || 0) %>
+                                </td>
+                              </tr>
+                            <% }) %>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
           </tbody>
         </table>
       </div>
@@ -293,7 +353,36 @@
         toggleTableBtn.textContent = 'Lịch sử sử dụng voucher';
       }
     };
+
+    // Tự động mở tab Lịch sử nếu có tham số lọc trong URL
+    (function autoOpenHistory(){
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('month') || params.has('voucher_code')) {
+        voucherTable.style.display = 'none';
+        voucherHistory.style.display = 'block';
+        toggleTableBtn.textContent = 'Quay lại danh sách voucher';
+      }
+    })();
+
+    // Lọc bảng voucher theo loại (client-side)
+    document.getElementById('voucherTypeFilter').addEventListener('change', function() {
+      const type = this.value;
+      document.querySelectorAll('#voucherTable tbody tr').forEach(tr => {
+        // Nếu là dòng "Chưa có voucher nào" thì luôn hiển thị
+        if (tr.children.length === 1) {
+          tr.style.display = '';
+          return;
+        }
+        const scopeTd = tr.children[2];
+        if (!type || (type === 'order' && scopeTd.textContent.trim() === 'Đơn hàng') || (type === 'shipping' && scopeTd.textContent.trim() === 'Vận chuyển')) {
+          tr.style.display = '';
+        } else {
+          tr.style.display = 'none';
+        }
+      });
+    });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
