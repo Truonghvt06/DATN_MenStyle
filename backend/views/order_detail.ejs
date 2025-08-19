@@ -149,9 +149,12 @@
                     <%= order.createdAt.toLocaleString("vi-VN") %>
                 </p>
                 <p><strong>Địa chỉ giao hàng:</strong>
-                    <%= order.shipping_address_id?.full_name %> -
-                        <%= order.shipping_address_id?.phone %> -
-                            <%= order.shipping_address_id?.address %>
+                    <%= order.shipping_address_id.address_line %>,
+                    <%= order.shipping_address_id.ward %>,
+                      <%= order.shipping_address_id.district %>,
+                        <%= order.shipping_address_id.province %>
+                        - <%= order.shipping_address_id?.phone %> -
+                           
                 </p>
                 <p><strong>Phương thức thanh toán:</strong>
                     <%= order.payment_method_id?.name %>

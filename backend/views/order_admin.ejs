@@ -14,6 +14,16 @@
       padding: 0;
       display: flex;
     }
+    .filter-btn.active {
+    background-color: #0d6efd !important; /* xanh */
+    color: white !important;
+    border: none;
+  }
+
+  .filter-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.4);
+  }
 
     .sidebar {
       width: 240px;
@@ -194,32 +204,36 @@
       </div>
       <div class="mb-3 row g-2 text-center">
         <div class="col">
-          <button class="btn btn-dark w-100 py-2 fs-6" onclick="filterOrders('all')">Tất cả</button>
+          <button class="btn btn-dark w-100 py-2 fs-6 filter-btn" onclick="filterOrders('all', this)">Tất cả</button>
         </div>
         <div class="col">
-          <button class="btn btn-dark w-100 py-2 fs-6" onclick="filterOrders('pending')">Chờ xử lý</button>
+          <button class="btn btn-dark w-100 py-2 fs-6 filter-btn" onclick="filterOrders('pending', this)">Chờ xử lý</button>
         </div>
         <div class="col">
-          <button class="btn btn-dark w-100 py-2 fs-6" onclick="filterOrders('confirmed')">Đã xác nhận</button>
+          <button class="btn btn-dark w-100 py-2 fs-6 filter-btn" onclick="filterOrders('confirmed', this)">Đã xác nhận</button>
         </div>
         <div class="col">
-          <button class="btn btn-dark w-100 py-2 fs-6" onclick="filterOrders('shipping')">Đang giao</button>
+          <button class="btn btn-dark w-100 py-2 fs-6 filter-btn" onclick="filterOrders('shipping', this)">Đang giao</button>
         </div>
         <div class="col">
-          <button class="btn btn-dark w-100 py-2 fs-6" onclick="filterOrders('delivered')">Đã giao</button>
+          <button class="btn btn-dark w-100 py-2 fs-6 filter-btn" onclick="filterOrders('delivered', this)">Đã giao</button>
         </div>
         <div class="col">
-          <button class="btn btn-dark w-100 py-2 fs-6" onclick="filterOrders('cancelled')">Đã hủy</button>
+          <button class="btn btn-dark w-100 py-2 fs-6 filter-btn" onclick="filterOrders('cancelled', this)">Đã hủy</button>
         </div>
       </div>
-
-
-
+      
+      <!-- Thanh tìm kiếm theo mã đơn hàng -->
+      <div class="row mb-3">
+        <div class="col-12">
+          <input type="text" id="searchOrderInput" class="form-control" placeholder="Tìm theo mã đơn hàng..." onkeyup="searchOrders()">
+        </div>
+      </div>
       <div class="table-responsive">
         <table class="table table-bordered table-hover text-center align-middle">
           <thead>
             <tr>
-              <th>#</th>
+              <th>Mã đơn hàng</th>
               <th>Khách hàng</th>
               <th>Địa chỉ giao hàng</th>
               <th>Thanh toán</th>
@@ -233,7 +247,7 @@
             <% orders.forEach((order, index)=> { %>
               <tr>
                 <td>
-                  <%= index + 1 %>
+                  <%= order.code %>
                 </td>
                 <td class="text-start">
                   <a href="/order/order_detail/<%= order._id %>" class="text-decoration-none text-dark fw-bold">
@@ -479,6 +493,19 @@
 
       renderPagination(totalPages);
     }
+    function searchOrders() {
+    const input = document.getElementById("searchOrderInput").value.toLowerCase();
+    const rows = document.querySelectorAll("tbody tr");
+
+    rows.forEach(row => {
+      const code = row.querySelector("td").textContent.toLowerCase();
+      if (code.includes(input)) {
+        row.style.display = "";
+      } else {
+        row.style.display = "none";
+      }
+    });
+  }
 
   </script>
 </body>
