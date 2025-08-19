@@ -1,4 +1,12 @@
-import {Alert, Image, ScrollView, StyleSheet, Text, View} from 'react-native';
+import {
+  Alert,
+  Image,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import React, {useState} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import ContainerView from '../../components/layout/ContainerView';
@@ -19,6 +27,12 @@ import {useAppTheme} from '../../themes/ThemeContext';
 import ModalCenter from '../../components/dataDisplay/Modal/ModalCenter';
 import {clearFavorites} from '../../redux/actions/favorite';
 import {clearFavorite} from '../../redux/reducers/favorite';
+import {
+  composeEmail,
+  openMessenger,
+  openPhone,
+  openZalo,
+} from '../../utils/linkSupport';
 
 const ProfileScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -106,7 +120,11 @@ const ProfileScreen = () => {
               sizeLeft={25}
               borderBottom={0}
               containerStyle={{paddingBottom: -12, paddingTop: 5}}
-              onPress={() => navigation.navigate(ScreenName.Main.Orders)}
+              onPress={() =>
+                navigation.navigate(ScreenName.Main.Orders, {
+                  screen: 'setting',
+                })
+              }
               textColor={theme.text}
             />
             <ButtonOption
@@ -221,15 +239,51 @@ const ProfileScreen = () => {
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
           textColor={theme.text}
+          onPress={() => {
+            openPhone('0986868686');
+          }}
         />
         <ButtonOption
           name={getTranslation('email')}
-          content="admin@gmail.con"
+          content="admin@gmail.com"
           iconLeft={IconSRC.icon_email}
           sizeLeft={25}
           borderBottom={0}
           containerStyle={{paddingBottom: -12, paddingTop: 5}}
           textColor={theme.text}
+          onPress={() => {
+            composeEmail({
+              to: 'admin@gmail.com',
+              subject: 'Hỗ trợ từ ứng dụng',
+              body: '',
+            });
+          }}
+        />
+        {/* <ButtonOption
+          name={'Messenger'}
+          content="abc"
+          iconLeft={IconSRC.ic_mess}
+          sizeLeft={25}
+          borderBottom={0}
+          containerStyle={{paddingBottom: -12, paddingTop: 5}}
+          textColor={theme.text}
+          onPress={() => {
+            // openMessenger({userId: '1234567890'});      // nếu bạn biết numeric user/page id
+            openMessenger({username: 'abc'});
+          }}
+        /> */}
+        <ButtonOption
+          name={'Zalo'}
+          content="abc"
+          iconLeft={IconSRC.ic_zalo}
+          sizeLeft={30}
+          borderBottom={0}
+          containerStyle={{paddingBottom: -12, paddingTop: 5}}
+          textColor={theme.text}
+          onPress={() => {
+            // openZalo({uid: '1234567890'});
+            openZalo({phone: '0332002619'});
+          }}
         />
         {token && (
           <ButtonBase

@@ -290,7 +290,8 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
         const orderId = last?._id;
         await applySelectedVouchers(orderId);
         // ✅ Hiển thị modal hoặc Toast
-        Alert.alert('Thanh toán thành công', 'Cảm ơn bạn đã mua hàng!');
+        // Alert.alert('Thanh toán thành công', 'Cảm ơn bạn đã mua hàng!');
+        navigation.navigate(ScreenName.Main.SuccessCheckout);
       }
     }
 

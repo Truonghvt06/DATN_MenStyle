@@ -30,7 +30,7 @@ exports.createProduct = async (req, res) => {
 //get Pro
 exports.getProduct = async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find({ is_activiti: true });
 
     res.json({
       data: products,
@@ -51,12 +51,17 @@ exports.getAllProducts = async (req, res) => {
     const page_ = parseInt(page);
     const limit_ = parseInt(limit);
 
-    const total = await Product.countDocuments();
+    // ✅ chỉ đếm sản phẩm đang hoạt động
+    const total = await Product.countDocuments({ is_activiti: true });
 
-    const products = await Product.find()
+    // ✅ chỉ lấy sản phẩm đang hoạt động
+    const products = await Product.find({ is_activiti: true })
       .skip((page_ - 1) * limit_)
       .limit(limit_)
-      .populate("type"); // nếu dùng mongoose schema reference
+      .populate("type");
+
+    // console.log("DATA:", products.length);
+    // console.log("TOTAL:", total);
 
     res.json({
       total,
@@ -73,7 +78,10 @@ exports.getAllProducts = async (req, res) => {
 exports.getProductsByCategory = async (req, res) => {
   try {
     const { type } = req.params;
-    const products = await Product.find({ type: type }).populate("type");
+    const products = await Product.find({
+      type: type,
+      is_activiti: true,
+    }).populate("type");
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: "Lỗi khi lấy sản phẩm theo thể loại." });
@@ -140,7 +148,7 @@ exports.getBestSellerProducts = async (req, res) => {
   try {
     const { limit = 10 } = req.query;
 
-    const products = await Product.find()
+    const products = await Product.find({ is_activiti: true })
       .sort({ sold_count: -1 })
       .limit(parseInt(limit));
     // .populate("type");
@@ -156,7 +164,7 @@ exports.getNewestProducts = async (req, res) => {
   try {
     const { limit = 10 } = req.query;
 
-    const products = await Product.find()
+    const products = await Product.find({ is_activiti: true })
       .sort({ createdAt: -1 })
       .limit(parseInt(limit))
       .populate("type");
@@ -175,6 +183,7 @@ exports.getProductDetail = async (req, res) => {
 
     // Lấy sản phẩm cùng thể loại (ngoại trừ sản phẩm hiện tại)
     const related = await Product.find({
+      is_activiti: true,
       type: product.type._id,
       _id: { $ne: product._id },
     }).limit(10); // lấy tối đa 10 sản phẩm cùng loại

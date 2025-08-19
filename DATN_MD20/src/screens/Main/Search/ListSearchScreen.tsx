@@ -247,6 +247,8 @@ const ListSearchScreen = () => {
     appliedCategoryID,
   ]);
 
+  // console.log('ABCV: ', filteredProducts.length);
+
   const handleSearchCategory = async (name: string) => {
     setKeyword(name);
     setCommittedQuery(name);

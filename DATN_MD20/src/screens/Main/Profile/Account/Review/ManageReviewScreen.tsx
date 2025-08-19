@@ -18,18 +18,20 @@ import {
   fetchPendingReviewItems,
 } from '../../../../../redux/actions/review';
 import moment from 'moment';
+import ModalCenter from '../../../../../components/dataDisplay/Modal/ModalCenter';
 
 const ManageReviewScreen = () => {
   const {top} = useSafeAreaInsets();
   const theme = useAppTheme();
   const {getTranslation} = useLanguage();
   const [selectedTab, setSelectedTab] = useState('Chưa đánh giá');
+  const [isOpenCheck, setIsOpenCheck] = useState(false);
 
   const dispatch = useAppDispatch();
   const {pending, myReviews, loading} = useAppSelector(state => state.review);
 
-  // console.log('ABC', pending);
-  console.log('ABCD', myReviews);
+  console.log('ABC', pending);
+  // console.log('ABCD', myReviews);
 
   const tabs = ['Chưa đánh giá', 'Đã đánh giá'];
 
@@ -137,7 +139,13 @@ const ManageReviewScreen = () => {
                   star={item.rating}
                   date={moment(item.createdAt).format('DD/MM/YYYY')}
                   comment={item.comment}
-                  onPress={() => handleProductDetail(item.product_id?._id)}
+                  onPress={() => {
+                    if (item.product_id?.is_activiti === true) {
+                      handleProductDetail(item.product_id?._id);
+                    } else {
+                      setIsOpenCheck(true);
+                    }
+                  }}
                 />
               );
             }}
@@ -150,6 +158,13 @@ const ManageReviewScreen = () => {
           />
         )}
       </Block>
+      <ModalCenter
+        visible={isOpenCheck}
+        isCancle
+        content={'Sản phẩm này đã bị xóa hoặc ngừng bán'}
+        onClose={() => setIsOpenCheck(false)}
+        onPress={() => {}}
+      />
     </ContainerView>
   );
 };

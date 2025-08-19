@@ -50,7 +50,7 @@ import {
 } from '../../../redux/actions/review';
 // import {addToCart, fetchCart} from '../../../redux/actions/cart';
 
-const RelatedProductDetail = () => {
+const ProductDetail = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
   const route = useRoute();
@@ -170,7 +170,13 @@ const RelatedProductDetail = () => {
       return;
     }
 
-    if (variant.quantity < qty) {
+    if (variant.quantity === 0) {
+      Alert.alert(
+        'Thông báo',
+        `Sản phẩm này đã hết hàng, không thể thêm vào giỏ!`,
+      );
+      return;
+    } else if (variant.quantity < qty) {
       Alert.alert(
         'Thông báo',
         `Tối đa chỉ còn ${variant.quantity} sản phẩm trong kho`,
@@ -520,7 +526,7 @@ const RelatedProductDetail = () => {
   );
 };
 
-export default RelatedProductDetail;
+export default ProductDetail;
 
 const styles = StyleSheet.create({
   container: {},

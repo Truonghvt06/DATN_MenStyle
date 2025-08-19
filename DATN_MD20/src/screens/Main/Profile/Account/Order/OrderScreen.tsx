@@ -22,18 +22,21 @@ import {useAppTheme} from '../../../../../themes/ThemeContext';
 import {useAppDispatch, useAppSelector} from '../../../../../redux/store';
 import {getOrders} from '../../../../../redux/actions/order';
 import moment from 'moment';
+import {useRoute} from '@react-navigation/native';
 
 const OrderScreen = () => {
   const {top} = useSafeAreaInsets();
   const {getTranslation} = useLanguage();
   const theme = useAppTheme();
+  const route = useRoute<any>();
+  const {screen} = route.params;
   const [selectedTab, setSelectedTab] = useState(getTranslation('tat_ca'));
 
   const [refreshing, setRefreshing] = useState(false);
 
   const dispatch = useAppDispatch();
   const {orders, loading} = useAppSelector(state => state.order);
-  // console.log('ASS:', orders);
+  console.log('LIST ORDER:', orders);
 
   const dataOrder = [
     {id: 'o1', name: getTranslation('tat_ca')},
@@ -115,7 +118,17 @@ const OrderScreen = () => {
 
   return (
     <ContainerView>
-      <Header label={getTranslation('don_hang')} paddingTop={top} />
+      <Header
+        label={getTranslation('don_hang')}
+        paddingTop={top}
+        onPressLeft={() => {
+          if (screen === 'order_payment') {
+            navigation.navigate(ScreenName.Main.BottonTab);
+          } else {
+            navigation.goBack();
+          }
+        }}
+      />
       <View>
         <ScrollView
           showsHorizontalScrollIndicator={false}
@@ -153,6 +166,8 @@ const OrderScreen = () => {
               order_status={item.order_status}
               data={formattedItems}
               onPress={() => {
+                // console.log('Order Item Pressed:', item._id);
+
                 navigation.navigate(ScreenName.Main.OrderDetail, {
                   screen: 'order',
                   orderId: item._id,

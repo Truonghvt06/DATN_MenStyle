@@ -71,8 +71,16 @@ exports.getPendingReviewItems = async (req, res) => {
         }).lean();
         if (existing) continue;
 
+        // Lấy thông tin sản phẩm hoạt động
+        const isActiveProduct =
+          item.product_id && item.product_id.is_activiti === true
+            ? item.product_id
+            : null;
+
+        if (!isActiveProduct) continue; // bỏ qua nếu sản phẩm đã bị khóa
+
         // Lấy thông tin variant
-        const variant = item.product_id?.variants?.find(
+        const variant = isActiveProduct?.variants?.find(
           (v) => v._id.toString() === item.product_variant_id.toString()
         );
 

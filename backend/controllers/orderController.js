@@ -1,6 +1,6 @@
 const Order = require("../models/Order");
 const Product = require("../models/Product");
-const Payment = require('../models/Payment');
+const Payment = require("../models/Payment");
 const User = require("../models/User");
 const mongoose = require("mongoose");
 const { sendOrderNotification } = require("../utils/pushNotification");
@@ -168,8 +168,28 @@ exports.getOrders = async (req, res) => {
     res.status(500).json({ message: "Lỗi server khi lấy danh sách đơn hàng" });
   }
 };
+// LẤY DƠN HÀNG THEO ID APP
+exports.getOrderDetailApp = async (req, res) => {
+  try {
+    const { orderId } = req.params;
 
-//LAY DƠN HÀNG THEO ID
+    const order = await Order.findById(orderId)
+      .populate("items.product_id")
+      .populate("shipping_address_id")
+      .populate("payment_method_id");
+
+    if (!order) {
+      return res.status(404).json({ message: "Đơn hàng không tồn tại" });
+    }
+
+    res.status(200).json({ order });
+  } catch (error) {
+    console.error("Lỗi khi lấy chi tiết đơn hàng:", error);
+    res.status(500).json({ message: "Lỗi server khi lấy chi tiết đơn hàng" });
+  }
+};
+
+//LAY DƠN HÀNG THEO ID WEB
 exports.getOrderDetail = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -184,7 +204,9 @@ exports.getOrderDetail = async (req, res) => {
 
     // Nếu payment_id là null, tìm Payment theo order_id
     if (!order.payment_id) {
-      const payment = await Payment.findOne({ order_id: new mongoose.Types.ObjectId(orderId) });
+      const payment = await Payment.findOne({
+        order_id: new mongoose.Types.ObjectId(orderId),
+      });
       if (payment) {
         // Cập nhật order.payment_id để sử dụng sau này
         order.payment_id = payment._id;
@@ -200,7 +222,12 @@ exports.getOrderDetail = async (req, res) => {
     }
 
     console.log("Order:", JSON.stringify(order, null, 2));
-    console.log("Payment:", order.payment_id ? JSON.stringify(order.payment_id, null, 2) : "No payment");
+    console.log(
+      "Payment:",
+      order.payment_id
+        ? JSON.stringify(order.payment_id, null, 2)
+        : "No payment"
+    );
 
     res.render("order_detail", { order });
   } catch (err) {
@@ -219,9 +246,13 @@ exports.getPaymentByOrderId = async (req, res) => {
     }
 
     // Tìm bản ghi Payment theo order_id
-    const payment = await Payment.findOne({ order_id: new mongoose.Types.ObjectId(orderId) });
+    const payment = await Payment.findOne({
+      order_id: new mongoose.Types.ObjectId(orderId),
+    });
     if (!payment) {
-      return res.status(404).json({ message: "Không tìm thấy bản ghi thanh toán cho đơn hàng này" });
+      return res.status(404).json({
+        message: "Không tìm thấy bản ghi thanh toán cho đơn hàng này",
+      });
     }
 
     res.status(200).json({
@@ -232,8 +263,8 @@ exports.getPaymentByOrderId = async (req, res) => {
         payment_status: payment.payment_status,
         paid_at: payment.paid_at,
         createdAt: payment.createdAt,
-        updatedAt: payment.updatedAt
-      }
+        updatedAt: payment.updatedAt,
+      },
     });
   } catch (error) {
     console.error("Lỗi khi tìm Payment theo order_id:", error);
