@@ -29,7 +29,7 @@ import {colors} from '../../themes/colors';
 import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
 import TouchIcon from '../../components/dataEntry/Button/TouchIcon';
-import {CreateOrderPayload} from '../../services/orders'; // Thêm dòng này
+import {CreateOrderPayload, VoucherCode} from '../../services/orders'; // Thêm dòng này
 import {fetchAddresses} from '../../redux/actions/address';
 import {fetchPaymentMethods} from '../../redux/actions/payment';
 import {createOrder, getOrders} from '../../redux/actions/order';
@@ -173,17 +173,28 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
   // console.log('VOUCHER ORDER:', voucherOrder);
   // console.log('VOUCHER SHIPPING:', voucherShipping);
 
-  const applySelectedVouchers = async () => {
+  const applySelectedVouchers = async (orderId?: string) => {
     if (applyingVouchersRef.current) return; // tránh gọi trùng
     applyingVouchersRef.current = true;
 
+    if (!orderId) {
+      applyingVouchersRef.current = false;
+      return; // chưa có orderId thì không gọi API useVoucher
+    }
+
     const tasks: Promise<any>[] = [];
     if (selectedOrderVoucher?._id) {
-      tasks.push(dispatch(useVoucherAction(selectedOrderVoucher._id)).unwrap());
+      tasks.push(
+        dispatch(
+          useVoucherAction({voucherId: selectedOrderVoucher._id, orderId}),
+        ).unwrap(),
+      );
     }
     if (selectedShippingVoucher?._id) {
       tasks.push(
-        dispatch(useVoucherAction(selectedShippingVoucher._id)).unwrap(),
+        dispatch(
+          useVoucherAction({voucherId: selectedShippingVoucher._id, orderId}),
+        ).unwrap(),
       );
     }
 
@@ -276,9 +287,11 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
         last?.payment_method_id?.code === 'ZALOPAY' &&
         last?.payment_status === 'paid'
       ) {
-        await applySelectedVouchers();
+        const orderId = last?._id;
+        await applySelectedVouchers(orderId);
         // ✅ Hiển thị modal hoặc Toast
-        Alert.alert('Thanh toán thành công', 'Cảm ơn bạn đã mua hàng!');
+        // Alert.alert('Thanh toán thành công', 'Cảm ơn bạn đã mua hàng!');
+        navigation.navigate(ScreenName.Main.SuccessCheckout);
       }
     }
 
@@ -300,6 +313,13 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
       quantity: item.quantity,
     }));
 
+    const voucher_code: VoucherCode = {
+      code_order: selectedOrderVoucher?.code,
+      order_discount: discountOrder,
+      code_shipping: selectedShippingVoucher?.code,
+      shipping_discount: discountShipping,
+    };
+
     const paymentMethodId =
       listPaymentMethod.find(pm => pm.code === paymentMethod)?._id ?? '';
 
@@ -309,6 +329,7 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
       shipping_address_id: selectedAddress._id,
       payment_method_id: paymentMethodId,
       items,
+      voucher_code,
     };
 
     setLoading(true);
@@ -323,22 +344,24 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
             productId: item.productId?._id,
             variantIndex: item.variantIndex,
           }));
+          const createdOrder = resultAction.payload?.order;
+          const orderId = createdOrder?._id;
 
           await dispatch(removeCart(indexDel)).unwrap();
           await dispatch(fetchCart());
-          await applySelectedVouchers();
+          await applySelectedVouchers(orderId);
 
-          Toast.show({
-            type: 'notification',
-            position: 'top',
-            text1: 'Thành công',
-            text2: 'Đặt hàng thành công',
-            visibilityTime: 1000,
-            autoHide: true,
-            swipeable: true,
-          });
+          // Toast.show({
+          //   type: 'notification',
+          //   position: 'top',
+          //   text1: 'Thành công',
+          //   text2: 'Đặt hàng thành công',
+          //   visibilityTime: 1000,
+          //   autoHide: true,
+          //   swipeable: true,
+          // });
 
-          navigation.navigate(ScreenName.Main.BottonTab);
+          navigation.navigate(ScreenName.Main.SuccessCheckout);
         } else {
           const error: any = resultAction.payload || 'Đặt hàng thất bại';
           Alert.alert('Lỗi', error);
@@ -433,8 +456,8 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
 
       <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false}>
         {/* Thông tin địa chỉ */}
-        <Block padH={metrics.space} padV={15}>
-          <TextMedium bold style={{marginBottom: 10}}>
+        <Block padH={metrics.space} padV={10}>
+          <TextMedium bold style={{marginBottom: 8}}>
             Địa chỉ giao hàng
           </TextMedium>
           <TouchableOpacity
@@ -477,8 +500,8 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
         </Block>
 
         {/* Chọn voucher */}
-        <Block padH={metrics.space} padV={15}>
-          <TextMedium bold style={{marginBottom: 10}}>
+        <Block padH={metrics.space} padV={10}>
+          <TextMedium bold style={{marginBottom: 8}}>
             Mã giảm giá
           </TextMedium>
 
@@ -507,7 +530,7 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
                         size={10}
                         onPress={handleRemoveOrderVoucher}
                         containerStyle={{
-                          backgroundColor: colors.while,
+                          // backgroundColor: colors.while,
                           padding: 8,
                           borderRadius: 12,
                         }}
@@ -551,8 +574,8 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
         </Block>
 
         {/* Danh sách sản phẩm */}
-        <Block padH={metrics.space} padV={15}>
-          <TextMedium bold style={{marginBottom: 10}}>
+        <Block padH={metrics.space} padV={10}>
+          <TextMedium bold style={{marginBottom: 8}}>
             Sản phẩm đã chọn ({selectedProducts.length})
           </TextMedium>
           {selectedProducts.map((item, index) => (
@@ -594,13 +617,17 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
         </Block>
 
         {/* Phương thức thanh toán */}
-        <Block padH={metrics.space} padV={15}>
-          <TextMedium bold style={{marginBottom: 10}}>
+        <Block padH={metrics.space} padV={10}>
+          <TextMedium bold style={{marginBottom: 8}}>
             Phương thức thanh toán
           </TextMedium>
           {listPaymentMethod.map((item, index) => {
             return (
-              <Block key={index} row alignCT marB={10}>
+              <TouchableOpacity
+                key={index}
+                activeOpacity={1}
+                style={styles.paymentMethod}
+                onPress={() => setPaymentMethod(item.code)}>
                 <TouchIcon
                   icon={
                     paymentMethod === item.code
@@ -615,14 +642,14 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
                   style={{width: 25, height: 25, marginHorizontal: 10}}
                 />
                 <TextMedium>{item.name}</TextMedium>
-              </Block>
+              </TouchableOpacity>
             );
           })}
         </Block>
 
         {/* Tổng tiền */}
-        <Block padH={metrics.space} padV={15}>
-          <TextMedium bold style={{marginBottom: 10}}>
+        <Block padH={metrics.space} padV={10}>
+          <TextMedium bold style={{marginBottom: 8}}>
             Tổng đơn hàng
           </TextMedium>
           <Block row justifyBW marB={8}>
@@ -637,23 +664,28 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
               {shippingFee.toLocaleString('vi-VN')}VND
             </TextSmall>
           </Block>
-          <Block row justifyBW marB={8}>
-            <TextSmall color={colors.gray}>Giảm giá đơn hàng:</TextSmall>
-            <TextSmall color={discountOrder > 0 ? colors.red : colors.gray}>
-              {discountOrder > 0
-                ? `-${discountOrder.toLocaleString('vi-VN')}VND`
-                : '0VND'}
-            </TextSmall>
-          </Block>
+          {selectedOrderVoucher && (
+            <Block row justifyBW marB={8}>
+              <TextSmall color={colors.gray}>Giảm giá đơn hàng:</TextSmall>
+              <TextSmall color={discountOrder > 0 ? colors.red : colors.gray}>
+                {discountOrder > 0
+                  ? `-${discountOrder.toLocaleString('vi-VN')}VND`
+                  : '0VND'}
+              </TextSmall>
+            </Block>
+          )}
 
-          <Block row justifyBW marB={8}>
-            <TextSmall color={colors.gray}>Giảm phí vận chuyển:</TextSmall>
-            <TextSmall color={discountShipping > 0 ? colors.red : colors.gray}>
-              {discountShipping > 0
-                ? `-${discountShipping.toLocaleString('vi-VN')}VND`
-                : '0VND'}
-            </TextSmall>
-          </Block>
+          {selectedShippingVoucher && (
+            <Block row justifyBW marB={8}>
+              <TextSmall color={colors.gray}>Giảm phí vận chuyển:</TextSmall>
+              <TextSmall
+                color={discountShipping > 0 ? colors.red : colors.gray}>
+                {discountShipping > 0
+                  ? `-${discountShipping.toLocaleString('vi-VN')}VND`
+                  : '0VND'}
+              </TextSmall>
+            </Block>
+          )}
           <Block
             row
             justifyBW
@@ -676,7 +708,8 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
         padB={45}
         backgroundColor={theme.background}>
         <ButtonBase
-          title={`Thanh toán ( ${total.toLocaleString('vi-VN')}VND )`}
+          // title={`Thanh toán ( ${total.toLocaleString('vi-VN')}VND )`}
+          title={'Đặt hàng'}
           onPress={handleCheckout}
           disabled={loading || !selectedAddress}
         />
@@ -822,6 +855,10 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
 export default CheckoutScreen;
 
 const styles = StyleSheet.create({
+  paymentMethod: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',

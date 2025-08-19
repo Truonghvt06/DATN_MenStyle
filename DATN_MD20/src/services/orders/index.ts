@@ -7,12 +7,20 @@ export interface OrderItem {
   quantity: number;
 }
 
+export interface VoucherCode {
+  code_order?: string;
+  order_discount?: number;
+  code_shipping?: string;
+  shipping_discount?: number;
+}
+
 export interface CreateOrderPayload {
   user_id?: string; // nếu dùng token thì không cần
   total_amount: number;
   shipping_address_id: string;
   payment_method_id: string;
   items: OrderItem[];
+  voucher_code?: VoucherCode; // thêm voucher_code
 }
 
 export interface OrderState {
@@ -50,7 +58,9 @@ const orderService = {
 
   getOrderDetail: async (orderId: string) => {
     try {
-      const response = await axiosInstance.get(`/order/my-orders/${orderId}`);
+      const response = await axiosInstance.get(
+        `/order/order-detail/${orderId}`,
+      );
       return response.data.order;
     } catch (error: any) {
       console.error(

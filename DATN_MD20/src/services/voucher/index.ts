@@ -64,9 +64,11 @@ export const voucherService = {
       throw error?.response?.data || {message: 'Lỗi khi lấy danh sách voucher'};
     }
   },
-  useVoucher: async (voucherId: string) => {
+  useVoucher: async (voucherId: string, orderId: string) => {
     try {
-      const res = await axiosInstance.post(`/voucher/update/${voucherId}`);
+      const res = await axiosInstance.post(`/voucher/update/${voucherId}`, {
+        orderId, // gửi orderId trong body
+      });
       return res.data; // { success, message, voucher }
     } catch (error: any) {
       console.error('voucherService.useVoucher error:', error);

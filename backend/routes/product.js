@@ -1,4 +1,3 @@
-
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
@@ -14,7 +13,10 @@ router.get("/categories", categoryController.getAllCategories);
 router.get("/searchCategory", categoryController.searchCategory);
 router.get("/product-all", productController.getAllProducts);
 router.get("/product-category/:type", productController.getProductsByCategory);
-router.get("/product-category/:type", productController.getProductsByCategorySort);
+router.get(
+  "/product-category/:type",
+  productController.getProductsByCategorySort
+);
 router.get("/sp", productController.getProduct);
 router.get("/best-seller", productController.getBestSellerProducts);
 router.get("/product-new", productController.getNewestProducts);
@@ -26,7 +28,6 @@ router.get("/product-types/add", categoryController.getAddProductTypeForm);
 router.post("/product-types", categoryController.addProductType);
 // routes/productType.js hoặc thêm vào router chính
 router.get("/product-types/view", categoryController.getAllProductTypesView);
-
 
 // API: Lấy toàn bộ sản phẩm dạng JSON
 router.get("/", async (req, res) => {
@@ -168,6 +169,7 @@ router.get("/search", async (req, res) => {
       normalized_name: { $regex: word, $options: "i" },
     }));
     const products = await Product.find({
+      is_activiti: true,
       $and: regexConditions,
     });
     res.json(products);
@@ -200,8 +202,14 @@ router.get("/view", async (req, res) => {
     const totalPages = Math.ceil(totalProducts / limit);
 
     // Đếm số sản phẩm đang hoạt động và đã ngừng bán để debug
-    const activeProducts = await Product.countDocuments({ ...query, is_activiti: true });
-    const inactiveProducts = await Product.countDocuments({ ...query, is_activiti: false });
+    const activeProducts = await Product.countDocuments({
+      ...query,
+      is_activiti: true,
+    });
+    const inactiveProducts = await Product.countDocuments({
+      ...query,
+      is_activiti: false,
+    });
     console.log("Debug phân trang:", {
       totalProducts,
       activeProducts,
@@ -297,18 +305,33 @@ router.get("/edit/:id", async (req, res) => {
 
     // Kiểm tra productId hợp lệ
     if (!mongoose.Types.ObjectId.isValid(productId)) {
-      return res.status(400).json({ success: false, message: `productId không hợp lệ: ${productId}` });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: `productId không hợp lệ: ${productId}`,
+        });
     }
 
     // Tìm sản phẩm
     const product = await Product.findById(productId);
     if (!product) {
-      return res.status(404).json({ success: false, message: `Không tìm thấy sản phẩm với ID: ${productId}` });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: `Không tìm thấy sản phẩm với ID: ${productId}`,
+        });
     }
 
     // Kiểm tra trường is_activiti
     if (typeof product.is_activiti !== "boolean") {
-      return res.status(400).json({ success: false, message: "Trường is_activiti không hợp lệ trong sản phẩm" });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Trường is_activiti không hợp lệ trong sản phẩm",
+        });
     }
 
     // Cập nhật is_activiti thành false
@@ -323,7 +346,9 @@ router.get("/edit/:id", async (req, res) => {
       stack: err.stack,
       productId: req.params.id,
     });
-    res.status(500).json({ success: false, message: `Lỗi server: ${err.message}` });
+    res
+      .status(500)
+      .json({ success: false, message: `Lỗi server: ${err.message}` });
   }
 });
 
@@ -334,32 +359,51 @@ router.patch("/deactivate/:productId", async (req, res) => {
 
     // Kiểm tra productId hợp lệ
     if (!mongoose.Types.ObjectId.isValid(productId)) {
-      return res.status(400).json({ success: false, message: `productId không hợp lệ: ${productId}` });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: `productId không hợp lệ: ${productId}`,
+        });
     }
 
     // Tìm sản phẩm
     const product = await Product.findById(productId);
     if (!product) {
-      return res.status(404).json({ success: false, message: `Không tìm thấy sản phẩm với ID: ${productId}` });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: `Không tìm thấy sản phẩm với ID: ${productId}`,
+        });
     }
 
     // Kiểm tra trường is_activiti
     if (typeof product.is_activiti !== "boolean") {
-      return res.status(400).json({ success: false, message: "Trường is_activiti không hợp lệ trong sản phẩm" });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Trường is_activiti không hợp lệ trong sản phẩm",
+        });
     }
 
     // Cập nhật is_activiti thành false
     product.is_activiti = false;
     await product.save();
 
-    res.status(200).json({ success: true, message: "Ngừng bán sản phẩm thành công" });
+    res
+      .status(200)
+      .json({ success: true, message: "Ngừng bán sản phẩm thành công" });
   } catch (error) {
     console.error("Lỗi khi ngừng bán sản phẩm:", {
       error: error.message,
       stack: error.stack,
       productId: req.params.productId,
     });
-    res.status(500).json({ success: false, message: `Lỗi server: ${error.message}` });
+    res
+      .status(500)
+      .json({ success: false, message: `Lỗi server: ${error.message}` });
   }
 });
 // View: Chi tiết sản phẩm

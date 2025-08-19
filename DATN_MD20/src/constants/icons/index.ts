@@ -54,6 +54,10 @@ export enum IconSRC {
   up_down = require('../../assets/images/up_down.png'),
   up = require('../../assets/images/up.png'),
   down = require('../../assets/images/down.png'),
+  tick = require('../../assets/images/tick.png'),
+  icon_trolley = require('../../assets/images/trolley.png'),
+  ic_mess = require('../../assets/images/messenger.png'),
+  ic_zalo = require('../../assets/images/zalo_black.png'),
 }
 
 export enum IconBottomTab {

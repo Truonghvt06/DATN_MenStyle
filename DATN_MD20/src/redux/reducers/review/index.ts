@@ -40,8 +40,16 @@ const reviewSlice = createSlice({
       })
 
       // My reviews
+      .addCase(fetchMyReviews.pending, (state, action) => {
+        state.loading = true;
+      })
       .addCase(fetchMyReviews.fulfilled, (state, action) => {
+        state.loading = false;
         state.myReviews = action.payload;
+      })
+      .addCase(fetchMyReviews.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       })
 
       // Reviews by product

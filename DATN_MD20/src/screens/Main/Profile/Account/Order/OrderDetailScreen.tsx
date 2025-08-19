@@ -58,6 +58,8 @@ const OrderDetailScreen = () => {
   const dispatch = useAppDispatch();
   const {order} = useAppSelector(state => state.order);
 
+  console.log('ID', orderId);
+
   console.log('AAAA', order);
 
   const reasons = [
@@ -75,7 +77,7 @@ const OrderDetailScreen = () => {
   const formattedItems =
     order?.items?.map((item: any) => {
       const variant = item?.product_id?.variants?.find?.(
-        (v: any) => v._id === item.product_variant_id,
+        (v: any) => v._id.toString() === item.product_variant_id.toString(),
       );
 
       return {

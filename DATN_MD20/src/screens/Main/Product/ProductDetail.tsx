@@ -142,33 +142,6 @@ const ProductDetail = () => {
     });
   };
 
-  //Them gio hang
-  // const handleAddCart = async () => {
-  //   if (!user?._id) return handleLogin();
-  //   const variantIndex = proData?.variants?.findIndex(
-  //     (v: any) => v.size === selectedSize && v.color === selectedColor,
-  //   );
-  //   if (variantIndex === -1) return;
-  //   await dispatch(
-  //     addToCart({
-  //       userId: user._id,
-  //       productId: proData._id,
-  //       variantIndex,
-  //       quantity: Number(quantity),
-  //     }),
-  //   );
-  //   await dispatch(fetchCart(user._id));
-  //   setOpenModal(false);
-  //   Toast.show({
-  //     type: 'notification',
-  //     text1: 'Thành công',
-  //     text2: 'Đã thêm vào giỏ hàng!',
-  //     visibilityTime: 1000,
-  //     autoHide: true,
-  //     swipeable: true,
-  //   });
-  // };
-
   const handleAddCart = async () => {
     if (!token) {
       setIsOpenCheck(true);
@@ -197,7 +170,13 @@ const ProductDetail = () => {
       return;
     }
 
-    if (variant.quantity < qty) {
+    if (variant.quantity === 0) {
+      Alert.alert(
+        'Thông báo',
+        `Sản phẩm này đã hết hàng, không thể thêm vào giỏ!`,
+      );
+      return;
+    } else if (variant.quantity < qty) {
       Alert.alert(
         'Thông báo',
         `Tối đa chỉ còn ${variant.quantity} sản phẩm trong kho`,

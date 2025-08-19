@@ -247,6 +247,8 @@ const ListSearchScreen = () => {
     appliedCategoryID,
   ]);
 
+  // console.log('ABCV: ', filteredProducts.length);
+
   const handleSearchCategory = async (name: string) => {
     setKeyword(name);
     setCommittedQuery(name);
@@ -372,26 +374,28 @@ const ListSearchScreen = () => {
             </Block>
 
             {/* Products List */}
-            {filteredProducts.length === 0 ? (
-              <Block flex1 alignCT justifyCT>
-                <TextSmall>Không tìn thấy sản phẩm</TextSmall>
-              </Block>
-            ) : (
-              <Block padH={8}>
-                <ListProduct
-                  data={filteredProducts}
-                  isColums
-                  columNumber={2}
-                  favoriteId={listFavoriteIds}
-                  onPress={idnew => {
-                    handleProDetail(idnew);
-                  }}
-                  onPressFavorite={id =>
-                    token ? handleFavorite(id) : setIsOpenCheck(true)
-                  }
-                />
-              </Block>
-            )}
+            <Block padB={100}>
+              {filteredProducts.length === 0 ? (
+                <Block flex1 alignCT justifyCT>
+                  <TextSmall>Không tìn thấy sản phẩm</TextSmall>
+                </Block>
+              ) : (
+                <Block padH={8}>
+                  <ListProduct
+                    data={filteredProducts}
+                    isColums
+                    columNumber={2}
+                    favoriteId={listFavoriteIds}
+                    onPress={idnew => {
+                      handleProDetail(idnew);
+                    }}
+                    onPressFavorite={id =>
+                      token ? handleFavorite(id) : setIsOpenCheck(true)
+                    }
+                  />
+                </Block>
+              )}
+            </Block>
           </>
         )}
 

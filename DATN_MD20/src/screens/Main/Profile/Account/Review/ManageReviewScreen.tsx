@@ -18,18 +18,20 @@ import {
   fetchPendingReviewItems,
 } from '../../../../../redux/actions/review';
 import moment from 'moment';
+import ModalCenter from '../../../../../components/dataDisplay/Modal/ModalCenter';
 
 const ManageReviewScreen = () => {
   const {top} = useSafeAreaInsets();
   const theme = useAppTheme();
   const {getTranslation} = useLanguage();
   const [selectedTab, setSelectedTab] = useState('Chưa đánh giá');
+  const [isOpenCheck, setIsOpenCheck] = useState(false);
 
   const dispatch = useAppDispatch();
-  const {pending, myReviews} = useAppSelector(state => state.review);
+  const {pending, myReviews, loading} = useAppSelector(state => state.review);
 
-  // console.log('ABC', pending);
-  console.log('ABCD', myReviews);
+  console.log('ABC', pending);
+  // console.log('ABCD', myReviews);
 
   const tabs = ['Chưa đánh giá', 'Đã đánh giá'];
 
@@ -83,9 +85,11 @@ const ManageReviewScreen = () => {
       <Block flex1 padH={8} padT={10} padB={30}>
         {selectedTab === 'Chưa đánh giá' ? (
           pending.length === 0 ? (
-            <TextSmall style={{textAlign: 'center'}}>
-              Không có sản phẩm
-            </TextSmall>
+            <Block flex1 alignCT justifyCT>
+              <TextSmall style={{textAlign: 'center'}}>
+                Bạn không có sản phẩm nào cần đánh giá
+              </TextSmall>
+            </Block>
           ) : (
             <FlatList
               data={pending}
@@ -101,12 +105,20 @@ const ManageReviewScreen = () => {
                   onPress={() => handleReview(item)}
                 />
               )}
-              contentContainerStyle={{paddingBottom: 50, gap: 10}}
+              contentContainerStyle={{flexGrow: 1, paddingBottom: 50, gap: 10}}
               showsVerticalScrollIndicator={false}
+              refreshing={loading}
+              onRefresh={() => {
+                dispatch(fetchPendingReviewItems());
+              }}
             />
           )
         ) : myReviews.length === 0 ? (
-          <TextSmall style={{textAlign: 'center'}}>Không có sản phẩm</TextSmall>
+          <Block flex1 alignCT justifyCT>
+            <TextSmall style={{textAlign: 'center'}}>
+              Bạn chưa đánh giá sản phẩm nào
+            </TextSmall>
+          </Block>
         ) : (
           <FlatList
             data={myReviews}
@@ -127,15 +139,32 @@ const ManageReviewScreen = () => {
                   star={item.rating}
                   date={moment(item.createdAt).format('DD/MM/YYYY')}
                   comment={item.comment}
-                  onPress={() => handleProductDetail(item.product_id?._id)}
+                  onPress={() => {
+                    if (item.product_id?.is_activiti === true) {
+                      handleProductDetail(item.product_id?._id);
+                    } else {
+                      setIsOpenCheck(true);
+                    }
+                  }}
                 />
               );
             }}
-            contentContainerStyle={{paddingBottom: 50, gap: 10}}
+            contentContainerStyle={{flexGrow: 1, paddingBottom: 50, gap: 10}}
             showsVerticalScrollIndicator={false}
+            refreshing={loading}
+            onRefresh={() => {
+              dispatch(fetchMyReviews());
+            }}
           />
         )}
       </Block>
+      <ModalCenter
+        visible={isOpenCheck}
+        isCancle
+        content={'Sản phẩm này đã bị xóa hoặc ngừng bán'}
+        onClose={() => setIsOpenCheck(false)}
+        onPress={() => {}}
+      />
     </ContainerView>
   );
 };
