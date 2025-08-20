@@ -285,36 +285,77 @@
                         <%= order.total_amount.toLocaleString('vi-VN') %> ₫
                       </td>
                       <td>
-                        <select onchange="updatePaymentStatus('<%= order._id %>', this.value)">
-                          <option value="unpaid" <%=order.payment_status==='unpaid' ? 'selected' : '' %>>Chưa thanh toán
-                          </option>
-                          <option value="paid" <%=order.payment_status==='paid' ? 'selected' : '' %>>Đã thanh toán
-                          </option>
-                          <option value="refunded" <%=order.payment_status==='refunded' ? 'selected' : '' %>>Hoàn tiền
-                          </option>
-                        </select>
+                        <% if (order.payment_method_id.code === "COD") { %>
+                          <!-- COD: admin có thể chỉnh -->
+                          <select onchange="updatePaymentStatus('<%= order._id %>', this.value)">
+                            <option value="unpaid" 
+                              <%= order.payment_status === 'unpaid' ? 'selected' : '' %> 
+                              <%= (order.payment_status === 'paid' || order.payment_status === 'refunded') ? 'disabled' : '' %>>
+                              Chưa thanh toán
+                            </option>
+                            
+                            <option value="paid" <%= order.payment_status === 'paid' ? 'selected' : '' %>>
+                              Đã thanh toán
+                            </option>
+                            
+                            <option value="refunded" <%= order.payment_status === 'refunded' ? 'selected' : '' %>>
+                              Hoàn tiền
+                            </option>
+                          </select>
+                          
+                        <% } else if (order.payment_method_id.code === "ZALOPAY") { %>
+                          <% 
+                            // Tìm bản ghi thanh toán liên quan đến đơn hàng
+                            const payment = payments.find(p => p.order_id.toString() === order._id.toString());
+                            const hasTransactionId = payment && payment.transaction_id && payment.payment_status === 'success';
+                          %>
+                          <% if (hasTransactionId) { %>
+                            <!-- ZaloPay có transaction_id và payment_status là success => Đã thanh toán, chỉ cho chọn Hoàn tiền -->
+                            <select onchange="updatePaymentStatus('<%= order._id %>', this.value)">
+                              <option value="paid" selected>Đã thanh toán</option>
+                              <option value="refunded" <%= order.payment_status === 'refunded' ? 'selected' : '' %>>Hoàn tiền</option>
+                            </select>
+                          <% } else { %>
+                            <!-- ZaloPay chưa có transaction_id hoặc payment_status không phải success => Chưa thanh toán, không chỉnh sửa -->
+                            <select disabled>
+                              <option value="unpaid" selected>Chưa thanh toán</option>
+                            </select>
+                          <% } %>
+                        <% } %>
                       </td>
+                      
                       <td>
-                        <select onchange="updateStatus('<%= order._id %>', this.value)">
-                            <option value="pending" <%= order.order_status==='pending' ? 'selected' : '' %>>
+                        <select onchange="updateStatus('<%= order._id %>', this.value)"
+                                <%= (order.order_status === 'cancelled' || order.order_status === 'delivered') ? 'disabled' : '' %>>
+                            
+                            <option value="pending" <%= order.order_status==='pending' ? 'selected' : '' %> 
+                                <%= order.order_status!=='pending' ? 'disabled' : '' %>>
                                 Chờ xử lý
                             </option>
-                            <option value="confirmed" <%= order.order_status==='confirmed' ? 'selected' : '' %>>
+                      
+                            <option value="confirmed" <%= order.order_status==='confirmed' ? 'selected' : '' %> 
+                                <%= !['pending','confirmed'].includes(order.order_status) ? 'disabled' : '' %>>
                                 Đã xác nhận
                             </option>
-                            <option value="shipping" <%= order.order_status==='shipping' ? 'selected' : '' %>>
+                      
+                            <option value="shipping" <%= order.order_status==='shipping' ? 'selected' : '' %> 
+                                <%= !['confirmed','shipping'].includes(order.order_status) ? 'disabled' : '' %>>
                                 Đang giao hàng
                             </option>
-                            <option value="delivered" <%= order.order_status==='delivered' ? 'selected' : '' %>>
+                      
+                            <option value="delivered" <%= order.order_status==='delivered' ? 'selected' : '' %> 
+                                <%= order.order_status!=='shipping' && order.order_status!=='delivered' ? 'disabled' : '' %>>
                                 Đã giao
                             </option>
-                            <option value="cancelled" 
-                                <%= order.order_status==='cancelled' ? 'selected' : '' %> 
-                                <%= order.order_status !== 'pending' ? 'disabled' : '' %>>
+                      
+                            <option value="cancelled" <%= order.order_status==='cancelled' ? 'selected' : '' %> 
+                                <%= order.order_status!=='pending' ? 'disabled' : '' %>>
                                 Đã hủy
                             </option>
                         </select>
-                    </td>
+                      </td>
+                      
+                      
                     
                       <td>
                         <%= new Date(order.createdAt).toLocaleDateString('vi-VN') %>

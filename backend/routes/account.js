@@ -11,16 +11,34 @@ const upload = require("../utils/upload");
 
 router.get("/view", async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1; // trang hiện tại
+    const limit = parseInt(req.query.limit) || 10; // số user mỗi trang
+    const skip = (page - 1) * limit;
+
+    // Tổng số user
+    const totalUsers = await User.countDocuments();
+    const totalPages = Math.ceil(totalUsers / limit);
+
+    // Lấy user theo trang
     const users = await User.find()
       .populate("favorites.productId")
-      .populate("cart.productId");
+      .populate("cart.productId")
+      .skip(skip)
+      .limit(limit);
 
     const products = await Product.find();
-    res.render("users", { users, products });
+
+    res.render("users", {
+      users,
+      products,
+      currentPage: page,
+      totalPages
+    });
   } catch (err) {
     res.status(500).send("Lỗi khi tải tài khoản: " + err.message);
   }
 });
+
 
 router.post("/login", authController.login);
 router.post("/register", authController.register);

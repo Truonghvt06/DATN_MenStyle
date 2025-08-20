@@ -138,57 +138,85 @@
             Danh sách đơn hàng
         </header>
         <main>
-            <div class="order-info shadow-sm">
-                <h5>Mã đơn hàng: <strong>
-                        <%= order.code %>
-                    </strong></h5>
-                <p><strong>Người đặt:</strong>
-                    <%= order.user_id?.name %> (<%= order.user_id?.email %>)
-                </p>
-                <p><strong>Ngày tạo:</strong>
-                    <%= order.createdAt.toLocaleString("vi-VN") %>
-                </p>
-                <p><strong>Địa chỉ giao hàng:</strong>
-                    <%= order.shipping_address_id.address_line %>,
-                    <%= order.shipping_address_id.ward %>,
-                      <%= order.shipping_address_id.district %>,
-                        <%= order.shipping_address_id.province %>
-                        - <%= order.shipping_address_id?.phone %> -
-                           
-                </p>
-                <p><strong>Phương thức thanh toán:</strong>
-                    <%= order.payment_method_id?.name %>
-                </p>
-                <p><strong>Mã giao dịch:</strong>
-                    <%= order.payment_id ? order.payment_id.transaction_id : 'Không có mã giao dịch' %>
-                </p>
-                                  
-                <p>
-                    <strong>Trạng thái đơn hàng:</strong>
-                    <span class="status-badge 
-    <%= order.order_status === 'pending' ? 'bg-warning' : 
-        order.order_status === 'confirmed' ? 'bg-info' :
-        order.order_status === 'shipping' ? 'bg-primary' :
-        order.order_status === 'delivered' ? 'bg-success' :
-        'bg-danger' %> text-white">
-                        <%= order.order_status==='pending' ? 'Chờ xác nhận' : order.order_status==='confirmed'
-                            ? 'Đã xác nhận' : order.order_status==='shipping' ? 'Đang giao' :
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-dark text-white">
+                  <h5 class="mb-0">Chi tiết đơn hàng</h5>
+                </div>
+                <div class="card-body">
+                  <!-- Mã đơn -->
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <h6 class="text-muted">Mã đơn hàng</h6>
+                      <p class="fw-bold text-primary"><%= order.code %></p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                      <h6 class="text-muted">Ngày tạo</h6>
+                      <p><%= order.createdAt.toLocaleString("vi-VN") %></p>
+                    </div>
+                  </div>
+              
+                  <!-- Người đặt -->
+                  <div class="mb-3">
+                    <h6 class="text-muted">Người đặt</h6>
+                    <p><strong><%= order.user_id?.name %></strong> (<%= order.user_id?.email %>)</p>
+                  </div>
+              
+                  <!-- Địa chỉ giao hàng -->
+                  <div class="mb-3">
+                    <h6 class="text-muted">Địa chỉ giao hàng</h6>
+                    <p>
+                      <%= order.shipping_address_id.address_line %>, 
+                      <%= order.shipping_address_id.ward %>, 
+                      <%= order.shipping_address_id.district %>, 
+                      <%= order.shipping_address_id.province %><br>
+                      <small class="text-muted">SĐT: <%= order.shipping_address_id?.phone %></small>
+                    </p>
+                  </div>
+              
+                  <!-- Thanh toán -->
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <h6 class="text-muted">Phương thức thanh toán</h6>
+                      <p><%= order.payment_method_id?.name || 'Không xác định' %></p>
+                    </div>
+                    <div class="col-md-6">
+                      <h6 class="text-muted">Mã giao dịch</h6>
+                      <p><%= order.payment_id ? order.payment_id.transaction_id : 'Không có mã giao dịch' %></p>
+                    </div>
+                  </div>
+              
+                  <!-- Trạng thái -->
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <h6 class="text-muted">Trạng thái đơn hàng</h6>
+                      <span class="badge px-3 py-2 rounded-pill 
+                        <%= order.order_status === 'pending' ? 'bg-warning text-dark' : 
+                            order.order_status === 'confirmed' ? 'bg-info text-dark' :
+                            order.order_status === 'shipping' ? 'bg-primary' :
+                            order.order_status === 'delivered' ? 'bg-success' : 'bg-danger' %>">
+                        <%= order.order_status==='pending' ? 'Chờ xác nhận' : 
+                            order.order_status==='confirmed' ? 'Đã xác nhận' : 
+                            order.order_status==='shipping' ? 'Đang giao' : 
                             order.order_status==='delivered' ? 'Đã giao' : 'Đã huỷ' %>
-                    </span>
-
-                </p>
-                <p>
-                    <strong>Trạng thái thanh toán:</strong>
-                    <span
-                        class="status-badge <%= order.payment_status === 'paid' ? 'bg-success' : 'bg-warning' %> text-white">
+                      </span>
+                    </div>
+                    <div class="col-md-6">
+                      <h6 class="text-muted">Trạng thái thanh toán</h6>
+                      <span class="badge px-3 py-2 rounded-pill <%= order.payment_status === 'paid' ? 'bg-success' : 'bg-warning text-dark' %>">
                         <%= order.payment_status==='paid' ? 'Đã thanh toán' : 'Chưa thanh toán' %>
-                    </span>
-                </p>
-                <p><strong>Tổng tiền:</strong>
-                    <%= order.total_amount.toLocaleString("vi-VN") %>₫
-                </p>
-            </div>
-
+                      </span>
+                    </div>
+                  </div>                
+              
+                  <!-- Tổng tiền -->
+                  <div class="text-end">
+                    <h5 class="fw-bold">Tổng tiền: 
+                      <span class="text-danger"><%= order.total_amount.toLocaleString("vi-VN") %>₫</span>
+                    </h5>
+                  </div>
+                </div>
+              </div>
+              
             <!-- Danh sách sản phẩm -->
             <div class="order-products shadow-sm">
                 <h5 class="p-3 border-bottom">Sản phẩm</h5>

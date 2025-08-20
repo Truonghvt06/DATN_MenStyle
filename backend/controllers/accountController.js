@@ -2,6 +2,7 @@ const User = require("../models/User");
 const Address = require("../models/Address");
 const PaymentMethod = require("../models/PaymentMethod");
 const Order = require("../models/Order");
+const Payment = require('../models/Payment');
 
 exports.getAllOrders = async (req, res) => {
   try {
@@ -10,8 +11,9 @@ exports.getAllOrders = async (req, res) => {
       .populate("shipping_address_id")
       .populate("payment_method_id")
       .sort({ createdAt: -1 });
-
-    res.render("order_admin", { orders });
+    
+    const payments = await Payment.find(); // Truy vấn tất cả bản ghi thanh toán
+    res.render("order_admin", { orders, payments });
   } catch (err) {
     console.error("Lỗi khi lấy danh sách đơn hàng:", err);
     res.status(500).send("Không thể lấy danh sách đơn hàng.");
