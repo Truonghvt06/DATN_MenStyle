@@ -20,6 +20,7 @@ router.get(
   "/product/:productId",
   reviewController.getReviewsByProduct
 );
+router.get("/:id/toggle", reviewController.toggleReviewActivity);
 
 
 module.exports = router;

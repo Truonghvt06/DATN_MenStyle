@@ -70,60 +70,8 @@ app.use("/dashboard", dashboardRouter);
 app.use("/payment", paymentRouter);
 app.use("/zalo", zaloRouter);
 
-/* ========= HOME (hiển thị banner + 4 ô thống kê) ========== */
-function getTodayRangeVN() {
-  const now = new Date();
-  const utcNow = now.getTime() + now.getTimezoneOffset() * 60000;
-  const vnNow = new Date(utcNow + 7 * 60 * 60000);
-  const y = vnNow.getUTCFullYear();
-  const m = vnNow.getUTCMonth();
-  const d = vnNow.getUTCDate();
-  const start = new Date(Date.UTC(y, m, d, 0, 0, 0, 0));
-  const nextStart = new Date(Date.UTC(y, m, d + 1, 0, 0, 0, 0));
-  return { start, nextStart };
-}
-
-app.get("/", async (req, res, next) => {
-  try {
-    const { start, nextStart } = getTodayRangeVN();
-
-    // Đơn hôm nay
-    const todayOrdersFilter = { createdAt: { $gte: start, $lt: nextStart } };
-    const todayOrderCount = await Order.countDocuments(todayOrdersFilter);
-
-    // Doanh thu hôm nay (đơn đã thanh toán)
-    const revAgg = await Order.aggregate([
-      { $match: { ...todayOrdersFilter, payment_status: "paid" } },
-      { $group: { _id: null, total: { $sum: "$total_amount" } } },
-    ]);
-    const todayRevenue = revAgg.length ? revAgg[0].total : 0;
-
-    // Đơn hàng chờ xử lý
-    const pendingOrderCount = await Order.countDocuments({ order_status: "pending" });
-
-    // Tổng người dùng
-    const userCount = await User.countDocuments({});
-
-    // Banners (fallback nếu không có field `active`)
-    let banners = [];
-    try {
-      banners = await Banner.find({ active: true }).lean();
-      if (!banners.length) banners = await Banner.find({}).lean();
-    } catch (_) {
-      banners = [];
-    }
-    console.log("banners:", banners.length);
-
-    res.render("home", {
-      banners,
-      todayRevenue,
-      todayOrderCount,
-      pendingOrderCount,
-      userCount,
-    });
-  } catch (err) {
-    next(err);
-  }
+app.get("/", (req, res) => {
+  return res.redirect("/admin");
 });
 
 /* ========= KẾT NỐI DB & START SERVER ========== */

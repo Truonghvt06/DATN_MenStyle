@@ -3,8 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Chi tiết sản phẩm - <%= product.name || 'Sản phẩm' %>
-  </title>
+  <title>Chi tiết sản phẩm - <%= product.name || 'Sản phẩm' %></title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
   <style>
@@ -71,7 +70,7 @@
       gap: 15px;
     }
 
-    header .toggle-btn {
+    .toggle-btn {
       background: none;
       border: none;
       color: #fff;
@@ -125,6 +124,33 @@
       text-decoration: underline;
     }
 
+    .review-item {
+      padding: 15px 0;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .review-item:last-child {
+      border-bottom: none;
+    }
+
+    .toggle-review-btn {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .toggle-review-btn.show {
+      background-color: #28a745;
+    }
+
+    .toggle-review-btn:hover {
+      opacity: 0.9;
+    }
+
     @media (max-width: 768px) {
       .sidebar {
         transform: translateX(-100%);
@@ -146,13 +172,13 @@
   <!-- Sidebar -->
   <nav class="sidebar" id="sidebar">
     <a href="/"><i class="bi bi-house"></i><span>Trang chủ</span></a>
-    <a href="/products/view"><i class="bi bi-box"></i><span> Sản phẩm</span></a>
-    <a href="/products/product-types/view"><i class="bi bi-tags"></i><span> Thể loại</span></a>
-    <a href="/voucher/view"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
-    <a href="/accounts/view"><i class="bi bi-people"></i><span> Tài khoản</span></a>
-    <a href="/accounts/admin/orders"><i class="bi bi-receipt-cutoff"></i><span> Đơn hàng</span></a>
-    <a href="/dashboard/stats-overview"><i class="bi bi-bar-chart-line"></i><span> Thống kê</span></a>
-    <a href="/setting/view"><i class="bi bi-gear"></i> <span>Cài đặt</span></a>
+    <a href="/products/view"><i class="bi bi-box"></i><span>Sản phẩm</span></a>
+    <a href="/products/product-types/view"><i class="bi bi-tags"></i><span>Thể loại</span></a>
+    <a href="/voucher/view"><i class="bi bi-ticket"></i><span>Phiếu giảm giá</span></a>
+    <a href="/accounts/view"><i class="bi bi-people"></i><span>Tài khoản</span></a>
+    <a href="/accounts/admin/orders"><i class="bi bi-receipt-cutoff"></i><span>Đơn hàng</span></a>
+    <a href="/dashboard/stats-overview"><i class="bi bi-bar-chart-line"></i><span>Thống kê</span></a>
+    <a href="/setting/view"><i class="bi bi-gear"></i><span>Cài đặt</span></a>
   </nav>
 
   <!-- Main Content -->
@@ -166,30 +192,18 @@
       <div class="card-box">
         <h5>Thông tin sản phẩm</h5>
         <div class="product-info">
-          <p><strong>Tên sản phẩm:</strong>
-            <%= product.name || 'N/A' %>
-          </p>
-          <p><strong>Loại:</strong>
-            <%= product.type.name || product.type || 'N/A' %>
-          </p>
-          <p><strong>Mô tả:</strong>
-            <%= product.description || 'N/A' %>
-          </p>
-          <p><strong>Giá:</strong>
-            <%= product.price?.toLocaleString() %> VNĐ
-          </p>
-          <p><strong>Đánh giá trung bình:</strong>
-            <%= product.rating_avg ?? 'Chưa có' %>
-          </p>
-          <p><strong>Đã bán:</strong>
-            <%= product.sold_count ?? 0 %>
-          </p>
+          <p><strong>Tên sản phẩm:</strong> <%= product.name || 'N/A' %></p>
+          <p><strong>Loại:</strong> <%= product.type.name || product.type || 'N/A' %></p>
+          <p><strong>Mô tả:</strong> <%= product.description || 'N/A' %></p>
+          <p><strong>Giá:</strong> <%= product.price?.toLocaleString() %> VNĐ</p>
+          <p><strong>Đánh giá trung bình:</strong> <%= product.rating_avg ?? 'Chưa có' %></p>
+          <p><strong>Đã bán:</strong> <%= product.sold_count ?? 0 %></p>
         </div>
       </div>
 
       <div class="card-box">
         <h5>Danh sách biến thể</h5>
-        <% if (product.variants?.length> 0) { %>
+        <% if (product.variants?.length > 0) { %>
           <table class="table table-bordered align-middle">
             <thead>
               <tr>
@@ -200,32 +214,27 @@
               </tr>
             </thead>
             <tbody>
-              <% product.variants.forEach(v=> { %>
+              <% product.variants.forEach(v => { %>
                 <tr>
                   <td>
                     <% if (v.image) { %>
                       <img src="<%= v.image %>" alt="Ảnh biến thể" />
-                      <% } else { %>
-                        <span>Không có ảnh</span>
-                        <% } %>
+                    <% } else { %>
+                      <span>Không có ảnh</span>
+                    <% } %>
                   </td>
-                  <td>
-                    <%= v.size %>
-                  </td>
-                  <td>
-                    <%= v.color %>
-                  </td>
-                  <td>
-                    <%= v.quantity %>
-                  </td>
+                  <td><%= v.size %></td>
+                  <td><%= v.color %></td>
+                  <td><%= v.quantity %></td>
                 </tr>
-                <% }) %>
+              <% }) %>
             </tbody>
           </table>
-          <% } else { %>
-            <p class="text-muted">Không có biến thể</p>
-            <% } %>
+        <% } else { %>
+          <p class="text-muted">Không có biến thể</p>
+        <% } %>
       </div>
+
       <div class="card-box">
         <h5>Đánh giá sản phẩm</h5>
         <div id="reviews-container" class="mb-3 text-muted">Đang tải đánh giá...</div>
@@ -242,33 +251,66 @@
       sidebar.classList.toggle('active');
       content.classList.toggle('shifted');
     }
+
     const productId = "<%= product._id %>";
 
-  async function loadReviews() {
-    try {
-      const res = await fetch(`/review/product/${productId}`);
-      const reviews = await res.json();
+    async function loadReviews() {
+      try {
+        console.log('Loading reviews for productId:', productId);
+        const res = await fetch(`/review/product/${productId}`);
+        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+        const reviews = await res.json();
+        console.log('Received reviews:', reviews);
 
-      const container = document.getElementById("reviews-container");
-      if (reviews.length === 0) {
-        container.innerHTML = "<p class='text-muted'>Chưa có đánh giá nào.</p>";
-        return;
+        const container = document.getElementById("reviews-container");
+        if (reviews.length === 0) {
+          container.innerHTML = "<p class='text-muted'>Chưa có đánh giá nào.</p>";
+          return;
+        }
+
+        container.innerHTML = reviews.map(r => `
+          <div class="review-item">
+            <div class="d-flex align-items-center mb-1">
+              <strong>${r.user_id?.name || 'Người dùng ẩn danh'}</strong>
+              <span class="text-warning ms-2">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</span>
+            </div>
+            <p class="mb-1">${r.comment || ''}</p>
+            <small class="text-muted">${new Date(r.createdAt).toLocaleDateString('vi-VN')}</small>
+            <button class="toggle-review-btn mt-2 ${r.is_activity ? '' : 'show'}" 
+                    onclick="toggleReview('${r._id}', ${r.is_activity})">
+              ${r.is_activity ? 'Ẩn' : 'Hiện'}
+            </button>
+          </div>
+        `).join("");
+      } catch (error) {
+        console.error('Error loading reviews:', error);
+        document.getElementById("reviews-container").innerHTML = "<p class='text-danger'>Lỗi khi tải đánh giá.</p>";
       }
-
-      container.innerHTML = reviews.map(r => `
-        <div class="border-bottom pb-2 mb-2">
-          <strong>${r.user_id?.name || 'Người dùng ẩn danh'}</strong> - 
-          <span class="text-warning">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</span>
-          <p>${r.comment || ''}</p>
-          <small class="text-muted">${new Date(r.createdAt).toLocaleDateString()}</small>
-        </div>
-      `).join("");
-    } catch (error) {
-      document.getElementById("reviews-container").innerHTML = "<p class='text-danger'>Lỗi khi tải đánh giá.</p>";
     }
-  }
 
-  loadReviews();
+    async function toggleReview(reviewId, isActivity) {
+      try {
+        console.log('Toggling review with ID:', reviewId, 'Current is_activity:', isActivity);
+        const res = await fetch(`/review/${reviewId}/toggle?is_activity=${!isActivity}`, {
+          method: 'GET'
+        });
+        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+        const data = await res.json();
+        console.log('Toggle review response:', data);
+        if (data.success) {
+          loadReviews(); // Tải lại danh sách đánh giá
+        } else {
+          throw new Error(data.message || 'Không thể thay đổi trạng thái đánh giá');
+        }
+      } catch (error) {
+        console.error('Error toggling review:', error);
+        alert('Lỗi khi thay đổi trạng thái đánh giá. Vui lòng thử lại.');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadReviews();
+    });
   </script>
 </body>
 

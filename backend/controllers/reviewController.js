@@ -17,6 +17,30 @@ exports.getReviewsByProduct = async (req, res) => {
     res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 };
+exports.toggleReviewActivity = async (req, res) => {
+  try {
+    const reviewId = req.params.id;
+    console.log('Toggling review with ID:', reviewId);
+    const review = await Review.findById(reviewId);
+    if (!review) {
+      console.log('Review not found for ID:', reviewId);
+      return res.status(404).json({ message: "Không tìm thấy review" });
+    }
+
+    // Bật/tắt is_activity
+    review.is_activity = !review.is_activity;
+    await review.save();
+    console.log('Updated review:', review);
+
+    // Cập nhật rating trung bình của sản phẩm
+    await recalcProductRating(review.product_id);
+
+    res.json({ success: true, review });
+  } catch (error) {
+    console.error('Error toggling review activity:', error.message);
+    res.status(500).json({ message: "Lỗi server", error: error.message });
+  }
+};
 
 // Helper: tính lại rating trung bình của product
 const recalcProductRating = async (product_id) => {

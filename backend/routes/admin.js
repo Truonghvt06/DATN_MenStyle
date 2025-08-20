@@ -7,6 +7,17 @@ const Banner = require('../models/Banner');
 const User = require('../models/User');
 const Order=require('../models/Order');
 const Product=require('../models/Product');
+function getTodayRangeVN() {
+  const now = new Date();
+  const utcNow = now.getTime() + now.getTimezoneOffset() * 60000;
+  const vnNow = new Date(utcNow + 7 * 60 * 60000);
+  const y = vnNow.getUTCFullYear();
+  const m = vnNow.getUTCMonth();
+  const d = vnNow.getUTCDate();
+  const start = new Date(Date.UTC(y, m, d, 0, 0, 0, 0));
+  const nextStart = new Date(Date.UTC(y, m, d + 1, 0, 0, 0, 0));
+  return { start, nextStart };
+}
 
 /* ------------ Helpers / Middleware ------------ */
 function ensureAdmin(req, res, next) {
@@ -86,35 +97,46 @@ router.post('/login', async (req, res) => {
 // GET /admin/home
 router.get('/home', ensureAdmin, async (req, res) => {
   try {
-    const banners = await Banner.find().sort({ createdAt: -1 });
-    const userCount = await User.countDocuments();
-
-    // Đếm đơn hàng pending
-    const pendingOrderCount = await Order.countDocuments({ order_status: 'pending' });
-
-    // Lấy danh sách biến thể có số lượng < 50
-    const lowStockProducts = await Product.aggregate([
-      { $unwind: '$variants' },
-      { $match: { 'variants.quantity': { $lt: 50 } } },
-      {
-        $project: {
-          name: 1,
-          'variants.size': 1,
-          'variants.color': 1,
-          'variants.quantity': 1
-        }
+      const { start, nextStart } = getTodayRangeVN();
+  
+      // Đơn hôm nay
+      const todayOrdersFilter = { createdAt: { $gte: start, $lt: nextStart } };
+      const todayOrderCount = await Order.countDocuments(todayOrdersFilter);
+  
+      // Doanh thu hôm nay (đơn đã thanh toán)
+      const revAgg = await Order.aggregate([
+        { $match: { ...todayOrdersFilter, payment_status: "paid" } },
+        { $group: { _id: null, total: { $sum: "$total_amount" } } },
+      ]);
+      const todayRevenue = revAgg.length ? revAgg[0].total : 0;
+  
+      // Đơn hàng chờ xử lý
+      const pendingOrderCount = await Order.countDocuments({ order_status: "pending" });
+  
+      // Tổng người dùng
+      const userCount = await User.countDocuments({});
+  
+      // Banners (fallback nếu không có field `active`)
+      let banners = [];
+      try {
+        banners = await Banner.find({ active: true }).lean();
+        if (!banners.length) banners = await Banner.find({}).lean();
+      } catch (_) {
+        banners = [];
       }
-    ]);
-
-    res.render('home', {
-      banners,
-      userCount,
-      pendingOrderCount,
-      lowStockProducts
-    });
-  } catch (error) {
-    res.status(500).send('Lỗi khi tải trang quản trị: ' + error.message);
-  }
+      console.log("banners:", banners.length);
+  
+      res.render("home", {
+        banners,
+        todayRevenue,
+        todayOrderCount,
+        pendingOrderCount,
+        userCount,
+      });
+    } catch (err) {
+      console.error('Lỗi khi tải trang quản trị:', err);
+    res.status(500).send('Lỗi khi tải trang quản trị: ' + err.message);
+    }
 });
 
 // Đổi mật khẩu từ trong quản trị
