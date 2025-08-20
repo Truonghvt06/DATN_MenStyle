@@ -7,6 +7,7 @@ const productTypeSchema = new mongoose.Schema(
     description: { type: String, default: "" }, // Mô tả thêm
     image: { type: String, default: "" }, // ✅ Ảnh đại diện của loại sản phẩm (URL)
     normalized_name: { type: String, default: "" },
+    is_activity: { type: Boolean, default: true }, // Trạng thái (đang hoạt động hoặc bị xóa)
   },
   { timestamps: true }
 );
