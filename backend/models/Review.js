@@ -23,6 +23,7 @@ const reviewSchema = new mongoose.Schema(
     },
     rating: { type: Number, required: true },
     comment: { type: String, default: "" },
+    is_activity: { type: Boolean, default: true }, // Trạng thái đánh giá (đang hoạt động hoặc bị xóa)
   },
   { timestamps: true }
 );
