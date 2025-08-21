@@ -156,7 +156,12 @@ router.post('/change_password', async (req, res) => {
 });
 /* ------------ Đăng xuất ------------ */
 router.get('/logout', ensureAdmin, (req, res) => {
-  req.session.destroy(() => {
+  req.session.destroy(err => {
+    if (err) {
+      console.log(err);
+      return res.redirect('/admin/setting'); // hoặc về setting nếu cần
+    }
+    res.clearCookie('connect.sid'); // Nếu bạn dùng express-session
     res.redirect('/admin/login');
   });
 });
