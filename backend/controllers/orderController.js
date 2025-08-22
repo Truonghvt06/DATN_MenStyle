@@ -89,7 +89,6 @@ const generateOrderCode = () => {
 // };
 exports.createOrder = async (req, res) => {
   try {
-
     const {
       total_amount,
       shipping_address_id,
@@ -134,26 +133,10 @@ exports.createOrder = async (req, res) => {
       payment_method_id,
       items,
       code: orderCode,
-
       voucher_code: voucher_code || [], // thêm voucher_code vào đây
     });
 
     const savedOrder = await newOrder.save();
-
-    // Nếu có mã voucher, cập nhật lịch sử sử dụng trên voucher
-    if (voucher_code) {
-      const voucher = await Voucher.findOne({ code: voucher_code });
-      if (voucher) {
-        voucher.used_count = (voucher.used_count || 0) + 1;
-        voucher.voucher_usage.push({
-          user_id,
-          order_id: savedOrder._id,
-          voucher_id: voucher._id,
-          used_at: new Date(),
-        });
-        await voucher.save();
-      }
-    }
 
     return res.status(201).json({
       message: "Tạo đơn hàng thành công",
