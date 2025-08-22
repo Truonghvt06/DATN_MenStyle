@@ -28,5 +28,6 @@ router.post("/update-payment-status/:id", orderController.updatePaymentStatus);
 
 router.get("/order_detail/:id", orderController.getOrderDetail);
 router.get("/payment-by-order/:orderId", orderController.getPaymentByOrderId);
+router.get("/by-date", orderController.getOrdersByDate);
 
 module.exports = router;

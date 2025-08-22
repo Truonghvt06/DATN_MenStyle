@@ -560,3 +560,24 @@ exports.updatePaymentStatus = async (req, res) => {
     res.status(500).json({ message: "Lỗi máy chủ" });
   }
 };
+exports.getOrdersByDate = async (req, res) => {
+  try {
+    const orders = await Order.aggregate([
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+          },
+          orders: { $push: "$$ROOT" },
+        },
+      },
+      { $sort: { _id: -1 } }, // ngày mới nhất lên đầu
+    ]);
+
+    // Render ra EJS
+    res.render("notification", { orders });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Lỗi khi lấy danh sách đơn hàng");
+  }
+};

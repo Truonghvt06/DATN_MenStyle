@@ -26,6 +26,7 @@
   <!-- Sidebar -->
   <nav class="sidebar" id="sidebar">
     <a href="/"><i class="bi bi-house"></i><span>Trang chủ</span></a>
+    <a href="/order/by-date"><i class="bi bi-bell"></i><span>Thông báo</span></a>
     <a href="/products/view"><i class="bi bi-box"></i><span> Sản phẩm</span></a>
     <a href="/products/product-types/view"><i class="bi bi-tags"></i><span> Thể loại</span></a>
     <a href="/voucher/view"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
@@ -75,6 +76,18 @@
 
     <!-- Dashboard -->
     <main>
+      <% if (typeof todayOrderCount !== 'undefined' && todayOrderCount > 0) { %>
+  <div class="alert alert-info d-flex align-items-center gap-2 shadow-sm" role="alert">
+    <i class="bi bi-bell-fill text-primary"></i>
+    <span>Hôm nay có <strong><%= todayOrderCount %></strong> đơn hàng mới 🎉</span>
+  </div>
+<% } else { %>
+  <div class="alert alert-secondary d-flex align-items-center gap-2 shadow-sm" role="alert">
+    <i class="bi bi-info-circle text-muted"></i>
+    <span>Hôm nay chưa có đơn hàng mới.</span>
+  </div>
+<% } %>
+
       <div class="dashboard-title">Tổng quan hệ thống</div>
       <p class="text-muted">Chào mừng bạn đến với bảng điều khiển. Dưới đây là một số thống kê nhanh.</p>
 
