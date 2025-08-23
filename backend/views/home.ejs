@@ -20,12 +20,20 @@
     .card-box:hover{ transform:translateY(-4px); box-shadow:0 12px 24px rgba(0,0,0,.1); }
     .icon-box{ width:64px; height:64px; margin:0 auto 14px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; color:#fff; }
     .text-muted-small{ font-size:14px; color:#889; }
+    .sidebar a.active {
+  background-color: #000 !important; /* nền đen */
+  color: #fff !important;            /* chữ trắng */
+}
+.sidebar a.active i {
+  color: #fff !important;            /* icon trắng */
+}
+
   </style>
 </head>
 <body>
   <!-- Sidebar -->
   <nav class="sidebar" id="sidebar">
-    <a href="/"><i class="bi bi-house"></i><span>Trang chủ</span></a>
+    <a href="/" class="active"><i class="bi bi-house"></i><span>Trang chủ</span></a>
     <a href="/order/by-date"><i class="bi bi-bell"></i><span>Thông báo</span></a>
     <a href="/products/view"><i class="bi bi-box"></i><span> Sản phẩm</span></a>
     <a href="/products/product-types/view"><i class="bi bi-tags"></i><span> Thể loại</span></a>

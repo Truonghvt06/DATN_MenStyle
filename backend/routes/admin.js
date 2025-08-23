@@ -7,17 +7,27 @@ const Banner = require('../models/Banner');
 const User = require('../models/User');
 const Order=require('../models/Order');
 const Product=require('../models/Product');
+// utils/date.js
 function getTodayRangeVN() {
   const now = new Date();
-  const utcNow = now.getTime() + now.getTimezoneOffset() * 60000;
-  const vnNow = new Date(utcNow + 7 * 60 * 60000);
-  const y = vnNow.getUTCFullYear();
-  const m = vnNow.getUTCMonth();
-  const d = vnNow.getUTCDate();
-  const start = new Date(Date.UTC(y, m, d, 0, 0, 0, 0));
-  const nextStart = new Date(Date.UTC(y, m, d + 1, 0, 0, 0, 0));
-  return { start, nextStart };
+
+  // Lấy "hôm nay" theo giờ Việt Nam
+  const vnNow = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+
+  const vnYear = vnNow.getUTCFullYear();
+  const vnMonth = vnNow.getUTCMonth();
+  const vnDate = vnNow.getUTCDate();
+
+  // 00:00 sáng theo giờ VN
+  const startVN = new Date(Date.UTC(vnYear, vnMonth, vnDate, 0, 0, 0));
+  // 00:00 ngày mai theo giờ VN
+  const nextStartVN = new Date(Date.UTC(vnYear, vnMonth, vnDate + 1, 0, 0, 0));
+
+  return { start: startVN, nextStart: nextStartVN };
 }
+
+module.exports = { getTodayRangeVN };
+
 
 /* ------------ Helpers / Middleware ------------ */
 function ensureAdmin(req, res, next) {

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const Product = require("../models/Product");
+const Order=require("../models/Order");
 const authController = require("../controllers/authController");
 const authMiddleware = require("../middleware/authMiddleware");
 const favoriteController = require("../controllers/favoriteController");
@@ -109,25 +110,16 @@ router.get("/detail/:id", async (req, res) => {
       .populate("cart.productId")
       .populate("favorites.productId")
       .lean();
-    const products = await Product.find().lean();
-    // console.log("Số lượng sản phẩm trong giỏ hàng:", products.length);
-    res.render("user_detail", { user, products });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Lỗi server");
-  }
-});
 
-router.get("/detail/:id", async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id)
-      .populate("cart.productId")
-      .populate("favorites.productId")
+    const products = await Product.find().lean();
+
+    // 👉 Lấy tất cả đơn hàng của user
+    const orders = await Order.find({ user_id: req.params.id })
+      .populate("items.product_id", "name price") // populate thêm sản phẩm
+      .sort({ createdAt: -1 })
       .lean();
-    const products = await Product.find().lean();
-    console.log("Số lượng sản phẩm trong giỏ hàng:", products.length);
-    res.render("user_detail", { user, products });
 
+    res.render("user_detail", { user, products, orders });
   } catch (err) {
     console.error(err);
     res.status(500).send("Lỗi server");

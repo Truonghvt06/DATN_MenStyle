@@ -28,6 +28,15 @@
     .filter-card{ padding:14px; border-radius:12px; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.05); }
     .btn-apply{ min-width:110px; }
     .muted{ color:#6c757d; }
+    .sidebar a.active {
+  background-color: #000 !important; /* nền đen */
+  color: #fff !important;            /* chữ trắng */
+}
+.sidebar a.active i {
+  color: #fff !important;            /* icon trắng */
+}
+
+
   </style>
 </head>
 
@@ -47,9 +56,12 @@
     <a href="/voucher/view"><i class="bi bi-ticket"></i><span>Phiếu giảm giá</span></a>
     <a href="/accounts/view"><i class="bi bi-people"></i><span>Tài khoản</span></a>
     <a href="/accounts/admin/orders"><i class="bi bi-receipt-cutoff"></i><span>Đơn hàng</span></a>
-    <a href="/dashboard/stats-overview" class="fw-semibold"><i class="bi bi-bar-chart-line"></i><span>Thống kê</span></a>
+    <a href="/dashboard/stats-overview" class="active">
+      <i class="bi bi-bar-chart-line"></i><span>Thống kê</span>
+    </a>
     <a href="/setting/view"><i class="bi bi-gear"></i><span>Cài đặt</span></a>
   </nav>
+  
 
   <!-- Content -->
   <div class="content" id="content">
@@ -169,7 +181,12 @@
     const VN_CCY = { style:'currency', currency:'VND' };
     const fmtVND = v => new Intl.NumberFormat('vi-VN', VN_CCY).format(v || 0);
     const fmtNum = v => new Intl.NumberFormat('vi-VN').format(v || 0);
-    const isoDateOnly = d => d.toISOString().split('T')[0];
+    // Trả về yyyy-mm-dd theo giờ VN
+function isoDateOnlyVN(date){
+  const vnDate = new Date(date.getTime() + 7*60*60*1000);
+  return vnDate.toISOString().split('T')[0];
+}
+
 
     // ----- Filter helpers -----
     function setDateInputsByPreset(preset) {
@@ -184,15 +201,17 @@
         const days = parseInt(preset,10) || 0;
         start.setDate(today.getDate()-days);
       }
-      document.getElementById('fromDate').value = isoDateOnly(start);
-      document.getElementById('toDate').value = isoDateOnly(end);
+      document.getElementById('fromDate').value = isoDateOnlyVN(start);
+document.getElementById('toDate').value = isoDateOnlyVN(end);
+
       updateRangeLabel(start, end);
     }
 
     function updateRangeLabel(s, e){
       const label = document.getElementById('dateRangeLabel');
-      const sText = isoDateOnly(new Date(s));
-      const eText = isoDateOnly(new Date(e));
+      const sText = isoDateOnlyVN(new Date(s));
+const eText = isoDateOnlyVN(new Date(e));
+
       label.textContent = `Từ ${sText} đến ${eText}`;
     }
 
@@ -360,28 +379,30 @@
       document.getElementById('time-range').value = 'today';
       setDateInputsByPreset('today');
       const s = new Date(); const e = new Date();
-      fetchStatsISO(new Date(isoDateOnly(s)+'T00:00:00').toISOString(),
-                    new Date(isoDateOnly(e)+'T23:59:59').toISOString());
+      fetchStatsISO(new Date(isoDateOnlyVN(s)+'T00:00:00').toISOString(),
+              new Date(isoDateOnlyVN(e)+'T23:59:59').toISOString());
+
     });
 
     // Init lần đầu
     document.addEventListener('DOMContentLoaded', ()=>{
       if (defaultFrom && defaultTo) {
-        // server có from/to mặc định
-        const s = new Date(defaultFrom);
-        const e = new Date(defaultTo);
-        document.getElementById('fromDate').value = isoDateOnly(s);
-        document.getElementById('toDate').value   = isoDateOnly(e);
-        document.getElementById('time-range').value = 'today';
-        updateRangeLabel(s,e);
-        fetchStatsISO(defaultFrom, defaultTo);
-      } else {
+  const s = new Date(defaultFrom);
+  const e = new Date(defaultTo);
+  document.getElementById('fromDate').value = isoDateOnlyVN(s);
+  document.getElementById('toDate').value   = isoDateOnlyVN(e);
+  document.getElementById('time-range').value = 'today';
+  updateRangeLabel(s,e);
+  fetchStatsISO(defaultFrom, defaultTo);
+}
+else {
         // mặc định hôm nay
         document.getElementById('time-range').value = 'today';
         setDateInputsByPreset('today');
-        const today = isoDateOnly(new Date());
-        fetchStatsISO(new Date(today+'T00:00:00').toISOString(),
-                      new Date(today+'T23:59:59').toISOString());
+        const today = isoDateOnlyVN(new Date());
+fetchStatsISO(new Date(today+'T00:00:00').toISOString(),
+              new Date(today+'T23:59:59').toISOString());
+
       }
     });
   </script>

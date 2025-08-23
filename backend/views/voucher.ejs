@@ -106,6 +106,14 @@
       background-color: #dc3545;
       color: white;
     }
+    .sidebar a.active {
+  background-color: #000 !important; /* nền đen */
+  color: #fff !important;            /* chữ trắng */
+}
+.sidebar a.active i {
+  color: #fff !important;            /* icon trắng */
+}
+
   </style>
 </head>
 
@@ -115,7 +123,7 @@
     <a href="/order/by-date"><i class="bi bi-bell"></i><span>Thông báo</span></a>
     <a href="/products/view"><i class="bi bi-box"></i><span> Sản phẩm</span></a>
     <a href="/products/product-types/view"><i class="bi bi-tags"></i><span> Thể loại</span></a>
-    <a href="/voucher/view"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
+    <a href="/voucher/view" class="active"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
     <a href="/accounts/view"><i class="bi bi-people"></i><span> Tài khoản</span></a>
     <a href="/accounts/admin/orders"><i class="bi bi-receipt-cutoff"></i><span> Đơn hàng</span></a>
     <a href="/dashboard/stats-overview"><i class="bi bi-bar-chart-line"></i><span> Thống kê</span></a>

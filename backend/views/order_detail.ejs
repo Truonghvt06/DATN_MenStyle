@@ -118,6 +118,14 @@
             margin: 0;
             color: #111;
         }
+        .sidebar a.active {
+  background-color: #000 !important; /* nền đen */
+  color: #fff !important;            /* chữ trắng */
+}
+.sidebar a.active i {
+  color: #fff !important;            /* icon trắng */
+}
+
     </style>
 </head>
 
@@ -129,7 +137,7 @@
         <a href="/products/product-types/view"><i class="bi bi-tags"></i><span> Thể loại</span></a>
         <a href="/voucher/view"><i class="bi bi-ticket"></i><span> Phiếu giảm giá</span></a>
         <a href="/accounts/view"><i class="bi bi-people"></i><span> Tài khoản</span></a>
-        <a href="/accounts/admin/orders"><i class="bi bi-receipt-cutoff"></i><span> Đơn hàng</span></a>
+        <a href="/accounts/admin/orders" class="active"><i class="bi bi-receipt-cutoff"></i><span> Đơn hàng</span></a>
         <a href="/dashboard/stats-overview"><i class="bi bi-bar-chart-line"></i><span> Thống kê</span></a>
         <a href="/setting/view"><i class="bi bi-gear"></i> <span>Cài đặt</span></a>
       </nav>
