@@ -365,24 +365,26 @@ const eText = isoDateOnlyVN(new Date(e));
       fetchStatsISO(from.toISOString(), to.toISOString());
     });
 
-    document.getElementById('applyBtn').addEventListener('click', ()=>{
-      const fromInput = document.getElementById('fromDate').value;
-      const toInput   = document.getElementById('toDate').value;
-      if(!fromInput || !toInput) return;
-      const s = new Date(fromInput+'T00:00:00');
-      const e = new Date(toInput+'T23:59:59');
-      updateRangeLabel(s,e);
-      fetchStatsISO(s.toISOString(), e.toISOString());
-    });
+    // Khi apply
+document.getElementById('applyBtn').addEventListener('click', ()=>{
+  const fromInput = document.getElementById('fromDate').value;
+  const toInput   = document.getElementById('toDate').value;
+  if(!fromInput || !toInput) return;
+  const s = new Date(fromInput+'T00:00:00');
+  const e = new Date(toInput+'T23:59:59');
+  updateRangeLabel(s,e);
+  fetchStatsISO(s.toISOString(), e.toISOString());
+});
 
-    document.getElementById('resetBtn').addEventListener('click', ()=>{
-      document.getElementById('time-range').value = 'today';
-      setDateInputsByPreset('today');
-      const s = new Date(); const e = new Date();
-      fetchStatsISO(new Date(isoDateOnlyVN(s)+'T00:00:00').toISOString(),
-              new Date(isoDateOnlyVN(e)+'T23:59:59').toISOString());
+// Khi reset
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  document.getElementById('time-range').value = 'today';
+  setDateInputsByPreset('today');
+  const today = isoDateOnlyVN(new Date());
+  fetchStatsISO(new Date(today+'T00:00:00').toISOString(),
+                new Date(today+'T23:59:59').toISOString());
+});
 
-    });
 
     // Init lần đầu
     document.addEventListener('DOMContentLoaded', ()=>{

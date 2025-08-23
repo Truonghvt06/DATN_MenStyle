@@ -1,30 +1,32 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Order = require('../models/Order');
-const User = require('../models/User');
-const Product = require('../models/Product');
+const Order = require("../models/Order");
+const User = require("../models/User");
+const Product = require("../models/Product");
 
-// Route VIEW: Giao diện tổng quan dashboard
-router.get('/stats-overview', (req, res) => {
-  const today = new Date();
-  const from = new Date(today.setHours(0, 0, 0, 0)).toISOString(); // đầu ngày
-  const to = new Date().toISOString(); // hiện tại
+// Hàm chuyển đổi ngày sang múi giờ Việt Nam
+const toVietnamDate = (date) => {
+  const options = { timeZone: "Asia/Ho_Chi_Minh" };
+  return new Date(date.toLocaleString("en-US", options));
+};
 
-  res.render('stats-overview', { defaultFrom: from, defaultTo: to });
+// Trang view thống kê
+router.get("/stats-overview", (req, res) => {
+  const today = toVietnamDate(new Date());
+  const from = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+  const to = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+  res.render("stats-overview", { defaultFrom: from, defaultTo: to });
 });
 
-// Route API: Trả về JSON thống kê dashboard
+// API thống kê
 router.get("/stats", async (req, res) => {
   try {
     const { from, to } = req.query;
-    const start = new Date(from);
-    const end = new Date(to);
 
-    // Xử lý múi giờ Việt Nam (UTC+7)
-    const VN_OFFSET = 7 * 60 * 60 * 1000;
-    const startVN = new Date(start.getTime() - VN_OFFSET);
-    const endVN = new Date(end.getTime() - VN_OFFSET);
+    // Chuyển đổi from, to sang múi giờ Việt Nam
+    const startVN = toVietnamDate(new Date(from));
     startVN.setHours(0, 0, 0, 0);
+    const endVN = toVietnamDate(new Date(to));
     endVN.setHours(23, 59, 59, 999);
 
     // 1. Đơn hàng đã thanh toán
@@ -33,17 +35,12 @@ router.get("/stats", async (req, res) => {
       createdAt: { $gte: startVN, $lte: endVN }
     });
 
-    const revenue = orders.reduce((total, order) => total + order.total_amount, 0);
+    const revenue = orders.reduce((t, o) => t + o.total_amount, 0);
     const orderCount = orders.length;
 
     // 2. Top 5 sản phẩm bán chạy
     const bestSellers = await Order.aggregate([
-      {
-        $match: {
-          payment_status: "paid",
-          createdAt: { $gte: startVN, $lte: endVN }
-        }
-      },
+      { $match: { payment_status: "paid", createdAt: { $gte: startVN, $lte: endVN } } },
       { $unwind: "$items" },
       {
         $group: {
@@ -76,32 +73,34 @@ router.get("/stats", async (req, res) => {
 
     // 3. Người dùng mới
     const newUsers = await User.find({
-      createdAt: { $gte: startVN, $lte: endVN },
+      createdAt: { $gte: startVN, $lte: endVN }
     }).sort({ createdAt: -1 });
 
-    // 4. Tổng hợp theo ngày cho biểu đồ
+    // 4. Tổng hợp cho biểu đồ
     const generateDateMap = (from, to) => {
       const map = {};
-      const current = new Date(from);
-      while (current <= to) {
-        const key = current.toISOString().split("T")[0];
+      let cur = new Date(from);
+      while (cur <= to) {
+        const key = cur.toLocaleDateString("sv-SE", { timeZone: "Asia/Ho_Chi_Minh" });
         map[key] = 0;
-        current.setDate(current.getDate() + 1);
+        cur.setDate(cur.getDate() + 1);
       }
       return map;
     };
 
+    // Doanh thu theo ngày
     const dailyRevenueMap = generateDateMap(startVN, endVN);
-    orders.forEach(order => {
-      const date = new Date(order.createdAt.getTime() + VN_OFFSET).toISOString().split("T")[0];
+    orders.forEach(o => {
+      const date = o.createdAt.toLocaleDateString("sv-SE", { timeZone: "Asia/Ho_Chi_Minh" });
       if (dailyRevenueMap[date] !== undefined) {
-        dailyRevenueMap[date] += order.total_amount;
+        dailyRevenueMap[date] += o.total_amount;
       }
     });
 
+    // Người dùng mới theo ngày
     const dailyUserMap = generateDateMap(startVN, endVN);
-    newUsers.forEach(user => {
-      const date = new Date(user.createdAt.getTime() + VN_OFFSET).toISOString().split("T")[0];
+    newUsers.forEach(u => {
+      const date = u.createdAt.toLocaleDateString("sv-SE", { timeZone: "Asia/Ho_Chi_Minh" });
       if (dailyUserMap[date] !== undefined) {
         dailyUserMap[date] += 1;
       }
@@ -111,11 +110,11 @@ router.get("/stats", async (req, res) => {
       revenue,
       orderCount,
       newCustomers: newUsers.length,
-      newUsers: newUsers.map((u, index) => ({
-        index: index + 1,
+      newUsers: newUsers.map((u, i) => ({
+        index: i + 1,
         fullName: u.fullname || "Không tên",
         email: u.email,
-        createdAt: u.createdAt.toISOString().split("T")[0]
+        createdAt: u.createdAt.toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })
       })),
       bestSellers,
       dailyRevenue: Object.entries(dailyRevenueMap).map(([date, total]) => ({ date, total })),
@@ -123,29 +122,9 @@ router.get("/stats", async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Lỗi khi lấy thống kê:", err);
+    console.error("Lỗi thống kê:", err);
     res.status(500).json({ error: "Lỗi server" });
   }
 });
-exports.getDashboard = async (req, res) => {
-  try {
-    // Số lượng đơn hàng đang pending
-    const pendingOrderCount = await Order.countDocuments({ order_status: "pending" });
-
-    // Tổng số người dùng
-    const userCount = await User.countDocuments();
-
-  
-    res.render("dashboard", {
-      pendingOrderCount,
-      userCount,
-    });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Lỗi server");
-  }
-};
-
 
 module.exports = router;

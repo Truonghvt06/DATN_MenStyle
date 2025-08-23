@@ -566,7 +566,11 @@ exports.getOrdersByDate = async (req, res) => {
       {
         $group: {
           _id: {
-            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$createdAt",
+              timezone: "Asia/Ho_Chi_Minh" // đảm bảo đúng ngày VN
+            },
           },
           orders: { $push: "$$ROOT" },
         },
@@ -577,7 +581,8 @@ exports.getOrdersByDate = async (req, res) => {
     // Render ra EJS
     res.render("notification", { orders });
   } catch (error) {
-    console.error(error);
+    console.error("Lỗi khi lấy danh sách đơn hàng:", error);
     res.status(500).send("Lỗi khi lấy danh sách đơn hàng");
   }
 };
+

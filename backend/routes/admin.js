@@ -11,20 +11,22 @@ const Product=require('../models/Product');
 function getTodayRangeVN() {
   const now = new Date();
 
-  // Lấy "hôm nay" theo giờ Việt Nam
-  const vnNow = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+  // Lấy thời gian hiện tại ở VN
+  const vnNow = new Date(
+    now.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" })
+  );
 
-  const vnYear = vnNow.getUTCFullYear();
-  const vnMonth = vnNow.getUTCMonth();
-  const vnDate = vnNow.getUTCDate();
+  // Tạo mốc đầu ngày VN
+  const start = new Date(vnNow);
+  start.setHours(0, 0, 0, 0);
 
-  // 00:00 sáng theo giờ VN
-  const startVN = new Date(Date.UTC(vnYear, vnMonth, vnDate, 0, 0, 0));
-  // 00:00 ngày mai theo giờ VN
-  const nextStartVN = new Date(Date.UTC(vnYear, vnMonth, vnDate + 1, 0, 0, 0));
+  // Mốc đầu ngày hôm sau VN
+  const nextStart = new Date(start);
+  nextStart.setDate(start.getDate() + 1);
 
-  return { start: startVN, nextStart: nextStartVN };
+  return { start, nextStart };
 }
+
 
 module.exports = { getTodayRangeVN };
 
