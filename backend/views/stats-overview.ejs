@@ -29,14 +29,12 @@
     .btn-apply{ min-width:110px; }
     .muted{ color:#6c757d; }
     .sidebar a.active {
-  background-color: #000 !important; /* nền đen */
-  color: #fff !important;            /* chữ trắng */
-}
-.sidebar a.active i {
-  color: #fff !important;            /* icon trắng */
-}
-
-
+      background-color: #000 !important; /* nền đen */
+      color: #fff !important;            /* chữ trắng */
+    }
+    .sidebar a.active i {
+      color: #fff !important;            /* icon trắng */
+    }
   </style>
 </head>
 
@@ -61,7 +59,6 @@
     </a>
     <a href="/setting/view"><i class="bi bi-gear"></i><span>Cài đặt</span></a>
   </nav>
-  
 
   <!-- Content -->
   <div class="content" id="content">
@@ -156,21 +153,12 @@
       </div>
     </div>
 
-    <!-- Biểu đồ theo năm -->
-    <div class="row g-4 mt-4" id="yearly-wrap" style="display:none;">
-      <div class="col-12">
-        <div class="chart-card">
-          <h5 class="mb-3">📊 Doanh thu theo năm</h5>
-          <div class="chart-wrap--yearly"><canvas id="yearlyRevenueChart"></canvas></div>
-        </div>
-      </div>
-    </div>
   </div>
   <!-- /content -->
 
   <script>
     // Sidebar toggle
-    document.getElementById('toggleBtn').addEventListener('click', ()=> {
+    document.getElementById('toggleBtn').addEventListener('click', () => {
       document.getElementById('sidebar').classList.toggle('collapsed');
     });
 
@@ -181,47 +169,45 @@
     const VN_CCY = { style:'currency', currency:'VND' };
     const fmtVND = v => new Intl.NumberFormat('vi-VN', VN_CCY).format(v || 0);
     const fmtNum = v => new Intl.NumberFormat('vi-VN').format(v || 0);
-    // Trả về yyyy-mm-dd theo giờ VN
-function isoDateOnlyVN(date){
-  const vnDate = new Date(date.getTime() + 7*60*60*1000);
-  return vnDate.toISOString().split('T')[0];
-}
 
+    // Trả về yyyy-mm-dd theo giờ VN
+    function isoDateOnlyVN(date) {
+      return date.toLocaleDateString("sv-SE", { timeZone: "Asia/Ho_Chi_Minh" });
+    }
 
     // ----- Filter helpers -----
     function setDateInputsByPreset(preset) {
-      const today = new Date();
+      const today = new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" });
+      const todayDate = new Date(today);
       let start = new Date(today), end = new Date(today);
       if (preset === 'today') {
         // giữ nguyên today
       } else if (preset === 'yesterday') {
-        start.setDate(today.getDate()-1);
-        end.setDate(today.getDate()-1);
+        start.setDate(todayDate.getDate()-1);
+        end.setDate(todayDate.getDate()-1);
       } else {
         const days = parseInt(preset,10) || 0;
-        start.setDate(today.getDate()-days);
+        start.setDate(todayDate.getDate()-days);
       }
       document.getElementById('fromDate').value = isoDateOnlyVN(start);
-document.getElementById('toDate').value = isoDateOnlyVN(end);
-
+      document.getElementById('toDate').value = isoDateOnlyVN(end);
       updateRangeLabel(start, end);
     }
 
-    function updateRangeLabel(s, e){
+    function updateRangeLabel(s, e) {
       const label = document.getElementById('dateRangeLabel');
       const sText = isoDateOnlyVN(new Date(s));
-const eText = isoDateOnlyVN(new Date(e));
-
+      const eText = isoDateOnlyVN(new Date(e));
       label.textContent = `Từ ${sText} đến ${eText}`;
     }
 
-    async function fetchStatsISO(fromIso, toIso){
+    async function fetchStatsISO(fromIso, toIso) {
       const res = await fetch(`/dashboard/stats?from=${encodeURIComponent(fromIso)}&to=${encodeURIComponent(toIso)}`);
       const data = await res.json();
       updateStatsUI(data);
     }
 
-    function updateStatsUI(data){
+    function updateStatsUI(data) {
       document.getElementById('revenue').textContent = fmtVND(data.revenue);
       document.getElementById('order-count').textContent = data.orderCount ?? 0;
       document.getElementById('new-users-count').textContent = data.newCustomers ?? 0;
@@ -233,9 +219,9 @@ const eText = isoDateOnlyVN(new Date(e));
     }
 
     // ----- Table -----
-    function renderBestSellers(products){
+    function renderBestSellers(products) {
       const tbody = document.querySelector('#best-sellers tbody');
-      if(!products.length){
+      if (!products.length) {
         tbody.innerHTML = `<tr><td colspan="3" class="text-center">Không có dữ liệu</td></tr>`;
         return;
       }
@@ -249,162 +235,155 @@ const eText = isoDateOnlyVN(new Date(e));
     }
 
     // ----- Charts -----
-    function makeGradient(ctx, base='#4CAF50'){
+    function makeGradient(ctx, base='#4CAF50') {
       const g = ctx.createLinearGradient(0,0,0,ctx.canvas.height);
       g.addColorStop(0, base+'99');
       g.addColorStop(1, base+'10');
       return g;
     }
 
-    function renderRevenueChart(d){
+    function renderRevenueChart(d) {
       const ctx = document.getElementById('revenueChart').getContext('2d');
-      if(revenueChart) revenueChart.destroy();
-      revenueChart = new Chart(ctx,{
-        type:'line',
-        data:{
+      if (revenueChart) revenueChart.destroy();
+      revenueChart = new Chart(ctx, {
+        type: 'line',
+        data: {
           labels: d.map(i=>i.date),
-          datasets:[{
-            label:'Doanh thu',
+          datasets: [{
+            label: 'Doanh thu',
             data: d.map(i=>i.total),
-            borderColor:'#4CAF50',
+            borderColor: '#4CAF50',
             backgroundColor: makeGradient(ctx,'#4CAF50'),
-            borderWidth:2,
-            tension:.35,
-            fill:true,
-            pointRadius:3,
-            pointHoverRadius:6,
-            pointBackgroundColor:'#fff',
+            borderWidth: 2,
+            tension: .35,
+            fill: true,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#fff',
           }]
         },
-        options:{
-          responsive:true, maintainAspectRatio:true,
-          interaction:{ mode:'index', intersect:false },
-          scales:{
-            x:{ grid:{ display:false }},
-            y:{ grid:{ color:'rgba(0,0,0,.06)' }, ticks:{ callback:v=>fmtNum(v) } }
+        options: {
+          responsive: true, maintainAspectRatio: true,
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: { grid: { display: false }},
+            y: { grid: { color: 'rgba(0,0,0,.06)' }, ticks: { callback: v=>fmtNum(v) } }
           },
-          plugins:{
-            legend:{ labels:{ boxWidth:12 }},
-            tooltip:{ callbacks:{ label:ctx=>` ${fmtVND(ctx.parsed.y)}` } }
+          plugins: {
+            legend: { labels: { boxWidth: 12 }},
+            tooltip: { callbacks: { label: ctx=>` ${fmtVND(ctx.parsed.y)}` } }
           }
         }
       });
     }
 
-    function renderUserChart(d){
+    function renderUserChart(d) {
       const ctx = document.getElementById('userChart').getContext('2d');
-      if(userChart) userChart.destroy();
-      userChart = new Chart(ctx,{
-        type:'bar',
-        data:{
+      if (userChart) userChart.destroy();
+      userChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
           labels: d.map(i=>i.date),
-          datasets:[{
-            label:'Người dùng mới',
+          datasets: [{
+            label: 'Người dùng mới',
             data: d.map(i=>i.count),
-            backgroundColor:'#2196F3',
-            borderRadius:6,
-            borderSkipped:false
+            backgroundColor: '#2196F3',
+            borderRadius: 6,
+            borderSkipped: false
           }]
         },
-        options:{
-          responsive:true, maintainAspectRatio:true,
-          scales:{
-            x:{ grid:{ display:false }},
-            y:{ grid:{ color:'rgba(0,0,0,.06)' }, ticks:{ precision:0 } }
+        options: {
+          responsive: true, maintainAspectRatio: true,
+          scales: {
+            x: { grid: { display: false }},
+            y: { grid: { color: 'rgba(0,0,0,.06)' }, ticks: { precision: 0 } }
           },
-          plugins:{
-            legend:{ labels:{ boxWidth:12 }},
-            tooltip:{ callbacks:{ label:ctx=>` ${fmtNum(ctx.parsed.y)} người` } }
+          plugins: {
+            legend: { labels: { boxWidth: 12 }},
+            tooltip: { callbacks: { label: ctx=>` ${fmtNum(ctx.parsed.y)} người` } }
           }
         }
       });
     }
 
-    function renderYearlyRevenueChart(d){
+    function renderYearlyRevenueChart(d) {
       const wrap = document.getElementById('yearly-wrap');
-      if(!d || !d.length){ wrap.style.display='none'; return; }
+      if (!d || !d.length) { wrap.style.display='none'; return; }
       wrap.style.display='';
       const ctx = document.getElementById('yearlyRevenueChart').getContext('2d');
-      if(yearlyRevenueChart) yearlyRevenueChart.destroy();
-
+      if (yearlyRevenueChart) yearlyRevenueChart.destroy();
       const sorted = [...d].sort((a,b)=> (b.year||0)-(a.year||0));
-      yearlyRevenueChart = new Chart(ctx,{
-        type:'bar',
-        data:{
+      yearlyRevenueChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
           labels: sorted.map(i=>i.year),
-          datasets:[{
-            label:'Doanh thu',
+          datasets: [{
+            label: 'Doanh thu',
             data: sorted.map(i=>i.total),
-            backgroundColor:'#57c5b6',
-            borderColor:'#57c5b6',
-            borderRadius:6,
-            borderSkipped:false
+            backgroundColor: '#57c5b6',
+            borderColor: '#57c5b6',
+            borderRadius: 6,
+            borderSkipped: false
           }]
         },
-        options:{
-          indexAxis:'y',
-          responsive:true, maintainAspectRatio:true,
-          scales:{
-            x:{ grid:{ color:'rgba(0,0,0,.06)' }, ticks:{ callback:v=>fmtNum(v) } },
-            y:{ grid:{ display:false } }
+        options: {
+          indexAxis: 'y',
+          responsive: true, maintainAspectRatio: true,
+          scales: {
+            x: { grid: { color: 'rgba(0,0,0,.06)' }, ticks: { callback: v=>fmtNum(v) } },
+            y: { grid: { display: false } }
           },
-          plugins:{
-            legend:{ display:false },
-            tooltip:{ callbacks:{ label:ctx=>` ${fmtVND(ctx.parsed.x)}` } }
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx=>` ${fmtVND(ctx.parsed.x)}` } }
           }
         }
       });
     }
 
     // ----- Events -----
-    document.getElementById('time-range').addEventListener('change', function(){
+    document.getElementById('time-range').addEventListener('change', function() {
       setDateInputsByPreset(this.value);
-      // tự fetch theo preset
       const from = new Date(document.getElementById('fromDate').value+'T00:00:00');
-      const to   = new Date(document.getElementById('toDate').value+'T23:59:59');
+      const to = new Date(document.getElementById('toDate').value+'T23:59:59');
       fetchStatsISO(from.toISOString(), to.toISOString());
     });
 
-    // Khi apply
-document.getElementById('applyBtn').addEventListener('click', ()=>{
-  const fromInput = document.getElementById('fromDate').value;
-  const toInput   = document.getElementById('toDate').value;
-  if(!fromInput || !toInput) return;
-  const s = new Date(fromInput+'T00:00:00');
-  const e = new Date(toInput+'T23:59:59');
-  updateRangeLabel(s,e);
-  fetchStatsISO(s.toISOString(), e.toISOString());
-});
+    document.getElementById('applyBtn').addEventListener('click', () => {
+      const fromInput = document.getElementById('fromDate').value;
+      const toInput = document.getElementById('toDate').value;
+      if (!fromInput || !toInput) return;
+      const s = new Date(fromInput+'T00:00:00');
+      const e = new Date(toInput+'T23:59:59');
+      updateRangeLabel(s,e);
+      fetchStatsISO(s.toISOString(), e.toISOString());
+    });
 
-// Khi reset
-document.getElementById('resetBtn').addEventListener('click', ()=>{
-  document.getElementById('time-range').value = 'today';
-  setDateInputsByPreset('today');
-  const today = isoDateOnlyVN(new Date());
-  fetchStatsISO(new Date(today+'T00:00:00').toISOString(),
-                new Date(today+'T23:59:59').toISOString());
-});
-
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      document.getElementById('time-range').value = 'today';
+      setDateInputsByPreset('today');
+      const today = isoDateOnlyVN(new Date());
+      fetchStatsISO(new Date(today+'T00:00:00').toISOString(),
+                    new Date(today+'T23:59:59').toISOString());
+    });
 
     // Init lần đầu
-    document.addEventListener('DOMContentLoaded', ()=>{
+    document.addEventListener('DOMContentLoaded', () => {
       if (defaultFrom && defaultTo) {
-  const s = new Date(defaultFrom);
-  const e = new Date(defaultTo);
-  document.getElementById('fromDate').value = isoDateOnlyVN(s);
-  document.getElementById('toDate').value   = isoDateOnlyVN(e);
-  document.getElementById('time-range').value = 'today';
-  updateRangeLabel(s,e);
-  fetchStatsISO(defaultFrom, defaultTo);
-}
-else {
+        const s = new Date(defaultFrom);
+        const e = new Date(defaultTo);
+        document.getElementById('fromDate').value = isoDateOnlyVN(s);
+        document.getElementById('toDate').value = isoDateOnlyVN(e);
+        document.getElementById('time-range').value = 'today';
+        updateRangeLabel(s,e);
+        fetchStatsISO(defaultFrom, defaultTo);
+      } else {
         // mặc định hôm nay
         document.getElementById('time-range').value = 'today';
         setDateInputsByPreset('today');
         const today = isoDateOnlyVN(new Date());
-fetchStatsISO(new Date(today+'T00:00:00').toISOString(),
-              new Date(today+'T23:59:59').toISOString());
-
+        fetchStatsISO(new Date(today+'T00:00:00').toISOString(),
+                      new Date(today+'T23:59:59').toISOString());
       }
     });
   </script>

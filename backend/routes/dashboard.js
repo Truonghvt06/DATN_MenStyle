@@ -4,17 +4,16 @@ const Order = require("../models/Order");
 const User = require("../models/User");
 const Product = require("../models/Product");
 
-// Hàm chuyển đổi ngày sang múi giờ Việt Nam
-const toVietnamDate = (date) => {
-  const options = { timeZone: "Asia/Ho_Chi_Minh" };
-  return new Date(date.toLocaleString("en-US", options));
+// Hàm định dạng ngày thành YYYY-MM-DD theo múi giờ Việt Nam
+const formatDateToYMD = (date) => {
+  return date.toLocaleDateString("sv-SE", { timeZone: "Asia/Ho_Chi_Minh" });
 };
 
 // Trang view thống kê
 router.get("/stats-overview", (req, res) => {
-  const today = toVietnamDate(new Date());
-  const from = new Date(today.setHours(0, 0, 0, 0)).toISOString();
-  const to = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+  const today = new Date();
+  const from = formatDateToYMD(new Date(today.setHours(0, 0, 0, 0)));
+  const to = formatDateToYMD(new Date(today.setHours(23, 59, 59, 999)));
   res.render("stats-overview", { defaultFrom: from, defaultTo: to });
 });
 
@@ -23,10 +22,10 @@ router.get("/stats", async (req, res) => {
   try {
     const { from, to } = req.query;
 
-    // Chuyển đổi from, to sang múi giờ Việt Nam
-    const startVN = toVietnamDate(new Date(from));
+    // Chuyển đổi from, to sang Date objects
+    const startVN = new Date(from);
     startVN.setHours(0, 0, 0, 0);
-    const endVN = toVietnamDate(new Date(to));
+    const endVN = new Date(to);
     endVN.setHours(23, 59, 59, 999);
 
     // 1. Đơn hàng đã thanh toán
@@ -77,34 +76,80 @@ router.get("/stats", async (req, res) => {
     }).sort({ createdAt: -1 });
 
     // 4. Tổng hợp cho biểu đồ
-    const generateDateMap = (from, to) => {
-      const map = {};
-      let cur = new Date(from);
-      while (cur <= to) {
-        const key = cur.toLocaleDateString("sv-SE", { timeZone: "Asia/Ho_Chi_Minh" });
-        map[key] = 0;
-        cur.setDate(cur.getDate() + 1);
-      }
-      return map;
-    };
-
     // Doanh thu theo ngày
-    const dailyRevenueMap = generateDateMap(startVN, endVN);
-    orders.forEach(o => {
-      const date = o.createdAt.toLocaleDateString("sv-SE", { timeZone: "Asia/Ho_Chi_Minh" });
-      if (dailyRevenueMap[date] !== undefined) {
-        dailyRevenueMap[date] += o.total_amount;
+    const dailyRevenue = await Order.aggregate([
+      { $match: { payment_status: "paid", createdAt: { $gte: startVN, $lte: endVN } } },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$createdAt",
+              timezone: "Asia/Ho_Chi_Minh"
+            }
+          },
+          total: { $sum: "$total_amount" }
+        }
+      },
+      { $sort: { _id: 1 } },
+      {
+        $project: {
+          _id: 0,
+          date: "$_id",
+          total: 1
+        }
       }
-    });
+    ]);
 
     // Người dùng mới theo ngày
-    const dailyUserMap = generateDateMap(startVN, endVN);
-    newUsers.forEach(u => {
-      const date = u.createdAt.toLocaleDateString("sv-SE", { timeZone: "Asia/Ho_Chi_Minh" });
-      if (dailyUserMap[date] !== undefined) {
-        dailyUserMap[date] += 1;
+    const dailyUsers = await User.aggregate([
+      { $match: { createdAt: { $gte: startVN, $lte: endVN } } },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$createdAt",
+              timezone: "Asia/Ho_Chi_Minh"
+            }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } },
+      {
+        $project: {
+          _id: 0,
+          date: "$_id",
+          count: 1
+        }
       }
-    });
+    ]);
+
+    // Doanh thu theo năm
+    const yearlyRevenue = await Order.aggregate([
+      { $match: { payment_status: "paid", createdAt: { $gte: startVN, $lte: endVN } } },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y",
+              date: "$createdAt",
+              timezone: "Asia/Ho_Chi_Minh"
+            }
+          },
+          total: { $sum: "$total_amount" }
+        }
+      },
+      { $sort: { _id: 1 } },
+      {
+        $project: {
+          _id: 0,
+          year: "$_id",
+          total: 1
+        }
+      }
+    ]);
 
     res.json({
       revenue,
@@ -117,8 +162,9 @@ router.get("/stats", async (req, res) => {
         createdAt: u.createdAt.toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })
       })),
       bestSellers,
-      dailyRevenue: Object.entries(dailyRevenueMap).map(([date, total]) => ({ date, total })),
-      dailyUsers: Object.entries(dailyUserMap).map(([date, count]) => ({ date, count }))
+      dailyRevenue,
+      dailyUsers,
+      yearlyRevenue
     });
 
   } catch (err) {

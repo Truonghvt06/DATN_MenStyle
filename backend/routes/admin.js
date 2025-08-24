@@ -5,31 +5,26 @@ const nodemailer = require('nodemailer');
 const Admin = require('../models/admin');
 const Banner = require('../models/Banner');
 const User = require('../models/User');
-const Order=require('../models/Order');
-const Product=require('../models/Product');
+const Order = require('../models/Order');
+const Product = require('../models/Product');
+
 // utils/date.js
 function getTodayRangeVN() {
   const now = new Date();
-
   // Lấy thời gian hiện tại ở VN
   const vnNow = new Date(
     now.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" })
   );
-
   // Tạo mốc đầu ngày VN
   const start = new Date(vnNow);
   start.setHours(0, 0, 0, 0);
-
   // Mốc đầu ngày hôm sau VN
   const nextStart = new Date(start);
   nextStart.setDate(start.getDate() + 1);
-
   return { start, nextStart };
 }
 
-
 module.exports = { getTodayRangeVN };
-
 
 /* ------------ Helpers / Middleware ------------ */
 function ensureAdmin(req, res, next) {
@@ -99,7 +94,7 @@ router.post('/login', async (req, res) => {
     req.session.loggedIn = true;
     req.session.adminEmail = email;
 
-    return res.redirect('/admin/home');
+    return res.redirect('/admin/home?login=success');
   } catch (error) {
     console.error('Lỗi xác thực admin:', error);
     return res.render('login', { error: '⚠️ Đã xảy ra lỗi máy chủ.' });
@@ -109,46 +104,46 @@ router.post('/login', async (req, res) => {
 // GET /admin/home
 router.get('/home', ensureAdmin, async (req, res) => {
   try {
-      const { start, nextStart } = getTodayRangeVN();
-  
-      // Đơn hôm nay
-      const todayOrdersFilter = { createdAt: { $gte: start, $lt: nextStart } };
-      const todayOrderCount = await Order.countDocuments(todayOrdersFilter);
-  
-      // Doanh thu hôm nay (đơn đã thanh toán)
-      const revAgg = await Order.aggregate([
-        { $match: { ...todayOrdersFilter, payment_status: "paid" } },
-        { $group: { _id: null, total: { $sum: "$total_amount" } } },
-      ]);
-      const todayRevenue = revAgg.length ? revAgg[0].total : 0;
-  
-      // Đơn hàng chờ xử lý
-      const pendingOrderCount = await Order.countDocuments({ order_status: "pending" });
-  
-      // Tổng người dùng
-      const userCount = await User.countDocuments({});
-  
-      // Banners (fallback nếu không có field `active`)
-      let banners = [];
-      try {
-        banners = await Banner.find({ active: true }).lean();
-        if (!banners.length) banners = await Banner.find({}).lean();
-      } catch (_) {
-        banners = [];
-      }
-      console.log("banners:", banners.length);
-  
-      res.render("home", {
-        banners,
-        todayRevenue,
-        todayOrderCount,
-        pendingOrderCount,
-        userCount,
-      });
-    } catch (err) {
-      console.error('Lỗi khi tải trang quản trị:', err);
-    res.status(500).send('Lỗi khi tải trang quản trị: ' + err.message);
+    const { start, nextStart } = getTodayRangeVN();
+
+    // Đơn hôm nay
+    const todayOrdersFilter = { createdAt: { $gte: start, $lt: nextStart } };
+    const todayOrderCount = await Order.countDocuments(todayOrdersFilter);
+
+    // Doanh thu hôm nay (đơn đã thanh toán)
+    const revAgg = await Order.aggregate([
+      { $match: { ...todayOrdersFilter, payment_status: "paid" } },
+      { $group: { _id: null, total: { $sum: "$total_amount" } } },
+    ]);
+    const todayRevenue = revAgg.length ? revAgg[0].total : 0;
+
+    // Đơn hàng chờ xử lý
+    const pendingOrderCount = await Order.countDocuments({ order_status: "pending" });
+
+    // Tổng người dùng
+    const userCount = await User.countDocuments({});
+
+    // Banners (fallback nếu không có field `active`)
+    let banners = [];
+    try {
+      banners = await Banner.find({ active: true }).lean();
+      if (!banners.length) banners = await Banner.find({}).lean();
+    } catch (_) {
+      banners = [];
     }
+    console.log("banners:", banners.length);
+
+    res.render("home", {
+      banners,
+      todayRevenue,
+      todayOrderCount,
+      pendingOrderCount,
+      userCount,
+    });
+  } catch (err) {
+    console.error('Lỗi khi tải trang quản trị:', err);
+    res.status(500).send('Lỗi khi tải trang quản trị: ' + err.message);
+  }
 });
 
 // Đổi mật khẩu từ trong quản trị
@@ -188,6 +183,7 @@ router.post('/change_password', async (req, res) => {
     });
   }
 });
+
 /* ------------ Đăng xuất ------------ */
 router.get('/logout', ensureAdmin, (req, res) => {
   req.session.destroy(err => {
