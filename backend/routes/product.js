@@ -440,5 +440,37 @@ router.get("/check-edit/:id", async (req, res) => {
     res.status(500).send("Lỗi máy chủ khi kiểm tra giỏ hàng");
   }
 });
+router.post('/product-types/toggle-activity/:id', async (req, res) => {
+  try {
+    const productType = await ProductType.findById(req.params.id);
+    if (!productType) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy thể loại.' });
+    }
+
+    const newActivityStatus = !productType.is_activity;
+
+    // If attempting to hide the category (is_activity: false), check products
+    if (!newActivityStatus) {
+      const activeProducts = await Product.countDocuments({
+        type: productType._id,
+        is_activiti: true
+      });
+      if (activeProducts > 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Không thể ẩn thể loại vì vẫn còn sản phẩm đang hoạt động.'
+        });
+      }
+    }
+
+    productType.is_activity = newActivityStatus;
+    await productType.save();
+
+    res.json({ success: true, is_activity: productType.is_activity });
+  } catch (error) {
+    console.error('Lỗi khi cập nhật trạng thái thể loại:', error);
+    res.status(500).json({ success: false, message: 'Lỗi máy chủ.' });
+  }
+});
 
 module.exports = router;

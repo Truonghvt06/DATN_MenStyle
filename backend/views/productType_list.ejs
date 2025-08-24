@@ -2,13 +2,14 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MenStyle - Thể loại sản phẩm</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f8f9fa;
+      background: linear-gradient(135deg, #f0f2f5 0%, #e0e7ff 100%);
       margin: 0;
       display: flex;
     }
@@ -19,6 +20,12 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
       padding: 20px 0;
       transition: all 0.3s ease;
+    }
+    .sidebar.collapsed {
+      width: 60px;
+    }
+    .sidebar.collapsed a span {
+      display: none;
     }
     .sidebar a {
       display: flex;
@@ -35,8 +42,20 @@
       background: #111;
       color: #fff;
     }
-    .sidebar a i { font-size: 20px; }
-    .content { flex: 1; padding: 30px; }
+    .sidebar a i {
+      font-size: 20px;
+    }
+    .sidebar a.active {
+      background-color: #000 !important;
+      color: #fff !important;
+    }
+    .sidebar a.active i {
+      color: #fff !important;
+    }
+    .content {
+      flex: 1;
+      padding: 30px;
+    }
     header {
       background-color: #111;
       color: #fff;
@@ -47,23 +66,68 @@
       align-items: center;
       gap: 15px;
       margin-bottom: 30px;
+      border-radius: 8px;
     }
-    .table img { border-radius: 6px; }
-    .sidebar a.active {
-  background-color: #000 !important; /* nền đen */
-  color: #fff !important;            /* chữ trắng */
-}
-.sidebar a.active i {
-  color: #fff !important;            /* icon trắng */
-}
-
+    .table-container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s ease;
+    }
+    .table-container:hover {
+      transform: translateY(-5px);
+    }
+    .table img {
+      border-radius: 6px;
+      object-fit: cover;
+    }
+    .btn-primary, .btn-success, .btn-warning, .btn-danger {
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(90deg, #007bff, #0056b3);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(90deg, #0056b3, #003d7a);
+      transform: translateY(-2px);
+    }
+    .btn-success {
+      background: linear-gradient(90deg, #28a745, #1e7e34);
+    }
+    .btn-success:hover {
+      background: linear-gradient(90deg, #1e7e34, #155724);
+      transform: translateY(-2px);
+    }
+    .btn-warning {
+      background: linear-gradient(90deg, #ffc107, #e0a800);
+    }
+    .btn-warning:hover {
+      background: linear-gradient(90deg, #e0a800, #c69500);
+      transform: translateY(-2px);
+    }
+    .btn-danger {
+      background: linear-gradient(90deg, #dc3545, #c82333);
+    }
+    .btn-danger:hover {
+      background: linear-gradient(90deg, #c82333, #a71d2a);
+      transform: translateY(-2px);
+    }
+    .toggle-activity {
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
   </style>
 </head>
 <body>
-
   <!-- Sidebar -->
-  <nav class="sidebar">
-    <a href="/"><i class="bi bi-house"></i><span>Trang chủ</span></a>
+  <nav class="sidebar" id="sidebar">
+    <a href="/admin/home"><i class="bi bi-house"></i><span>Trang chủ</span></a>
     <a href="/order/by-date"><i class="bi bi-bell"></i><span>Thông báo</span></a>
     <a href="/products/view"><i class="bi bi-box"></i><span>Sản phẩm</span></a>
     <a href="/products/product-types/view" class="active"><i class="bi bi-tags"></i><span>Thể loại</span></a>
@@ -71,74 +135,99 @@
     <a href="/accounts/view"><i class="bi bi-people"></i><span>Tài khoản</span></a>
     <a href="/accounts/admin/orders"><i class="bi bi-receipt-cutoff"></i><span>Đơn hàng</span></a>
     <a href="/dashboard/stats-overview"><i class="bi bi-bar-chart-line"></i><span>Thống kê</span></a>
-    <a href="/setting/view"><i class="bi bi-gear"></i><span>Cài đặt</span></a>
+    <a href="/admin/setting"><i class="bi bi-gear"></i><span>Cài đặt</span></a>
   </nav>
 
   <!-- Content -->
-  <div class="content">
+  <div class="content" id="content">
     <header>
-      <button class="btn btn-dark"><i class="bi bi-list"></i></button>
+      <button id="toggleBtn" class="btn btn-dark"><i class="bi bi-list"></i></button>
       MenStyle - Danh sách thể loại
     </header>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="mb-0">Danh sách thể loại</h3>
-        <a href="/products/product-types/add" class="btn btn-success">
-          <i class="bi bi-plus-circle"></i> Thêm loại sản phẩm
-        </a>        
+      <h3 class="mb-0"><i class="bi bi-tags me-2"></i>Danh sách thể loại</h3>
+      <a href="/products/product-types/add" class="btn btn-success">
+        <i class="bi bi-plus-circle me-2"></i>Thêm loại sản phẩm
+      </a>
     </div>
 
-    <div class="table-responsive bg-white p-3 rounded shadow-sm">
-      <table class="table table-hover align-middle">
-        <thead class="table-dark">
-          <tr>
-            <th>Ảnh</th>
-            <th>Tên thể loại</th>
-            <th>Mô tả</th>
-            <th>Ngày tạo</th>
-            <th>Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% categories.forEach(type => { %>
+    <div class="table-container">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-dark">
             <tr>
-              <td>
-                <% if (type.image) { %>
-                  <img src="<%= type.image %>" alt="Ảnh" width="60" height="60" style="object-fit: cover;">
-                <% } else { %>
-                  <span class="text-muted">Không có ảnh</span>
-                <% } %>
-              </td>
-              <td class="fw-semibold"><%= type.name %></td>
-              <td><%= type.description %></td>
-              <td><%= type.createdAt.toLocaleDateString("vi-VN") %></td>
-              <td>
-                <a href="/product-types/edit/<%= type._id %>" class="btn btn-warning btn-sm">
-                  <i class="bi bi-pencil-square"></i>
-                </a>
-                <a href="/product-types/delete/<%= type._id %>" class="btn btn-danger btn-sm" onclick="return confirm('Xóa thể loại này?')">
-                  <i class="bi bi-trash"></i>
-                </a>
-              </td>
+              <th>Ảnh</th>
+              <th>Tên thể loại</th>
+              <th>Mô tả</th>
+              <th>Ngày tạo</th>
+              <th>Trạng thái</th>
+
             </tr>
-          <% }) %>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <% categories.forEach(type => { %>
+              <tr data-id="<%= type._id %>">
+                <td>
+                  <% if (type.image) { %>
+                    <img src="<%= type.image %>" alt="Ảnh" width="60" height="60">
+                  <% } else { %>
+                    <span class="text-muted">Không có ảnh</span>
+                  <% } %>
+                </td>
+                <td class="fw-semibold"><%= type.name %></td>
+                <td><%= type.description %></td>
+                <td><%= type.createdAt.toLocaleDateString("vi-VN") %></td>
+                <td>
+                  <button class="btn btn-sm toggle-activity <%= type.is_activity ? 'btn-success' : 'btn-secondary' %>">
+                    <%= type.is_activity ? 'Hoạt động' : 'Ẩn' %>
+                  </button></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
+
   <script>
-    function toggleSidebar() {
-      const sidebar = document.getElementById("sidebar");
-      const main = document.getElementById("main-content");
+    // Sidebar toggle
+    const toggleBtn = document.getElementById('toggleBtn');
+    const sidebar = document.getElementById('sidebar');
+    const content = document.getElementById('content');
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      content.classList.toggle('shifted');
+    });
 
-      sidebar.classList.toggle("collapsed");
-      main.classList.toggle("collapsed");
+    // Toggle activity status
+    document.querySelectorAll('.toggle-activity').forEach(button => {
+      button.addEventListener('click', async () => {
+        const row = button.closest('tr');
+        const id = row.dataset.id;
+        const statusElement = row.querySelector('.activity-status');
+        const statusButton = button;
 
-      if (window.innerWidth <= 768) {
-        sidebar.classList.toggle("active");
-        main.classList.toggle("shifted");
-      }
-    }
+        try {
+          const response = await fetch(`/products/product-types/toggle-activity/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const result = await response.json();
+
+          if (result.success) {
+            statusButton.textContent = result.is_activity ? 'Hoạt động' : 'Ẩn';
+            statusButton.classList.toggle('btn-success', result.is_activity);
+            statusButton.classList.toggle('btn-secondary', !result.is_activity);
+          } else {
+            alert('Lỗi khi cập nhật trạng thái: ' + result.message);
+          }
+        } catch (error) {
+          alert('Lỗi khi gửi yêu cầu: ' + error.message);
+        }
+      });
+    });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
