@@ -200,6 +200,13 @@ router.get("/view", async (req, res) => {
     // Lấy tổng số sản phẩm
     const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);
+    // Tính tổng số lượng tồn kho (chỉ sản phẩm đang hoạt động)
+const allActiveProducts = await Product.find({ is_activiti: true });
+
+const grandTotal = allActiveProducts.reduce((sum, p) => {
+  return sum + (p.variants ? p.variants.reduce((s, v) => s + (v.quantity || 0), 0) : 0);
+}, 0);
+
 
     // Đếm số sản phẩm đang hoạt động và đã ngừng bán để debug
     const activeProducts = await Product.countDocuments({
@@ -212,6 +219,7 @@ router.get("/view", async (req, res) => {
     });
     console.log("Debug phân trang:", {
       totalProducts,
+      grandTotal,
       activeProducts,
       inactiveProducts,
       totalPages,
@@ -247,6 +255,7 @@ router.get("/view", async (req, res) => {
       selectedType: type || "all",
       currentPage: parseInt(page),
       totalPages,
+      grandTotal,
     });
   } catch (err) {
     console.error("Lỗi khi lấy danh sách sản phẩm:", {

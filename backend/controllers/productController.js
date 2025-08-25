@@ -53,6 +53,12 @@ exports.getAllProducts = async (req, res) => {
 
     // ✅ chỉ đếm sản phẩm đang hoạt động
     const total = await Product.countDocuments({ is_activiti: true });
+    // Tính tổng số lượng tồn kho (chỉ sản phẩm đang hoạt động)
+const allActiveProducts = await Product.find({ is_activiti: true });
+
+const grandTotal = allActiveProducts.reduce((sum, p) => {
+  return sum + (p.variants ? p.variants.reduce((s, v) => s + (v.quantity || 0), 0) : 0);
+}, 0);
 
     // ✅ chỉ lấy sản phẩm đang hoạt động
     const products = await Product.find({ is_activiti: true })
@@ -68,6 +74,7 @@ exports.getAllProducts = async (req, res) => {
       page: page_,
       limit: limit_,
       data: products,
+      grandTotal,
     });
   } catch (error) {
     res.status(500).json({ message: "Lỗi server khi lấy sản phẩm" });
