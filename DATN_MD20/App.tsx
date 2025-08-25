@@ -19,8 +19,15 @@ const App = () => {
       PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
     );
   }
+  // useEffect(() => {
+  //   setupNotificationListeners();
+  // }, []);
+
   useEffect(() => {
-    setupNotificationListeners();
+    const unsubPromise = setupNotificationListeners();
+    return () => {
+      unsubPromise.then(u => u && u());
+    };
   }, []);
 
   return (

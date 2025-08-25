@@ -3,7 +3,7 @@ import React from 'react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {NavigationContainer} from '@react-navigation/native';
 import RootStack from './RootStack';
-import {isReadyRef, navigationRef, tryProcessPendingNav} from './navigation';
+import {isReadyRef, navigationRef} from './navigation';
 import Toast from 'react-native-toast-message';
 import configToast from '../components/utils/configToast';
 import {tryProcessPendingNotiNav} from '../utils/common/firebase/fcmHelper';

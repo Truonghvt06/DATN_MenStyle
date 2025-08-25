@@ -36,8 +36,8 @@ const reviewService = {
   },
   getReviewsByProduct: async (productId: string) => {
     try {
-      const res = await axiosInstance.get(`/review/product/${productId}`);
-      // console.log('ABC', res.data.reviews);
+      const res = await axiosInstance.get(`/review/review-pro/${productId}`);
+      console.log('REVIEW', res.data.reviews);
 
       return res.data;
     } catch (err: any) {

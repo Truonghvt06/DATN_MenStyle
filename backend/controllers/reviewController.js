@@ -21,7 +21,7 @@ exports.getReviewsByProduct = async (req, res) => {
   try {
     const productId = req.params.productId;
     const reviews = await Review.find({
-      is_activity: true,
+      // is_activity: true,
       product_id: productId,
     })
       .populate("user_id", "name email avatar") // Lấy thông tin người dùng
@@ -244,28 +244,6 @@ exports.getMyReviews = async (req, res) => {
     const sortReview = reviews.sort(
       (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
     );
-    // // Có thể format thêm để frontend dễ dùng
-    // const formatted = reviews.map((r) => {
-    //   const variant = r.product_id?.variants?.find(
-    //     (v) => v._id.toString() === item.product_variant_id.toString()
-    //   );
-    //   return {
-    //     _id: r._id,
-    //     deliveredAt: r.order_id?.deliveredAt,
-    //     product_id: r.product_id?._id,
-    //     product_name: r.product_id?.name,
-    //     product_variant_id: r.product_variant_id,
-    //     rating: r.rating,
-    //     comment: r.comment,
-    //     createdAt: r.createdAt,
-    //     product_snapshot: {
-    //       rating_avg: r.product_id?.rating_avg,
-    //       rating_count: r.product_id?.rating_count,
-    //       price: r.product_id?.price,
-    //       variants: r.product_id?.variants,
-    //     },
-    //   };
-    // });
 
     return res.status(200).json({ reviews: sortReview });
   } catch (err) {
@@ -273,15 +251,19 @@ exports.getMyReviews = async (req, res) => {
     return res.status(500).json({ message: "Lỗi máy chủ", error: err.message });
   }
 };
-// exports.getReviewsByProduct = async (req, res) => {
-//   try {
-//     const productId = req.params.productId;
-//     const reviews = await Review.find({ product_id: productId })
-//       .populate("user_id", "name email") // Lấy thông tin người dùng
-//       .sort({ createdAt: -1 });
+exports.getReviewsByProductApp = async (req, res) => {
+  try {
+    const productId = req.params.productId;
+    const reviews = await Review.find({
+      is_activity: true,
+      product_id: productId,
+    })
+      .populate("user_id", "name email avatar") // Lấy thông tin người dùng
+      .populate("product_id") // Lấy thông tin sản phẩm
+      .sort({ createdAt: -1 });
 
-//     res.json(reviews);
-//   } catch (error) {
-//     res.status(500).json({ message: "Lỗi server", error: error.message });
-//   }
-// };
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error: error.message });
+  }
+};

@@ -25,23 +25,50 @@ async function sendFCMAndSave({
   data = {},
 }) {
   const user = await User.findById(userId, "fcmToken");
+
+  // đảm bảo mọi field trong data là string (theo yêu cầu FCM)
   const strData = toStringData(data);
 
-  // Gửi FCM (nếu có token)
   if (user?.fcmToken) {
+    // KHÔNG đặt tag / collapse-id để tránh replace -> cho phép cộng dồn
     const message = {
       token: user.fcmToken,
-      notification: { title, body: content },
+
+      // OS sẽ hiển thị khi app ở BG/QUIT
+      notification: {
+        title,
+        body: content,
+        // (tuỳ chọn) Một số thiết bị hỗ trợ notification.image; Android ưu tiên android.notification.imageUrl
+        // image: image || undefined,
+      },
+
+      // payload để app điều hướng
       data: strData,
+
       android: {
         priority: "high",
         notification: {
           clickAction: strData.click_action || "OPEN_ORDER_DETAIL",
-          defaultSound: true,
+          channelId: "orders", // ✅ kênh có âm thanh (đã tạo ở app)
+          sound: "default", // ✅ cho Android < 8; >=8 lấy theo channel
+          // defaultSound: true,    // (không bắt buộc)
+          imageUrl: image || undefined,
+          // KHÔNG dùng tag/collapseKey để không replace
+          // tag: undefined,
         },
       },
+
       apns: {
-        payload: { aps: { sound: "default", "content-available": 1 } },
+        // KHÔNG dùng apns-collapse-id để không replace
+        // headers: { 'apns-collapse-id': undefined },
+        payload: {
+          aps: {
+            sound: "default", // ✅ iOS có âm thanh
+            "content-available": 1, // cho phép app nhận thêm data
+            // badge: 1,                // (tuỳ chọn) nếu bạn muốn tăng badge
+          },
+        },
+        // fcmOptions: { image: image || undefined }, // (tuỳ chọn) với HTTP v1
       },
     };
 
@@ -58,14 +85,14 @@ async function sendFCMAndSave({
     }
   }
 
-  // Lưu MongoDB
+  // Lưu MongoDB (bản gốc data để app đọc dễ)
   await Notification.create({
     user_id: userId,
     title,
     content,
     image,
     type,
-    data, // lưu bản gốc (không stringify) để app đọc dễ hơn khi fetch API
+    data,
     is_read: false,
   });
 }

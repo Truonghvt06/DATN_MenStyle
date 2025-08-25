@@ -1,80 +1,5 @@
-// import {
-//   getMessaging,
-//   onMessage,
-//   onNotificationOpenedApp,
-//   getInitialNotification,
-// } from '@react-native-firebase/messaging';
-// import notifee, {AndroidImportance} from '@notifee/react-native';
-// import navigation from '../../../navigation/navigation';
-// import ScreenName from '../../../navigation/ScreenName';
-// import {ImgSRC} from '../../../constants/icons';
-
-// export const setupNotificationListeners = async () => {
-//   const messaging = getMessaging();
-
-//   await notifee.createChannel({
-//     id: 'default',
-//     name: 'Thông báo chung',
-//     importance: AndroidImportance.HIGH,
-//   });
-
-//   // Foreground messages
-//   onMessage(messaging, async remoteMessage => {
-//     console.log('Foreground FCM Message:', remoteMessage);
-
-//     const title: any =
-//       remoteMessage.notification?.title ||
-//       remoteMessage.data?.title ||
-//       'Thông báo';
-//     const body: any =
-//       remoteMessage.notification?.body || remoteMessage.data?.body || '';
-
-//     await notifee.displayNotification({
-//       title,
-//       body,
-//       android: {
-//         channelId: 'default',
-//         smallIcon: 'ic_launcher_round',
-//         largeIcon: ImgSRC.img_logo,
-//       },
-//     });
-//   });
-
-//   // Background + user tap notification
-//   onNotificationOpenedApp(messaging, remoteMessage => {
-//     handleNotificationNavigation(remoteMessage.data);
-//   });
-
-//   // App opened from quit state
-//   const initialNotification = await getInitialNotification(messaging);
-//   if (initialNotification) {
-//     handleNotificationNavigation(initialNotification.data);
-//   }
-// };
-
-// function handleNotificationNavigation(data?: {
-//   category?: string;
-//   orderId?: string;
-// }) {
-//   if (!data) return;
-
-//   switch (data.category) {
-//     case 'order':
-//       navigation.navigate(ScreenName.Main.OrderDetail, {
-//         screen: 'no',
-//         orderId: data.orderId,
-//       });
-//       break;
-//     case 'promotion':
-//       navigation.navigate(ScreenName.Main.Voucher);
-//       break;
-//     case 'system':
-//       navigation.navigate(ScreenName.Main.Notifications);
-//       break;
-//   }
-// }
-
-import {Platform} from 'react-native';
+// src/utils/common/firebase/fcmHelper.ts
+import {Linking, Platform} from 'react-native';
 import messaging, {
   FirebaseMessagingTypes,
 } from '@react-native-firebase/messaging';
@@ -85,31 +10,81 @@ import notifee, {
 } from '@notifee/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import navigation, {isReadyRef} from '../../../navigation/navigation';
+import navigation, {
+  isReadyRef,
+  navigationRef,
+} from '../../../navigation/navigation';
 import ScreenName from '../../../navigation/ScreenName';
+import {CommonActions} from '@react-navigation/native';
 
-// ====== TÙY CHỈNH NHẸ THEO APP CỦA BẠN ======
-const ANDROID_CHANNEL_ID = 'default';
-const ANDROID_CHANNEL_NAME = 'Thông báo chung';
+// ====== CHANNEL & GROUP (có âm thanh + cộng dồn) ======
+export const ANDROID_CHANNEL_ID = 'orders'; // kênh mới để đảm bảo có sound
+const ANDROID_CHANNEL_NAME = 'Thông báo đơn hàng';
+const ANDROID_GROUP_ID = 'orders-group'; // group để cộng dồn
 const PENDING_NAV_KEY = '@pending_noti_nav';
+const UNREAD_COUNT_KEY = '@orders_unread_count';
 
-// TODO: Sửa lại tên stack/screen cho đúng app của bạn.
-// Ví dụ dưới đây: reset về MainStack, rồi mở màn OrderDetail truyền { id: orderId }.
+// ⚠️ Đổi các hằng tên route cho khớp app của bạn.
+const ROOT_STACK = ScreenName.Main.MainStack;
+const ORDER_DETAIL = ScreenName.Main.OrderDetail;
+const BOTTOM_TAB = ScreenName.Main.BottonTab;
+
+let listenersInstalled = false; // chặn đăng ký nhiều lần
+let lastOrderNavigated = ''; // chặn double navigate
+
+// ==== Điều hướng tới chi tiết đơn hàng (đổi theo app của bạn) ====
+// function navigateToOrderDetail(orderId: string) {
+//   navigation.navigate(ScreenName.Main.MainStack, {
+//     screen: ScreenName.Main.OrderDetail, // <-- screen con
+//     params: {orderId, screen: 'bg_notification'},
+//   });
+// }
+
+// Ưu tiên reset để tránh kẹt state từ tab/stack khác
 function navigateToOrderDetail(orderId: string) {
-  // Nếu bạn chỉ dùng navigate thẳng: navigation.navigate(ScreenName.OrderDetail, { id: orderId })
-  // Ở đây dùng resetToStackWithScreen để đảm bảo back-stack sạch.
-  navigation.resetToStackWithScreen(
-    ScreenName.Main.MainStack,
-    ScreenName.Main.OrderDetail,
-    {
-      screen: 'noti',
-      orderId: orderId,
-    },
-  );
+  if (!isReadyRef?.current || !navigation?.navigate) return;
+
+  // A) Thử reset về đúng stack rồi mở OrderDetail
+  try {
+    navigation.resetToStackWithScreen(ROOT_STACK, ORDER_DETAIL, {
+      orderId,
+      screen: 'bg_notification',
+    });
+    return;
+  } catch {}
+
+  // B) Fallback: dispatch navigate lồng (MainStack -> OrderDetail)
+  try {
+    const action = CommonActions.navigate({
+      name: ROOT_STACK,
+      params: {
+        screen: ORDER_DETAIL,
+        params: {orderId, screen: 'bg_notification'},
+      },
+    });
+    navigationRef.current?.dispatch(action);
+    return;
+  } catch {}
+
+  // C) Fallback cuối: mở tab gốc rồi vào OrderDetail
+  try {
+    const action = CommonActions.navigate({
+      name: ROOT_STACK,
+      params: {
+        screen: BOTTOM_TAB,
+        params: {
+          screen: ORDER_DETAIL,
+          params: {orderId, screen: 'bg_notification'},
+        },
+      },
+    });
+    navigationRef.current?.dispatch(action);
+  } catch (e) {
+    console.log('navigateToOrderDetail fallback error:', e);
+  }
 }
 
-// ==================================================
-
+// ====== Kiểu dữ liệu data của thông báo ======
 export type NotiData = {
   category?: string; // 'order' | 'promotion' | 'system'
   type?: string; // 'ORDER_STATUS' | 'PAYMENT_STATUS' | ...
@@ -137,49 +112,102 @@ const parseNotiData = (
     title: rm?.notification?.title ?? d?.title,
     body: rm?.notification?.body ?? d?.body,
     orderId: d?.orderId || d?.order_id,
+    deeplink: d?.deeplink,
   };
 };
 
-// ====== HIỂN THỊ LOCAL NOTIFICATION (Foreground / data-only BG) ======
+// ====== Channel (Android 8+) có âm thanh ======
+async function ensureChannels() {
+  if (Platform.OS !== 'android') return;
+
+  // Tạo kênh "orders" có sound. (Nếu đã có với cấu hình khác, Android sẽ giữ cấu hình cũ.)
+  await notifee.createChannel({
+    id: ANDROID_CHANNEL_ID,
+    name: ANDROID_CHANNEL_NAME,
+    importance: AndroidImportance.HIGH,
+    sound: 'default',
+    vibration: true,
+  });
+
+  // (Tùy chọn) cố gắng tạo thêm "default" có sound để phòng backend gửi vào default
+  // Không đảm bảo ghi đè nếu kênh đã tồn tại.
+  await notifee.createChannel({
+    id: 'default',
+    name: 'Mặc định',
+    importance: AndroidImportance.HIGH,
+    sound: 'default',
+    vibration: true,
+  });
+}
+
+// ====== Đếm & hiển thị summary (tùy chọn nhưng nên có để thấy tổng số) ======
+async function incrementUnreadAndShowSummary() {
+  try {
+    const old = Number(await AsyncStorage.getItem(UNREAD_COUNT_KEY)) || 0;
+    const unread = old + 1;
+    await AsyncStorage.setItem(UNREAD_COUNT_KEY, String(unread));
+
+    // Hiện/refresh summary gom nhóm
+    await notifee.displayNotification({
+      id: 'orders-summary', // id cố định cho summary
+      title: 'MenStyle',
+      body: `Bạn có ${unread} cập nhật đơn hàng`,
+      android: {
+        channelId: ANDROID_CHANNEL_ID,
+        groupId: ANDROID_GROUP_ID,
+        groupSummary: true,
+        // bấm vào summary → mở app (có thể dẫn tới danh sách thông báo)
+        pressAction: {id: 'open-summary', launchActivity: 'default'},
+        smallIcon: 'ic_launcher',
+      },
+      ios: {sound: undefined}, // iOS không dùng group summary như Android
+    });
+  } catch {}
+}
+
+export async function resetUnreadSummary() {
+  await AsyncStorage.setItem(UNREAD_COUNT_KEY, '0');
+  // Có thể hủy summary nếu muốn:
+  // await notifee.cancelNotification('orders-summary');
+}
+
+// ====== HIỂN THỊ LOCAL (Foreground / data-only trong BG) ======
 export async function displayLocalNotification(
   input: FirebaseMessagingTypes.RemoteMessage | NotiData,
 ) {
   const data = parseNotiData(input);
+  await ensureChannels();
 
-  if (Platform.OS === 'android') {
-    await notifee.createChannel({
-      id: ANDROID_CHANNEL_ID,
-      name: ANDROID_CHANNEL_NAME,
-      importance: AndroidImportance.HIGH,
-    });
-  }
+  // id unique để cộng dồn (không replace)
+  const uniqueId = `${data.orderId || 'order'}-${Date.now()}`;
 
   await notifee.displayNotification({
-    title: data.title,
-    body: data.body,
+    id: uniqueId,
+    title: data.title || 'MenStyle',
+    body: data.body || 'Bạn có thông báo mới',
     data: toStringData(data),
     android: {
       channelId: ANDROID_CHANNEL_ID,
-      // Khi bấm thông báo do Notifee hiển thị, ta sẽ nhận trong onForegroundEvent/onBackgroundEvent
-      pressAction: {id: 'default'},
-      smallIcon: 'ic_launcher', // đổi nếu bạn có custom small icon
+      groupId: ANDROID_GROUP_ID, // ✅ gom nhóm
+      pressAction: {id: 'open-order', launchActivity: 'default'}, // mở app
+      smallIcon: 'ic_launcher',
     },
     ios: {
-      // iOS sẽ hiện bình thường (đã được APNs/FCM cho phép ở backend)
+      sound: 'default', // ✅ âm thanh local ở iOS
     },
   });
+
+  // cập nhật summary
+  await incrementUnreadAndShowSummary();
 }
 
-// ====== ĐIỀU HƯỚNG SAU KHI BẤM THÔNG BÁO ======
-let lastOrderNavigated = ''; // chống double navigate nhanh
-
+// ====== XỬ LÝ NHẤN THÔNG BÁO → ĐIỀU HƯỚNG ======
 export async function handleNotificationNavigation(payload?: NotiData) {
   const data = parseNotiData(payload);
   const orderId = data.orderId || data.order_id;
-
   if (!orderId) return;
 
-  // Nếu navigation chưa sẵn sàng (app chưa mount), ta lưu pending để xử lý sau
+  // Nếu nav chưa sẵn sàng, lưu pending
   if (!isReadyRef?.current) {
     await AsyncStorage.setItem(
       PENDING_NAV_KEY,
@@ -188,13 +216,22 @@ export async function handleNotificationNavigation(payload?: NotiData) {
     return;
   }
 
+  // Chống double navigate (bấm nhanh 2 lần)
   if (lastOrderNavigated === orderId) return;
   lastOrderNavigated = orderId;
+
+  // Nếu đã cấu hình deep link, ưu tiên deeplink
+  if (data.deeplink) {
+    try {
+      await Linking.openURL(data.deeplink);
+      return;
+    } catch {}
+  }
 
   navigateToOrderDetail(orderId);
 }
 
-// Gọi hàm này khi NavigationContainer onReady để xử lý pending (app mở từ "quit")
+// Gọi khi NavigationContainer onReady
 export async function tryProcessPendingNotiNav() {
   const raw = await AsyncStorage.getItem(PENDING_NAV_KEY);
   if (!raw) return;
@@ -203,68 +240,69 @@ export async function tryProcessPendingNotiNav() {
   try {
     const parsed = JSON.parse(raw);
     if (parsed?.orderId) {
-      handleNotificationNavigation({orderId: parsed.orderId});
+      await handleNotificationNavigation({orderId: parsed.orderId});
     }
   } catch {}
 }
 
-// ====== ĐĂNG KÝ LISTENERS KHI APP ĐANG CHẠY (Foreground) ======
+// ====== ĐĂNG KÝ LISTENERS (gọi 1 lần khi app mount) ======
 export async function setupNotificationListeners() {
-  // Channel Android
-  if (Platform.OS === 'android') {
-    await notifee.createChannel({
-      id: ANDROID_CHANNEL_ID,
-      name: ANDROID_CHANNEL_NAME,
-      importance: AndroidImportance.HIGH,
-    });
-  }
+  if (listenersInstalled) return () => {};
+  listenersInstalled = true;
 
-  // 1) Foreground: nhận FCM -> tự hiển thị local notification
+  await ensureChannels();
+
+  // Foreground: FCM tới → tự hiện local (OS không hiện khi app foreground)
   const unsubOnMessage = messaging().onMessage(async rm => {
     await displayLocalNotification(rm);
   });
 
-  // 2) App đang background, user bấm vào thông báo do OS hiển thị (FCM có "notification")
+  // App đang background, user bấm thông báo do OS hiển thị (FCM có "notification")
   const unsubOpened = messaging().onNotificationOpenedApp(rm => {
+    console.log('onNotificationOpenedApp data:', rm?.data);
     handleNotificationNavigation(rm as any);
   });
 
-  // 3) App mở từ trạng thái QUIT do bấm thông báo của OS
+  // App mở từ QUIT do bấm thông báo của OS
   const initial = await messaging().getInitialNotification();
+  console.log('getInitialNotification data:', initial?.data);
   if (initial) {
-    // Navigation chưa ready ngay lập tức -> lưu pending
+    // lưu/điều hướng – nếu nav chưa sẵn sàng tryProcessPendingNotiNav sẽ xử tiếp
+
     await handleNotificationNavigation(initial as any);
   }
 
-  // 4) Bấm vào thông báo mà chính Notifee hiển thị (Foreground)
+  // Bấm vào thông báo do Notifee hiển thị khi app đang foreground
   const unsubNotifeeFg = notifee.onForegroundEvent(async ({type, detail}) => {
     if (type === EventType.PRESS || type === EventType.ACTION_PRESS) {
-      const data = parseNotiData(detail.notification?.data);
-      await handleNotificationNavigation(data);
+      console.log('notifee press data:', detail.notification?.data);
+      await handleNotificationNavigation(detail.notification?.data);
     }
+    // (tùy chọn) clear/unread khi DISMISSED...
   });
 
-  // 5) Thử xử lý pending (nếu background handler đã lưu)
+  // Nếu có pending từ BG/QUIT
   await tryProcessPendingNotiNav();
 
   return () => {
     unsubOnMessage();
     unsubOpened();
     unsubNotifeeFg();
+    listenersInstalled = false;
   };
 }
 
-// ====== CÁC HANDLER BẮT BUỘC ĐĂNG KÝ Ở index.js (Background / Quit) ======
-// (A) Android/iOS: xử lý FCM data-only khi app ở BG/QUIT -> hiện local notification
+// ====== HANDLER CHO BG/QUIT (đăng ký ở index.js) ======
+// A) FCM data-only khi app ở BG/QUIT → tự hiển thị local
 export async function backgroundMessageHandler(
   rm: FirebaseMessagingTypes.RemoteMessage,
 ) {
-  // Chỉ bị gọi với data-only. Nếu backend có "notification", OS sẽ tự hiển thị và KHÔNG gọi vào đây.
+  // Nếu payload có "notification", OS sẽ tự hiển thị -> KHÔNG hiển thị local nữa để tránh trùng
+  if (rm?.notification) return;
   await displayLocalNotification(rm);
 }
 
-// (B) Bấm thông báo Notifee khi app đang BG/QUIT
-// Phải đăng ký ở scope global (index.js). Ta chỉ lưu pending để điều hướng sau khi app sẵn sàng.
+// B) Nhấn thông báo do Notifee hiển thị khi app BG/QUIT
 export async function notifeeBackgroundEventHandler({
   type,
   detail,
@@ -274,10 +312,13 @@ export async function notifeeBackgroundEventHandler({
 }) {
   if (type === EventType.PRESS || type === EventType.ACTION_PRESS) {
     const data = parseNotiData(detail.notification?.data);
-    if (data?.orderId) {
+    if (data?.orderId || data?.order_id) {
       await AsyncStorage.setItem(
         PENDING_NAV_KEY,
-        JSON.stringify({orderId: data.orderId, ts: Date.now()}),
+        JSON.stringify({
+          orderId: data.orderId || data.order_id,
+          ts: Date.now(),
+        }),
       );
     }
   }
