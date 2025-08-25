@@ -232,7 +232,14 @@ exports.viewVouchers = async (req, res) => {
 
     res.render("voucher", { vouchers, voucherHistoryStats, historyFilters });
   } catch (error) {
-    res.status(500).send("Lỗi khi lấy danh sách voucher");
+    // console.log(error);
+    
+    res.render("voucher", { 
+    vouchers: [], 
+    voucherHistoryStats: [], 
+    historyFilters: {}, 
+    errorMessage: "Không có voucher được sử dụng trong tháng này!" 
+  });
   }
 };
 
@@ -260,7 +267,6 @@ exports.addVoucher = async (req, res) => {
   try {
     const {
       title,
-      code,
       description,
       discount_type,
       discount_value,
@@ -272,42 +278,39 @@ exports.addVoucher = async (req, res) => {
       voucher_scope,
     } = req.body;
 
-    // Validate mã voucher
-    const codeRegex = /^.{12}$/; // Đúng 12 ký tự bất kỳ
-    if (!codeRegex.test(code)) {
-      return res.status(400).send("Mã voucher phải gồm đúng 12 ký tự.");
+    // Tự động sinh mã và kiểm tra trùng
+    let voucherCode;
+    let isUnique = false, attempts = 0;
+    while (!isUnique && attempts < 5) {
+      voucherCode = generateVoucherCode();
+      const existed = await Voucher.findOne({ code: voucherCode });
+      if (!existed) isUnique = true;
+      attempts++;
     }
-    const existed = await Voucher.findOne({ code });
-    if (existed) {
-      return res.status(400).send("Mã voucher đã tồn tại.");
+    if (!isUnique) {
+      return res.status(500).send("Không thể tạo mã voucher, vui lòng thử lại.");
     }
 
     // Tạo voucher mới
     const voucher = new Voucher({
       title,
-      code,
+      code: voucherCode,
       description,
       discount_type,
       discount_value,
       min_order_amount: min_order_amount || 0,
       quantity,
-      date_from: new Date(date_from), // Sửa dòng này
-      date_to: new Date(date_to),     // Sửa dòng này
+      date_from: new Date(date_from),
+      date_to: new Date(date_to),
       is_status: is_status === "true" || is_status === true,
       max_discount_value:
         discount_type === "percentage" ? req.body.max_discount : undefined,
       voucher_scope,
     });
 
-    console.log("Voucher object to save:", voucher);
-
     await voucher.save();
-
-    console.log('Voucher saved successfully');
-    
     res.redirect('/voucher/view');
   } catch (error) {
-    console.error("Error adding voucher:", error);
     res.status(500).send("Lỗi khi thêm voucher: " + error.message);
   }
 };
@@ -463,4 +466,16 @@ exports.apiGetVouchers = async (req, res) => {
   }
 };
 
-/// API APP MOBILE
+const generateVoucherCode=()=> {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let random = "";
+  for (let i = 0; i < 6; i++) {
+    random += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, "0");
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const year = String(now.getFullYear()).slice(-2);
+  const prefix = `VCH${day}${month}${year}`;
+  return `${prefix}${random}`;
+};

@@ -1,14 +1,12 @@
 import {
   ActivityIndicator,
-  Alert,
+  FlatList,
   Image,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
-  View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import ContainerView from '../../components/layout/ContainerView';
 import Block from '../../components/layout/Block';
 import {
@@ -26,8 +24,6 @@ import navigation from '../../navigation/navigation';
 import ScreenName from '../../navigation/ScreenName';
 import BannerSlider from './Banner/Banner';
 import Avatar from '../../components/dataDisplay/Avatar';
-import {FlatList} from 'react-native-gesture-handler';
-import products from '../../services/products/productService';
 import useLanguage from '../../hooks/useLanguage';
 import {useAppDispatch, useAppSelector} from '../../redux/store';
 import {fetchAllProducts, fetchCategory} from '../../redux/actions/product';
@@ -39,6 +35,7 @@ import {shuffleArray} from '../../utils/helper';
 import {useAppTheme} from '../../themes/ThemeContext'; // ✅ Thêm theme
 import {fetchNotifications} from '../../redux/actions/notification';
 import ModalCenter from '../../components/dataDisplay/Modal/ModalCenter';
+import {useFocusEffect} from '@react-navigation/native';
 
 const ITEM_MARGIN = 10;
 const NUM_COLUMNS = 2;
@@ -55,6 +52,7 @@ const HomeScreen = () => {
   const [page, setPage] = useState(1);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [isOpenCheck, setIsOpenCheck] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const dispatch = useAppDispatch();
   const {listNotifications} = useAppSelector(state => state.notification);
@@ -64,15 +62,38 @@ const HomeScreen = () => {
   const {listFavoriteIds} = useAppSelector(state => state.favorite);
   const {token} = useAppSelector(state => state.auth);
 
+  // ADD: gom logic reload vào 1 chỗ
+  const reload = useCallback(async () => {
+    setRefreshing(true);
+    setPage(1);
+    setProData([]); // clear để tránh nháy dữ liệu cũ
+    try {
+      await Promise.all([
+        dispatch(fetchCategory()),
+        dispatch(fetchFavorites()),
+        dispatch(fetchNotifications()),
+        dispatch(fetchAllProducts({page: 1, limit: 10})),
+      ]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [dispatch]);
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     reload(); // mỗi lần màn hình được focus thì reload
+  //   }, [reload]),
+  // );
+
   useEffect(() => {
     dispatch(fetchCategory());
     dispatch(fetchFavorites());
     dispatch(fetchNotifications());
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(fetchAllProducts({page, limit: 10}));
-  }, [page]);
+  }, [dispatch, page]);
 
   useEffect(() => {
     if (page === 1) {
@@ -84,6 +105,7 @@ const HomeScreen = () => {
   }, [products]);
 
   const handleLoadMore = () => {
+    if (refreshing) return; // ADD
     if (!isFetchingMore && proData?.length < total) {
       setIsFetchingMore(true);
       setTimeout(() => {
@@ -282,6 +304,8 @@ const HomeScreen = () => {
             />
           ) : null
         }
+        refreshing={refreshing || loading}
+        onRefresh={() => reload()}
       />
 
       {/* <Toast config={configToast} /> */}

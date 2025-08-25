@@ -190,6 +190,10 @@ const OrderDetailScreen = () => {
     if (screen === 'notification') {
       await dispatch(fetchNotifications());
       navigation.goBack();
+    } else if (screen === 'bg_notification') {
+      navigation.navigate(ScreenName.Main.MainStack, {
+        screen: ScreenName.Main.BottonTab,
+      });
     } else {
       dispatch(clearOrderDetail());
       navigation.goBack();

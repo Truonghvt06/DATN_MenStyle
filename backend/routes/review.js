@@ -13,14 +13,11 @@ router.get(
 
 // Lấy review của user
 router.get("/", authMiddleware, reviewController.getMyReviews);
+router.get("/review-pro/:productId", reviewController.getReviewsByProductApp);
 
 // Tạo review mới
 router.post("/add-review", authMiddleware, reviewController.createReview);
-router.get(
-  "/product/:productId",
-  reviewController.getReviewsByProduct
-);
+router.get("/product/:productId", reviewController.getReviewsByProduct);
 router.get("/:id/toggle", reviewController.toggleReviewActivity);
-
 
 module.exports = router;

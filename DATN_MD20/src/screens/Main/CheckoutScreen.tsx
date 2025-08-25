@@ -157,7 +157,7 @@ const CheckoutScreen = ({route}: CheckoutScreenProps) => {
     return sum + parseInt(item.quantity || '1') * (item.productId?.price || 0);
   }, 0);
 
-  const shippingFee = 30000; // Phí vận chuyển
+  const shippingFee = 20000; // Phí vận chuyển
 
   ///VOUCHER
   const voucherOrder: Voucher[] = [];
