@@ -299,16 +299,12 @@
                           <select onchange="updatePaymentStatus('<%= order._id %>', this.value)">
                             <option value="unpaid" 
                               <%= order.payment_status === 'unpaid' ? 'selected' : '' %> 
-                              <%= (order.payment_status === 'paid' || order.payment_status === 'refunded') ? 'disabled' : '' %>>
+                              <%= (order.payment_status === 'paid' ) ? 'disabled' : '' %>>
                               Chưa thanh toán
                             </option>
                             
                             <option value="paid" <%= order.payment_status === 'paid' ? 'selected' : '' %>>
                               Đã thanh toán
-                            </option>
-                            
-                            <option value="refunded" <%= order.payment_status === 'refunded' ? 'selected' : '' %>>
-                              Hoàn tiền
                             </option>
                           </select>
                           
@@ -322,7 +318,6 @@
                             <!-- ZaloPay có transaction_id và payment_status là success => Đã thanh toán, chỉ cho chọn Hoàn tiền -->
                             <select onchange="updatePaymentStatus('<%= order._id %>', this.value)">
                               <option value="paid" selected>Đã thanh toán</option>
-                              <option value="refunded" <%= order.payment_status === 'refunded' ? 'selected' : '' %>>Hoàn tiền</option>
                             </select>
                           <% } else { %>
                             <!-- ZaloPay chưa có transaction_id hoặc payment_status không phải success => Chưa thanh toán, không chỉnh sửa -->
