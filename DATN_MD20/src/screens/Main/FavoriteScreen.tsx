@@ -198,13 +198,16 @@ const FavoriteScreen = () => {
         label={getTranslation('ua_thich')}
         paddingTop={top}
         right={
-          <TouchIcon
-            size={25}
-            icon={IconSRC.icon_delete}
-            color={colors.red}
-            containerStyle={{marginRight: 8}}
-            onPress={() => setIsOpenCheck(true)}
-          />
+          listFavorite.length > 0 &&
+          token && (
+            <TouchIcon
+              size={25}
+              icon={IconSRC.icon_delete}
+              color={colors.red}
+              containerStyle={{marginRight: 8}}
+              onPress={() => setIsOpenCheck(true)}
+            />
+          )
         }
       />
       {!token ? (

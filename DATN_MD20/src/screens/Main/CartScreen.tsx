@@ -39,7 +39,7 @@ const CartScreen = () => {
   const {getTranslation} = useLanguage();
 
   const dispatch = useAppDispatch();
-  const {user} = useAppSelector(state => state.auth);
+  const {user, token} = useAppSelector(state => state.auth);
   const {listCart, loading} = useAppSelector(state => state.cartt);
 
   // const listCart = [...cartData].sort(
@@ -219,132 +219,168 @@ const CartScreen = () => {
         />
 
         {/* Header với checkbox "Chọn tất cả" */}
-        {listCart.length > 0 && (
-          <Block
-            row
-            alignCT
-            justifyBW
-            padH={metrics.space}
-            h={50}
-            backgroundColor={theme.background}
-            borderBottomW={0.5}>
-            <Block row alignCT>
-              <TouchIcon
-                icon={selectAll ? IconSRC.icon_check : IconSRC.icon_uncheck}
-                size={20}
-                onPress={handleSelectAll}
-              />
-              <TextSmall color={theme.text} style={{marginLeft: 10}}>
-                Chọn tất cả ({selectedItems.size}/{listCart.length})
-              </TextSmall>
-            </Block>
-            {selectedItems.size > 0 && (
-              <TouchIcon
-                icon={IconSRC.icon_delete}
-                size={18}
-                onPress={() => setIsOpenCheck(true)}
-                containerStyle={{
-                  backgroundColor: colors.red,
-                  padding: 5,
-                  borderRadius: 6,
-                }}
-              />
-            )}
-          </Block>
-        )}
-        {listCart.length === 0 ? (
+        {!token ? (
           <Block flex1 alignCT justifyCT>
-            <Image source={IconSRC.icon_trolley} style={styles.icon_nolist} />
-            <TextMedium
-              style={{width: 200, textAlign: 'center', color: theme.text}}>
-              Bạn chưa có sản phẩm nào trong giỏ hàng
+            <Image
+              source={IconSRC.icon_search_nolist}
+              style={styles.icon_nolist}
+            />
+            <TextMedium style={{color: theme.text}}>
+              Hãy đăng nhập để sử dụng
             </TextMedium>
             <ButtonBase
               containerStyle={styles.btn_mua}
               size={14}
-              title={'Mua sắm ngay'}
+              title={'Đăng nhập'}
               onPress={() => {
-                navigation.jumpTo(ScreenName.Main.Home);
+                navigation.navigate(ScreenName.Auth.AuthStack, {
+                  screen: ScreenName.Auth.Login,
+                  params: {nameScreen: ''},
+                });
               }}
             />
           </Block>
         ) : (
-          <FlatList
-            data={listCart}
-            keyExtractor={(item, index) => item.productId?._id + '-' + index}
-            renderItem={({item, index}) => {
-              const imageUrl = cleanImageUrl(
-                item.productId?.variants?.[item.variantIndex]?.image ||
-                  item.productId?.image,
-              );
-              const isSelected = selectedItems.has(index);
-              return (
-                <CartItem
-                  icon={isSelected ? IconSRC.icon_check : IconSRC.icon_uncheck}
-                  name={item.productId?.name}
-                  image={{uri: imageUrl}}
-                  price={item.productId?.price}
-                  color={item.productId?.variants?.[item.variantIndex]?.color}
-                  size={item.productId?.variants?.[item.variantIndex]?.size}
-                  containerStyle={{paddingHorizontal: metrics.space}}
-                  value={item.quantity + ''}
-                  onChangeText={text => handleChangeQuantity(index, text)}
-                  onPress={() => {}}
-                  onPressDelete={() => handleDelete(index)}
-                  onPressCheck={() => handleToggleItem(index)}
+          <>
+            {listCart.length > 0 && (
+              <Block
+                row
+                alignCT
+                justifyBW
+                padH={metrics.space}
+                h={50}
+                backgroundColor={theme.background}
+                borderBottomW={0.5}>
+                <Block row alignCT>
+                  <TouchIcon
+                    icon={selectAll ? IconSRC.icon_check : IconSRC.icon_uncheck}
+                    size={20}
+                    onPress={handleSelectAll}
+                  />
+                  <TextSmall color={theme.text} style={{marginLeft: 10}}>
+                    Chọn tất cả ({selectedItems.size}/{listCart.length})
+                  </TextSmall>
+                </Block>
+                {selectedItems.size > 0 && (
+                  <TouchIcon
+                    icon={IconSRC.icon_delete}
+                    size={18}
+                    onPress={() => setIsOpenCheck(true)}
+                    containerStyle={{
+                      backgroundColor: colors.red,
+                      padding: 5,
+                      borderRadius: 6,
+                    }}
+                  />
+                )}
+              </Block>
+            )}
+            {listCart.length === 0 ? (
+              <Block flex1 alignCT justifyCT>
+                <Image
+                  source={IconSRC.icon_trolley}
+                  style={styles.icon_nolist}
                 />
-              );
-            }}
-            contentContainerStyle={{
-              paddingBottom: 100,
-              backgroundColor: theme.background,
-            }}
-          />
-        )}
+                <TextMedium
+                  style={{width: 200, textAlign: 'center', color: theme.text}}>
+                  Bạn chưa có sản phẩm nào trong giỏ hàng
+                </TextMedium>
+                <ButtonBase
+                  containerStyle={styles.btn_mua}
+                  size={14}
+                  title={'Mua sắm ngay'}
+                  onPress={() => {
+                    navigation.jumpTo(ScreenName.Main.Home);
+                  }}
+                />
+              </Block>
+            ) : (
+              <FlatList
+                data={listCart}
+                keyExtractor={(item, index) =>
+                  item.productId?._id + '-' + index
+                }
+                renderItem={({item, index}) => {
+                  const imageUrl = cleanImageUrl(
+                    item.productId?.variants?.[item.variantIndex]?.image ||
+                      item.productId?.image,
+                  );
+                  const isSelected = selectedItems.has(index);
+                  return (
+                    <CartItem
+                      icon={
+                        isSelected ? IconSRC.icon_check : IconSRC.icon_uncheck
+                      }
+                      name={item.productId?.name}
+                      image={{uri: imageUrl}}
+                      price={item.productId?.price}
+                      color={
+                        item.productId?.variants?.[item.variantIndex]?.color
+                      }
+                      size={item.productId?.variants?.[item.variantIndex]?.size}
+                      containerStyle={{paddingHorizontal: metrics.space}}
+                      value={item.quantity + ''}
+                      onChangeText={text => handleChangeQuantity(index, text)}
+                      onPress={() => {}}
+                      onPressDelete={() => handleDelete(index)}
+                      onPressCheck={() => handleToggleItem(index)}
+                    />
+                  );
+                }}
+                contentContainerStyle={{
+                  paddingBottom: 100,
+                  backgroundColor: theme.background,
+                }}
+              />
+            )}
 
-        <Block
-          w100
-          padV={5}
-          padH={metrics.space}
-          backgroundColor={theme.background}
-          borderBottomW={0.6}
-          borderColor={'#444'}
-          positionA
-          bottom0>
-          <Block row justifyBW marB={10} alignCT>
-            <TextMedium style={{color: theme.text}}>
-              {getTranslation('tong_cong')}:
-            </TextMedium>
-            <TextSizeCustom size={20} bold style={{color: theme.text}}>
-              {totalPrice.toLocaleString('vi-VN')}VND
-            </TextSizeCustom>
-          </Block>
-          {selectedItems.size > 0 && (
-            <TextSmall color={theme.text} style={{marginBottom: 5}}>
-              Đã chọn {selectedItems.size} sản phẩm
-            </TextSmall>
-          )}
-          <ButtonBase
-            title={
-              selectedItems.size > 0
-                ? `${getTranslation('thanh_toan')} (${selectedItems.size})`
-                : getTranslation('thanh_toan')
-            }
-            onPress={() => {
-              if (selectedItems.size === 0) {
-                // Hiển thị thông báo yêu cầu chọn sản phẩm
-                console.log('Vui lòng chọn ít nhất 1 sản phẩm để thanh toán');
-              } else {
-                // Navigate đến màn hình thanh toán
-                navigation.navigate(ScreenName.Main.Checkout, {
-                  selectedItems: Array.from(selectedItems),
-                  list_Cart: listCart,
-                });
-              }
-            }}
-            disabled={selectedItems.size === 0}
-          />
-        </Block>
+            <Block
+              w100
+              padV={5}
+              padH={metrics.space}
+              backgroundColor={theme.background}
+              borderBottomW={0.6}
+              borderColor={'#444'}
+              positionA
+              bottom0>
+              <Block row justifyBW marB={10} alignCT>
+                <TextMedium style={{color: theme.text}}>
+                  {getTranslation('tong_cong')}:
+                </TextMedium>
+                <TextSizeCustom size={20} bold style={{color: theme.text}}>
+                  {totalPrice.toLocaleString('vi-VN')}VND
+                </TextSizeCustom>
+              </Block>
+              {selectedItems.size > 0 && (
+                <TextSmall color={theme.text} style={{marginBottom: 5}}>
+                  Đã chọn {selectedItems.size} sản phẩm
+                </TextSmall>
+              )}
+              <ButtonBase
+                title={
+                  selectedItems.size > 0
+                    ? `${getTranslation('thanh_toan')} (${selectedItems.size})`
+                    : getTranslation('thanh_toan')
+                }
+                onPress={() => {
+                  if (selectedItems.size === 0) {
+                    // Hiển thị thông báo yêu cầu chọn sản phẩm
+                    console.log(
+                      'Vui lòng chọn ít nhất 1 sản phẩm để thanh toán',
+                    );
+                  } else {
+                    // Navigate đến màn hình thanh toán
+                    navigation.navigate(ScreenName.Main.Checkout, {
+                      selectedItems: Array.from(selectedItems),
+                      list_Cart: listCart,
+                    });
+                  }
+                }}
+                disabled={selectedItems.size === 0}
+              />
+            </Block>
+          </>
+        )}
       </ContainerView>
     </TouchableWithoutFeedback>
   );

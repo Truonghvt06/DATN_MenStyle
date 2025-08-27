@@ -173,8 +173,8 @@ const HomeScreen = () => {
           <Avatar
             key={category._id}
             title={category.name}
-            icon={IconSRC.icon_polo}
-            containerStyle={{paddingHorizontal: 20}}
+            icon={category.image}
+            containerStyle={{paddingHorizontal: 15}}
             onPress={() => handleCategory(category.name, category._id)}
           />
         ))}
@@ -304,7 +304,7 @@ const HomeScreen = () => {
             />
           ) : null
         }
-        refreshing={refreshing || loading}
+        refreshing={refreshing}
         onRefresh={() => reload()}
       />
 
