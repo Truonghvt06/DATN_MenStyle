@@ -8,12 +8,7 @@ router.post("/add-order", orderController.createOrder);
 // Lấy danh sách đơn hàng của người dùng
 router.get("/my-orders", authMiddleware, orderController.getOrders);
 
-// Lấy chi tiết 1 đơn hàng
-// router.get(
-//   "/my-orders/:orderId",
-//   authMiddleware,
-//   orderController.getOrderDetail
-// );
+
 router.get(
   "/order-detail/:orderId",
   authMiddleware,
@@ -22,7 +17,6 @@ router.get(
 router.put("/cancelOrder/:id", orderController.cancelOrder);
 router.post("/buyAgain", authMiddleware, orderController.buyAgain);
 
-// POST method để cập nhật trạng thái(WEB)
 router.post("/update-status/:id", orderController.updateStatus);
 router.post("/update-payment-status/:id", orderController.updatePaymentStatus);
 

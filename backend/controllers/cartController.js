@@ -1,9 +1,7 @@
 const User = require("../models/User");
 const Product = require("../models/Product");
 
-/**
- * Lấy giỏ hàng của user (populate product cơ bản)
- */
+
 exports.getCart = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -22,10 +20,7 @@ exports.getCart = async (req, res) => {
   }
 };
 
-/**
- * Thêm item vào giỏ (nếu đã có thì cộng số lượng)
- * body: { productId, variantIndex, quantity }
- */
+
 exports.addToCart = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -94,11 +89,7 @@ exports.addToCart = async (req, res) => {
   }
 };
 
-/**
- * Cập nhật số lượng cho 1 item
- * params: none (dùng body)
- * body: { productId, variantIndex, quantity }
- */
+
 exports.updateCartItem = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -157,10 +148,7 @@ exports.updateCartItem = async (req, res) => {
   }
 };
 
-/**
- * Xóa item hoặc xóa nhiều item
- * body: { items: [{ productId, variantIndex }, ...] }
- */
+
 exports.removeCartItems = async (req, res) => {
   try {
     const { items } = req.body;
@@ -189,10 +177,7 @@ exports.removeCartItems = async (req, res) => {
   }
 };
 
-/**
- * Checkout các item được chọn (chỉ tính tổng, kiểm tra tồn kho)
- * body: { items: [{ productId, variantIndex, quantity }...] }
- */
+
 exports.checkout = async (req, res) => {
   try {
     const { items } = req.body;

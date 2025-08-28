@@ -66,8 +66,7 @@ const grandTotal = allActiveProducts.reduce((sum, p) => {
       .limit(limit_)
       .populate("type");
 
-    // console.log("DATA:", products.length);
-    // console.log("TOTAL:", total);
+    
 
     res.json({
       total,

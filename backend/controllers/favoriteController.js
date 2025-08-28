@@ -58,7 +58,7 @@ exports.getFavorites = async (req, res) => {
   }
 };
 
-// Xoá toàn bộ sản phẩm yêu thích
+
 exports.clearFavorites = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -71,7 +71,7 @@ exports.clearFavorites = async (req, res) => {
   }
 };
 
-// Xoá 1 sản phẩm khỏi danh sách yêu thích
+
 exports.removeFavorite = async (req, res) => {
   const { productId } = req.params;
   try {

@@ -1,20 +1,17 @@
 const Address = require("../models/Address");
 const User = require("../models/User");
 
-// ========================= API CHO APP =========================
 
-// Lấy danh sách địa chỉ của user
 exports.getAddresses = async (req, res) => {
   try {
     const addresses = await Address.find({ user_id: req.user.id });
 
-    // Sắp xếp: mặc định lên đầu, sau đó theo thời gian tạo mới nhất
     const sortAddress = addresses.sort((a, b) => {
-      // Ưu tiên is_default = true
+      
       if (a.is_default && !b.is_default) return -1;
       if (!a.is_default && b.is_default) return 1;
 
-      // Nếu cùng is_default, so sánh createdAt giảm dần
+      
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
 
@@ -24,48 +21,11 @@ exports.getAddresses = async (req, res) => {
   }
 };
 
-// // Thêm địa chỉ mới
-// exports.addAddress = async (req, res) => {
-//   try {
-//     const {
-//       recipient_name,
-//       phone,
-//       address_line,
-//       province,
-//       district,
-//       ward,
-//       is_default,
-//     } = req.body;
 
-//     // Nếu is_default = true thì cập nhật tất cả is_default khác về false
-//     if (is_default) {
-//       await Address.updateMany(
-//         { user_id: req.user.id },
-//         { $set: { is_default: false } }
-//       );
-//     }
 
-//     const newAddress = new Address({
-//       user_id: req.user.id,
-//       recipient_name,
-//       phone,
-//       address_line,
-//       province,
-//       district,
-//       ward,
-//       is_default: !!is_default,
-//     });
 
-//     await newAddress.save();
-//     res
-//       .status(201)
-//       .json({ message: "Thêm địa chỉ thành công", address: newAddress });
-//   } catch (error) {
-//     res.status(500).json({ message: "Lỗi server khi thêm địa chỉ" });
-//   }
-// };r
 
-// Thêm địa chỉ mới check lenght = 0
+
 exports.addAddress = async (req, res) => {
   try {
     const {
@@ -78,16 +38,16 @@ exports.addAddress = async (req, res) => {
       is_default,
     } = req.body;
 
-    // Lấy danh sách địa chỉ của user
+    
     const existingAddresses = await Address.find({ user_id: req.user.id });
 
     let isDefaultFinal = false;
 
     if (existingAddresses.length === 0) {
-      // Nếu chưa có địa chỉ nào → đặt mặc định luôn
+      
       isDefaultFinal = true;
     } else if (is_default) {
-      // Nếu người dùng chọn làm mặc định
+      
       await Address.updateMany(
         { user_id: req.user.id },
         { $set: { is_default: false } }
@@ -118,7 +78,7 @@ exports.addAddress = async (req, res) => {
   }
 };
 
-// Cập nhật địa chỉ
+
 exports.updateAddress = async (req, res) => {
   try {
     const { id } = req.params;
@@ -138,7 +98,7 @@ exports.updateAddress = async (req, res) => {
       return res.status(404).json({ message: "Địa chỉ không tồn tại" });
     }
 
-    //  Không cho hủy mặc định tại đây
+
     if (address.is_default && is_default === false) {
       return res.status(400).json({
         message:
@@ -146,7 +106,7 @@ exports.updateAddress = async (req, res) => {
       });
     }
 
-    //  Nếu người dùng chuyển sang mặc định một địa chỉ KHÁC (không phải đang mặc định)
+    
     if (is_default && !address.is_default) {
       await Address.updateMany(
         { user_id: req.user.id },
@@ -193,9 +153,7 @@ exports.deleteAddress = async (req, res) => {
   }
 };
 
-// ========================= API CHO WEB =========================
 
-// Hiển thị form thêm địa chỉ (dùng trong EJS)
 exports.showAddAddressForm = async (req, res) => {
   try {
     const userId = req.query.userId;

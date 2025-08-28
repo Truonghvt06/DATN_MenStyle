@@ -30,9 +30,7 @@ const zaloRouter           = require("./routes/zalo");
 const app = express();
 const port = process.env.PORT || 3000;
 
-/* =========================
- *  View engine & Middleware
- * ========================= */
+
 app.set("view engine", "ejs");
 app.set("views", "./views");
 
@@ -53,7 +51,6 @@ app.use(
   })
 );
 
-/* ========= ROUTES ========== */
 app.use("/admin", adminRoute);
 app.use("/products", productRouter);
 app.use("/accounts", accountRouter);
@@ -74,7 +71,7 @@ app.get("/", (req, res) => {
   return res.redirect("/admin");
 });
 
-/* ========= KẾT NỐI DB & START SERVER ========== */
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {

@@ -1,12 +1,6 @@
 const Voucher = require("../models/Voucher"); // đường dẫn tuỳ theo cấu trúc project
 
-/**
- * Lấy danh sách voucher đang hoạt động để hiển thị lên mobile app
- * Query params hỗ trợ:
- *   scope: "order" | "shipping" (nếu không truyền thì lấy tất cả)
- *   is_public: "true" | "false" (mặc định lấy public và non-public)
- *   page, limit: phân trang
- */
+
 exports.getActiveVouchers = async (req, res) => {
   try {
     const now = new Date();
@@ -57,14 +51,9 @@ exports.getActiveVouchers = async (req, res) => {
         .exec(),
     ]);
 
-    // Nếu có req.user, có thể gắn thêm số lần user đã dùng voucher (nếu hệ thống lưu track)
-    // Giả sử có hàm getUserUsageCount(voucherId, userId)
+
     if (req.user && req.user._id) {
-      // placeholder: nếu bạn có tracking riêng, map vào từng voucher
-      // ví dụ:
-      // for (const v of vouchers) {
-      //   v.user_used_count = await getUserUsageCount(v._id, req.user._id);
-      // }
+     
     }
 
     res.json({

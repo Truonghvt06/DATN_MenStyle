@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const { sendOrderNotification } = require("../utils/pushNotification");
 const Voucher = require("../models/Voucher");
 
-// Mapping tiêu đề/ngôn ngữ trạng thái
+
 const VI_STATUS = {
   pending: "Chờ xử lý",
   confirmed: "Đã xác nhận",
@@ -32,61 +32,7 @@ const generateOrderCode = () => {
   return `${prefix}${random}`;
 };
 
-//TẠO DON HANG
-// exports.createOrder = async (req, res) => {
-//   try {
-//     const { total_amount, shipping_address_id, payment_method_id, items } =
-//       req.body;
-//     const user_id = req.user?.id || req.body.user_id;
 
-//     // Kiểm tra dữ liệu đầu vào
-//     if (
-//       !user_id ||
-//       !shipping_address_id ||
-//       !payment_method_id ||
-//       !items?.length
-//     ) {
-//       return res.status(400).json({ message: "Thiếu thông tin đơn hàng" });
-//     }
-
-//     // Sinh mã đơn hàng và đảm bảo không trùng
-//     let orderCode;
-//     let isUnique = false;
-//     let attempts = 0;
-
-//     while (!isUnique && attempts < 5) {
-//       orderCode = generateOrderCode();
-//       const existingOrder = await Order.findOne({ code: orderCode });
-//       if (!existingOrder) isUnique = true;
-//       attempts++;
-//     }
-
-//     if (!isUnique) {
-//       return res
-//         .status(500)
-//         .json({ message: "Không thể tạo mã đơn hàng, vui lòng thử lại" });
-//     }
-
-//     const newOrder = new Order({
-//       user_id,
-//       total_amount,
-//       shipping_address_id,
-//       payment_method_id,
-//       items,
-//       code: orderCode,
-//     });
-
-//     const savedOrder = await newOrder.save();
-
-//     return res.status(201).json({
-//       message: "Tạo đơn hàng thành công",
-//       order: savedOrder,
-//     });
-//   } catch (error) {
-//     console.error("Lỗi khi tạo đơn hàng:", error);
-//     return res.status(500).json({ message: "Lỗi server khi tạo đơn hàng" });
-//   }
-// };
 exports.createOrder = async (req, res) => {
   try {
     const {
@@ -404,83 +350,7 @@ exports.buyAgain = async (req, res) => {
   }
 };
 
-////WEBSITE
-// exports.updateStatus = async (req, res) => {
-//   try {
-//     const orderId = req.params.id;
-//     const { order_status } = req.body;
 
-//     const updateData = { order_status };
-
-//     // Nếu là trạng thái delivered thì lưu thời gian giao hàng
-//     if (order_status === "delivered") {
-//       updateData.deliveredAt = new Date();
-//     }
-
-//     const updated = await Order.findByIdAndUpdate(orderId, updateData, {
-//       new: true,
-//     }).populate("items.product_id");
-
-//     if (!updated) {
-//       return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
-//     }
-
-//     // Nếu giao hàng thành công → cập nhật tồn kho và sold_count
-//     if (order_status === "delivered") {
-//       for (const item of updated.items) {
-//         const product = await Product.findById(item.product_id);
-
-//         if (product) {
-//           // Cập nhật sold_count
-//           product.sold_count += item.quantity;
-
-//           // Cập nhật tồn kho của variant
-//           const variant = product.variants.id(item.product_variant_id);
-//           if (variant) {
-//             variant.quantity = Math.max(0, variant.quantity - item.quantity);
-//           }
-
-//           await product.save();
-//         }
-//       }
-//     }
-
-//     res.json({
-//       message: "Cập nhật trạng thái thành công",
-//       order: updated,
-//     });
-//   } catch (error) {
-//     console.error("updateStatus error:", error);
-//     res.status(500).json({ message: "Lỗi máy chủ" });
-//   }
-// };
-
-// exports.updatePaymentStatus = async (req, res) => {
-//   try {
-//     const orderId = req.params.id;
-//     const { payment_status } = req.body;
-
-//     const updated = await Order.findByIdAndUpdate(
-//       orderId,
-//       { payment_status },
-//       { new: true }
-//     );
-
-//     if (!updated) {
-//       return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
-//     }
-
-//     res.json({
-//       message: "Cập nhật trạng thái thanh toán thành công",
-//       payment_status: updated,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: "Lỗi máy chủ" });
-//   }
-// };
-
-//Gắn thông báo
 exports.updateStatus = async (req, res) => {
   try {
     const orderId = req.params.id;

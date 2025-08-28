@@ -12,7 +12,7 @@ exports.getAllOrders = async (req, res) => {
       .populate("payment_method_id")
       .sort({ createdAt: -1 });
     
-    const payments = await Payment.find(); // Truy vấn tất cả bản ghi thanh toán
+    const payments = await Payment.find(); 
     res.render("order_admin", { orders, payments });
   } catch (err) {
     console.error("Lỗi khi lấy danh sách đơn hàng:", err);

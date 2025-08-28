@@ -79,8 +79,7 @@ exports.deleteNotification = async (req, res) => {
   }
 };
 
-// POST: Gửi thông báo từ admin
-// POST /notifications/send
+
 exports.sendNotificationFromAdmin = async (req, res) => {
   try {
     const {

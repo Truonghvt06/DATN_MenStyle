@@ -168,7 +168,7 @@ exports.forgotPass = async (req, res) => {
     user.resetOTPExpires = otpExpires;
     await user.save();
 
-    // Gửi email OTP (dùng nodemailer hoặc service gửi mail)
+    
     await sendEmail(email, "Mã OTP lấy lại mật khẩu", `Mã của bạn là: ${otp}`);
 
     res.json({
@@ -189,7 +189,7 @@ exports.verifyOTP = async (req, res) => {
         .status(400)
         .json({ message: "OTP không hợp lệ hoặc đã hết hạn" });
     }
-    // Đánh dấu đã xác minh OTP (tuỳ cách bạn xử lý)
+    
     user.otpVerified = true;
     await user.save();
 

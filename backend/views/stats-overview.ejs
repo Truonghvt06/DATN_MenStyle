@@ -218,7 +218,6 @@
       renderYearlyRevenueChart(data.yearlyRevenue || []);
     }
 
-    // ----- Table -----
     function renderBestSellers(products) {
       const tbody = document.querySelector('#best-sellers tbody');
       if (!products.length) {
@@ -234,7 +233,7 @@
       `).join('');
     }
 
-    // ----- Charts -----
+    
     function makeGradient(ctx, base='#4CAF50') {
       const g = ctx.createLinearGradient(0,0,0,ctx.canvas.height);
       g.addColorStop(0, base+'99');

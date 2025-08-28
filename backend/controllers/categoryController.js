@@ -28,9 +28,7 @@ exports.searchCategory = async (req, res) => {
       normalized_name: { $regex: word, $options: "i" },
     }));
 
-    // console.log("Input:", name);
-    // console.log("Normalized:", normalized);
-    // console.log("Conditions:", regexConditions);
+    
 
     const types = await Category.find({
       $and: regexConditions,
@@ -51,14 +49,13 @@ exports.addProductType = async (req, res) => {
   try {
     const { name, description, image } = req.body;
 
-    // Kiểm tra tên thể loại
     if (!name) {
       return res.render("productType_add", {
         message: { type: "error", text: "Tên thể loại là bắt buộc!" },
       });
     }
 
-    // Kiểm tra xem tên đã tồn tại chưa
+    
     const existingType = await Category.findOne({ name });
     if (existingType) {
       return res.render("productType_add", {
@@ -82,7 +79,7 @@ exports.addProductType = async (req, res) => {
     });
   }
 };
-// controllers/categoryController.js
+
 exports.getAllProductTypesView = async (req, res) => {
   try {
     const categories = await Category.find();
