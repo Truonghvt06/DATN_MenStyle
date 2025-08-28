@@ -272,7 +272,7 @@ const ProfileScreen = () => {
             openMessenger({username: 'abc'});
           }}
         /> */}
-        <ButtonOption
+        {/* <ButtonOption
           name={'Zalo'}
           content="abc"
           iconLeft={IconSRC.ic_zalo}
@@ -284,7 +284,7 @@ const ProfileScreen = () => {
             // openZalo({uid: '1234567890'});
             openZalo({phone: '0332002619'});
           }}
-        />
+        /> */}
         {token && (
           <ButtonBase
             title={getTranslation('dang_xuat')}
