@@ -45,12 +45,14 @@ const CartScreen = () => {
   // const listCart = [...cartData].sort(
   //   (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   // );
-  // console.log('CART: ', listCart);
+  console.log('CART: ', listCart);
 
   // State quản lý checkbox
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
   const [selectAll, setSelectAll] = useState(false);
   const [isOpenCheck, setIsOpenCheck] = useState(false);
+  const [isOpenCheckBuy, setIsOpenCheckBuy] = useState(false);
+  const [inactiveIndex, setInactiveIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (user?._id) {
@@ -77,16 +79,22 @@ const CartScreen = () => {
       setSelectedItems(new Set());
       setSelectAll(false);
     } else {
-      const allIndices = new Set(
-        listCart.map((_: any, index: number) => index),
-      );
-      setSelectedItems(allIndices as Set<number>);
+      // Chỉ chọn những item còn hoạt động
+      const allActiveIdx = listCart
+        .map((it: any, idx: number) => (isInactiveProduct(it) ? null : idx))
+        .filter((v: number | null): v is number => v !== null);
+      setSelectedItems(new Set(allActiveIdx));
       setSelectAll(true);
     }
   };
 
   // Hàm xử lý chọn/bỏ chọn từng sản phẩm
   const handleToggleItem = (index: number) => {
+    const item = listCart[index];
+    if (isInactiveProduct(item)) {
+      openInactiveModal(index);
+      return;
+    }
     const newSelectedItems = new Set(selectedItems);
     if (newSelectedItems.has(index)) {
       newSelectedItems.delete(index);
@@ -155,12 +163,15 @@ const CartScreen = () => {
 
   // Cập nhật số lượng
   const handleChangeQuantity = async (index: number, value: string) => {
+    const item = listCart[index];
+    if (isInactiveProduct(item)) {
+      openInactiveModal(index);
+      return;
+    }
+
     if (!user?._id) return;
     const parsed = parseInt(value, 10);
-    if (isNaN(parsed) || parsed < 1) return; // hoặc hiển thị lỗi nhỏ
-
-    const item = listCart[index];
-    if (!item) return;
+    if (isNaN(parsed) || parsed < 1) return;
 
     const variant = item.productId?.variants?.[item.variantIndex];
     if (!variant) return;
@@ -172,8 +183,7 @@ const CartScreen = () => {
       );
       return;
     }
-
-    // nếu số lượng không đổi thì bỏ
+    //nếu số lượng không thay đổi thì không cập nhật
     if (item.quantity === parsed) return;
 
     try {
@@ -201,6 +211,53 @@ const CartScreen = () => {
     }, 0);
   }, [listCart, selectedItems]);
 
+  const isInactiveProduct = (item: any) => {
+    const f1 = item?.productId?.is_activiti;
+    return f1 === false;
+  };
+
+  // mở modal ngừng bán cho index cụ thể
+  const openInactiveModal = (index: number) => {
+    setInactiveIndex(index);
+    setIsOpenCheckBuy(true);
+  };
+
+  // OK trong modal -> xoá sản phẩm ngừng bán
+  const handleDeleteInactive = async () => {
+    if (inactiveIndex === null) {
+      setIsOpenCheckBuy(false);
+      return;
+    }
+    const it = listCart[inactiveIndex];
+    if (!it || !user?._id) {
+      setIsOpenCheckBuy(false);
+      setInactiveIndex(null);
+      return;
+    }
+    try {
+      await dispatch(
+        removeCart([
+          {
+            productId: it.productId._id || it.productId,
+            variantIndex: it.variantIndex,
+          },
+        ]),
+      ).unwrap();
+      // bỏ chọn index này nếu đang được chọn
+      setSelectedItems(prev => {
+        const next = new Set(prev);
+        next.delete(inactiveIndex);
+        return next;
+      });
+      await dispatch(fetchCart());
+    } catch (e) {
+      Alert.alert('Lỗi', 'Không thể xóa sản phẩm. Thử lại sau.');
+    } finally {
+      setIsOpenCheckBuy(false);
+      setInactiveIndex(null);
+    }
+  };
+
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <ContainerView style={{flex: 1, backgroundColor: theme.background}}>
@@ -217,7 +274,19 @@ const CartScreen = () => {
             handleDeleteSelected();
           }}
         />
-
+        <ModalCenter
+          visible={isOpenCheckBuy}
+          content={
+            'Sản phẩm đã ngừng bán. Bạn có muốn xóa sản phẩm khỏi giỏ hàng?'
+          }
+          onClose={() => {
+            setIsOpenCheckBuy(false);
+            setInactiveIndex(null);
+          }}
+          onPress={() => {
+            handleDeleteInactive();
+          }}
+        />
         {/* Header với checkbox "Chọn tất cả" */}
         {!token ? (
           <Block flex1 alignCT justifyCT>
@@ -306,25 +375,46 @@ const CartScreen = () => {
                       item.productId?.image,
                   );
                   const isSelected = selectedItems.has(index);
+                  const inactive = isInactiveProduct(item);
                   return (
-                    <CartItem
-                      icon={
-                        isSelected ? IconSRC.icon_check : IconSRC.icon_uncheck
-                      }
-                      name={item.productId?.name}
-                      image={{uri: imageUrl}}
-                      price={item.productId?.price}
-                      color={
-                        item.productId?.variants?.[item.variantIndex]?.color
-                      }
-                      size={item.productId?.variants?.[item.variantIndex]?.size}
-                      containerStyle={{paddingHorizontal: metrics.space}}
-                      value={item.quantity + ''}
-                      onChangeText={text => handleChangeQuantity(index, text)}
-                      onPress={() => {}}
-                      onPressDelete={() => handleDelete(index)}
-                      onPressCheck={() => handleToggleItem(index)}
-                    />
+                    <Block
+                      style={{
+                        position: 'relative',
+                        opacity: inactive ? 0.45 : 1,
+                      }}>
+                      <CartItem
+                        icon={
+                          isSelected ? IconSRC.icon_check : IconSRC.icon_uncheck
+                        }
+                        name={item.productId?.name}
+                        image={{uri: imageUrl}}
+                        price={item.productId?.price}
+                        color={
+                          item.productId?.variants?.[item.variantIndex]?.color
+                        }
+                        size={
+                          item.productId?.variants?.[item.variantIndex]?.size
+                        }
+                        containerStyle={{paddingHorizontal: metrics.space}}
+                        value={String(item.quantity)}
+                        onChangeText={text => handleChangeQuantity(index, text)}
+                        onPress={() => {
+                          if (inactive) {
+                            openInactiveModal(index);
+
+                            return;
+                          }
+                          // nếu muốn, điều hướng sang chi tiết ở đây
+                        }}
+                        onPressDelete={() => handleDelete(index)}
+                        onPressCheck={() => handleToggleItem(index)}
+                      />
+                      {inactive && (
+                        <TextSmall style={styles.inactiveBadge}>
+                          Ngừng bán
+                        </TextSmall>
+                      )}
+                    </Block>
                   );
                 }}
                 contentContainerStyle={{
@@ -401,5 +491,16 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  inactiveBadge: {
+    position: 'absolute',
+    top: 6,
+    right: 16,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    color: '#fff',
+    overflow: 'hidden',
   },
 });
