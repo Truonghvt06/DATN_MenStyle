@@ -34,7 +34,7 @@ exports.createZaloPayOrder = async (req, res) => {
       amount,
       description,
       bank_code: "",
-      callback_url: "https://f197a1c68668.ngrok-free.app/zalo/callback",
+      callback_url: "https://27f29c712569.ngrok-free.app/zalo/callback",
     };
 
     // console.log("OD: ", order);
